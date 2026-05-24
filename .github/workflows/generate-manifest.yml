@@ -1,0 +1,46 @@
+name: Generate images manifest
+
+# Re-build images/manifest.json automatically whenever images change.
+# This means uploads via the editor (which commit image files to the repo)
+# get a fresh manifest without anyone having to run the python script
+# locally.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'images/**'
+      - 'generate_manifest.py'
+      - '.github/workflows/generate-manifest.yml'
+  # Allow manual trigger from the Actions tab
+  workflow_dispatch:
+
+# Allow the workflow to push the regenerated manifest back to the repo
+permissions:
+  contents: write
+
+jobs:
+  build-manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Generate manifest
+        run: python3 generate_manifest.py
+
+      - name: Commit manifest if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet images/manifest.json; then
+            echo "Manifest unchanged, nothing to commit."
+          else
+            git add images/manifest.json
+            git commit -m "Auto-update images/manifest.json [skip ci]"
+            git push
+          fi
