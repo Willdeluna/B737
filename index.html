@@ -1301,7 +1301,7 @@
 
       <label for="upPassword">GitHub token</label>
       <input type="password" id="upPassword" placeholder="ghp_… or github_pat_…" autocomplete="off" spellcheck="false">
-      <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Stored in this browser session only — gone when you close the tab. <a href="https://urldefense.com/v3/__https://github.com/settings/personal-access-tokens/new__;!!O8JL6HM!gQru8SGdUdxfr4JOBFrxQp0wYsJjXnuIOTtDkI6tSBe4hKQ2iqGUE0T5Bcs0ia4QAroA4UPqIFOkGH08srdAaVMxLw$" target="_blank" rel="noopener">Create one →</a></div>
+      <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Stored in this browser session only — gone when you close the tab. <a href="https://urldefense.com/v3/__https://github.com/settings/personal-access-tokens/new__;!!O8JL6HM!iEVnAlqfvRDyEcibwhdQTVj5SB7MCUOIPotstS1LlQMFoau5nCGm_PBsGoVPWwmVbFx6GnsLOO7AZClHbUywSyS1Jg$" target="_blank" rel="noopener">Create one →</a></div>
 
       <div id="upStatus" class="lm-hint" style="min-height:18px;margin-top:8px;"></div>
 
@@ -4175,6 +4175,7 @@ let filterToCurrentImageDots = false;
       const file     = document.getElementById("upFile");
       const save     = document.getElementById("upSave");
       const cancel   = document.getElementById("upCancel");
+      const pwField  = document.getElementById("upPassword");
       if (!btn || !modal || !save) return;
 
       btn.addEventListener("click", openUploadModal);
@@ -4182,6 +4183,17 @@ let filterToCurrentImageDots = false;
       file.addEventListener("change", previewUploadFile);
       save.addEventListener("click", doUpload);
       cancel.addEventListener("click", closeUploadModal);
+      // Save the token to sessionStorage as soon as it's typed so that
+      // cross-device sync works even if the user opens the modal just to
+      // enter the token (no actual upload yet).
+      if (pwField) {
+        pwField.addEventListener("input", () => {
+          const tok = pwField.value.trim();
+          if (tok) {
+            sessionStorage.setItem(UPLOAD_PW_KEY, tok);
+          }
+        });
+      }
       modal.addEventListener("click", e => { if (e.target === modal) closeUploadModal(); });
       document.addEventListener("keydown", e => {
         if (e.key === "Escape" && modal.classList.contains("show")) closeUploadModal();
@@ -4790,6 +4802,7 @@ let filterToCurrentImageDots = false;
         customTribalThumbs = loadTribalThumbs();
         customMainPointsThumbs = loadMainPointsThumbs();
         hiddenImageThumbs = loadHiddenImageThumbs();
+        savedThumbnailOrder = loadThumbnailOrder();
 
         const { data, error } = await supabaseClient
           .from("aircraft_images737")
