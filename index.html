@@ -1249,6 +1249,8 @@
         <option value="">— Custom (fill in below) —</option>
         <option value="3dlocator">3D Location Finder</option>
         <option value="partnumbers">Common Part Numbers</option>
+        <option value="cbfinder">CB Finder</option>
+        <option value="damagelimits">Damage Limits</option>
         <option value="mainpoints">Main Points (current chapter)</option>
         <option value="tribal">Tribal Knowledge (current chapter)</option>
         <option value="quiz">Quiz (current chapter)</option>
@@ -3311,6 +3313,18 @@ let filterToCurrentImageDots = false;
           labelEl.value = "Common Part Numbers";
           urlEl.value   = "Common_Part_Numbers.html";
           thumbEl.value = "images/00/part_numbers.png";
+          document.getElementById("lmChapter").value = "00";
+          break;
+        case "cbfinder":
+          labelEl.value = "CB Finder";
+          urlEl.value   = "cb_finder.html";
+          thumbEl.value = "images/00/cb_finder.png";
+          document.getElementById("lmChapter").value = "00";
+          break;
+        case "damagelimits":
+          labelEl.value = "Damage Limits";
+          urlEl.value   = "damage_srm.html";
+          thumbEl.value = "images/00/damage_srm.png";
           document.getElementById("lmChapter").value = "00";
           break;
         case "mainpoints":
