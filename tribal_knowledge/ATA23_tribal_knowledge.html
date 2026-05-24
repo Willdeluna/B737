@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATA 23 Communications Tribal Knowledge</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --bg: #050505;
+      --panel: #101010;
+      --orange: #ff9f1c;
+      --orange2: #ffd28a;
+      --green: #48d17a;
+      --red: #ff5c5c;
+      --blue: #77c8ff;
+      --muted: #b99461;
+      --line: rgba(255,159,28,.55);
+    }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(255,159,28,.15), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(119,200,255,.10), transparent 30%),
+        var(--bg);
+      color: var(--orange);
+      line-height: 1.5;
+    }
+    .page { max-width: 1180px; margin: 0 auto; padding: 22px; }
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 28px;
+      background: linear-gradient(135deg, rgba(255,159,28,.12), rgba(0,0,0,.65));
+      box-shadow: 0 0 40px rgba(255,159,28,.12);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "ATA 23";
+      position: absolute;
+      right: -12px;
+      bottom: -32px;
+      font-size: clamp(56px, 12vw, 150px);
+      font-weight: 900;
+      color: rgba(255,159,28,.06);
+      pointer-events: none;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 4.2rem);
+      letter-spacing: .04em;
+      color: var(--orange2);
+    }
+    .subtitle {
+      margin: 8px 0 16px;
+      color: #fff0d6;
+      font-size: 1.12rem;
+      max-width: 820px;
+    }
+    .tagline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: rgba(0,0,0,.45);
+      color: var(--orange2);
+      font-weight: 700;
+    }
+    .rule-box {
+      margin-top: 18px;
+      border-left: 4px solid var(--orange);
+      background: rgba(255,159,28,.09);
+      padding: 12px 14px;
+      border-radius: 10px;
+      color: #ffe5b8;
+      font-weight: 700;
+      max-width: 920px;
+    }
+    .nav {
+      margin: 18px 0;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+    a.nav-btn, button {
+      border: 1px solid var(--orange);
+      color: var(--orange);
+      background: #111;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: none;
+      transition: .18s ease;
+    }
+    a.nav-btn:hover, button:hover {
+      background: var(--orange);
+      color: #000;
+      transform: translateY(-1px);
+    }
+    .progress {
+      min-width: 220px;
+      color: var(--orange2);
+      font-weight: 800;
+      text-align: right;
+    }
+    .progress-bar {
+      height: 9px;
+      margin-top: 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+      background: #090909;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--orange), var(--green));
+      transition: width .25s ease;
+    }
+    .section-title {
+      margin: 30px 0 12px;
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .section-title h2 {
+      margin: 0;
+      color: var(--orange2);
+      font-size: clamp(1.45rem, 3vw, 2.2rem);
+    }
+    .section-note { color: var(--muted); font-weight: 700; }
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .scenario-card {
+      border: 1px solid rgba(255,159,28,.45);
+      background: linear-gradient(180deg, rgba(255,159,28,.07), rgba(0,0,0,.42));
+      border-radius: 18px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .scenario-card.done {
+      border-color: rgba(72,209,122,.85);
+      box-shadow: 0 0 22px rgba(72,209,122,.10);
+    }
+    .scenario-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .scenario-num {
+      color: #000;
+      background: var(--orange);
+      font-weight: 900;
+      border-radius: 999px;
+      padding: 5px 10px;
+      white-space: nowrap;
+    }
+    .writeup {
+      color: #fff4df;
+      font-size: 1.06rem;
+      font-weight: 800;
+      margin: 10px 0 12px;
+    }
+    .think-list {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(0,0,0,.42);
+      border: 1px solid rgba(255,159,28,.3);
+    }
+    .think-list.open { display: block; animation: rise .22s ease; }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .check { color: var(--green); font-weight: 900; }
+    .nope { color: var(--red); font-weight: 900; }
+    .trap {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(255,92,92,.08);
+      border-left: 3px solid var(--red);
+      color: #ffb8b8;
+      font-weight: 700;
+    }
+    .lesson {
+      margin-top: 10px;
+      color: var(--orange2);
+      font-weight: 800;
+      border-top: 1px dashed rgba(255,159,28,.35);
+      padding-top: 8px;
+    }
+    .quiz-card {
+      border: 1px solid rgba(255,159,28,.45);
+      border-radius: 18px;
+      background: rgba(255,159,28,.04);
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+    .quiz-question {
+      color: #fff4df;
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin: 0 0 14px;
+    }
+    .answers { display: flex; gap: 10px; flex-wrap: wrap; }
+    .answer-result {
+      display: none;
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(0,0,0,.45);
+      border: 1px solid rgba(255,159,28,.3);
+      color: #f4d9ad;
+    }
+    .answer-result.show { display: block; animation: rise .22s ease; }
+    .rules {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      counter-reset: rules;
+    }
+    .rule {
+      counter-increment: rules;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      border: 1px solid rgba(255,159,28,.36);
+      border-radius: 16px;
+      padding: 13px;
+      background: rgba(255,159,28,.055);
+      color: #f4d9ad;
+    }
+    .rule::before {
+      content: counter(rules);
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      width: 31px;
+      height: 31px;
+      border-radius: 50%;
+      background: var(--orange);
+      color: #000;
+      font-weight: 900;
+    }
+    .rule strong { color: var(--orange2); }
+    .bottom-line {
+      margin: 28px 0 10px;
+      padding: 18px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(255,159,28,.10), rgba(0,0,0,.55));
+      color: #ffe5b8;
+      font-weight: 700;
+    }
+    .bottom-line h3 {
+      margin: 0 0 8px;
+      color: var(--orange2);
+    }
+    .footer {
+      margin: 28px 0 10px;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    @media (max-width: 820px) {
+      .page { padding: 14px; }
+      .hero { padding: 20px; }
+      .scenario-grid, .rules { grid-template-columns: 1fr; }
+      .progress { text-align: left; width: 100%; }
+      .nav { align-items: stretch; }
+      .nav-links { width: 100%; }
+      a.nav-btn, button { width: 100%; }
+      .scenario-head { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="tagline">🧠 B737NG ATA 23 • Communications Tribal Knowledge</div>
+      <h1>ATA 23 Tribal Knowledge</h1>
+      <p class="subtitle">ATA 23 is NOT a radio system — it is an AUDIO ROUTING system. Radios are just endpoints.</p>
+      <div class="rule-box">Core Rule: Don't swap radios until you prove the path. MIC → ACP → REU → RADIO → ANTENNA.</div>
+    </section>
+
+    <div class="nav">
+      <div class="nav-links">
+        <a class="nav-btn" href="#game">Scenarios</a>
+        <a class="nav-btn" href="#quiz">LRU Quiz</a>
+        <a class="nav-btn" href="#rules">Top 10 Rules</a>
+        <a class="nav-btn" href="#bottom">Bottom Line</a>
+      </div>
+      <div class="progress">
+        <div id="progressText">0 of 18 interactions complete</div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+    </div>
+
+    <section id="game">
+      <div class="section-title">
+        <h2>🎮 "It's Not the Radio" — Scenarios</h2>
+        <span class="section-note">Read first. Guess. Then reveal.</span>
+      </div>
+      <div class="scenario-grid" id="scenarioGrid"></div>
+    </section>
+
+    <section id="quiz">
+      <div class="section-title">
+        <h2>🎯 Change the LRU or Pass?</h2>
+        <span class="section-note">Answer YES or NO before revealing why.</span>
+      </div>
+            <div class="quiz-card">
+        <p class="quiz-question">Captain cannot hear ATC, FO can. Change COM1?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(0, false)">YES — Change COM1</button>
+          <button onclick="answerQuiz(0, true)">NO — Check ACP first</button>
+        </div>
+        <div class="answer-result" id="quiz0"><strong>❌ NO.</strong> ACP or headset issue first. The radio is working — just not getting to that headset.</div>
+      </div>
+      <div class="quiz-card">
+        <p class="quiz-question">Both pilots lose comm simultaneously. Change both radios?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(1, false)">YES — Change both radios</button>
+          <button onclick="answerQuiz(1, true)">NO — Check REU</button>
+        </div>
+        <div class="answer-result" id="quiz1"><strong>❌ NO.</strong> Simultaneous dual failures = shared system. Check the REU and routing first.</div>
+      </div>
+      <div class="quiz-card">
+        <p class="quiz-question">HF tuning tone never stops. Change HF radio?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(2, false)">YES — Change HF radio</button>
+          <button onclick="answerQuiz(2, true)">NO — Check coupler</button>
+        </div>
+        <div class="answer-result" id="quiz2"><strong>❌ NO.</strong> 1 kHz tone during tune is normal. If it never stops, the antenna coupler can't find a match.</div>
+      </div>
+      <div class="quiz-card">
+        <p class="quiz-question">ACARS NO COMM. Change VHF?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(3, false)">YES — Change VHF</button>
+          <button onclick="answerQuiz(3, true)">NO — Check MU/mode</button>
+        </div>
+        <div class="answer-result" id="quiz3"><strong>❌ NO.</strong> ACARS uses VHF data, but failures are typically MU or mode selection.</div>
+      </div>
+      <div class="quiz-card">
+        <p class="quiz-question">Transmit fails but receive works. Change radio?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(4, false)">YES — Change radio</button>
+          <button onclick="answerQuiz(4, true)">NO — Check mic/PTT/ACP</button>
+        </div>
+        <div class="answer-result" id="quiz4"><strong>❌ NO.</strong> TX path is independent from RX. Check mic, PTT, and ACP transmit select.</div>
+      </div>
+      <div class="quiz-card">
+        <p class="quiz-question">Static on one radio only. Change radio?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(5, false)">YES — Change radio</button>
+          <button onclick="answerQuiz(5, true)">NO — Check antenna/coax</button>
+        </div>
+        <div class="answer-result" id="quiz5"><strong>❌ NO.</strong> Static = RF path. Inspect antenna and coax first.</div>
+      </div>
+    </section>
+
+    <section id="rules">
+      <div class="section-title">
+        <h2>🛠 Top 10 ATA 23 Tribal Knowledge Rules</h2>
+        <span class="section-note">The stuff that saves time and parts.</span>
+      </div>
+      <div class="rules">
+                <div class="rule"><span><strong>REU is the hub</strong> — if multiple issues at once, suspect the REU.</span></div>
+        <div class="rule"><span><strong>ACP lies to you if misconfigured</strong> — most “failures” are bad selection.</span></div>
+        <div class="rule"><span><strong>Transmit ≠ Receive</strong> — always treat the paths separately.</span></div>
+        <div class="rule"><span><strong>Dual failures = shared system</strong> — never two independent radios at once.</span></div>
+        <div class="rule"><span><strong>Mic and headset cause false failures</strong> — check them early.</span></div>
+        <div class="rule"><span><strong>RF problems ≠ LRU problems</strong> — static usually means antenna or coax.</span></div>
+        <div class="rule"><span><strong>HF problems = coupler problems</strong> — almost every time.</span></div>
+        <div class="rule"><span><strong>ACARS relies on VHF data</strong> — voice working doesn’t mean data works.</span></div>
+        <div class="rule"><span><strong>SATCOM uses ACP/REU chain</strong> — same troubleshooting logic applies.</span></div>
+        <div class="rule"><span><strong>Don’t swap parts until you prove the path</strong> — MIC → ACP → REU → RADIO → ANTENNA.</span></div>
+      </div>
+    </section>
+
+    <section id="bottom" class="bottom-line">
+      <h3>🔚 Bottom Line</h3>
+      <div>If you remember nothing else: ATA 23 is an audio routing system. The REU is the hub, the ACP is the chooser, and the radios are just endpoints. Always trace the path before condemning a box.</div>
+    </section>
+
+    <div class="footer">ATA 23 Communications Tribal Knowledge • Built for line maintenance learning</div>
+  </main>
+
+  <script>
+    const scenarios = [{"title": "Scenario 1", "writeup": "“Captain cannot hear ATC, FO can.”", "checks": ["Check CAPT ACP receiver selection", "Check volume knob", "Check headset"], "dont": "Do not swap COM radio", "trap": "Mechanic swaps COM1 because it's the captain side. Reality: ACP controls the receive path, not the radio.", "lesson": "ACP controls receive path, not radio."}, {"title": "Scenario 2", "writeup": "“Cannot transmit on any radio.”", "checks": ["Check PTT switch", "Check mic selection (boom/mask/handset)", "Check ACP transmit select"], "dont": "Do not change all 3 radios", "trap": "Three radios swapped, problem still there. Reality: TX path failure is mic/ACP/REU — same root cause feeds all three.", "lesson": "Tx path failure = mic/ACP/REU, not radio."}, {"title": "Scenario 3", "writeup": "“Static only on COM2.”", "checks": ["Check antenna", "Check coax", "Try different frequency"], "dont": "Do not swap COM2 immediately", "trap": "New radio installed, static persists. Reality: RF path issue — antenna or coax, not electronics.", "lesson": "RF path issue, not electronics."}, {"title": "Scenario 4", "writeup": "“HF stuck tuning, tone won’t stop.”", "checks": ["Check antenna coupler", "Check tuning logic", "Check RF fault"], "trap": "HF transceiver replaced, coupler still mismatched. Reality: 1 kHz tone during tuning is normal — long tone means coupler can't find a match.", "lesson": "Long tuning = coupler mismatch issue."}, {"title": "Scenario 5", "writeup": "“Both pilots lost ATC at same time.”", "checks": ["Check ACP configuration", "Verify radio selection", "Check REU power"], "dont": "Do not assume dual radio failure", "trap": "Two radios condemned simultaneously. Reality: simultaneous dual failures = shared system. Look at the REU.", "lesson": "Dual failures = common system problem."}, {"title": "Scenario 6", "writeup": "“FO comm works, CAPT doesn’t.”", "checks": ["Swap ACPs", "Swap headset", "Check crew station wiring"], "trap": "Whole comm system suspected. Reality: side-specific failure = crew station issue, not aircraft-wide.", "lesson": "Crew station issue, not aircraft-wide."}, {"title": "Scenario 7", "writeup": "“Can hear ATC but cannot transmit.”", "checks": ["Check mic select", "Check PTT", "Check ACP transmit selection"], "trap": "Receiver works so radio assumed good. Then radio swapped anyway. Reality: TX path is independent from RX.", "lesson": "TX path independent from RX."}, {"title": "Scenario 8", "writeup": "“ACARS NO COMM message.”", "checks": ["Check VHF data mode", "Check MU status", "Verify link status"], "trap": "VHF radio replaced. Reality: ACARS uses VHF for data but failure can be MU or mode selection.", "lesson": "ACARS ≠ radio failure."}, {"title": "Scenario 9", "writeup": "“SATCOM call failed.”", "checks": ["Check ACP SAT selection", "Check antenna visibility", "Verify system ready"], "trap": "SATCOM box replaced. Reality: SATCOM still depends on the ACP/REU chain.", "lesson": "SATCOM still depends on ACP + REU."}, {"title": "Scenario 10", "writeup": "“Interphone works, no VHF audio.”", "checks": ["Check ACP receiver switches", "Check REU routing", "Check VHF selection"], "trap": "Assume VHF dead. Reality: different systems share audio paths through the REU.", "lesson": "Different systems share audio paths."}, {"title": "Scenario 11", "writeup": "“Hot mic / stuck transmit suspected.”", "checks": ["Check stuck PTT", "Check switch wiring", "Observe continuous transmit"], "trap": "Radio replaced for stuck TX. Reality: stuck PTT or wiring fault blocks everyone on the frequency.", "lesson": "Stuck TX blocks everyone."}, {"title": "Scenario 12", "writeup": "“SELCAL CALL light but no audio.”", "checks": ["Check SELCAL", "Check ACP light reset", "Check audio routing"], "trap": "Audio amp replaced. Reality: alerts and audio are separate paths in this system.", "lesson": "Alerts and audio are separate paths."}];
+    const TOTAL = 18;
+    const completed = new Set();
+
+    function updateProgress() {
+      const count = completed.size;
+      document.getElementById("progressText").textContent = count + " of " + TOTAL + " interactions complete";
+      document.getElementById("progressFill").style.width = Math.min((count / TOTAL) * 100, 100) + "%";
+    }
+
+    function revealScenario(index) {
+      const card = document.getElementById("scenario-card-" + index);
+      const body = document.getElementById("scenario-body-" + index);
+      body.classList.toggle("open");
+      card.classList.add("done");
+      completed.add("s" + index);
+      updateProgress();
+    }
+
+    function answerQuiz(index, correct) {
+      const box = document.getElementById("quiz" + index);
+      box.classList.add("show");
+      box.style.borderColor = correct ? "rgba(72,209,122,.85)" : "rgba(255,92,92,.85)";
+      completed.add("q" + index);
+      updateProgress();
+    }
+
+    function buildScenarios() {
+      const grid = document.getElementById("scenarioGrid");
+      grid.innerHTML = scenarios.map(function(s, i) {
+        const checksHtml = s.checks.map(function(c) {
+          return '<li><span class="check">&#9989;</span> ' + c + '</li>';
+        }).join("");
+        const dontHtml = s.dont ? '<li><span class="nope">&#10060;</span> ' + s.dont + '</li>' : "";
+        const trapHtml = s.trap ? '<div class="trap">&#9888;&#65039; <strong>TRAP:</strong> ' + s.trap + '</div>' : "";
+        return ''
+          + '<article class="scenario-card" id="scenario-card-' + i + '">'
+          + '  <div class="scenario-head">'
+          + '    <span class="scenario-num">&#9992;&#65039; ' + s.title + '</span>'
+          + '    <button onclick="revealScenario(' + i + ')">Reveal Checks</button>'
+          + '  </div>'
+          + '  <div class="writeup">' + s.writeup + '</div>'
+          + '  <div class="think-list" id="scenario-body-' + i + '">'
+          + '    <strong>Think first:</strong>'
+          + '    <ul>' + checksHtml + dontHtml + '</ul>'
+          + trapHtml
+          + '    <div class="lesson">Tribal Lesson: ' + s.lesson + '</div>'
+          + '  </div>'
+          + '</article>';
+      }).join("");
+    }
+
+    buildScenarios();
+    updateProgress();
+  </script>
+</body>
+</html>

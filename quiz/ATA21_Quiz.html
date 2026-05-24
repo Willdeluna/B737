@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B737NG ATA 21 – Air Conditioning Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1a1f;
+  --card:#0f2028;
+  --card2:#142530;
+  --teal:#00c2cb;
+  --teal2:#008f96;
+  --green:#58cc02;
+  --green2:#46a302;
+  --green-bg:#071a0a;
+  --green-bdr:#1a4d1a;
+  --red:#ff4b4b;
+  --red2:#cc2a2a;
+  --red-bg:#1f0a0a;
+  --red-bdr:#5c1212;
+  --blue:#1cb0f6;
+  --gold:#ffc800;
+  --gold2:#c89800;
+  --text:#e0f4f8;
+  --muted:#5a8a9a;
+  --border:#1e3a45;
+  --r:14px;
+}
+html,body{min-height:100vh;background:var(--bg);font-family:'Nunito',sans-serif;color:var(--text)}
+body{
+  display:flex;align-items:center;justify-content:center;padding:16px;
+  background:
+    radial-gradient(ellipse at 15% 0%,rgba(0,194,203,0.07) 0%,transparent 55%),
+    radial-gradient(ellipse at 85% 100%,rgba(28,176,246,0.04) 0%,transparent 50%),
+    var(--bg);
+}
+.wrap{width:100%;max-width:520px}
+.screen{display:none}
+.screen.on{display:block}
+
+/* ── HOME ── */
+.home-card{background:var(--card);border-radius:22px;padding:28px 24px;border:1px solid var(--border);box-shadow:0 0 0 1px #0a1a20,0 24px 60px rgba(0,0,0,.8);text-align:center;position:relative;overflow:hidden}
+.home-card::before{content:'';position:absolute;top:-80px;left:-80px;width:280px;height:280px;background:radial-gradient(circle,rgba(0,194,203,.08) 0%,transparent 70%);pointer-events:none;border-radius:50%}
+.home-card::after{content:'';position:absolute;bottom:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(28,176,246,.05) 0%,transparent 70%);pointer-events:none;border-radius:50%}
+.plane{font-size:58px;display:block;animation:bob 3s ease-in-out infinite;margin-bottom:2px;filter:drop-shadow(0 0 18px rgba(0,194,203,.5))}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-11px) rotate(4deg)}}
+.home-badge{display:inline-block;color:var(--teal);font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:4px 14px;border-radius:99px;margin-bottom:8px;border:1.5px solid var(--teal2);position:relative;z-index:1}
+.home-h1{font-size:clamp(20px,5vw,28px);font-weight:900;line-height:1.15;margin-bottom:6px;color:#fff;position:relative;z-index:1}
+.home-h1 span{color:var(--teal)}
+.home-sub{font-size:12px;color:var(--muted);font-weight:600;line-height:1.55;max-width:340px;margin:0 auto 16px;position:relative;z-index:1}
+.home-pills{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-bottom:16px;position:relative;z-index:1}
+.pill{background:#0a1e26;border:1.5px solid #1a3545;border-radius:99px;padding:4px 11px;font-size:11px;font-weight:700;color:var(--teal2)}
+.home-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px;position:relative;z-index:1}
+.meta-box{background:#0a1820;border:1.5px solid var(--border);border-radius:12px;padding:11px 6px}
+.meta-n{font-size:26px;font-weight:900;color:var(--teal)}
+.meta-l{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.btn-go{width:100%;padding:14px;background:var(--teal);color:#000;border:none;border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 5px 0 var(--teal2),0 8px 24px rgba(0,194,203,.25);transition:transform .12s,box-shadow .12s;letter-spacing:.3px;position:relative;z-index:1}
+.btn-go:hover{transform:translateY(-3px);box-shadow:0 8px 0 var(--teal2),0 12px 28px rgba(0,194,203,.3)}
+.btn-go:active{transform:translateY(3px);box-shadow:0 2px 0 var(--teal2)}
+
+/* ── QUIZ SHELL ── */
+.q-shell{background:var(--card);border-radius:20px;border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.8);overflow:hidden;max-height:490px;display:flex;flex-direction:column}
+.topbar{padding:10px 14px 9px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;flex-shrink:0;background:var(--card2)}
+.xbtn{width:27px;height:27px;border:1.5px solid var(--border);border-radius:7px;background:none;cursor:pointer;font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.xbtn:hover{background:#1f0709;border-color:var(--red);color:var(--red)}
+.prog-col{flex:1}
+.prog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.prog-cat{font-size:11px;font-weight:800;color:var(--teal);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px}
+.prog-n{font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap}
+.bar-bg{height:7px;background:#0a1820;border-radius:99px;overflow:hidden;border:1px solid #1a3040}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--teal2),var(--teal),var(--blue));border-radius:99px;transition:width .5s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 8px rgba(0,194,203,.4)}
+.topbar-r{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.hearts{display:flex;gap:1px;font-size:14px}
+.heart{transition:all .3s}
+.heart.gone{opacity:.15;filter:grayscale(1);transform:scale(.65)}
+.xp-tag{background:#0a1820;border:1.5px solid #1a3a28;border-radius:99px;padding:3px 9px;font-size:12px;font-weight:800;color:var(--gold);white-space:nowrap}
+.streak-tag{background:#0a1820;border:1.5px solid #2a1a00;border-radius:99px;padding:3px 9px;font-size:11px;font-weight:800;color:#ff9600;white-space:nowrap}
+
+/* ── QUESTION BODY ── */
+.q-body{flex:1;overflow-y:auto;padding:13px 15px 0;scrollbar-width:thin;scrollbar-color:#1a3040 transparent}
+.q-body::-webkit-scrollbar{width:4px}
+.q-body::-webkit-scrollbar-thumb{background:#1a3040;border-radius:4px}
+.q-cat{font-size:11px;font-weight:800;color:var(--teal2);text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.q-dot{width:6px;height:6px;background:var(--teal);border-radius:50%;box-shadow:0 0 6px rgba(0,194,203,.7)}
+.q-text{font-size:clamp(13px,2.6vw,14.5px);font-weight:700;line-height:1.52;margin-bottom:12px;color:#ddf0f5}
+.opts{display:flex;flex-direction:column;gap:6px;padding-bottom:12px}
+.opt{width:100%;padding:10px 12px;background:#0a1820;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:9px;font-family:'Nunito',sans-serif;font-size:12.5px;font-weight:700;color:#b8d8e0;transition:all .13s;line-height:1.32;position:relative;overflow:hidden}
+.opt:hover:not(:disabled){border-color:var(--teal2);background:#0d2535;color:var(--teal);transform:translateX(3px)}
+.opt-l{width:24px;height:24px;border-radius:6px;background:#142530;border:1.5px solid #2a4055;font-size:11px;font-weight:900;color:#4a7a8a;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.opt.picked-right{border-color:var(--green);background:var(--green-bg);color:#a0ffe0;animation:bumpR .4s cubic-bezier(.34,1.56,.64,1)}
+.opt.picked-right .opt-l{background:var(--green);border-color:var(--green);color:#000}
+.opt.picked-wrong{border-color:var(--red);background:var(--red-bg);color:#ffaaaa;animation:shakeW .35s}
+.opt.picked-wrong .opt-l{background:var(--red);border-color:var(--red);color:#fff}
+.opt.reveal-right{border-color:var(--green);background:var(--green-bg);color:#a0ffe0}
+.opt.reveal-right .opt-l{background:var(--green);border-color:var(--green);color:#000}
+.opt.faded{opacity:.22}
+.opt:disabled{cursor:default;transform:none!important}
+@keyframes bumpR{0%{transform:scale(1)}40%{transform:scale(1.025)}100%{transform:scale(1)}}
+@keyframes shakeW{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+
+/* ── FEEDBACK ── */
+.fb{flex-shrink:0;display:none;align-items:center;gap:9px;padding:10px 15px;border-top:1.5px solid transparent}
+.fb.on{display:flex}
+.fb.ok{background:#071a0a;border-color:var(--green-bdr)}
+.fb.no{background:#190408;border-color:var(--red-bdr)}
+.fb-icon{font-size:24px;flex-shrink:0}
+.fb-txt{flex:1;min-width:0}
+.fb-head{font-size:13px;font-weight:900}
+.fb.ok .fb-head{color:var(--green)}
+.fb.no .fb-head{color:var(--red)}
+.fb-detail{font-size:11px;font-weight:600;color:#5a8a9a;line-height:1.4;margin-top:2px}
+.btn-cont{padding:8px 14px;border:none;border-radius:9px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .12s}
+.fb.ok .btn-cont{background:var(--green);color:#000;box-shadow:0 3px 0 var(--green2)}
+.fb.ok .btn-cont:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--green2)}
+.fb.no .btn-cont{background:var(--red);color:#fff;box-shadow:0 3px 0 var(--red2)}
+.fb.no .btn-cont:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--red2)}
+
+/* ── RESULTS ── */
+.res-card{background:var(--card);border-radius:22px;padding:28px 22px;border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.8);text-align:center;position:relative;overflow:hidden}
+.res-card::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:300px;height:300px;background:radial-gradient(circle,rgba(0,194,203,.07) 0%,transparent 65%);border-radius:50%;pointer-events:none}
+.trophy{font-size:66px;display:block;animation:dropIn .7s cubic-bezier(.34,1.56,.64,1);position:relative;z-index:1;filter:drop-shadow(0 0 20px rgba(0,194,203,.4))}
+@keyframes dropIn{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.stars-row{display:flex;justify-content:center;gap:8px;margin:5px 0 12px;position:relative;z-index:1}
+.rstar{font-size:32px;opacity:0;filter:drop-shadow(0 0 8px rgba(0,194,203,.5))}
+.rstar.lit{animation:starIn .5s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes starIn{to{opacity:1;transform:scale(1) rotate(0)}from{opacity:0;transform:scale(0) rotate(-20deg)}}
+.res-title{font-size:clamp(20px,5vw,26px);font-weight:900;margin-bottom:3px;color:#fff;position:relative;z-index:1}
+.res-sub{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:18px;position:relative;z-index:1}
+.res-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px;position:relative;z-index:1}
+.res-box{background:#0a1820;border:1.5px solid var(--border);border-radius:12px;padding:12px 6px}
+.res-n{font-size:24px;font-weight:900;color:var(--teal)}
+.res-l{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.res-btns{display:flex;flex-direction:column;gap:8px;position:relative;z-index:1}
+.btn-again{width:100%;padding:14px;background:var(--teal);color:#000;border:none;border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 5px 0 var(--teal2),0 7px 20px rgba(0,194,203,.2);transition:all .12s;letter-spacing:.3px}
+.btn-again:hover{transform:translateY(-2px);box-shadow:0 7px 0 var(--teal2),0 10px 24px rgba(0,194,203,.25)}
+.btn-again:active{transform:translateY(3px);box-shadow:0 2px 0 var(--teal2)}
+.btn-home-sm{width:100%;padding:11px;border:1.5px solid var(--border);border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:none;color:var(--muted);transition:all .15s}
+.btn-home-sm:hover{border-color:var(--teal2);color:var(--teal)}
+
+/* ── EFFECTS ── */
+.confetti{position:fixed;pointer-events:none;z-index:9999;animation:cfall linear forwards}
+@keyframes cfall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(110vh) rotate(700deg)}}
+.spark{position:fixed;pointer-events:none;z-index:9999;border-radius:50%;animation:spark ease-out forwards}
+@keyframes spark{to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0)}}
+.floatxp{position:fixed;pointer-events:none;z-index:9999;font-size:16px;font-weight:900;color:var(--gold);text-shadow:0 0 12px rgba(255,200,0,.5);animation:fxp .9s ease-out forwards}
+@keyframes fxp{0%{opacity:1;transform:translateY(0) scale(.7)}20%{transform:translateY(-8px) scale(1.1)}100%{opacity:0;transform:translateY(-60px) scale(.9)}}
+.popbadge{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:9999;font-size:34px;font-weight:900;animation:pbadge 1s ease forwards;white-space:nowrap;text-shadow:0 0 30px rgba(0,194,203,.7),0 4px 20px rgba(0,0,0,.5)}
+@keyframes pbadge{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}70%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-55%) scale(.9)}}
+@keyframes heartBreak{0%{transform:scale(1)}30%{transform:scale(1.5)}100%{transform:scale(1)}}
+.hb{animation:heartBreak .35s ease}
+
+@media(max-width:400px){.topbar{padding:9px 11px}.q-body{padding:11px 11px 0}.opts{gap:5px}.opt{padding:9px 10px;font-size:12px}.fb{padding:9px 12px}.home-card,.res-card{padding:22px 14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ═══ HOME ═══ -->
+<div id="home" class="screen on">
+<div class="home-card">
+  <span class="plane">✈️</span>
+  <div class="home-badge">ATA Chapter 21</div>
+  <h1 class="home-h1">B737NG Air<br><span>Conditioning Quiz</span></h1>
+  <p class="home-sub">30 questions covering pack flow, cooling, moisture, ram air, temp control, trim air, overheat, recirc &amp; tribal knowledge.</p>
+  <div class="home-pills">
+    <span class="pill">❄️ Pack Flow</span>
+    <span class="pill">💧 Moisture</span>
+    <span class="pill">🌡️ Temp Control</span>
+    <span class="pill">🔥 Trim Air</span>
+    <span class="pill">⚠️ Overheat</span>
+    <span class="pill">🔄 Recirc</span>
+    <span class="pill">🌬️ Ram Air</span>
+    <span class="pill">🧠 Tribal Rules</span>
+  </div>
+  <div class="home-meta">
+    <div class="meta-box"><div class="meta-n">30</div><div class="meta-l">Questions</div></div>
+    <div class="meta-box"><div class="meta-n">3</div><div class="meta-l">Lives</div></div>
+    <div class="meta-box"><div class="meta-n">8</div><div class="meta-l">Topics</div></div>
+  </div>
+  <button class="btn-go" onclick="startGame()">✈️ Start Quiz</button>
+</div>
+</div>
+
+<!-- ═══ QUIZ ═══ -->
+<div id="quiz" class="screen">
+<div class="q-shell">
+  <div class="topbar">
+    <button class="xbtn" onclick="confirmQuit()">✕</button>
+    <div class="prog-col">
+      <div class="prog-top">
+        <span class="prog-cat" id="cat-lbl">Pack Flow</span>
+        <span class="prog-n"><span id="qn">1</span>/<span id="qtot">30</span></span>
+      </div>
+      <div class="bar-bg"><div class="bar-fill" id="bar" style="width:0%"></div></div>
+    </div>
+    <div class="topbar-r">
+      <div class="streak-tag">🔥<span id="streak-n">0</span></div>
+      <div class="hearts" id="hearts">
+        <span class="heart" id="h0">❤️</span><span class="heart" id="h1">❤️</span><span class="heart" id="h2">❤️</span>
+      </div>
+      <div class="xp-tag">⚡<span id="xpdis">0</span></div>
+    </div>
+  </div>
+  <div class="q-body" id="q-body">
+    <div class="q-cat"><div class="q-dot"></div><span id="q-cat">Pack Flow</span></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="opts" id="opts"></div>
+  </div>
+  <div class="fb" id="fb">
+    <span class="fb-icon" id="fb-icon">✅</span>
+    <div class="fb-txt">
+      <div class="fb-head" id="fb-head">Correct!</div>
+      <div class="fb-detail" id="fb-det"></div>
+    </div>
+    <button class="btn-cont" id="btn-cont" onclick="advance()">Next →</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══ RESULT ═══ -->
+<div id="result" class="screen">
+<div class="res-card">
+  <span class="trophy" id="trophy">🏆</span>
+  <div class="stars-row">
+    <span class="rstar" id="rs0">⭐</span>
+    <span class="rstar" id="rs1">⭐</span>
+    <span class="rstar" id="rs2">⭐</span>
+  </div>
+  <div class="res-title" id="res-title">Session Complete!</div>
+  <div class="res-sub" id="res-sub">Great work!</div>
+  <div class="res-grid">
+    <div class="res-box"><div class="res-n" id="r-xp">0</div><div class="res-l">XP</div></div>
+    <div class="res-box"><div class="res-n" id="r-acc">0%</div><div class="res-l">Accuracy</div></div>
+    <div class="res-box"><div class="res-n" id="r-str">0</div><div class="res-l">Best Streak</div></div>
+  </div>
+  <div class="res-btns">
+    <button class="btn-again" onclick="startGame()">🔁 Play Again</button>
+    <button class="btn-home-sm" onclick="goHome()">← Back to Home</button>
+  </div>
+</div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+// ═══════════════ AUDIO ═══════════════
+const AC=window.AudioContext||window.webkitAudioContext;
+let actx=null;
+function ctx(){if(!actx)actx=new AC();return actx;}
+function playCorrect(){
+  try{const c=ctx();[523,659,784,1047].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;const t=c.currentTime+i*.07;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.16,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.22);o.start(t);o.stop(t+.25);});}catch(e){}
+}
+function playWrong(){
+  try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sawtooth';o.frequency.setValueAtTime(280,c.currentTime);o.frequency.exponentialRampToValueAtTime(80,c.currentTime+.35);g.gain.setValueAtTime(.13,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.4);o.start();o.stop(c.currentTime+.45);}catch(e){}
+}
+function playCombo(){
+  try{const c=ctx();[880,1108,1320,1760].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='triangle';o.frequency.value=f;const t=c.currentTime+i*.05;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.2,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.28);o.start(t);o.stop(t+.3);});}catch(e){}
+}
+function playVictory(){
+  try{const c=ctx();[523,659,784,1047,1319,1568,2093].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;const t=c.currentTime+i*.09;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.18,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+.32);o.start(t);o.stop(t+.35);});}catch(e){}
+}
+function playClick(){
+  try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=440;g.gain.setValueAtTime(.06,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.07);o.start();o.stop(c.currentTime+.08);}catch(e){}
+}
+
+// ═══════════════ QUESTIONS ═══════════════
+const BANK=[
+{c:"❄️ Pack Flow",q:"The Flow Control and Shutoff Valve (FCSOV) fails to its _____ position on loss of electrical power.",o:["Full open — maximising airflow","Closed — airflow to the pack stops","Modulating — stays at last position","Half-open — reduces flow by 50%"],a:1,d:"The FCSOV is electrically-held open; loss of power drives it closed by spring force. Fail-safe design: losing power means losing pack airflow."},
+{c:"❄️ Pack Flow",q:"If one pack is switched OFF in flight, what does the operating pack automatically do?",o:["Remains at NORMAL flow to conserve bleed","Switches to LOW flow to protect the pack","Ramps up to HIGH flow to compensate","Signals the flight deck to open the APU bleed"],a:2,d:"When one pack is selected OFF, the remaining pack automatically increases to HIGH flow to maintain adequate cabin ventilation and pressurisation with only one source."},
+{c:"❄️ Pack Flow",q:"Which BEST describes how cabin pressure helps regulate FCSOV position?",o:["Cabin pressure directly opens the valve electrically","Differential pressure acts as pneumatic feedback, automatically modulating flow","Cabin pressure has no effect — only the controller modulates flow","High cabin altitude forces the valve fully closed"],a:1,d:"The FCSOV uses differential pressure as pneumatic feedback, automatically adjusting flow without constant pilot input for the given flight condition."},
+{c:"❄️ Pack Flow",q:"TRUE or FALSE: Valve POSITION INDICATION is not important during ATA 21 troubleshooting because the system is fully automatic.",o:["TRUE — the system self-corrects","FALSE — always verify the valve is actually open during troubleshooting","TRUE — only flight deck indications matter","FALSE — but only the FCSOV needs verification"],a:1,d:"Always verify valve position indication. A valve commanded open may still be physically stuck. Confirming actual valve movement is a fundamental diagnostic step."},
+{c:"❄️ Cooling",q:"What is the PRIMARY purpose of the Reheater in the pack cooling cycle?",o:["To warm cabin air to a comfortable temperature","To increase efficiency and prevent extreme temperature swings inside the pack","To heat bleed air before it enters the compressor","To provide backup heating if the trim air valve fails"],a:1,d:"The Reheater recovers energy to improve pack efficiency, preventing extreme temperature swings within the pack and stabilising the thermodynamic cycle."},
+{c:"❄️ Cooling",q:"Why is water spray injection especially important on hot days?",o:["It lubricates the ACM turbine bearings","It suppresses ice formation on heat exchangers","It boosts cooling capacity when ambient temperatures are high","It reduces pack inlet pressure to prevent surging"],a:2,d:"Water spray into the ram air stream significantly boosts cooling capacity. On high-OAT days the system needs extra help removing heat — without it, pack cooling efficiency drops substantially."},
+{c:"❄️ Cooling",q:"On the ground with engines off, what provides airflow through the cooling system?",o:["Natural convection through the ram air scoops","The ACM fan, which pulls air independently","Recirc fans supplementing the packs","No airflow — cooling only works in flight"],a:1,d:"The ACM fan pulls ram air through the heat exchangers on the ground. Without this fan running there is no meaningful cooling — which is why a PACK TRIP on the ground often points to ACM issues."},
+{c:"❄️ Cooling",q:"The pack system reuses heat from the cycle to prevent icing. This is done by:",o:["Bypassing the turbine when outlet temp is too low","Mixing turbine outlet air with warm compressor bleed","Using the Reheater to pre-warm turbine inlet air, keeping components above freezing","Activating electric heaters on the water separator"],a:2,d:"The Reheater pre-warms air entering the turbine, keeping critical components above freezing. Ice formation would restrict airflow and damage ACM turbine blades."},
+{c:"💧 Moisture",q:"How does the water separator remove moisture from pack airflow?",o:["A chemical desiccant absorbs water vapour","Cooling coils condense moisture which drains by gravity","It spins the air using centrifugal force to throw water droplets outward","A HEPA filter captures water particles"],a:2,d:"The water separator uses centrifugal action — it spins the air so water droplets are thrown outward and collected, much like a centrifuge, with no moving parts."},
+{c:"💧 Moisture",q:"If the water separator becomes clogged, what happens automatically?",o:["The pack shuts down to prevent damage","Pack flow reduces to 50% via the FCSOV","A bypass valve opens, allowing airflow to continue","The water spray system reverses to clear the blockage"],a:2,d:"A bypass valve opens automatically if the water separator is clogged, maintaining pack airflow and pressurisation — airflow continuity is the priority."},
+{c:"💧 Moisture",q:"What does a RED indicator on the water separator filter tell a line mechanic?",o:["The filter has reached its maximum service life","Airflow is blocked — the filter needs servicing","Temperature downstream is above limits","Water injection is active and normal"],a:1,d:"A red indicator means the filter is blocked and needs servicing. One of the easiest visual checks during a walkaround or pack troubleshooting."},
+{c:"💧 Moisture",q:"Why are pack duct temperatures maintained above approximately 35°F (1.7°C)?",o:["To comply with FAA minimum cabin comfort requirements","To prevent ice formation in the ducts and pack components","To ensure the ACM operates within its efficiency band","To keep bleed air above its dew point"],a:1,d:"The system maintains temperatures above ~35°F to prevent ice buildup in ducts and pack components. Ice can restrict airflow, cause surging, and damage turbine blades."},
+{c:"🌬️ Ram Air",q:"What is the target temperature of air AFTER the pack compressor?",o:["130°F (54°C)","230°F (110°C)","340°F (171°C)","85°F (29°C)"],a:1,d:"The system targets approximately 230°F after the compressor — a reference for control logic that allows the turbine to extract maximum work from the air."},
+{c:"🌬️ Ram Air",q:"RAM DOOR FULL OPEN during cruise is BEST interpreted as:",o:["Normal operation — the door is always open in cruise","A ram door actuator failure — replace the SRADA","The system compensating for poor heat exchanger efficiency","Pack flow set to HIGH by the flight crew"],a:2,d:"RAM DOOR FULL OPEN in cruise means the system is compensating for poor cooling — dirty or restricted heat exchangers are by far the most common cause. Not a normal indication."},
+{c:"🌬️ Ram Air",q:"If ram air door CONTROL fails, the door goes to:",o:["Fully closed to protect the heat exchangers","Last commanded position until reset","Fully open — providing maximum cooling as a fail-safe","Half-open, allowing minimum airflow"],a:2,d:"Fail-safe design: the ram door defaults to full open if control fails. More cooling air is safer than less."},
+{c:"🌬️ Ram Air",q:"Ram air door behaviour differs by flight phase. Which combination is CORRECT?",o:["Ground: closed | Takeoff: modulating | Cruise: full open","Ground: modulates with temp | Takeoff/low speed: partially closes | Cruise: modulates","Ground: full open | Takeoff: partially closed | Cruise: closed","Ground and takeoff: full open | Cruise: fully closed"],a:1,d:"The ram door modulates on the ground, partially closes during takeoff/low speed (reducing drag and fan erosion risk), then modulates in cruise based on pack heat load — each phase has distinct logic."},
+{c:"🌡️ Temp Control",q:"The 'coldest zone controls everything' principle means:",o:["The system averages all zone demands and sets one pack temperature","The coldest zone's demand drives pack output; other zones get trim air added","The warmest zone always controls pack output","Each zone has its own independent pack"],a:1,d:"The pack cools to the COLDEST zone's demand. All warmer zones receive trim air (hot bleed air) added downstream. Averaging does not exist — the coldest zone always wins."},
+{c:"🌡️ Temp Control",q:"At FULL COLD selector position, the system still maintains a ~35°F protection threshold — TRUE or FALSE?",o:["FALSE — full cold delivers maximum cooling with no limits","TRUE — the ~35°F duct protection threshold remains active at all times","TRUE — the knob only adjusts the setpoint; actual temp depends on load","FALSE — the protection threshold is overridden at FULL COLD"],a:1,d:"Even at FULL COLD, the system will not deliver air below approximately 35°F. The duct anti-freeze protection logic cannot be overridden with the selector."},
+{c:"🌡️ Temp Control",q:"With the temperature selector in the OFF position, cabin temperature defaults to approximately:",o:["As cold as the pack can produce — no setpoint","60°F (15°C) — minimum comfort","75°F (24°C) — a neutral/default setpoint","100°F (38°C) — the system heats aggressively"],a:2,d:"OFF is NOT truly off — it's a neutral position commanding approximately 75°F. The pack still operates. This surprises many new technicians."},
+{c:"🌡️ Temp Control",q:"The backup temperature controller:",o:["Must be manually selected by the crew — it is NOT automatic","Takes over automatically if the primary controller fails","Controls only the flight deck zone","Has no BITE capability and cannot log faults"],a:1,d:"Redundancy is built in: if the primary temperature controller fails, the backup takes over automatically. A single controller fault rarely results in complete loss of temperature control."},
+{c:"🔥 Trim Air",q:"What is trim air, and why is it used?",o:["Cold recirculated air used to reduce pack load","Hot bleed air added downstream of the pack to warm specific zones","Ram air injected at turbine inlet to boost cooling","Engine bleed air mixed with APU air for balance"],a:1,d:"Trim air is hot bleed air added downstream after the pack has cooled the supply air. It fine-tunes individual zone temperatures after the pack has cooled to the coldest zone's demand."},
+{c:"🔥 Trim Air",q:"Trim air maximum pressure is limited to approximately 4 PSI above cabin pressure. Why?",o:["To protect cabin windows from pressure differential","To prevent duct overpressure and overtemperature damage in the cabin","To limit engine bleed extraction to safe levels","To meet FAA breathing air standards"],a:1,d:"The 4 PSI limit prevents overpressure and overtemperature damage to the cabin duct distribution system. Exceeding this could rupture ducts or cause burn hazards."},
+{c:"🔥 Trim Air",q:"If the Master Trim Air Valve CLOSES, the effect on the cabin is:",o:["All zones overheat — trim air becomes uncontrolled","The cabin feels cold overall because no zone-warming is available","Only the flight deck zone loses heating","Pack output increases to compensate"],a:1,d:"Closing the master trim air valve removes all zone-warming capability. The pack cools to the coldest demand with no way to warm any zone above that — the whole cabin tends to feel cold."},
+{c:"🔥 Trim Air",q:"TRIBAL: Why is 'TRIM AIR OFF' one of the first isolation steps when chasing a zone temperature complaint?",o:["It isolates trim air and reveals whether the problem is in the pack or zone heating","It automatically resets the pack controller","It opens the FCSOV to maximum flow","It forces both packs to HIGH flow mode"],a:0,d:"Switching TRIM AIR OFF quickly isolates whether a zone temperature problem is upstream (pack/flow) or downstream (trim air valve/duct). If the complaint changes, trim air was involved — saving hours of chasing the wrong system."},
+{c:"⚠️ Overheat",q:"When a pack overheat is detected, the protective sequence is:",o:["PACK light illuminates, crew selects OFF manually","FCSOV closes automatically, pack shuts down, PACK light illuminates","Pack flow reduces to 50% and overheat alarm sounds","Trim air closes and pack continues at reduced capacity"],a:1,d:"On overheat detection, the FCSOV closes automatically, shutting off bleed supply to the pack, and the PACK light illuminates. This is an automatic protective shutdown — not just a flow reduction."},
+{c:"⚠️ Overheat",q:"After a pack TRIP due to overheat, if the temperature returns to normal, does the pack automatically restart?",o:["YES — restarts within 30 seconds automatically","YES — but only if the selector is cycled OFF then ON","NO — the trip latches and requires a deliberate TRIP RESET","NO — the pack must be deferred and replaced"],a:2,d:"Pack overheat trips are LATCHING. Even if the condition resolves, the pack will not restart automatically. A deliberate TRIP RESET is required — preventing a damaged pack from cycling back on without crew awareness."},
+{c:"⚠️ Overheat",q:"Where are overheat sensors located in the ATA 21 pack? (Best answer)",o:["Only at the pack outlet — one sensor provides full coverage","Compressor outlet, turbine outlet, and pack outlet — multiple locations","Only on the heat exchanger surfaces","Cabin ducts only — the pack itself has no sensors"],a:1,d:"Multiple overheat sensors at the compressor outlet, turbine outlet, and pack outlet provide layered protection. Dual sensors also provide backup, meaning the system rarely fails to detect an overheat."},
+{c:"⚠️ Overheat",q:"A DUCT OVERHEAT at approximately 190°F (88°C) triggers which response?",o:["Both packs shut down immediately","Pack output increases to cool the duct","Trim air closes down to protect the cabin distribution ducts","The outflow valve opens to vent excess heat"],a:2,d:"Duct overheat at ~190°F triggers automatic trim air shutdown. The trim air (hot bleed air) is the heat source for the ducts — closing it removes the heat source and protects the duct system."},
+{c:"🔄 Recirc",q:"Each recirculation fan moves approximately how much air?",o:["200 CFM — minimal supplementary flow","830 CFM — significant reduction in fresh bleed demand","1,500 CFM — the primary cabin air source","50 CFM — equipment bay only"],a:1,d:"Each recirc fan moves ~830 CFM. With two fans, ~1,660 CFM is recirculated, significantly reducing fresh bleed air demand from the engines — saving fuel and reducing pack load."},
+{c:"🧠 Tribal",q:"TRIBAL RULE: A PACK trips once on climb, no repeat. The correct first action is:",o:["Change the pack controller — single trips indicate instability","Change the pack — the ACM is failing","Investigate first: check ram air, heat exchanger airflow, and review trip history","Submit a MEL deferral and log it"],a:2,d:"Single PACK trips are almost always transient airflow or thermal events — NOT failing controllers or ACMs. Investigating first (ram air, heat exchangers, trip history) prevents a needless expensive part change 90% of the time."},
+{c:"🧠 Tribal",q:"SCENARIO: RAM DOOR shows FULL OPEN in cruise on ACARS data. The FIRST thing to check is:",o:["Replace the SRADA — the actuator has failed","Check heat exchanger cleanliness and airflow restriction","Assume this is a normal cruise indication","Check flap position logic as the primary suspect"],a:1,d:"RAM DOOR FULL OPEN in cruise means the system is compensating for something. Dirty heat exchangers restricting airflow are by far the most common cause — check them before assuming actuator failure."}
+];
+
+// ═══════════════ STATE ═══════════════
+const G={qs:[],idx:0,hearts:3,xp:0,streak:0,bestStreak:0,correct:0,done:false};
+function shuffle(a){return a.sort(()=>Math.random()-.5)}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on')}
+function goHome(){show('home')}
+function confirmQuit(){if(confirm('Quit this quiz?'))goHome();}
+
+function startGame(){
+  G.qs=shuffle([...BANK]);
+  G.idx=0;G.hearts=3;G.xp=0;G.streak=0;G.bestStreak=0;G.correct=0;
+  updateHearts();
+  document.getElementById('xpdis').textContent='0';
+  document.getElementById('streak-n').textContent='0';
+  document.getElementById('qtot').textContent=G.qs.length;
+  show('quiz');
+  renderQ();
+}
+
+function renderQ(){
+  G.done=false;
+  const fb=document.getElementById('fb');
+  fb.className='fb';fb.style.display='none';
+  const q=G.qs[G.idx];
+  document.getElementById('cat-lbl').textContent=q.c;
+  document.getElementById('q-cat').textContent=q.c;
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('qn').textContent=G.idx+1;
+  document.getElementById('bar').style.width=Math.round((G.idx/G.qs.length)*100)+'%';
+
+  const cont=document.getElementById('opts');
+  cont.innerHTML='';
+  const keys=['A','B','C','D'];
+  q.o.forEach((txt,i)=>{
+    const b=document.createElement('button');
+    b.className='opt';
+    b.innerHTML=`<span class="opt-l">${keys[i]}</span><span>${txt}</span>`;
+    b.onclick=()=>pick(i);
+    cont.appendChild(b);
+    b.style.opacity='0';b.style.transform='translateX(-16px)';
+    setTimeout(()=>{b.style.transition='opacity .22s ease,transform .22s ease';b.style.opacity='1';b.style.transform='translateX(0)';},70+i*50);
+  });
+
+  // scroll q-body back to top on each new question
+  document.getElementById('q-body').scrollTop=0;
+}
+
+function pick(idx){
+  if(G.done)return;
+  G.done=true;
+  const q=G.qs[G.idx];
+  const correct=idx===q.a;
+  const btns=[...document.querySelectorAll('.opt')];
+  btns.forEach(b=>b.disabled=true);
+  btns[q.a].classList.add('reveal-right');
+  if(correct){
+    btns[idx].classList.remove('reveal-right');
+    btns[idx].classList.add('picked-right');
+    btns.forEach((b,i)=>{if(i!==idx)b.classList.add('faded');});
+    G.correct++;G.streak++;
+    if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+    const xpGain=G.streak>=5?20:G.streak>=3?15:10;
+    G.xp+=xpGain;
+    document.getElementById('xpdis').textContent=G.xp;
+    document.getElementById('streak-n').textContent=G.streak;
+    showFeedback(true,q.d,xpGain);
+    spawnSparks(btns[idx]);
+    playCorrect();
+    if(G.streak===3){showPopBadge('🔥 3 Streak!');playCombo();}
+    if(G.streak===5){showPopBadge('⚡ 5 in a row!');playCombo();}
+    if(G.streak===10){showPopBadge('🌟 10 Streak!');playCombo();}
+  } else {
+    btns[idx].classList.add('picked-wrong');
+    btns.forEach((b,i)=>{if(i!==idx&&i!==q.a)b.classList.add('faded');});
+    G.streak=0;G.hearts--;
+    document.getElementById('streak-n').textContent=0;
+    updateHearts();
+    showFeedback(false,q.d,0);
+    playWrong();
+  }
+}
+
+function showFeedback(ok,detail,xp){
+  const fb=document.getElementById('fb');
+  fb.className='fb on '+(ok?'ok':'no');
+  fb.style.display='flex';
+  const icons=ok?['✅','🎉','🌟','⭐','🔥','💡','🎯','🏅']:['❌'];
+  const heads=ok?['Correct!','Great!','Well done!','Spot on!','Nailed it!','Right on!','Excellent!']:['Not quite!'];
+  document.getElementById('fb-icon').textContent=icons[Math.floor(Math.random()*icons.length)];
+  document.getElementById('fb-head').textContent=heads[Math.floor(Math.random()*heads.length)];
+  document.getElementById('fb-det').textContent=detail;
+  const cont=document.getElementById('btn-cont');
+  cont.textContent=(G.idx>=G.qs.length-1||G.hearts<=0)?'See Results →':'Continue →';
+  if(ok&&xp)floatXP('+'+xp+' XP',cont);
+}
+
+function advance(){
+  playClick();
+  G.idx++;
+  if(G.idx>=G.qs.length||G.hearts<=0)showResult();
+  else renderQ();
+}
+
+function updateHearts(){
+  [0,1,2].forEach(i=>{
+    const h=document.getElementById('h'+i);
+    h.classList.toggle('gone',i>=G.hearts);
+  });
+}
+
+function showResult(){
+  const acc=G.idx?Math.round((G.correct/G.idx)*100):0;
+  const stars=acc>=90?3:acc>=70?2:acc>=50?1:0;
+  const trophies=['😅','🥉','🥈','🏆'];
+  const titles=['Keep Practicing!','Nice Try!','Well Done!','Outstanding! 🎯'];
+  const subs=['Review the ATA 21 manual and try again.','Good effort — study the explanations!','Strong Air Conditioning knowledge!','You are an ATA 21 expert! ✈️'];
+  document.getElementById('trophy').textContent=trophies[stars];
+  document.getElementById('res-title').textContent=titles[stars];
+  document.getElementById('res-sub').textContent=subs[stars];
+  document.getElementById('r-xp').textContent=G.xp;
+  document.getElementById('r-acc').textContent=acc+'%';
+  document.getElementById('r-str').textContent=G.bestStreak;
+  ['rs0','rs1','rs2'].forEach((id,i)=>{
+    const el=document.getElementById(id);
+    el.classList.remove('lit');el.style.animationDelay='0s';
+    if(i<stars)setTimeout(()=>{el.style.animationDelay=(i*.2)+'s';el.classList.add('lit');},500+i*120);
+  });
+  show('result');
+  if(acc>=60)setTimeout(()=>{launchConfetti(acc);playVictory();},300);
+}
+
+function launchConfetti(acc){
+  const cols=['#00c2cb','#1cb0f6','#58cc02','#ffc800','#ff9600','#ff4b4b','#fff'];
+  const shapes=['●','■','▲','◆','★','✦','✧'];
+  const count=Math.min(35+Math.floor(acc/4),70);
+  for(let i=0;i<count;i++){
+    setTimeout(()=>{
+      const el=document.createElement('div');
+      el.className='confetti';
+      el.textContent=shapes[Math.floor(Math.random()*shapes.length)];
+      el.style.cssText=`left:${Math.random()*100}vw;top:-20px;color:${cols[Math.floor(Math.random()*cols.length)]};font-size:${9+Math.random()*13}px;animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.4}s`;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),4000);
+    },i*22);
+  }
+}
+
+function spawnSparks(btn){
+  const rect=btn.getBoundingClientRect();
+  const cx=rect.left+rect.width/2,cy=rect.top+rect.height/2;
+  const cols=['#00c2cb','#1cb0f6','#ffc800','#fff','#58cc02'];
+  for(let i=0;i<10;i++){
+    const el=document.createElement('div');
+    el.className='spark';
+    const a=(i/10)*Math.PI*2,d=28+Math.random()*44;
+    el.style.cssText=`left:${cx}px;top:${cy}px;width:${4+Math.random()*5}px;height:${4+Math.random()*5}px;background:${cols[i%cols.length]};--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;animation-duration:${.4+Math.random()*.25}s`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),800);
+  }
+}
+
+function floatXP(txt,refEl){
+  const rect=refEl.getBoundingClientRect();
+  const el=document.createElement('div');
+  el.className='floatxp';el.textContent=txt;
+  el.style.cssText=`left:${rect.left+rect.width*.5}px;top:${rect.top-10}px`;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1000);
+}
+
+function showPopBadge(txt){
+  const el=document.createElement('div');
+  el.className='popbadge';el.textContent=txt;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1100);
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('quiz').classList.contains('on'))return;
+  const map={'1':0,'2':1,'3':2,'4':3,'a':0,'b':1,'c':2,'d':3};
+  const k=e.key.toLowerCase();
+  if(!G.done&&map[k]!==undefined)pick(map[k]);
+  if(G.done&&(e.key==='Enter'||e.key===' ')){e.preventDefault();advance();}
+});
+</script>
+</body>
+</html>

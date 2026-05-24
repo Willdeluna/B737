@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>B737 ATA 32 Main Points</title>
+  <style>
+    :root {
+      --bg: #050505;
+      --panel: #101010;
+      --panel2: #17110a;
+      --orange: #ff9f1c;
+      --amber: #ffd27f;
+      --soft: rgba(255, 159, 28, 0.18);
+      --line: rgba(255, 159, 28, 0.55);
+      --white: #f7efe4;
+      --muted: #bda777;
+      --red: #ff5f56;
+      --blue: #62d8ff;
+      --green: #8cffb1;
+      --purple: #b794ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--white);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(255,159,28,0.22), transparent 28%),
+        radial-gradient(circle at 85% 20%, rgba(98,216,255,0.13), transparent 26%),
+        radial-gradient(circle at 50% 90%, rgba(183,148,255,0.12), transparent 25%),
+        linear-gradient(135deg, #000, #080808 45%, #130b02);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,159,28,0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,159,28,0.045) 1px, transparent 1px);
+      background-size: 46px 46px;
+      mask-image: radial-gradient(circle at center, black, transparent 82%);
+    }
+
+    header {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 36px 18px 18px;
+      text-align: center;
+      position: relative;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--amber);
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.55);
+      border-radius: 999px;
+      padding: 8px 14px;
+      box-shadow: 0 0 22px var(--soft);
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      font-size: .8rem;
+    }
+
+    h1 {
+      margin: 18px 0 8px;
+      color: var(--orange);
+      font-size: clamp(2rem, 6vw, 4.9rem);
+      line-height: .96;
+      text-shadow: 0 0 18px rgba(255,159,28,.38), 0 0 42px rgba(255,159,28,.16);
+    }
+
+    .subtitle {
+      max-width: 900px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.55;
+    }
+
+    .hero-strip {
+      max-width: 1180px;
+      margin: 24px auto 8px;
+      padding: 0 18px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .hero-card {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,159,28,.1), rgba(0,0,0,.72));
+      border-radius: 22px;
+      padding: 20px;
+      min-height: 140px;
+      position: relative;
+      overflow: hidden;
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    }
+
+    .hero-card:hover {
+      transform: translateY(-8px) scale(1.015);
+      box-shadow: 0 0 34px rgba(255,159,28,.24);
+      border-color: var(--orange);
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      right: -58px;
+      bottom: -58px;
+      border: 1px solid rgba(255,159,28,.28);
+      border-radius: 50%;
+    }
+
+    .hero-icon { font-size: 2.2rem; margin-bottom: 8px; }
+    .hero-title { color: var(--amber); font-size: 1.25rem; font-weight: 900; }
+    .hero-text { color: var(--muted); margin-top: 8px; line-height: 1.42; }
+
+    main {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 22px 18px 48px;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .system-section {
+      border: 1px solid var(--line);
+      background: rgba(9,9,9,.88);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: 0 0 30px rgba(0,0,0,.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .system-section::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--orange), var(--blue), transparent);
+      opacity: .75;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: radial-gradient(circle at top, rgba(255,159,28,.28), rgba(0,0,0,.75));
+      font-size: 1.65rem;
+      box-shadow: inset 0 0 18px rgba(255,159,28,.12);
+    }
+
+    h2 {
+      margin: 0;
+      color: var(--orange);
+      font-size: 1.2rem;
+      letter-spacing: .01em;
+    }
+
+    .cards {
+      display: grid;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .idea-card {
+      border: 1px solid rgba(255,159,28,.28);
+      background: linear-gradient(135deg, rgba(255,159,28,.06), rgba(255,255,255,.02));
+      border-radius: 16px;
+      padding: 13px 14px;
+      transition: transform .22s ease, box-shadow .22s ease, background .22s ease, border-color .22s ease;
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .idea-card:hover {
+      transform: translateX(8px) scale(1.025);
+      border-color: var(--orange);
+      background: linear-gradient(135deg, rgba(255,159,28,.18), rgba(98,216,255,.06));
+      box-shadow: 0 0 26px rgba(255,159,28,.21);
+    }
+
+    .idea-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,.08), transparent);
+      transform: translateX(-120%);
+      transition: transform .55s ease;
+    }
+
+    .idea-card:hover::after { transform: translateX(120%); }
+
+    .main-idea {
+      display: block;
+      color: var(--amber);
+      font-weight: 900;
+      font-size: 1rem;
+      margin-bottom: 5px;
+    }
+
+    .arrow {
+      color: var(--orange);
+      font-weight: 900;
+      margin-right: 4px;
+    }
+
+    .real-world {
+      display: block;
+      color: #ead9b8;
+      line-height: 1.42;
+      font-size: .96rem;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-top: 8px;
+      color: #111;
+      background: var(--orange);
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: .72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .tag.blue { background: var(--blue); }
+    .tag.green { background: var(--green); }
+    .tag.purple { background: var(--purple); }
+
+    .wide { grid-column: 1 / -1; }
+
+    .memory-map {
+      margin-top: 20px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 22px;
+      background: linear-gradient(135deg, rgba(255,159,28,.1), rgba(0,0,0,.72));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .memory-map h2 { font-size: 1.45rem; margin-bottom: 14px; }
+
+    .map-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .map-card {
+      border: 1px solid rgba(255,159,28,.38);
+      border-radius: 20px;
+      padding: 18px;
+      background: rgba(0,0,0,.55);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+
+    .map-card:hover {
+      transform: translateY(-7px) rotate(-.5deg);
+      box-shadow: 0 0 28px rgba(98,216,255,.16), 0 0 34px rgba(255,159,28,.12);
+    }
+
+    .map-number {
+      color: var(--blue);
+      font-size: 2rem;
+      font-weight: 900;
+    }
+
+    .map-title {
+      color: var(--amber);
+      font-weight: 900;
+      font-size: 1.2rem;
+      margin: 4px 0 8px;
+    }
+
+    .map-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #ead9b8;
+      line-height: 1.65;
+    }
+
+    .fail-list {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .fail-chip {
+      border: 1px solid rgba(255,95,86,.55);
+      background: rgba(255,95,86,.08);
+      color: #ffd6d3;
+      padding: 14px;
+      border-radius: 16px;
+      font-weight: 800;
+      text-align: center;
+      transition: transform .2s ease, background .2s ease;
+    }
+
+    .fail-chip:hover {
+      transform: scale(1.06);
+      background: rgba(255,95,86,.18);
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 26px 18px 38px;
+    }
+
+    @media (max-width: 900px) {
+      .hero-strip, .map-grid { grid-template-columns: 1fr; }
+      .section-grid { grid-template-columns: 1fr; }
+      .fail-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 520px) {
+      body { padding: 0; }
+      main { padding: 18px 10px 34px; }
+      header { padding-top: 24px; }
+      .system-section, .memory-map { border-radius: 18px; padding: 14px; }
+      .fail-list { grid-template-columns: 1fr; }
+      .idea-card:hover { transform: scale(1.015); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">✅ B737 ATA 32 • Landing Gear &amp; Brakes</div>
+    <h1>Landing Gear &amp; Brakes Made Line-Mechanic Simple</h1>
+    <p class="subtitle">Hover over each idea. ATA 32 is not just gear and brakes — it's a system that manages energy, motion, and logic across multiple aircraft systems.</p>
+  </header>
+
+  <section class="hero-strip">
+    <div class="hero-card">
+      <div class="hero-icon">✈️</div>
+      <div class="hero-title">Absorb Energy</div>
+      <div class="hero-text">Shock struts and tires absorb landing impact through hydraulic damping and nitrogen spring.</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-icon">🛑</div>
+      <div class="hero-title">Dissipate Energy</div>
+      <div class="hero-text">Brakes, antiskid, and autobrake convert kinetic energy into heat in a controlled way.</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-icon">🛡️</div>
+      <div class="hero-title">Protect the System</div>
+      <div class="hero-text">Air/ground logic, transfer valves, and hydraulic fuses prevent damage when things go wrong.</div>
+    </div>
+  </section>
+
+  <main>
+    <section class="section-grid">
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🧠</div><h2>Big Picture — Energy Management on the Ground</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">ATA 32 is all about handling huge loads safely</span><span class="real-world"><span class="arrow">→</span>Absorb impact, control direction, dissipate energy.</span><span class="tag">big picture</span></div>
+          <div class="idea-card"><span class="main-idea">Cross-system dependency is the reality</span><span class="real-world"><span class="arrow">→</span>Gear depends on hydraulics, electrical, and air/ground logic.</span><span class="tag blue">system map</span></div>
+          <div class="idea-card"><span class="main-idea">Most ATA 32 problems are not gear or brake hardware</span><span class="real-world"><span class="arrow">→</span>They are usually sensors, valves, or logic signals.</span><span class="tag purple">real mx reality</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">✈️</div><h2>Shock Struts — Critical Understanding</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Oleopneumatic = hydraulic + nitrogen</span><span class="real-world"><span class="arrow">→</span>Fluid damps compression, nitrogen acts as the spring.</span><span class="tag">design basics</span></div>
+          <div class="idea-card"><span class="main-idea">Low fluid = hard landings / bottoming out</span><span class="real-world"><span class="arrow">→</span>The strut can't absorb the impact properly.</span><span class="tag">fault clue</span></div>
+          <div class="idea-card"><span class="main-idea">Low nitrogen = poor rebound / squat issues</span><span class="real-world"><span class="arrow">→</span>The strut sits low and doesn't return properly.</span><span class="tag">fault clue</span></div>
+          <div class="idea-card"><span class="main-idea">Strut servicing requires correct procedure</span><span class="real-world"><span class="arrow">→</span>Wrong charge order leads to bad strut behavior.</span><span class="tag">mx caution</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔄</div><h2>Gear Operation & Sequencing</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">System A powers normal extension and retraction</span><span class="real-world"><span class="arrow">→</span>Hydraulics drive the actuators and selector valves.</span><span class="tag">primary power</span></div>
+          <div class="idea-card"><span class="main-idea">Transfer valve provides backup</span><span class="real-world"><span class="arrow">→</span>If System A is lost, System B can supply retraction pressure.</span><span class="tag green">redundancy</span></div>
+          <div class="idea-card"><span class="main-idea">Door / gear timing is critical</span><span class="real-world"><span class="arrow">→</span>Sequence prevents gear-to-door contact damage.</span><span class="tag">sequence logic</span></div>
+          <div class="idea-card"><span class="main-idea">Gear lever lock prevents ground retraction</span><span class="real-world"><span class="arrow">→</span>Uses air/ground logic to block the lever.</span><span class="tag">safety logic</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">⚠️</div><h2>Air / Ground System — Crucial Concept</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">PSEU processes air/ground signals</span><span class="real-world"><span class="arrow">→</span>Controls gear, brakes, pressurization, spoilers.</span><span class="tag blue">central logic</span></div>
+          <div class="idea-card"><span class="main-idea">Bad WOW signal = multiple unrelated write-ups</span><span class="real-world"><span class="arrow">→</span>One bad sensor can cause faults across many systems.</span><span class="tag purple">real mx reality</span></div>
+          <div class="idea-card"><span class="main-idea">Proximity sensors do the actual sensing</span><span class="real-world"><span class="arrow">→</span>Position determines air vs ground mode.</span><span class="tag">sensor basics</span></div>
+          <div class="idea-card"><span class="main-idea">Air/ground logic affects autobrake too</span><span class="real-world"><span class="arrow">→</span>Touchdown protection prevents braking in flight.</span><span class="tag">protection</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🪶</div><h2>Nose Wheel Steering</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Two control inputs feed the steering</span><span class="real-world"><span class="arrow">→</span>Tiller for high-angle taxi, rudder pedals for fine corrections.</span><span class="tag">control inputs</span></div>
+          <div class="idea-card"><span class="main-idea">Centering cams align nose wheel when airborne</span><span class="real-world"><span class="arrow">→</span>Prevents damage on retraction into the wheel well.</span><span class="tag">auto safety</span></div>
+          <div class="idea-card"><span class="main-idea">Steering only works when strut compressed</span><span class="real-world"><span class="arrow">→</span>WOW signal must be true for steering to operate.</span><span class="tag">interlock</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🛑</div><h2>Brake System — Energy Dissipation</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">System auto-selects pressure source</span><span class="real-world"><span class="arrow">→</span>Normal = System B, alternate = System A, emergency = accumulator.</span><span class="tag green">auto logic</span></div>
+          <div class="idea-card"><span class="main-idea">Accumulator gives ~6 parking brake applications</span><span class="real-world"><span class="arrow">→</span>Stored hydraulic pressure using nitrogen precharge.</span><span class="tag">backup energy</span></div>
+          <div class="idea-card"><span class="main-idea">Accumulator low = weak or no parking brake</span><span class="real-world"><span class="arrow">→</span>Check nitrogen precharge during scheduled inspections.</span><span class="tag">common issue</span></div>
+          <div class="idea-card"><span class="main-idea">Hydraulic fuses isolate leaks automatically</span><span class="real-world"><span class="arrow">→</span>Component loses pressure — looks like system failure but isn't.</span><span class="tag purple">hidden cause</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">⚙️</div><h2>Antiskid & Autobrake</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Antiskid uses wheel speed transducers</span><span class="real-world"><span class="arrow">→</span>Compares wheel behavior — releases pressure if skid detected.</span><span class="tag">core function</span></div>
+          <div class="idea-card"><span class="main-idea">Locked wheel protection prevents tire blowout</span><span class="real-world"><span class="arrow">→</span>Stops brake pressure if a wheel locks up.</span><span class="tag">safety</span></div>
+          <div class="idea-card"><span class="main-idea">Autobrake uses deceleration rate, not pressure</span><span class="real-world"><span class="arrow">→</span>Adjusts braking automatically to hit target rate.</span><span class="tag blue">smart logic</span></div>
+          <div class="idea-card"><span class="main-idea">AUTO BRAKE DISARM = pilot brake, thrust, or fault</span><span class="real-world"><span class="arrow">→</span>Any of those will deactivate the autobrake system.</span><span class="tag">normal disarm</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🌡️</div><h2>Brake Temperature</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Heat is the biggest enemy of brakes</span><span class="real-world"><span class="arrow">→</span>Hot brakes = fuse plug melt, fade, fire risk.</span><span class="tag purple">real mx reality</span></div>
+          <div class="idea-card"><span class="main-idea">Fuse plugs melt to deflate tires safely</span><span class="real-world"><span class="arrow">→</span>Prevents tire explosion from heat buildup.</span><span class="tag">safety design</span></div>
+          <div class="idea-card"><span class="main-idea">Hot brakes delay maintenance and dispatch</span><span class="real-world"><span class="arrow">→</span>Cooling required before further work.</span><span class="tag">ops impact</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔧</div><h2>Maintenance / Troubleshooting Gold</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Manual extension needs hydraulic pressure removed</span><span class="real-world"><span class="arrow">→</span>Otherwise actuators resist gravity drop.</span><span class="tag">mx procedure</span></div>
+          <div class="idea-card"><span class="main-idea">Brake issues = usually pressure source or sensor</span><span class="real-world"><span class="arrow">→</span>Not the brakes themselves most of the time.</span><span class="tag purple">real mx reality</span></div>
+          <div class="idea-card"><span class="main-idea">Gear problems = sequence, sensors, or hydraulics</span><span class="real-world"><span class="arrow">→</span>Mechanical gear failure is rare.</span><span class="tag">best practice</span></div>
+          <div class="idea-card"><span class="main-idea">Hydraulic fuses cause hidden system losses</span><span class="real-world"><span class="arrow">→</span>A tripped fuse mimics a much bigger failure.</span><span class="tag">trouble clue</span></div>
+          <div class="idea-card"><span class="main-idea">Autobrake faults are usually logic issues</span><span class="real-world"><span class="arrow">→</span>Sensor or signal problems, not autobrake hardware.</span><span class="tag">input problem</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="memory-map">
+      <h2>🧠 Simple Way to Remember ATA 32</h2>
+      <div class="map-grid">
+        <div class="map-card"><div class="map-number">1</div><div class="map-title">Absorb</div><ul><li>Shock struts</li><li>Tires</li><li>Trunnions</li></ul></div>
+        <div class="map-card"><div class="map-number">2</div><div class="map-title">Control</div><ul><li>Extension/retraction</li><li>Nose wheel steering</li><li>Sequencing</li></ul></div>
+        <div class="map-card"><div class="map-number">3</div><div class="map-title">Dissipate</div><ul><li>Brakes</li><li>Antiskid</li><li>Autobrake</li></ul></div>
+      </div>
+
+      <h2 style="margin-top:24px;">🔥 Real Line MX Takeaways</h2>
+      <div class="fail-list">
+        <div class="fail-chip">WOW/PSEU faults<br><small>cause many write-ups</small></div>
+        <div class="fail-chip">Brake issues<br><small>usually pressure or sensor</small></div>
+        <div class="fail-chip">Hot brakes<br><small>delay maintenance</small></div>
+        <div class="fail-chip">Hydraulic fuses<br><small>hidden cause of lost systems</small></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    B737 ATA 32 Landing Gear &amp; Brakes quick-study page • Built for line-maintenance brain speed.
+  </footer>
+</body>
+</html>

@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>B737 ATA 22 Main Points</title>
+  <style>
+    :root {
+      --bg: #050505;
+      --panel: #101010;
+      --panel2: #17110a;
+      --orange: #ff9f1c;
+      --amber: #ffd27f;
+      --soft: rgba(255, 159, 28, 0.18);
+      --line: rgba(255, 159, 28, 0.55);
+      --white: #f7efe4;
+      --muted: #bda777;
+      --red: #ff5f56;
+      --blue: #62d8ff;
+      --green: #8cffb1;
+      --purple: #b794ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--white);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(255,159,28,0.22), transparent 28%),
+        radial-gradient(circle at 85% 20%, rgba(98,216,255,0.13), transparent 26%),
+        radial-gradient(circle at 50% 90%, rgba(183,148,255,0.12), transparent 25%),
+        linear-gradient(135deg, #000, #080808 45%, #130b02);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,159,28,0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,159,28,0.045) 1px, transparent 1px);
+      background-size: 46px 46px;
+      mask-image: radial-gradient(circle at center, black, transparent 82%);
+    }
+
+    header {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 36px 18px 18px;
+      text-align: center;
+      position: relative;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--amber);
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.55);
+      border-radius: 999px;
+      padding: 8px 14px;
+      box-shadow: 0 0 22px var(--soft);
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      font-size: .8rem;
+    }
+
+    h1 {
+      margin: 18px 0 8px;
+      color: var(--orange);
+      font-size: clamp(2rem, 6vw, 4.9rem);
+      line-height: .96;
+      text-shadow: 0 0 18px rgba(255,159,28,.38), 0 0 42px rgba(255,159,28,.16);
+    }
+
+    .subtitle {
+      max-width: 900px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.55;
+    }
+
+    .hero-strip {
+      max-width: 1180px;
+      margin: 24px auto 8px;
+      padding: 0 18px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .hero-card {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,159,28,.1), rgba(0,0,0,.72));
+      border-radius: 22px;
+      padding: 20px;
+      min-height: 140px;
+      position: relative;
+      overflow: hidden;
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    }
+
+    .hero-card:hover {
+      transform: translateY(-8px) scale(1.015);
+      box-shadow: 0 0 34px rgba(255,159,28,.24);
+      border-color: var(--orange);
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      right: -58px;
+      bottom: -58px;
+      border: 1px solid rgba(255,159,28,.28);
+      border-radius: 50%;
+    }
+
+    .hero-icon { font-size: 2.2rem; margin-bottom: 8px; }
+    .hero-title { color: var(--amber); font-size: 1.25rem; font-weight: 900; }
+    .hero-text { color: var(--muted); margin-top: 8px; line-height: 1.42; }
+
+    main {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 22px 18px 48px;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .system-section {
+      border: 1px solid var(--line);
+      background: rgba(9,9,9,.88);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: 0 0 30px rgba(0,0,0,.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .system-section::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--orange), var(--blue), transparent);
+      opacity: .75;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: radial-gradient(circle at top, rgba(255,159,28,.28), rgba(0,0,0,.75));
+      font-size: 1.65rem;
+      box-shadow: inset 0 0 18px rgba(255,159,28,.12);
+    }
+
+    h2 {
+      margin: 0;
+      color: var(--orange);
+      font-size: 1.2rem;
+      letter-spacing: .01em;
+    }
+
+    .cards {
+      display: grid;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .idea-card {
+      border: 1px solid rgba(255,159,28,.28);
+      background: linear-gradient(135deg, rgba(255,159,28,.06), rgba(255,255,255,.02));
+      border-radius: 16px;
+      padding: 13px 14px;
+      transition: transform .22s ease, box-shadow .22s ease, background .22s ease, border-color .22s ease;
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .idea-card:hover {
+      transform: translateX(8px) scale(1.025);
+      border-color: var(--orange);
+      background: linear-gradient(135deg, rgba(255,159,28,.18), rgba(98,216,255,.06));
+      box-shadow: 0 0 26px rgba(255,159,28,.21);
+    }
+
+    .idea-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,.08), transparent);
+      transform: translateX(-120%);
+      transition: transform .55s ease;
+    }
+
+    .idea-card:hover::after { transform: translateX(120%); }
+
+    .main-idea {
+      display: block;
+      color: var(--amber);
+      font-weight: 900;
+      font-size: 1rem;
+      margin-bottom: 5px;
+    }
+
+    .arrow {
+      color: var(--orange);
+      font-weight: 900;
+      margin-right: 4px;
+    }
+
+    .real-world {
+      display: block;
+      color: #ead9b8;
+      line-height: 1.42;
+      font-size: .96rem;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-top: 8px;
+      color: #111;
+      background: var(--orange);
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: .72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .tag.blue { background: var(--blue); }
+    .tag.green { background: var(--green); }
+    .tag.purple { background: var(--purple); }
+
+    .wide { grid-column: 1 / -1; }
+
+    .memory-map {
+      margin-top: 20px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 22px;
+      background: linear-gradient(135deg, rgba(255,159,28,.1), rgba(0,0,0,.72));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .memory-map h2 { font-size: 1.45rem; margin-bottom: 14px; }
+
+    .map-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .map-card {
+      border: 1px solid rgba(255,159,28,.38);
+      border-radius: 20px;
+      padding: 18px;
+      background: rgba(0,0,0,.55);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+
+    .map-card:hover {
+      transform: translateY(-7px) rotate(-.5deg);
+      box-shadow: 0 0 28px rgba(98,216,255,.16), 0 0 34px rgba(255,159,28,.12);
+    }
+
+    .map-number {
+      color: var(--blue);
+      font-size: 2rem;
+      font-weight: 900;
+    }
+
+    .map-title {
+      color: var(--amber);
+      font-weight: 900;
+      font-size: 1.2rem;
+      margin: 4px 0 8px;
+    }
+
+    .map-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #ead9b8;
+      line-height: 1.65;
+    }
+
+    .fail-list {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .fail-chip {
+      border: 1px solid rgba(255,95,86,.55);
+      background: rgba(255,95,86,.08);
+      color: #ffd6d3;
+      padding: 14px;
+      border-radius: 16px;
+      font-weight: 800;
+      text-align: center;
+      transition: transform .2s ease, background .2s ease;
+    }
+
+    .fail-chip:hover {
+      transform: scale(1.06);
+      background: rgba(255,95,86,.18);
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 26px 18px 38px;
+    }
+
+    @media (max-width: 900px) {
+      .hero-strip, .map-grid { grid-template-columns: 1fr; }
+      .section-grid { grid-template-columns: 1fr; }
+      .fail-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 520px) {
+      body { padding: 0; }
+      main { padding: 18px 10px 34px; }
+      header { padding-top: 24px; }
+      .system-section, .memory-map { border-radius: 18px; padding: 14px; }
+      .fail-list { grid-template-columns: 1fr; }
+      .idea-card:hover { transform: scale(1.015); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">✅ B737 ATA 22 • Main Points Round 2</div>
+    <h1>DFCS Made Line-Mechanic Simple</h1>
+    <p class="subtitle">Hover over each idea. Think of ATA 22 as the command system: MCP/FMC inputs go to the FCC “brains,” then the airplane moves through actuators, trim, and autothrottle.</p>
+  </header>
+
+  <section class="hero-strip">
+    <div class="hero-card">
+      <div class="hero-icon">🎛️</div>
+      <div class="hero-title">Command Layer</div>
+      <div class="hero-text">MCP, FMC, and pilot inputs tell the airplane what mode, path, speed, heading, or altitude is desired.</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-icon">🧠</div>
+      <div class="hero-title">Brain Layer</div>
+      <div class="hero-text">FCC A and FCC B process the logic for autopilot, flight director, autothrottle, and trim.</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-icon">⚙️</div>
+      <div class="hero-title">Execution Layer</div>
+      <div class="hero-text">Actuators, trim systems, and autothrottle servos do the work after the logic is valid.</div>
+    </div>
+  </section>
+
+  <main>
+    <section class="section-grid">
+      <div class="system-section wide">
+        <div class="section-head"><div class="section-icon">🧠</div><h2>Big System Understanding — How It All Connects</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">DFCS = brain of autopilot, flight director, and autothrottle</span><span class="real-world"><span class="arrow">→</span>Everything runs through the FCCs.</span><span class="tag">big picture</span></div>
+          <div class="idea-card"><span class="main-idea">Two FCCs, A and B, give full redundancy</span><span class="real-world"><span class="arrow">→</span>If one fails, the other can still run the system.</span><span class="tag green">backup logic</span></div>
+          <div class="idea-card"><span class="main-idea">MCP is the main control panel</span><span class="real-world"><span class="arrow">→</span>Modes, speed, heading, altitude, and vertical commands come from here.</span></div>
+          <div class="idea-card"><span class="main-idea">FMCS feeds DFCS with navigation data</span><span class="real-world"><span class="arrow">→</span>LNAV and VNAV depend on FMC inputs.</span><span class="tag blue">nav source</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">✈️</div><h2>Autopilot — What Matters on the Line</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Two modes: CMD and CWS</span><span class="real-world"><span class="arrow">→</span>CMD is fully automatic. CWS is pilot assisted control.</span><span class="tag">mode basics</span></div>
+          <div class="idea-card"><span class="main-idea">Autopilot controls ailerons and elevators</span><span class="real-world"><span class="arrow">→</span>It does not directly “grab” surfaces. It drives actuators.</span></div>
+          <div class="idea-card"><span class="main-idea">You can override autopilot with force</span><span class="real-world"><span class="arrow">→</span>Roughly 25–50 lb override prevents dangerous runaway conditions.</span><span class="tag purple">safety clue</span></div>
+          <div class="idea-card"><span class="main-idea">Both autopilots are needed for autoland</span><span class="real-world"><span class="arrow">→</span>Single autopilot is normal flight. Dual autopilot is autoland logic.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🧭</div><h2>Flight Director</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">F/D = visual guidance only</span><span class="real-world"><span class="arrow">→</span>Magenta bars do not move anything. They tell the pilot where to go.</span></div>
+          <div class="idea-card"><span class="main-idea">If F/D data is bad, the bars disappear</span><span class="real-world"><span class="arrow">→</span>BOV is a big clue during troubleshooting.</span><span class="tag">troubleshooting clue</span></div>
+          <div class="idea-card"><span class="main-idea">F/D modes match autopilot modes</span><span class="real-world"><span class="arrow">→</span>LNAV, VNAV, HDG SEL, LOC, and other modes line up with DFCS logic.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🚀</div><h2>Autothrottle</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">A/T physically moves thrust levers</span><span class="real-world"><span class="arrow">→</span>Servo motors move the levers. This is not just a display mode.</span></div>
+          <div class="idea-card"><span class="main-idea">Two main jobs: SPD and N1</span><span class="real-world"><span class="arrow">→</span>SPD holds speed. N1 holds thrust.</span><span class="tag blue">core jobs</span></div>
+          <div class="idea-card"><span class="main-idea">THR HOLD means no servo movement</span><span class="real-world"><span class="arrow">→</span>Around 80 knots, it prevents unwanted throttle movement on takeoff.</span><span class="tag">normal behavior</span></div>
+          <div class="idea-card"><span class="main-idea">RETARD mode = idle thrust</span><span class="real-world"><span class="arrow">→</span>Normal during descent or flare. Do not chase it like an automatic fault.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">⚠️</div><h2>Modes & Annunciations</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">FMA at the top of the PFD is system truth</span><span class="real-world"><span class="arrow">→</span>Before troubleshooting behavior, verify what mode the airplane thinks it is in.</span><span class="tag">check first</span></div>
+          <div class="idea-card"><span class="main-idea">Green = active, white = armed, amber = caution</span><span class="real-world"><span class="arrow">→</span>The color tells you what the mode is doing right now.</span></div>
+          <div class="idea-card"><span class="main-idea">Mode changes show a green box for about 10 seconds</span><span class="real-world"><span class="arrow">→</span>Use the box to verify the transition actually happened.</span></div>
+          <div class="idea-card"><span class="main-idea">Wrong mode = wrong airplane behavior</span><span class="real-world"><span class="arrow">→</span>Always check FMA first. Parts cannon stays in the toolbox.</span><span class="tag purple">line mx gold</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🎯</div><h2>Flight Modes — Simplified Logic</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">LNAV and VNAV are FMC driven</span><span class="real-world"><span class="arrow">→</span>LNAV follows the lateral route. VNAV follows the vertical profile.</span><span class="tag blue">FMC driven</span></div>
+          <div class="idea-card"><span class="main-idea">HDG SEL and V/S are pilot driven</span><span class="real-world"><span class="arrow">→</span>HDG SEL follows MCP heading. V/S follows selected climb or descent rate.</span></div>
+          <div class="idea-card"><span class="main-idea">LVL CHG is energy management</span><span class="real-world"><span class="arrow">→</span>Pitch controls speed while A/T controls thrust.</span><span class="tag green">memory hook</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">⚙️</div><h2>Trim Systems — Critical for MX</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Speed trim works only when autopilot is OFF</span><span class="real-world"><span class="arrow">→</span>It helps stability at low speed and high thrust.</span><span class="tag">important condition</span></div>
+          <div class="idea-card"><span class="main-idea">Mach trim works at high speed</span><span class="real-world"><span class="arrow">→</span>It helps prevent nose-down tendency, also called mach tuck.</span></div>
+          <div class="idea-card"><span class="main-idea">Only one FCC controls trim at a time</span><span class="real-world"><span class="arrow">→</span>This avoids conflicting trim commands.</span><span class="tag green">no fighting</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🛡️</div><h2>Protection & Safety Logic</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Autopilot will not engage unless conditions are correct</span><span class="real-world"><span class="arrow">→</span>It uses interlocks for power, hydraulics, and system health.</span></div>
+          <div class="idea-card"><span class="main-idea">If conditions change, autopilot drops offline</span><span class="real-world"><span class="arrow">→</span>That can be normal behavior, not always a failed component.</span><span class="tag">do not overcall</span></div>
+          <div class="idea-card"><span class="main-idea">Actuators must sync before engagement</span><span class="real-world"><span class="arrow">→</span>This prevents sudden control-surface movement.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔧</div><h2>Maintenance / Troubleshooting Gold</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">BITE is your #1 troubleshooting tool</span><span class="real-world"><span class="arrow">→</span>Use CDU pages to find faults before guessing.</span><span class="tag">best practice</span></div>
+          <div class="idea-card"><span class="main-idea">Fault history is stored by flight leg</span><span class="real-world"><span class="arrow">→</span>Great for intermittent autopilot or mode issues.</span></div>
+          <div class="idea-card"><span class="main-idea">Always check sensor alignment and rigging marks</span><span class="real-world"><span class="arrow">→</span>Bad inputs create bad autopilot behavior.</span><span class="tag purple">input problem</span></div>
+          <div class="idea-card"><span class="main-idea">Actuator issues need hydraulic and electrical checks</span><span class="real-world"><span class="arrow">→</span>The actuator needs both to work correctly.</span></div>
+          <div class="idea-card"><span class="main-idea">Autopilot problems are often sensor or mode logic issues</span><span class="real-world"><span class="arrow">→</span>Do not assume the actuator is bad first.</span><span class="tag">real mx reality</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="memory-map">
+      <h2>🧠 Simple Way to Remember ATA 22</h2>
+      <div class="map-grid">
+        <div class="map-card"><div class="map-number">1</div><div class="map-title">Command Layer</div><ul><li>MCP</li><li>FMC</li><li>Pilot inputs</li></ul></div>
+        <div class="map-card"><div class="map-number">2</div><div class="map-title">Brain Layer</div><ul><li>FCC A</li><li>FCC B</li><li>Mode logic</li></ul></div>
+        <div class="map-card"><div class="map-number">3</div><div class="map-title">Execution Layer</div><ul><li>Actuators</li><li>Trim systems</li><li>Autothrottle</li></ul></div>
+      </div>
+
+      <h2 style="margin-top:24px;">🔥 Real Line MX Takeaways</h2>
+      <div class="fail-list">
+        <div class="fail-chip">Always check FMA first</div>
+        <div class="fail-chip">Most issues = bad input<br><small>not bad output</small></div>
+        <div class="fail-chip">BITE saves time<br><small>use it early</small></div>
+        <div class="fail-chip">FCC redundancy hides failures<br><small>look deeper</small></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    B737 ATA 22 DFCS quick-study page • Built for line-maintenance brain speed, not PowerPoint pain.
+  </footer>
+</body>
+</html>

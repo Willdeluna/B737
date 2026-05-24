@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B737NG ATA 24 – Electrical Power Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#041208;
+  --card:#061a0e;
+  --card2:#092015;
+  --lime:#39d353;
+  --lime2:#1f8c32;
+  --green:#58cc02;
+  --green2:#46a302;
+  --green-bg:#071a0a;
+  --green-bdr:#1a4d1a;
+  --red:#ff4b4b;
+  --red2:#cc2a2a;
+  --red-bg:#1f0a0a;
+  --red-bdr:#5c1212;
+  --blue:#1cb0f6;
+  --gold:#ffc800;
+  --gold2:#c89800;
+  --text:#e0f5e8;
+  --muted:#3d7a52;
+  --border:#0f3520;
+  --r:14px;
+}
+html,body{min-height:100vh;background:var(--bg);font-family:'Nunito',sans-serif;color:var(--text)}
+body{
+  display:flex;align-items:center;justify-content:center;padding:16px;
+  background:
+    radial-gradient(ellipse at 15% 0%,rgba(57,211,83,0.1) 0%,transparent 55%),
+    radial-gradient(ellipse at 85% 100%,rgba(31,140,50,0.05) 0%,transparent 50%),
+    var(--bg);
+}
+.wrap{width:100%;max-width:520px}
+.screen{display:none}.screen.on{display:block}
+
+/* ── HOME ── */
+.home-card{background:var(--card);border-radius:22px;padding:28px 24px;border:1px solid var(--border);box-shadow:0 0 0 1px #020e05,0 24px 60px rgba(0,0,0,.9);text-align:center;position:relative;overflow:hidden}
+.home-card::before{content:'';position:absolute;top:-80px;left:-80px;width:280px;height:280px;background:radial-gradient(circle,rgba(57,211,83,.1) 0%,transparent 70%);pointer-events:none;border-radius:50%}
+.home-card::after{content:'';position:absolute;bottom:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(31,140,50,.06) 0%,transparent 70%);pointer-events:none;border-radius:50%}
+.plane{font-size:58px;display:block;animation:bob 3s ease-in-out infinite;margin-bottom:2px;filter:drop-shadow(0 0 18px rgba(57,211,83,.6))}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-11px) rotate(4deg)}}
+.home-badge{display:inline-block;color:var(--lime);font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:4px 14px;border-radius:99px;margin-bottom:8px;border:1.5px solid var(--lime2);position:relative;z-index:1}
+.home-h1{font-size:clamp(20px,5vw,28px);font-weight:900;line-height:1.15;margin-bottom:6px;color:#fff;position:relative;z-index:1}
+.home-h1 span{color:var(--lime)}
+.home-sub{font-size:12px;color:var(--muted);font-weight:600;line-height:1.55;max-width:340px;margin:0 auto 16px;position:relative;z-index:1}
+.home-pills{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-bottom:16px;position:relative;z-index:1}
+.pill{background:#041208;border:1.5px solid #0f3520;border-radius:99px;padding:4px 11px;font-size:11px;font-weight:700;color:var(--lime2)}
+.home-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px;position:relative;z-index:1}
+.meta-box{background:#041208;border:1.5px solid var(--border);border-radius:12px;padding:11px 6px}
+.meta-n{font-size:26px;font-weight:900;color:var(--lime)}
+.meta-l{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.btn-go{width:100%;padding:14px;background:var(--lime);color:#000;border:none;border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 5px 0 var(--lime2),0 8px 24px rgba(57,211,83,.3);transition:transform .12s,box-shadow .12s;letter-spacing:.3px;position:relative;z-index:1}
+.btn-go:hover{transform:translateY(-3px);box-shadow:0 8px 0 var(--lime2),0 12px 28px rgba(57,211,83,.35)}
+.btn-go:active{transform:translateY(3px);box-shadow:0 2px 0 var(--lime2)}
+
+/* ── QUIZ SHELL ── */
+.q-shell{background:var(--card);border-radius:20px;border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.9);overflow:hidden;max-height:490px;display:flex;flex-direction:column}
+.topbar{padding:10px 14px 9px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;flex-shrink:0;background:var(--card2)}
+.xbtn{width:27px;height:27px;border:1.5px solid var(--border);border-radius:7px;background:none;cursor:pointer;font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.xbtn:hover{background:#1f0709;border-color:var(--red);color:var(--red)}
+.prog-col{flex:1}
+.prog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.prog-cat{font-size:11px;font-weight:800;color:var(--lime);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px}
+.prog-n{font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap}
+.bar-bg{height:7px;background:#041208;border-radius:99px;overflow:hidden;border:1px solid #0f3520}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--lime2),var(--lime),#a0ffb0);border-radius:99px;transition:width .5s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 8px rgba(57,211,83,.45)}
+.topbar-r{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.hearts{display:flex;gap:1px;font-size:14px}
+.heart{transition:all .3s}
+.heart.gone{opacity:.15;filter:grayscale(1);transform:scale(.65)}
+.xp-tag{background:#041208;border:1.5px solid #1a3520;border-radius:99px;padding:3px 9px;font-size:12px;font-weight:800;color:var(--gold);white-space:nowrap}
+.streak-tag{background:#041208;border:1.5px solid #1a3520;border-radius:99px;padding:3px 9px;font-size:11px;font-weight:800;color:#ff9600;white-space:nowrap}
+
+/* ── QUESTION BODY ── */
+.q-body{flex:1;overflow-y:auto;padding:13px 15px 0;scrollbar-width:thin;scrollbar-color:#0f3520 transparent}
+.q-body::-webkit-scrollbar{width:4px}
+.q-body::-webkit-scrollbar-thumb{background:#0f3520;border-radius:4px}
+.q-cat{font-size:11px;font-weight:800;color:var(--lime2);text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.q-dot{width:6px;height:6px;background:var(--lime);border-radius:50%;box-shadow:0 0 6px rgba(57,211,83,.8)}
+.q-text{font-size:clamp(13px,2.6vw,14.5px);font-weight:700;line-height:1.52;margin-bottom:12px;color:#d0f0d8}
+.opts{display:flex;flex-direction:column;gap:6px;padding-bottom:12px}
+.opt{width:100%;padding:10px 12px;background:#041208;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:9px;font-family:'Nunito',sans-serif;font-size:12.5px;font-weight:700;color:#88c898;transition:all .13s;line-height:1.32;position:relative;overflow:hidden}
+.opt:hover:not(:disabled){border-color:var(--lime2);background:#081e10;color:var(--lime);transform:translateX(3px)}
+.opt-l{width:24px;height:24px;border-radius:6px;background:#092015;border:1.5px solid #1a3520;font-size:11px;font-weight:900;color:#2a5a3a;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.opt.picked-right{border-color:var(--green);background:var(--green-bg);color:#a0ffe0;animation:bumpR .4s cubic-bezier(.34,1.56,.64,1)}
+.opt.picked-right .opt-l{background:var(--green);border-color:var(--green);color:#000}
+.opt.picked-wrong{border-color:var(--red);background:var(--red-bg);color:#ffaaaa;animation:shakeW .35s}
+.opt.picked-wrong .opt-l{background:var(--red);border-color:var(--red);color:#fff}
+.opt.reveal-right{border-color:var(--green);background:var(--green-bg);color:#a0ffe0}
+.opt.reveal-right .opt-l{background:var(--green);border-color:var(--green);color:#000}
+.opt.faded{opacity:.22}
+.opt:disabled{cursor:default;transform:none!important}
+@keyframes bumpR{0%{transform:scale(1)}40%{transform:scale(1.025)}100%{transform:scale(1)}}
+@keyframes shakeW{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+
+/* ── FEEDBACK ── */
+.fb{flex-shrink:0;display:none;align-items:center;gap:9px;padding:10px 15px;border-top:1.5px solid transparent}
+.fb.on{display:flex}
+.fb.ok{background:#071a0a;border-color:var(--green-bdr)}
+.fb.no{background:#190408;border-color:var(--red-bdr)}
+.fb-icon{font-size:24px;flex-shrink:0}
+.fb-txt{flex:1;min-width:0}
+.fb-head{font-size:13px;font-weight:900}
+.fb.ok .fb-head{color:var(--green)}
+.fb.no .fb-head{color:var(--red)}
+.fb-detail{font-size:11px;font-weight:600;color:#3d7a52;line-height:1.4;margin-top:2px}
+.btn-cont{padding:8px 14px;border:none;border-radius:9px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .12s}
+.fb.ok .btn-cont{background:var(--green);color:#000;box-shadow:0 3px 0 var(--green2)}
+.fb.ok .btn-cont:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--green2)}
+.fb.no .btn-cont{background:var(--red);color:#fff;box-shadow:0 3px 0 var(--red2)}
+.fb.no .btn-cont:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--red2)}
+
+/* ── RESULTS ── */
+.res-card{background:var(--card);border-radius:22px;padding:28px 22px;border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.9);text-align:center;position:relative;overflow:hidden}
+.res-card::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:300px;height:300px;background:radial-gradient(circle,rgba(57,211,83,.08) 0%,transparent 65%);border-radius:50%;pointer-events:none}
+.trophy{font-size:66px;display:block;animation:dropIn .7s cubic-bezier(.34,1.56,.64,1);position:relative;z-index:1;filter:drop-shadow(0 0 20px rgba(57,211,83,.5))}
+@keyframes dropIn{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.stars-row{display:flex;justify-content:center;gap:8px;margin:5px 0 12px;position:relative;z-index:1}
+.rstar{font-size:32px;opacity:0;filter:drop-shadow(0 0 8px rgba(57,211,83,.6))}
+.rstar.lit{animation:starIn .5s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes starIn{to{opacity:1;transform:scale(1) rotate(0)}from{opacity:0;transform:scale(0) rotate(-20deg)}}
+.res-title{font-size:clamp(20px,5vw,26px);font-weight:900;margin-bottom:3px;color:#fff;position:relative;z-index:1}
+.res-sub{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:18px;position:relative;z-index:1}
+.res-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px;position:relative;z-index:1}
+.res-box{background:#041208;border:1.5px solid var(--border);border-radius:12px;padding:12px 6px}
+.res-n{font-size:24px;font-weight:900;color:var(--lime)}
+.res-l{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.res-btns{display:flex;flex-direction:column;gap:8px;position:relative;z-index:1}
+.btn-again{width:100%;padding:14px;background:var(--lime);color:#000;border:none;border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 5px 0 var(--lime2),0 7px 20px rgba(57,211,83,.25);transition:all .12s;letter-spacing:.3px}
+.btn-again:hover{transform:translateY(-2px);box-shadow:0 7px 0 var(--lime2),0 10px 24px rgba(57,211,83,.3)}
+.btn-again:active{transform:translateY(3px);box-shadow:0 2px 0 var(--lime2)}
+.btn-home-sm{width:100%;padding:11px;border:1.5px solid var(--border);border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:none;color:var(--muted);transition:all .15s}
+.btn-home-sm:hover{border-color:var(--lime2);color:var(--lime)}
+
+/* ── EFFECTS ── */
+.confetti{position:fixed;pointer-events:none;z-index:9999;animation:cfall linear forwards}
+@keyframes cfall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(110vh) rotate(700deg)}}
+.spark{position:fixed;pointer-events:none;z-index:9999;border-radius:50%;animation:spark ease-out forwards}
+@keyframes spark{to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0)}}
+.floatxp{position:fixed;pointer-events:none;z-index:9999;font-size:16px;font-weight:900;color:var(--gold);text-shadow:0 0 12px rgba(255,200,0,.5);animation:fxp .9s ease-out forwards}
+@keyframes fxp{0%{opacity:1;transform:translateY(0) scale(.7)}20%{transform:translateY(-8px) scale(1.1)}100%{opacity:0;transform:translateY(-60px) scale(.9)}}
+.popbadge{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:9999;font-size:34px;font-weight:900;animation:pbadge 1s ease forwards;white-space:nowrap;text-shadow:0 0 30px rgba(57,211,83,.8),0 4px 20px rgba(0,0,0,.5)}
+@keyframes pbadge{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}70%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-55%) scale(.9)}}
+@media(max-width:400px){.topbar{padding:9px 11px}.q-body{padding:11px 11px 0}.opts{gap:5px}.opt{padding:9px 10px;font-size:12px}.fb{padding:9px 12px}.home-card,.res-card{padding:22px 14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ═══ HOME ═══ -->
+<div id="home" class="screen on">
+<div class="home-card">
+  <span class="plane">⚡</span>
+  <div class="home-badge">ATA Chapter 24</div>
+  <h1 class="home-h1">B737NG<br><span>Electrical Power Quiz</span></h1>
+  <p class="home-sub">30 questions on IDGs, GCUs, TRUs, AC/DC buses, standby power, load shedding, external power, batteries &amp; line MX tribal knowledge.</p>
+  <div class="home-pills">
+    <span class="pill">⚡ IDG / AC Gen</span>
+    <span class="pill">🧠 GCU / BPCU</span>
+    <span class="pill">🔌 External Power</span>
+    <span class="pill">🔄 TRU / DC</span>
+    <span class="pill">🔋 Batteries</span>
+    <span class="pill">🚨 Standby Power</span>
+    <span class="pill">⚠️ Load Shedding</span>
+    <span class="pill">🏆 Tribal Rules</span>
+  </div>
+  <div class="home-meta">
+    <div class="meta-box"><div class="meta-n">30</div><div class="meta-l">Questions</div></div>
+    <div class="meta-box"><div class="meta-n">3</div><div class="meta-l">Lives</div></div>
+    <div class="meta-box"><div class="meta-n">8</div><div class="meta-l">Topics</div></div>
+  </div>
+  <button class="btn-go" onclick="startGame()">⚡ Start Quiz</button>
+</div>
+</div>
+
+<!-- ═══ QUIZ ═══ -->
+<div id="quiz" class="screen">
+<div class="q-shell">
+  <div class="topbar">
+    <button class="xbtn" onclick="confirmQuit()">✕</button>
+    <div class="prog-col">
+      <div class="prog-top">
+        <span class="prog-cat" id="cat-lbl">IDG / AC Gen</span>
+        <span class="prog-n"><span id="qn">1</span>/<span id="qtot">30</span></span>
+      </div>
+      <div class="bar-bg"><div class="bar-fill" id="bar" style="width:0%"></div></div>
+    </div>
+    <div class="topbar-r">
+      <div class="streak-tag">🔥<span id="streak-n">0</span></div>
+      <div class="hearts" id="hearts">
+        <span class="heart" id="h0">❤️</span><span class="heart" id="h1">❤️</span><span class="heart" id="h2">❤️</span>
+      </div>
+      <div class="xp-tag">⚡<span id="xpdis">0</span></div>
+    </div>
+  </div>
+  <div class="q-body" id="q-body">
+    <div class="q-cat"><div class="q-dot"></div><span id="q-cat">IDG / AC Gen</span></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="opts" id="opts"></div>
+  </div>
+  <div class="fb" id="fb">
+    <span class="fb-icon" id="fb-icon">✅</span>
+    <div class="fb-txt">
+      <div class="fb-head" id="fb-head">Correct!</div>
+      <div class="fb-detail" id="fb-det"></div>
+    </div>
+    <button class="btn-cont" id="btn-cont" onclick="advance()">Next →</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══ RESULT ═══ -->
+<div id="result" class="screen">
+<div class="res-card">
+  <span class="trophy" id="trophy">🏆</span>
+  <div class="stars-row">
+    <span class="rstar" id="rs0">⭐</span><span class="rstar" id="rs1">⭐</span><span class="rstar" id="rs2">⭐</span>
+  </div>
+  <div class="res-title" id="res-title">Session Complete!</div>
+  <div class="res-sub" id="res-sub">Great work!</div>
+  <div class="res-grid">
+    <div class="res-box"><div class="res-n" id="r-xp">0</div><div class="res-l">XP</div></div>
+    <div class="res-box"><div class="res-n" id="r-acc">0%</div><div class="res-l">Accuracy</div></div>
+    <div class="res-box"><div class="res-n" id="r-str">0</div><div class="res-l">Best Streak</div></div>
+  </div>
+  <div class="res-btns">
+    <button class="btn-again" onclick="startGame()">🔁 Play Again</button>
+    <button class="btn-home-sm" onclick="goHome()">← Back to Home</button>
+  </div>
+</div>
+</div>
+
+</div>
+<script>
+// ═══ AUDIO ═══
+const AC_=window.AudioContext||window.webkitAudioContext;let actx=null;
+function ctx(){if(!actx)actx=new AC_();return actx;}
+function playCorrect(){try{const c=ctx();[523,659,784,1047].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;const t=c.currentTime+i*.07;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.16,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.22);o.start(t);o.stop(t+.25);});}catch(e){}}
+function playWrong(){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sawtooth';o.frequency.setValueAtTime(280,c.currentTime);o.frequency.exponentialRampToValueAtTime(80,c.currentTime+.35);g.gain.setValueAtTime(.13,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.4);o.start();o.stop(c.currentTime+.45);}catch(e){}}
+function playCombo(){try{const c=ctx();[880,1108,1320,1760].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='triangle';o.frequency.value=f;const t=c.currentTime+i*.05;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.2,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.28);o.start(t);o.stop(t+.3);});}catch(e){}}
+function playVictory(){try{const c=ctx();[523,659,784,1047,1319,1568,2093].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;const t=c.currentTime+i*.09;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.18,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+.32);o.start(t);o.stop(t+.35);});}catch(e){}}
+function playClick(){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=440;g.gain.setValueAtTime(.06,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.07);o.start();o.stop(c.currentTime+.08);}catch(e){}}
+
+// ═══ QUESTION BANK ═══
+// correct: answer text — options shuffled at render time, position always random
+const BANK=[
+// ── IDG / AC GENERATION ───────────────────────────────────────────────────────
+{c:"⚡ IDG / AC Gen",
+ q:"What type and specification of AC power does each IDG produce on the B737NG?",
+ correct:"115V, 400 Hz, three-phase AC — rated up to 90 KVA per IDG",
+ o:["115V, 400 Hz, three-phase AC — rated up to 90 KVA per IDG",
+    "28V DC at up to 300 amps — converted to AC downstream by inverters",
+    "115V, 60 Hz single-phase AC — matched to standard ground power frequency",
+    "200V, 400 Hz three-phase AC — stepped down to 115V for cabin distribution"],
+ d:"Each IDG produces 115V (115/200V line-to-neutral/line-to-line), 400 Hz, three-phase AC, rated at 90 KVA. The 400 Hz frequency is standard for aircraft to allow smaller, lighter transformers and motors compared to 60 Hz ground power systems."},
+
+{c:"⚡ IDG / AC Gen",
+ q:"How does the Constant Speed Drive (CSD) in the IDG maintain a steady 400 Hz output despite varying engine RPM?",
+ correct:"It uses a hydromechanical differential gear system that converts variable engine input speed to a constant output speed",
+ o:["It uses a hydromechanical differential gear system that converts variable engine input speed to a constant output speed",
+    "It monitors generator frequency electronically and adjusts field excitation to compensate for speed changes",
+    "It uses a planetary gearbox with a fixed ratio to scale engine RPM to generator RPM",
+    "The GCU electronically varies the number of generator pole pairs to maintain 400 Hz output"],
+ d:"The CSD uses a hydromechanical system — a hydraulic trim unit and differential gear — to maintain constant generator speed (nominally 24,000 RPM) regardless of engine power setting. This produces the constant 400 Hz output the aircraft systems require. The GCU monitors the output but does not control CSD speed directly."},
+
+{c:"⚡ IDG / AC Gen",
+ q:"In normal operation, how does each IDG feed the aircraft's AC buses?",
+ correct:"IDG 1 powers Transfer Bus 1 and its downstream buses; IDG 2 powers Transfer Bus 2 and its downstream buses — independently, with no paralleling",
+ o:["IDG 1 powers Transfer Bus 1 and its downstream buses; IDG 2 powers Transfer Bus 2 and its downstream buses — independently, with no paralleling",
+    "Both IDGs are connected in parallel to a single tie bus, which then feeds all AC buses",
+    "IDG 1 supplies all AC buses; IDG 2 is in standby and only connects if IDG 1 fails",
+    "The BPCU decides which IDG feeds which bus each flight based on load balancing logic"],
+ d:"In normal dual-IDG operation, IDG 1 independently powers the left side (Transfer Bus 1 and downstream AC buses) and IDG 2 powers the right side. No paralleling is permitted — two sources are never connected to the same bus simultaneously. When one IDG fails, Bus Tie Breakers allow the remaining IDG to feed both sides."},
+
+{c:"⚡ IDG / AC Gen",
+ q:"What is the fundamental 'no paralleling' rule of the B737NG electrical system?",
+ correct:"Two AC sources are never connected to the same bus simultaneously — connecting a new source automatically disconnects the existing one",
+ o:["Two AC sources are never connected to the same bus simultaneously — connecting a new source automatically disconnects the existing one",
+    "AC and DC buses must never be tied together — a dedicated isolation relay prevents this automatically",
+    "The APU generator and external power can never be used at the same time — only one ground power source allowed",
+    "IDG 1 and IDG 2 cannot power the same bus even with a Bus Tie Breaker — a manual switch is needed"],
+ d:"The no-paralleling rule is the cornerstone of the B737NG electrical architecture. Two AC sources (IDG, APU gen, or external power) are never in parallel on the same bus. When a new source is selected, the system automatically removes the previous source before making the new connection, preventing phase-mismatch faults and backfeed."},
+
+{c:"⚡ IDG / AC Gen",
+ q:"What does the amber DRIVE light on the P5 panel indicate, and why must it be treated seriously?",
+ correct:"IDG oil pressure has dropped below 165 PSI (or an under-frequency fault exists) — indicates a potential IDG failure requiring immediate attention",
+ o:["IDG oil pressure has dropped below 165 PSI (or an under-frequency fault exists) — indicates a potential IDG failure requiring immediate attention",
+    "The IDG has been manually disconnected by the crew — the light is just a status confirmation",
+    "The IDG Constant Speed Drive is being serviced and is temporarily out of speed range",
+    "IDG output voltage is outside limits — the GCB has opened to protect the bus"],
+ d:"The amber DRIVE light illuminates when IDG oil pressure falls below 165 PSI with the engine running, or when an under-frequency fault occurs. The GCU controls this light. Low oil pressure is a serious warning — continued operation risks IDG seizure. If the DRIVE light illuminates, the IDG may disconnect automatically, or the crew should manually disconnect before damage occurs."},
+
+{c:"⚡ IDG / AC Gen",
+ q:"Once an IDG is disconnected in flight, can it be reconnected? What is the maintenance implication?",
+ correct:"No — a disconnected IDG cannot be reconnected in flight. A ground reset of the IDG is required before the next flight",
+ o:["No — a disconnected IDG cannot be reconnected in flight. A ground reset of the IDG is required before the next flight",
+    "Yes — the GEN switch can reconnect the IDG after a 30-second cooling period in flight",
+    "Yes — the BPCU automatically reconnects the IDG once oil pressure returns to normal limits",
+    "No — a disconnected IDG requires replacement before the next flight regardless of the cause"],
+ d:"IDG disconnection is irreversible in flight. Once disconnected (manually via the DISCONNECT switch or automatically by thermal protection), the IDG cannot be reconnected until the aircraft is on the ground. Maintenance must perform a ground reset — typically pulling the reset handle on the IDG after investigating the cause."},
+
+// ── GCU / BPCU ────────────────────────────────────────────────────────────────
+{c:"🧠 GCU / BPCU",
+ q:"What is the role of the Generator Control Unit (GCU) in the electrical system?",
+ correct:"The GCU monitors and protects the IDG — it controls voltage, frequency, and current limits and opens the GCB if parameters go out of limits",
+ o:["The GCU monitors and protects the IDG — it controls voltage, frequency, and current limits and opens the GCB if parameters go out of limits",
+    "The GCU physically connects and disconnects the IDG from the gearbox using a solenoid clutch",
+    "The GCU controls the Bus Tie Breakers and manages power transfer between the two main buses",
+    "The GCU is a backup controller that only activates if the BPCU fails"],
+ d:"The GCU is the IDG's brain. It monitors voltage, frequency, and current output and opens the Generator Circuit Breaker (GCB) if any parameter goes outside acceptable limits. It also monitors IDG oil pressure and controls the DRIVE light. Most apparent 'generator faults' are actually GCU protection events — the generator itself is often fine."},
+
+{c:"🧠 GCU / BPCU",
+ q:"What does the GEN OFF BUS indication on the P5 panel tell a line mechanic?",
+ correct:"The generator is running but not connected to the bus — the GCB is open or the generator is not accepted by the system",
+ o:["The generator is running but not connected to the bus — the GCB is open or the generator is not accepted by the system",
+    "The generator has failed completely and cannot produce output — it needs replacement",
+    "The GEN switch was placed to OFF by the crew — this is a normal crew action indication",
+    "The IDG has been physically disconnected from the engine gearbox"],
+ d:"GEN OFF BUS means the generator is producing power but the Generator Circuit Breaker (GCB) is open, preventing the generator from feeding the bus. Causes include out-of-limits voltage/frequency (GCU tripped the GCB), a GCB fault, or the GEN switch in OFF. Start troubleshooting at source: check GCU BITE before condemning the IDG."},
+
+{c:"🧠 GCU / BPCU",
+ q:"What is the role of the Bus Power Control Unit (BPCU) in the electrical system?",
+ correct:"The BPCU monitors and controls external power quality and manages Bus Tie Breakers — it also controls load shedding logic",
+ o:["The BPCU monitors and controls external power quality and manages Bus Tie Breakers — it also controls load shedding logic",
+    "The BPCU is the backup brain for the GCU — it only activates when the GCU fails",
+    "The BPCU directly controls the IDG Constant Speed Drive to maintain 400 Hz output",
+    "The BPCU is the battery management unit — it controls charging and discharge protection"],
+ d:"The BPCU (Bus Power Control Unit) monitors external power quality (voltage, frequency, current) and opens the External Power Contactor (EPC) if quality is outside limits. It also controls the Bus Tie Breakers and manages load shedding sequences. The BPCU has BITE capability — always use it before replacing expensive contactors or breakers."},
+
+{c:"🧠 GCU / BPCU",
+ q:"The P5 panel shows SOURCE OFF for a transfer bus. What does this indicate?",
+ correct:"The wrong source is feeding that bus, or a source selection logic issue — not necessarily a generator failure",
+ o:["The wrong source is feeding that bus, or a source selection logic issue — not necessarily a generator failure",
+    "The transfer bus has completely lost power — no source is connected to it",
+    "The generator for that side has been manually disconnected by the GCU protection",
+    "The Bus Tie Breaker has opened, isolating both sides of the AC system"],
+ d:"SOURCE OFF indicates the system logic has determined that the selected source for that bus is wrong or unavailable — a switching logic or source selection issue. It is a clue to investigate the power source sequence and control logic rather than immediately condemning the generator. Follow the path: source → breaker → bus."},
+
+{c:"🧠 GCU / BPCU",
+ q:"BITE is called the best friend for ATA 24 troubleshooting. How is GCU/BPCU BITE accessed?",
+ correct:"On the P5 panel, place the Meter Selector to TEST — this enables BITE access for GCU and BPCU fault isolation",
+ o:["On the P5 panel, place the Meter Selector to TEST — this enables BITE access for GCU and BPCU fault isolation",
+    "BITE is accessed via the CDU MAINT page — select ELECTRICAL from the menu",
+    "GCU BITE is automatic and only displays on EICAS — no manual access is possible",
+    "BITE requires a dedicated ground test set connected to the P18 panel to function"],
+ d:"GCU and BPCU BITE is accessed by placing the Meter Selector switch on the P5 panel to TEST. This enables the built-in test displays that show fault history, exceedance data, and specific fault codes. Using BITE before replacing any electrical LRU is the difference between smart troubleshooting and an expensive parts cannon."},
+
+// ── EXTERNAL POWER ────────────────────────────────────────────────────────────
+{c:"🔌 External Power",
+ q:"What does the GRD POWER AVAILABLE light on the P5 panel confirm?",
+ correct:"External power is connected AND its voltage and frequency meet the required quality limits",
+ o:["External power is connected AND its voltage and frequency meet the required quality limits",
+    "External power is connected to the aircraft — quality is not checked until GRD PWR is selected",
+    "The external power cable is physically connected but not yet energised",
+    "The ground power unit is running and available but not yet connected to the aircraft"],
+ d:"GRD POWER AVAILABLE only illuminates when external power is within acceptable limits — correct voltage AND frequency. This is the BPCU confirming quality, not just presence. If the GPU is running but the light doesn't illuminate, check GPU output quality first before investigating aircraft systems."},
+
+{c:"🔌 External Power",
+ q:"What happens automatically if external power quality falls outside limits while powering the aircraft?",
+ correct:"The BPCU opens the External Power Contactor (EPC) — the aircraft protects itself by disconnecting the bad power source",
+ o:["The BPCU opens the External Power Contactor (EPC) — the aircraft protects itself by disconnecting the bad power source",
+    "The GCU switches to IDG power automatically — external power is bypassed",
+    "The bus continues to be powered but an ELEC caution triggers on the EICAS",
+    "Nothing happens automatically — the crew must manually remove external power"],
+ d:"The BPCU continuously monitors external power quality. If voltage or frequency goes outside limits (low voltage, wrong frequency, etc.), the EPC opens automatically, disconnecting the bad power source before it can damage aircraft systems. This is entirely automatic — the aircraft protects itself."},
+
+{c:"🔌 External Power",
+ q:"What is the ground service switch and why is it useful for turnaround operations?",
+ correct:"A switch that provides power to AC ground service buses (cabin lighting, utility outlets, battery charger) without energising all aircraft buses — reducing power-up load",
+ o:["A switch that provides power to AC ground service buses (cabin lighting, utility outlets, battery charger) without energising all aircraft buses — reducing power-up load",
+    "A switch that connects the nose gear tow bar circuit to the aircraft interphone system",
+    "A switch that activates the external power unit remotely from inside the aircraft",
+    "A switch that bypasses the BPCU quality check and forces external power onto the main buses"],
+ d:"The ground service switch (on the forward attendant's panel) provides power directly to the AC ground service buses for cabin lighting, utility outlets, and battery charging without powering all aircraft AC buses. It's a momentary pushbutton overridden when both transfer buses are powered. Useful during cabin prep when full aircraft power isn't needed."},
+
+// ── TRU / DC SYSTEM ──────────────────────────────────────────────────────────
+{c:"🔄 TRU / DC",
+ q:"What is the primary function of the Transformer Rectifier Units (TRUs) and how many are there?",
+ correct:"Three TRUs convert 115V AC to 28V DC — they are the main source of DC power for the aircraft",
+ o:["Three TRUs convert 115V AC to 28V DC — they are the main source of DC power for the aircraft",
+    "Two TRUs convert 28V DC to 115V AC — they supply the AC standby bus when IDGs are offline",
+    "Three TRUs regulate DC voltage from the batteries and distribute it to the DC buses",
+    "Four TRUs convert AC to DC — two for normal operations and two dedicated to standby systems"],
+ d:"The three TRUs (TRU 1, TRU 2, TRU 3) are transformer-rectifiers that convert 115V AC from the transfer buses into 28V DC. Each TRU can supply up to 75 amps. They are the aircraft's primary DC power source. The batteries are backup, not the normal supply."},
+
+{c:"🔄 TRU / DC",
+ q:"TRU 3 has a specific role that makes it a useful troubleshooting clue. What is it?",
+ correct:"TRU 3 primarily powers the battery bus — so a battery bus fault with no battery problem points to TRU 3",
+ o:["TRU 3 primarily powers the battery bus — so a battery bus fault with no battery problem points to TRU 3",
+    "TRU 3 is dedicated to the AC standby bus — it is the only TRU that feeds AC systems",
+    "TRU 3 powers the APU start circuit — it must be serviceable before every APU start",
+    "TRU 3 powers the IFE/entertainment system bus — it is shed first during load reduction"],
+ d:"TRU 3 mainly powers the battery bus. This makes it a specific troubleshooting clue: if you see a battery bus problem but the battery itself is healthy, TRU 3 is the next suspect. Understanding which TRU feeds which bus prevents unnecessary battery or charger replacement."},
+
+{c:"🔄 TRU / DC",
+ q:"The amber TR UNIT light illuminates on the overhead panel. What does this indicate?",
+ correct:"A TRU has failed — specifically, it can mean TRU 1 or TRU 2 fail individually, or TRU 2 and TRU 3 both fail together in flight",
+ o:["A TRU has failed — specifically, it can mean TRU 1 or TRU 2 fail individually, or TRU 2 and TRU 3 both fail together in flight",
+    "All three TRUs have failed — the aircraft is running on battery power only",
+    "The TRU cooling fan has failed — the TRU is reducing output to prevent overheating",
+    "The TRU output has exceeded 28V — overvoltage protection has tripped the unit offline"],
+ d:"The TR UNIT light illuminates for specific failure combinations: TRU 1 fails, or TRU 2 fails, or both TRU 2 and TRU 3 fail together in flight. The ELEC light (on EICAS) indicates DC or standby power system faults. Use BITE to isolate which TRU has failed before any replacement."},
+
+{c:"🔄 TRU / DC",
+ q:"The B737NG DC system operates at what nominal voltage, and what type of system architecture does it use?",
+ correct:"28 volts DC — a two-wire system (one positive conductor, aircraft structure as the return ground)",
+ o:["28 volts DC — a two-wire system (one positive conductor, aircraft structure as the return ground)",
+    "24 volts DC — a fully isolated two-wire system with no structural ground path",
+    "28 volts DC — a three-wire system similar to AC distribution for redundancy",
+    "12 volts DC at the battery bus, converted to 28V at the main buses via boost converters"],
+ d:"The B737NG DC system is a 28V two-wire system. The positive conductor runs through the aircraft wiring while the aircraft structure acts as the negative return (ground). This is why good structural bonding is critical — a poor bond creates a high-resistance ground path that can cause intermittent DC system faults."},
+
+// ── BATTERIES ─────────────────────────────────────────────────────────────────
+{c:"🔋 Batteries",
+ q:"What are the two primary uses of the main battery on the B737NG?",
+ correct:"APU starting power and standby/emergency power when normal AC power is unavailable",
+ o:["APU starting power and standby/emergency power when normal AC power is unavailable",
+    "Primary DC power during cruise flight — the battery powers all DC buses normally",
+    "Engine starting and fuel boost pump power during takeoff only",
+    "Backup for the AC system — the battery feeds the static inverter as the primary supply"],
+ d:"The main battery's two key roles are APU start (providing the DC needed to crank the APU starter) and standby/emergency power (keeping essential systems alive if normal AC is lost). In normal flight, the battery is NOT powering the aircraft — the TRUs supply DC and the battery floats on charge."},
+
+{c:"🔋 Batteries",
+ q:"The amber BAT DISCHARGE light briefly illuminates during an APU start. Should this concern the crew or maintenance?",
+ correct:"No — the BAT DISCHARGE light temporarily illuminating during APU start with battery power is completely normal behavior",
+ o:["No — the BAT DISCHARGE light temporarily illuminating during APU start with battery power is completely normal behavior",
+    "Yes — a momentary BAT DISCHARGE during APU start indicates a weak battery that needs replacement",
+    "Yes — the discharge light should never illuminate; it indicates a battery charger fault",
+    "No — but the battery bus voltage must be manually verified after every APU start"],
+ d:"The BAT DISCHARGE light illuminating briefly during APU start is normal and expected. The battery is supplying high current to the APU starter — the charger can't keep up momentarily, so the battery discharges slightly. Once the APU generator comes online and the charger restores battery voltage, the light goes out. A persistent BAT DISCHARGE light after APU start-up would be the concern."},
+
+{c:"🔋 Batteries",
+ q:"The battery switch OFF position removes the battery from the aircraft's power system except for which bus?",
+ correct:"The Hot Battery Bus — this bus remains powered by the battery regardless of the battery switch position",
+ o:["The Hot Battery Bus — this bus remains powered by the battery regardless of the battery switch position",
+    "The battery switch OFF removes power from all buses including the Hot Battery Bus",
+    "The Switched Hot Battery Bus — this bus is the only one that remains live in BATT OFF",
+    "The AC Standby Bus — it uses battery power directly when the switch is OFF"],
+ d:"Even with the battery switch in OFF, the Hot Battery Bus remains energised directly from the battery. This bus powers critical systems that must always have power regardless of switch position (e.g., certain warning systems, CVR power). Maintenance must be aware of this when working on systems fed from the Hot Battery Bus."},
+
+// ── STANDBY POWER ─────────────────────────────────────────────────────────────
+{c:"🚨 Standby Power",
+ q:"What is the minimum standby power duration and which systems does it keep alive?",
+ correct:"Minimum 60 minutes — standby power keeps only essential/critical systems alive (flight instruments, navigation, basic communications)",
+ o:["Minimum 60 minutes — standby power keeps only essential/critical systems alive (flight instruments, navigation, basic communications)",
+    "Minimum 30 minutes — standby powers all normal aircraft systems at reduced capacity",
+    "Unlimited duration — standby power uses the APU generator which can run indefinitely",
+    "Minimum 90 minutes — standby power includes cabin lighting and galley partial power"],
+ d:"Standby power provides a minimum of 60 minutes of power to essential systems only — flight instruments, navigation, basic communications, and critical warnings. It does NOT power non-essential loads. Both the main battery and auxiliary battery (if fitted) contribute to this 60-minute capability."},
+
+{c:"🚨 Standby Power",
+ q:"The AC standby bus has two power sources. What are they and when does each take over?",
+ correct:"Normal: powered from AC Transfer Bus 1. Backup: powered by the static inverter (which converts battery DC to AC) when Transfer Bus 1 power is lost",
+ o:["Normal: powered from AC Transfer Bus 1. Backup: powered by the static inverter (which converts battery DC to AC) when Transfer Bus 1 power is lost",
+    "Normal: powered from AC Transfer Bus 2. Backup: powered from Transfer Bus 1 when Bus 2 fails",
+    "Normal: powered by the APU generator. Backup: powered by IDG 2 if the APU fails",
+    "Normal: powered by the static inverter. Backup: powered from AC Transfer Bus 1 if the inverter fails"],
+ d:"In normal operation, the AC standby bus is powered from AC Transfer Bus 1. If Transfer Bus 1 (or DC Bus 1) power is lost, the standby power control unit automatically switches to the static inverter, which converts 28V DC from the battery into single-phase 115V, 400 Hz AC. This automatic switching keeps essential AC instruments powered."},
+
+{c:"🚨 Standby Power",
+ q:"What does the static inverter do and when is it the active power source for the AC standby bus?",
+ correct:"It converts 28V DC battery power into single-phase 115V, 400 Hz AC — it becomes the AC standby source when normal AC Transfer Bus 1 power is lost",
+ o:["It converts 28V DC battery power into single-phase 115V, 400 Hz AC — it becomes the AC standby source when normal AC Transfer Bus 1 power is lost",
+    "It converts 115V AC to 28V DC as a backup to the TRUs — it is the fourth DC power source",
+    "It inverts battery voltage to power the Main AC Transfer buses when all IDGs are offline",
+    "It is a frequency converter that changes 60 Hz ground power to 400 Hz for aircraft use"],
+ d:"The static inverter converts battery DC (28V) to single-phase AC (115V, 400 Hz). It feeds the AC standby bus when the normal AC source is unavailable. Unlike the TRUs which work in one direction (AC→DC), the static inverter works the other way (DC→AC) specifically to keep essential AC-powered instruments alive on battery power."},
+
+{c:"🚨 Standby Power",
+ q:"The ELEC light illuminates on the overhead panel. What does this indicate and what is the first action?",
+ correct:"A DC system or standby power system fault has occurred — use BITE to identify the specific failure before replacing any components",
+ o:["A DC system or standby power system fault has occurred — use BITE to identify the specific failure before replacing any components",
+    "All three TRUs have failed simultaneously — switch to battery power immediately",
+    "The static inverter has overheated — it will reset automatically after a 5-minute cooling period",
+    "The main battery voltage is below dispatch limits — the battery must be replaced on the ground"],
+ d:"The ELEC light is a general DC system or standby power system fault indicator. It tells you something is wrong but not what. BITE on the P5 panel (Meter Selector to TEST) is the tool for fault isolation. Chasing an ELEC light without BITE typically leads to unnecessary LRU replacement."},
+
+// ── LOAD SHEDDING ─────────────────────────────────────────────────────────────
+{c:"⚠️ Load Shedding",
+ q:"Load shedding occurs and the galleys lose power in flight. What is the correct maintenance interpretation?",
+ correct:"Load shedding is a protection mechanism, not always a failure — galleys are first shed because they are non-essential, protecting the generator from overload",
+ o:["Load shedding is a protection mechanism, not always a failure — galleys are first shed because they are non-essential, protecting the generator from overload",
+    "Galley power loss always indicates a failed galley bus contactor — replace it before next flight",
+    "Galley power loss means the APU generator has failed and load was automatically transferred",
+    "Load shedding only occurs during electrical emergencies — it always indicates a major system failure"],
+ d:"Load shedding is designed protection, not necessarily a fault. When the system detects an overload condition, it removes loads in order of non-criticality: galleys first, then main buses if needed. A write-up about galleys going off in flight should trigger investigation of the power source load, not an immediate galley bus component replacement."},
+
+{c:"⚠️ Load Shedding",
+ q:"What are the three conditions that trigger automatic load shedding on the B737NG?",
+ correct:"Configuration shedding (APU only source), command shedding (APU ECU detects high EGT), and overcurrent shedding (GCU/BPCU sees generator or external power overcurrent)",
+ o:["Configuration shedding (APU only source), command shedding (APU ECU detects high EGT), and overcurrent shedding (GCU/BPCU sees generator or external power overcurrent)",
+    "Low voltage shedding, frequency fault shedding, and reverse power shedding — all triggered by GCU protection",
+    "Manual crew shedding, automatic thermal shedding, and battery low-voltage shedding",
+    "Phase imbalance shedding, frequency drift shedding, and BTB failure shedding — all BPCU controlled"],
+ d:"Configuration shedding: when the APU is the sole AC source, load capacity is limited so non-essential loads are removed automatically. Command shedding: the APU ECU senses high EGT and reduces generator load to protect the APU. Overcurrent shedding: when the GCU or BPCU detects an overcurrent condition on any generator or external power source."},
+
+{c:"⚠️ Load Shedding",
+ q:"During single-IDG operation in flight, the electrical system automatically sheds loads in a specific order. What is shed first?",
+ correct:"Galley buses are shed first — non-essential loads are removed before any essential or critical loads",
+ o:["Galley buses are shed first — non-essential loads are removed before any essential or critical loads",
+    "The AC standby bus is isolated first to protect battery power reserves",
+    "IFE/passenger entertainment is shed first, then galleys, then main buses sequentially",
+    "All loads are shed simultaneously to give the operating IDG the best chance of recovery"],
+ d:"The load shedding sequence prioritises keeping critical systems powered. Galleys are the first to go as the most non-essential high-power loads. Main buses may be shed subsequently under more severe single-source conditions. Essential and standby buses are protected throughout. Understanding this sequence prevents misidentifying normal load shedding as a bus failure."},
+
+// ── TRIBAL KNOWLEDGE ──────────────────────────────────────────────────────────
+{c:"🏆 Tribal Rules",
+ q:"TRIBAL RULE: 'Most ATA 24 faults are not the generator.' What is usually the actual culprit?",
+ correct:"Control logic, GCU protection, BPCU, or contactors — the IDG itself is usually healthy when a GEN OFF BUS or generation fault occurs",
+ o:["Control logic, GCU protection, BPCU, or contactors — the IDG itself is usually healthy when a GEN OFF BUS or generation fault occurs",
+    "The battery — most generation faults trace to poor battery voltage affecting GCU power supply",
+    "The AC bus wiring — most generation faults are high-resistance connections at the bus bars",
+    "The external power relay — it remains energised and blocks IDG connection even on the ground"],
+ d:"The most expensive mistake in ATA 24 troubleshooting is condemning the IDG. In the vast majority of 'generation' write-ups, the IDG is producing perfectly good power — the fault lies in the GCU (which tripped the GCB due to a protection event), the BPCU, a contactor, or switching logic. Use BITE before touching any LRU."},
+
+{c:"🏆 Tribal Rules",
+ q:"TRIBAL RULE: 'Source → breaker → bus.' What does this troubleshooting method mean for ATA 24?",
+ correct:"Start tracing electrical faults at the power source, through the circuit breaker/contactor, to the bus — don't jump to component replacement without following the power path",
+ o:["Start tracing electrical faults at the power source, through the circuit breaker/contactor, to the bus — don't jump to component replacement without following the power path",
+    "Always replace the source LRU first, then the breaker, then test the bus before dispatching",
+    "The three-step sequence means: check source voltage, check breaker continuity, then check bus voltage with a multimeter",
+    "This method only applies to DC faults — AC faults require a different tracing approach"],
+ d:"Source → breaker → bus is the mental map for every ATA 24 fault: Is the source producing correct power? Has the circuit breaker or GCB tripped? Is the contactor/BTB in the right state? Is the bus actually energised? Following this path prevents guessing and stops technicians from replacing bus-side components when the problem is actually upstream at the source or control logic."},
+
+{c:"🏆 Tribal Rules",
+ q:"TRIBAL RULE: 'Load shed is protection, not failure.' A crew writes up galley power loss at cruise. What is the correct first investigation step?",
+ correct:"Determine what triggered load shedding — check for overcurrent, APU configuration, or single-generator operation rather than assuming a galley bus or contactor fault",
+ o:["Determine what triggered load shedding — check for overcurrent, APU configuration, or single-generator operation rather than assuming a galley bus or contactor fault",
+    "Replace the galley bus power contactor — galley power loss always indicates a contactor fault",
+    "Check the galley circuit breakers on the P18 panel — they trip frequently due to galley equipment faults",
+    "The write-up can be closed if no fault is found on ground test — galley faults are always intermittent"],
+ d:"When galleys go offline unexpectedly, the system was protecting itself. Before condemning any galley bus component, establish the electrical configuration at the time: Was the APU the only source (configuration shedding)? Did a generator trip (overcurrent shedding)? Was there a high EGT on APU (command shedding)? The root cause is in the source, not the shed bus."},
+
+{c:"🏆 Tribal Rules",
+ q:"TRIBAL RULE: 'IDG issues — act fast.' Why is timing critical when the DRIVE light illuminates?",
+ correct:"Low IDG oil pressure can rapidly lead to IDG seizure and possible engine gearbox damage — the IDG should be disconnected quickly once the DRIVE light illuminates",
+ o:["Low IDG oil pressure can rapidly lead to IDG seizure and possible engine gearbox damage — the IDG should be disconnected quickly once the DRIVE light illuminates",
+    "The DRIVE light automatically disconnects the IDG after a 30-second warning period — crew action is only advisory",
+    "Timing is only critical if the DRIVE light flickers — a steady DRIVE light indicates a nuisance fault",
+    "Low oil pressure only affects IDG cooling — seizure risk is low if the generator output remains normal"],
+ d:"IDG oil is both lubricant and coolant for the Constant Speed Drive mechanism. Low oil pressure means the drive components are running with inadequate lubrication — a condition that rapidly escalates to heat, seizure, and potentially catastrophic damage to the IDG and the engine gearbox accessory pad. Manual disconnect should happen promptly when the DRIVE light illuminates, before automatic thermal disconnect occurs."},
+
+{c:"🏆 Tribal Rules",
+ q:"SCENARIO: TRANSFER BUS OFF is indicated on the P5 panel. What is the correct troubleshooting starting point?",
+ correct:"Trace from source to breaker to bus — check if the source is producing power, if the GCB is closed, if the BTB is in the correct state, before suspecting the bus itself",
+ o:["Trace from source to breaker to bus — check if the source is producing power, if the GCB is closed, if the BTB is in the correct state, before suspecting the bus itself",
+    "Replace the Bus Tie Breaker immediately — TRANSFER BUS OFF always indicates a BTB failure",
+    "Check the P18 circuit breaker panel for any tripped breakers feeding the transfer bus",
+    "Start by testing the transfer bus wiring with a megohmmeter — insulation faults are the primary cause"],
+ d:"TRANSFER BUS OFF means no source is currently feeding that transfer bus. Start at the source: is the IDG running and connected (GCB closed)? If not, why? Is the APU generator available? Has the BPCU isolated external power? Is a BTB correctly positioned? The bus itself is rarely the fault — the loss of supply upstream is almost always the root cause."}
+];
+
+// ═══ ANSWER RANDOMISATION ═══
+function shuffleOptions(q){
+  const opts=[...q.o];
+  for(let i=opts.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[opts[i],opts[j]]=[opts[j],opts[i]];}
+  return{shuffled:opts,correctIdx:opts.indexOf(q.correct)};
+}
+
+// ═══ STATE ═══
+const G={qs:[],idx:0,hearts:3,xp:0,streak:0,bestStreak:0,correct:0,done:false,correctIdx:0};
+function shuffle(a){return a.sort(()=>Math.random()-.5)}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on')}
+function goHome(){show('home')}
+function confirmQuit(){if(confirm('Quit this quiz?'))goHome();}
+
+function startGame(){
+  G.qs=shuffle([...BANK]);
+  G.idx=0;G.hearts=3;G.xp=0;G.streak=0;G.bestStreak=0;G.correct=0;
+  updateHearts();
+  document.getElementById('xpdis').textContent='0';
+  document.getElementById('streak-n').textContent='0';
+  document.getElementById('qtot').textContent=G.qs.length;
+  show('quiz');renderQ();
+}
+
+function renderQ(){
+  G.done=false;
+  document.getElementById('fb').className='fb';document.getElementById('fb').style.display='none';
+  const q=G.qs[G.idx];
+  document.getElementById('cat-lbl').textContent=q.c;
+  document.getElementById('q-cat').textContent=q.c;
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('qn').textContent=G.idx+1;
+  document.getElementById('bar').style.width=Math.round((G.idx/G.qs.length)*100)+'%';
+  const {shuffled,correctIdx}=shuffleOptions(q);
+  G.correctIdx=correctIdx;
+  const cont=document.getElementById('opts');cont.innerHTML='';
+  const keys=['A','B','C','D'];
+  shuffled.forEach((txt,i)=>{
+    const b=document.createElement('button');
+    b.className='opt';
+    b.innerHTML=`<span class="opt-l">${keys[i]}</span><span>${txt}</span>`;
+    b.onclick=()=>pick(i);
+    cont.appendChild(b);
+    b.style.opacity='0';b.style.transform='translateX(-16px)';
+    setTimeout(()=>{b.style.transition='opacity .22s ease,transform .22s ease';b.style.opacity='1';b.style.transform='translateX(0)';},70+i*50);
+  });
+  document.getElementById('q-body').scrollTop=0;
+}
+
+function pick(idx){
+  if(G.done)return;G.done=true;
+  const correct=idx===G.correctIdx;
+  const btns=[...document.querySelectorAll('.opt')];
+  btns.forEach(b=>b.disabled=true);
+  btns[G.correctIdx].classList.add('reveal-right');
+  if(correct){
+    btns[idx].classList.remove('reveal-right');btns[idx].classList.add('picked-right');
+    btns.forEach((b,i)=>{if(i!==idx)b.classList.add('faded');});
+    G.correct++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+    const xpGain=G.streak>=5?20:G.streak>=3?15:10;G.xp+=xpGain;
+    document.getElementById('xpdis').textContent=G.xp;
+    document.getElementById('streak-n').textContent=G.streak;
+    showFeedback(true,G.qs[G.idx].d,xpGain);spawnSparks(btns[idx]);playCorrect();
+    if(G.streak===3){showPopBadge('🔥 3 Streak!');playCombo();}
+    if(G.streak===5){showPopBadge('⚡ 5 in a row!');playCombo();}
+    if(G.streak===10){showPopBadge('🌟 10 Streak!');playCombo();}
+  } else {
+    btns[idx].classList.add('picked-wrong');
+    btns.forEach((b,i)=>{if(i!==idx&&i!==G.correctIdx)b.classList.add('faded');});
+    G.streak=0;G.hearts--;
+    document.getElementById('streak-n').textContent=0;
+    updateHearts();showFeedback(false,G.qs[G.idx].d,0);playWrong();
+  }
+}
+
+function showFeedback(ok,detail,xp){
+  const fb=document.getElementById('fb');
+  fb.className='fb on '+(ok?'ok':'no');fb.style.display='flex';
+  const icons=ok?['✅','🎉','🌟','⭐','🔥','💡','🎯','🏅']:['❌'];
+  const heads=ok?['Correct!','Great!','Well done!','Spot on!','Nailed it!','Right on!','Excellent!']:['Not quite!'];
+  document.getElementById('fb-icon').textContent=icons[Math.floor(Math.random()*icons.length)];
+  document.getElementById('fb-head').textContent=heads[Math.floor(Math.random()*heads.length)];
+  document.getElementById('fb-det').textContent=detail;
+  const cont=document.getElementById('btn-cont');
+  cont.textContent=(G.idx>=G.qs.length-1||G.hearts<=0)?'See Results →':'Continue →';
+  if(ok&&xp)floatXP('+'+xp+' XP',cont);
+}
+
+function advance(){
+  playClick();G.idx++;
+  if(G.idx>=G.qs.length||G.hearts<=0)showResult();else renderQ();
+}
+
+function updateHearts(){
+  [0,1,2].forEach(i=>document.getElementById('h'+i).classList.toggle('gone',i>=G.hearts));
+}
+
+function showResult(){
+  const acc=G.idx?Math.round((G.correct/G.idx)*100):0;
+  const stars=acc>=90?3:acc>=70?2:acc>=50?1:0;
+  const trophies=['😅','🥉','🥈','🏆'];
+  const titles=['Keep Practicing!','Nice Try!','Well Done!','Outstanding! 🎯'];
+  const subs=['Review the ATA 24 manual and try again.','Good effort — study the explanations!','Strong Electrical knowledge!','You are an ATA 24 expert! ✈️'];
+  document.getElementById('trophy').textContent=trophies[stars];
+  document.getElementById('res-title').textContent=titles[stars];
+  document.getElementById('res-sub').textContent=subs[stars];
+  document.getElementById('r-xp').textContent=G.xp;
+  document.getElementById('r-acc').textContent=acc+'%';
+  document.getElementById('r-str').textContent=G.bestStreak;
+  ['rs0','rs1','rs2'].forEach((id,i)=>{
+    const el=document.getElementById(id);
+    el.classList.remove('lit');el.style.animationDelay='0s';
+    if(i<stars)setTimeout(()=>{el.style.animationDelay=(i*.2)+'s';el.classList.add('lit');},500+i*120);
+  });
+  show('result');
+  if(acc>=60)setTimeout(()=>{launchConfetti(acc);playVictory();},300);
+}
+
+function launchConfetti(acc){
+  const cols=['#39d353','#1f8c32','#58cc02','#ffc800','#1cb0f6','#ff4b4b','#fff'];
+  const shapes=['●','■','▲','◆','★','✦','✧'];
+  const count=Math.min(35+Math.floor(acc/4),70);
+  for(let i=0;i<count;i++){
+    setTimeout(()=>{
+      const el=document.createElement('div');el.className='confetti';
+      el.textContent=shapes[Math.floor(Math.random()*shapes.length)];
+      el.style.cssText=`left:${Math.random()*100}vw;top:-20px;color:${cols[Math.floor(Math.random()*cols.length)]};font-size:${9+Math.random()*13}px;animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.4}s`;
+      document.body.appendChild(el);setTimeout(()=>el.remove(),4000);
+    },i*22);
+  }
+}
+
+function spawnSparks(btn){
+  const rect=btn.getBoundingClientRect();
+  const cx=rect.left+rect.width/2,cy=rect.top+rect.height/2;
+  const cols=['#39d353','#a0ffb0','#ffc800','#fff','#1cb0f6'];
+  for(let i=0;i<10;i++){
+    const el=document.createElement('div');el.className='spark';
+    const a=(i/10)*Math.PI*2,d=28+Math.random()*44;
+    el.style.cssText=`left:${cx}px;top:${cy}px;width:${4+Math.random()*5}px;height:${4+Math.random()*5}px;background:${cols[i%cols.length]};--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;animation-duration:${.4+Math.random()*.25}s`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),800);
+  }
+}
+
+function floatXP(txt,refEl){
+  const rect=refEl.getBoundingClientRect();
+  const el=document.createElement('div');el.className='floatxp';el.textContent=txt;
+  el.style.cssText=`left:${rect.left+rect.width*.5}px;top:${rect.top-10}px`;
+  document.body.appendChild(el);setTimeout(()=>el.remove(),1000);
+}
+
+function showPopBadge(txt){
+  const el=document.createElement('div');el.className='popbadge';el.textContent=txt;
+  document.body.appendChild(el);setTimeout(()=>el.remove(),1100);
+}
+
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('quiz').classList.contains('on'))return;
+  const map={'1':0,'2':1,'3':2,'4':3,'a':0,'b':1,'c':2,'d':3};
+  const k=e.key.toLowerCase();
+  if(!G.done&&map[k]!==undefined)pick(map[k]);
+  if(G.done&&(e.key==='Enter'||e.key===' ')){e.preventDefault();advance();}
+});
+</script>
+</body>
+</html>

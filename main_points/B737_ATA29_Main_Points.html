@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>B737 ATA 29 Main Points</title>
+  <style>
+    :root {
+      --bg: #050505;
+      --panel: #101010;
+      --orange: #ff9f1c;
+      --amber: #ffd27f;
+      --soft: rgba(255, 159, 28, 0.18);
+      --line: rgba(255, 159, 28, 0.55);
+      --white: #f7efe4;
+      --muted: #bda777;
+      --red: #ff5f56;
+      --blue: #62d8ff;
+      --green: #8cffb1;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--white);
+      background:
+        radial-gradient(circle at 18% 0%, rgba(255,159,28,0.22), transparent 28%),
+        radial-gradient(circle at 86% 18%, rgba(98,216,255,0.15), transparent 28%),
+        radial-gradient(circle at 50% 105%, rgba(140,255,177,0.08), transparent 28%),
+        linear-gradient(135deg, #000, #080808 45%, #130b02);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,159,28,0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,159,28,0.045) 1px, transparent 1px);
+      background-size: 46px 46px;
+      mask-image: radial-gradient(circle at center, black, transparent 82%);
+    }
+
+    header {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 36px 18px 18px;
+      text-align: center;
+      position: relative;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--amber);
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.55);
+      border-radius: 999px;
+      padding: 8px 14px;
+      box-shadow: 0 0 22px var(--soft);
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      font-size: .8rem;
+    }
+
+    h1 {
+      margin: 18px 0 8px;
+      color: var(--orange);
+      font-size: clamp(2rem, 6vw, 4.8rem);
+      line-height: .96;
+      text-shadow: 0 0 18px rgba(255,159,28,.38), 0 0 42px rgba(255,159,28,.16);
+    }
+
+    .subtitle {
+      max-width: 850px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.55;
+    }
+
+    .hero-strip {
+      max-width: 1180px;
+      margin: 24px auto 8px;
+      padding: 0 18px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .hero-card {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,159,28,.1), rgba(0,0,0,.72));
+      border-radius: 22px;
+      padding: 20px;
+      min-height: 140px;
+      position: relative;
+      overflow: hidden;
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    }
+
+    .hero-card:hover {
+      transform: translateY(-8px) scale(1.015);
+      box-shadow: 0 0 34px rgba(255,159,28,.24);
+      border-color: var(--orange);
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      right: -58px;
+      bottom: -58px;
+      border: 1px solid rgba(255,159,28,.28);
+      border-radius: 50%;
+    }
+
+    .hero-icon { font-size: 2.2rem; margin-bottom: 8px; }
+    .hero-title { color: var(--amber); font-size: 1.25rem; font-weight: 900; }
+    .hero-text { color: var(--muted); margin-top: 8px; line-height: 1.42; }
+
+    main {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 22px 18px 48px;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .system-section {
+      border: 1px solid var(--line);
+      background: rgba(9,9,9,.88);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: 0 0 30px rgba(0,0,0,.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .system-section::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--orange), var(--blue), transparent);
+      opacity: .75;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: radial-gradient(circle at top, rgba(255,159,28,.28), rgba(0,0,0,.75));
+      font-size: 1.65rem;
+      box-shadow: inset 0 0 18px rgba(255,159,28,.12);
+      flex: 0 0 auto;
+    }
+
+    h2 {
+      margin: 0;
+      color: var(--orange);
+      font-size: 1.2rem;
+      letter-spacing: .01em;
+    }
+
+    .cards {
+      display: grid;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .idea-card {
+      border: 1px solid rgba(255,159,28,.28);
+      background: linear-gradient(135deg, rgba(255,159,28,.06), rgba(255,255,255,.02));
+      border-radius: 16px;
+      padding: 13px 14px;
+      transition: transform .22s ease, box-shadow .22s ease, background .22s ease, border-color .22s ease;
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .idea-card:hover {
+      transform: translateX(8px) scale(1.025);
+      border-color: var(--orange);
+      background: linear-gradient(135deg, rgba(255,159,28,.18), rgba(98,216,255,.06));
+      box-shadow: 0 0 26px rgba(255,159,28,.21);
+    }
+
+    .idea-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,.08), transparent);
+      transform: translateX(-120%);
+      transition: transform .55s ease;
+    }
+
+    .idea-card:hover::after { transform: translateX(120%); }
+
+    .main-idea {
+      display: block;
+      color: var(--amber);
+      font-weight: 900;
+      font-size: 1rem;
+      margin-bottom: 5px;
+    }
+
+    .arrow {
+      color: var(--orange);
+      font-weight: 900;
+      margin-right: 4px;
+    }
+
+    .real-world {
+      display: block;
+      color: #ead9b8;
+      line-height: 1.42;
+      font-size: .96rem;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-top: 8px;
+      color: #111;
+      background: var(--orange);
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: .72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .wide { grid-column: 1 / -1; }
+
+    .memory-map {
+      margin-top: 20px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 22px;
+      background: linear-gradient(135deg, rgba(255,159,28,.1), rgba(0,0,0,.72));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .memory-map h2 { font-size: 1.45rem; margin-bottom: 14px; }
+
+    .map-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .map-card {
+      border: 1px solid rgba(255,159,28,.38);
+      border-radius: 20px;
+      padding: 18px;
+      background: rgba(0,0,0,.55);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+
+    .map-card:hover {
+      transform: translateY(-7px) rotate(-.5deg);
+      box-shadow: 0 0 28px rgba(98,216,255,.16), 0 0 34px rgba(255,159,28,.12);
+    }
+
+    .map-number {
+      color: var(--blue);
+      font-size: 2rem;
+      font-weight: 900;
+    }
+
+    .map-title {
+      color: var(--amber);
+      font-weight: 900;
+      font-size: 1.2rem;
+      margin: 4px 0 8px;
+    }
+
+    .map-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #ead9b8;
+      line-height: 1.65;
+    }
+
+    .fail-list {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .fail-chip {
+      border: 1px solid rgba(255,95,86,.55);
+      background: rgba(255,95,86,.08);
+      color: #ffd6d3;
+      padding: 14px;
+      border-radius: 16px;
+      font-weight: 800;
+      text-align: center;
+      transition: transform .2s ease, background .2s ease;
+    }
+
+    .fail-chip:hover {
+      transform: scale(1.06);
+      background: rgba(255,95,86,.18);
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 26px 18px 38px;
+    }
+
+    @media (max-width: 900px) {
+      .hero-strip, .map-grid { grid-template-columns: 1fr; }
+      .section-grid { grid-template-columns: 1fr; }
+      .fail-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 520px) {
+      main { padding: 18px 10px 34px; }
+      header { padding-top: 24px; }
+      .system-section, .memory-map { border-radius: 18px; padding: 14px; }
+      .fail-list { grid-template-columns: 1fr; }
+      .idea-card:hover { transform: scale(1.015); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">✅ B737 ATA 29 • Hydraulic System</div>
+    <h1>Hydraulics Made Line-Mechanic Simple</h1>
+    <p class="subtitle">A fast interactive study page for System A, System B, standby hydraulics, pumps, reservoirs, PTU logic, filters, indications, and the real troubleshooting traps.</p>
+  </header>
+
+  <section class="hero-strip">
+    <div class="hero-card">
+      <div class="hero-icon">💪</div>
+      <div class="hero-title">Hydraulic Muscle</div>
+      <div class="hero-text">Hydraulics move flight controls, landing gear, brakes, flaps, slats, steering, and thrust reversers.</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-icon">🔴</div>
+      <div class="hero-title">A, B, and Standby</div>
+      <div class="hero-text">Two main systems carry the workload. Standby protects critical functions when things get spicy.</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-icon">⚠️</div>
+      <div class="hero-title">Pressure ≠ Whole Story</div>
+      <div class="hero-text">Low pressure can be pump, fluid, leak, valve, filter, switch, sensor, or configuration logic.</div>
+    </div>
+  </section>
+
+  <main>
+    <section class="section-grid">
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🧠</div><h2>Big Picture — How It Works</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Three hydraulic systems</span><span class="real-world"><span class="arrow">→</span>System A, System B, and standby system provide normal and backup hydraulic power.</span></div>
+          <div class="idea-card"><span class="main-idea">Main job = move the heavy stuff</span><span class="real-world"><span class="arrow">→</span>Hydraulics are the muscle behind flight controls, gear, brakes, flaps, slats, steering, and reversers.</span><span class="tag">airplane muscle</span></div>
+          <div class="idea-card"><span class="main-idea">Normal pressure is about 3000 psi</span><span class="real-world"><span class="arrow">→</span>Think 3000 psi as the baseline pressure when the system is healthy.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">⚙️</div><h2>System A vs System B</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">System A powers gear, steering, alternate brakes, and left reverser</span><span class="real-world"><span class="arrow">→</span>A-side problems can show up as landing gear, nose wheel steering, or left T/R issues.</span></div>
+          <div class="idea-card"><span class="main-idea">System B powers flaps, slats, normal brakes, and right reverser</span><span class="real-world"><span class="arrow">→</span>B-side problems can look like flap/slat, normal brake, or right T/R problems.</span></div>
+          <div class="idea-card"><span class="main-idea">Both systems power primary flight controls</span><span class="real-world"><span class="arrow">→</span>Ailerons, elevators, and rudder get redundant hydraulic support.</span><span class="tag">redundancy</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔄</div><h2>Standby Hydraulic System</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Backup for critical components</span><span class="real-world"><span class="arrow">→</span>Standby supports rudder, leading edge devices, and thrust reversers when needed.</span></div>
+          <div class="idea-card"><span class="main-idea">Can operate automatically or manually</span><span class="real-world"><span class="arrow">→</span>It can come alive from system logic or crew selection.</span></div>
+          <div class="idea-card"><span class="main-idea">Electric pump only</span><span class="real-world"><span class="arrow">→</span>No engine-driven pump here. Standby pressure depends on the standby electric pump.</span><span class="tag">backup muscle</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔧</div><h2>Engine Driven Pumps — EDPs</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">EDP = main pressure source</span><span class="real-world"><span class="arrow">→</span>It is engine driven and produces the big flow during normal operation.</span></div>
+          <div class="idea-card"><span class="main-idea">Runs whenever the engine turns</span><span class="real-world"><span class="arrow">→</span>The pump still rotates with the engine even if the switch removes output.</span></div>
+          <div class="idea-card"><span class="main-idea">Switch OFF stops output, not rotation</span><span class="real-world"><span class="arrow">→</span>Important for understanding damage risk and pump logic.</span><span class="tag">big clue</span></div>
+          <div class="idea-card"><span class="main-idea">High flow: about 34 GPM</span><span class="real-world"><span class="arrow">→</span>EDPs have way more output than electric motor driven pumps.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">⚡</div><h2>Electric Motor Driven Pumps — EMDPs</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Used on ground or as backup</span><span class="real-world"><span class="arrow">→</span>Electric pumps let the system pressurize without engine-driven flow.</span></div>
+          <div class="idea-card"><span class="main-idea">Runs on 115V AC power</span><span class="real-world"><span class="arrow">→</span>Electrical power availability matters when troubleshooting pump operation.</span></div>
+          <div class="idea-card"><span class="main-idea">Lower output: about 5.7 GPM</span><span class="real-world"><span class="arrow">→</span>Enough for backup/ground use, but not the same muscle as an EDP.</span></div>
+          <div class="idea-card"><span class="main-idea">Auto shuts off if overheated above about 255°F</span><span class="real-world"><span class="arrow">→</span>Overheat can shut down the pump to protect itself.</span><span class="tag">overheat logic</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">💡</div><h2>Pump Indications</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">LOW PRESSURE light = pump output low</span><span class="real-world"><span class="arrow">→</span>Usually indicates pressure below about 1300 psi at that pump output.</span></div>
+          <div class="idea-card"><span class="main-idea">OVERHEAT light applies to electric pumps</span><span class="real-world"><span class="arrow">→</span>Think high case drain temperature, not just a random light.</span></div>
+          <div class="idea-card"><span class="main-idea">Low pressure is not always pump failure</span><span class="real-world"><span class="arrow">→</span>Could be fluid quantity, leak, valve position, clogged filter, or indication issue.</span><span class="tag">don’t parts cannon</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🛢️</div><h2>Reservoir System</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Reservoirs store fluid and feed pumps</span><span class="real-world"><span class="arrow">→</span>No fluid feed means pumps can cavitate or lose output.</span></div>
+          <div class="idea-card"><span class="main-idea">Pressurized by bleed air around 42 psi</span><span class="real-world"><span class="arrow">→</span>Reservoir pressure helps feed the pumps properly.</span></div>
+          <div class="idea-card"><span class="main-idea">System B reservoir also feeds standby</span><span class="real-world"><span class="arrow">→</span>B reservoir condition matters for standby hydraulic operation too.</span><span class="tag">easy to miss</span></div>
+          <div class="idea-card"><span class="main-idea">Can remain pressurized after engines off</span><span class="real-world"><span class="arrow">→</span>Depressurize before opening the system.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🚧</div><h2>Reservoir Safety</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Depressurize before maintenance</span><span class="real-world"><span class="arrow">→</span>Use the air charging valve before cracking open the system.</span><span class="tag">safety first</span></div>
+          <div class="idea-card"><span class="main-idea">Relief valve opens around 60–65 psi</span><span class="real-world"><span class="arrow">→</span>Protects the reservoir from excessive pressure.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔁</div><h2>Power Transfer Unit — PTU</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">System A helps System B</span><span class="real-world"><span class="arrow">→</span>PTU uses A-side pressure power to assist B-side demand.</span></div>
+          <div class="idea-card"><span class="main-idea">Motor-pump design with no fluid mixing</span><span class="real-world"><span class="arrow">→</span>A and B fluids stay separated while power transfers mechanically.</span></div>
+          <div class="idea-card"><span class="main-idea">Mainly helps slats during B system failure</span><span class="real-world"><span class="arrow">→</span>If B is weak, PTU can help leading edge devices.</span></div>
+          <div class="idea-card"><span class="main-idea">Activates when B pressure drops below about 2350 psi</span><span class="real-world"><span class="arrow">→</span>Simple memory: PTU = A helps B when B is weak.</span><span class="tag">classic ATA 29</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🧰</div><h2>Hydraulic Modules & Filters</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Pressure module filters, monitors, and protects</span><span class="real-world"><span class="arrow">→</span>It handles filtration, pressure monitoring, and relief protection.</span></div>
+          <div class="idea-card"><span class="main-idea">Relief valve opens around 3500 psi</span><span class="real-world"><span class="arrow">→</span>Protects the hydraulic system from overpressure.</span></div>
+          <div class="idea-card"><span class="main-idea">Three main filters: pressure, return, case drain</span><span class="real-world"><span class="arrow">→</span>Filters are real-world maintenance items, not footnotes.</span></div>
+          <div class="idea-card"><span class="main-idea">Return filter red indicator = clogged</span><span class="real-world"><span class="arrow">→</span>Clogged filters can cause ugly hydraulic write-ups.</span><span class="tag">common issue</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🌡️</div><h2>Cooling System</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Hydraulic fluid is cooled through heat exchangers</span><span class="real-world"><span class="arrow">→</span>Heat management keeps fluid and pump operation healthy.</span></div>
+          <div class="idea-card"><span class="main-idea">Cooling may use fuel or air depending on system</span><span class="real-world"><span class="arrow">→</span>Low fuel can increase hydraulic temperatures and trigger overheat issues.</span><span class="tag">sneaky clue</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔥</div><h2>EDP Supply Shutoff Valve</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Closes when the fire handle is pulled</span><span class="real-world"><span class="arrow">→</span>Stops hydraulic fluid flow to the engine driven pump.</span></div>
+          <div class="idea-card"><span class="main-idea">Windmilling engine with valve closed can damage the pump</span><span class="real-world"><span class="arrow">→</span>Know valve state before assuming the pump is safe.</span><span class="tag">critical</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🤖</div><h2>Standby System Logic</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Auto activates with low A or B pressure</span><span class="real-world"><span class="arrow">→</span>Logic protects critical control when main pressure is lost.</span></div>
+          <div class="idea-card"><span class="main-idea">Flaps not up and aircraft in air / above 60 knots matter</span><span class="real-world"><span class="arrow">→</span>Configuration and air/ground logic help decide standby activation.</span></div>
+          <div class="idea-card"><span class="main-idea">Force Fight Monitor can trigger standby rudder support</span><span class="real-world"><span class="arrow">→</span>Rudder pressure disagreement can bring standby online.</span><span class="tag">rudder clue</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🧪</div><h2>Ground Servicing</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Single servicing panel fills all reservoirs</span><span class="real-world"><span class="arrow">→</span>One panel supports A, B, and standby reservoir servicing.</span></div>
+          <div class="idea-card"><span class="main-idea">Manual pump or pressure cart</span><span class="real-world"><span class="arrow">→</span>Both methods can service the system when used correctly.</span></div>
+          <div class="idea-card"><span class="main-idea">Max fill pressure is about 75 psi</span><span class="real-world"><span class="arrow">→</span>Overpressure can damage components.</span><span class="tag">watch the cart</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">📟</div><h2>Indications to Know</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Pressure gauges show system pressure</span><span class="real-world"><span class="arrow">→</span>Use pressure indication to compare command, pump state, and system behavior.</span></div>
+          <div class="idea-card"><span class="main-idea">Quantity is shown as percent</span><span class="real-world"><span class="arrow">→</span>Low quantity can point toward leaks or servicing problems.</span></div>
+          <div class="idea-card"><span class="main-idea">Warnings include low pressure, overheat, and low quantity</span><span class="real-world"><span class="arrow">→</span>Don’t chase one light without checking the full hydraulic picture.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔧</div><h2>Maintenance / Troubleshooting Gold</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Most issues are leaks, filters, or sensors</span><span class="real-world"><span class="arrow">→</span>Not every hydraulic write-up needs a pump.</span></div>
+          <div class="idea-card"><span class="main-idea">LOW PRESS light is not always pump failure</span><span class="real-world"><span class="arrow">→</span>Check fluid, leaks, shutoff valves, electrical power, and indications.</span></div>
+          <div class="idea-card"><span class="main-idea">Standby auto-activation can surprise you</span><span class="real-world"><span class="arrow">→</span>Know the logic before calling it abnormal.</span></div>
+          <div class="idea-card"><span class="main-idea">PTU noise can be normal</span><span class="real-world"><span class="arrow">→</span>Especially when System B pressure is low and A is helping B.</span><span class="tag">line mx reality</span></div>
+          <div class="idea-card"><span class="main-idea">Hydraulic contamination is a big problem</span><span class="real-world"><span class="arrow">→</span>Filters, fluid condition, and proper servicing matter.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="memory-map">
+      <h2>🧠 Easy Way to Remember ATA 29</h2>
+      <div class="map-grid">
+        <div class="map-card"><div class="map-number">1</div><div class="map-title">Make Pressure</div><ul><li>Engine driven pumps</li><li>Electric motor driven pumps</li><li>Normal pressure about 3000 psi</li></ul></div>
+        <div class="map-card"><div class="map-number">2</div><div class="map-title">Move Pressure</div><ul><li>Lines</li><li>Valves</li><li>PTU</li></ul></div>
+        <div class="map-card"><div class="map-number">3</div><div class="map-title">Use Pressure</div><ul><li>Flight controls</li><li>Gear / steering</li><li>Brakes / flaps / reversers</li></ul></div>
+        <div class="map-card"><div class="map-number">4</div><div class="map-title">Protect System</div><ul><li>Filters</li><li>Relief valves</li><li>Standby system</li></ul></div>
+      </div>
+
+      <h2 style="margin-top:24px;">🔥 Real Line MX Takeaways</h2>
+      <div class="fail-list">
+        <div class="fail-chip">LOW PRESS light<br><small>not always the pump</small></div>
+        <div class="fail-chip">PTU noise<br><small>can be normal</small></div>
+        <div class="fail-chip">Reservoir work<br><small>depressurize first</small></div>
+        <div class="fail-chip">Hot hydraulics<br><small>check cooling + fuel</small></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    B737 ATA 29 quick-study page • Hydraulic systems, pressure logic, servicing, and line-maintenance troubleshooting.
+  </footer>
+</body>
+</html>

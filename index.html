@@ -1,0 +1,5223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>B737 Maintenance Aid Editor</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: Arial, sans-serif;
+      background: #000;
+      color: orange;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 0 0 16px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+
+    #searchBox {
+      width: 100%;
+      max-width: 760px;
+      padding: 12px;
+      border: 1px solid orange;
+      border-radius: 8px;
+      background: #111;
+      color: orange;
+      font-size: 1rem;
+    }
+
+    #searchBox::placeholder {
+      color: #ffb84d;
+    }
+
+    .panel {
+      border: 1px solid orange;
+      background: #111;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 18px;
+    }
+
+    .panel-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .viewer-controls {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .zoom-readout {
+      min-width: 54px;
+      text-align: center;
+      font-weight: bold;
+      color: #ffd27f;
+      padding: 6px 8px;
+      border: 1px solid orange;
+      border-radius: 6px;
+      background: #111;
+      font-size: 0.82rem;
+    }
+
+    .btn {
+      background: #111;
+      color: orange;
+      border: 1px solid orange;
+      padding: 6px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.82rem;
+      min-width: 42px;
+      line-height: 1.1;
+    }
+
+    .btn:hover {
+      background: orange;
+      color: #000;
+    }
+
+    .btn.active-filter {
+      background: orange;
+      color: #000;
+    }
+
+    .related-status {
+      text-align: center;
+      color: #ffd27f;
+      margin-bottom: 10px;
+      font-weight: bold;
+      min-height: 22px;
+    }
+
+    .viewer-stage {
+      width: 50%;
+      max-width: 475px;
+      margin: 0 auto 14px;
+      position: relative;
+      border: 1px solid orange;
+      border-radius: 10px;
+      overflow: auto;
+      background: #000;
+      min-height: 160px;
+      z-index: 1;
+      padding: 10px;
+      isolation: isolate;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: width 0.2s ease, max-width 0.2s ease, min-height 0.2s ease;
+    }
+
+    .viewer-stage.large-view {
+      width: 70%;
+      max-width: 800px;
+      min-height: 300px;
+    }
+
+    .btn.big-toggle {
+      min-width: 42px;
+      padding: 6px 8px;
+      font-size: 0.82rem;
+      border-width: 1px;
+    }
+
+    .viewer-stage.dragging {
+      cursor: grabbing;
+    }
+
+    .zoom-shell {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-width: 100%;
+      min-height: 100%;
+    }
+
+    .zoom-content {
+      position: relative;
+      width: 100%;
+      max-width: none;
+      flex: 0 0 auto;
+      overflow: visible;
+    }
+
+    .viewer-image {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
+      background: #000;
+      user-select: none;
+      -webkit-user-drag: none;
+      pointer-events: none;
+    }
+
+    .viewer-video {
+      width: 100%;
+      height: 420px;
+      display: block;
+      border: 1px solid orange;
+      border-radius: 8px;
+      background: #000;
+    }
+
+    .viewer-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: visible;
+      z-index: 20;
+    }
+
+    .hotspot-dot {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      background: orange;
+      border: 2px solid #000;
+      box-shadow: 0 0 12px rgba(255,165,0,0.95);
+      cursor: pointer;
+      pointer-events: auto;
+      z-index: 200;
+    }
+
+    .hotspot-dot:hover {
+      background: #ffd27f;
+      transform: translate(-50%, -50%) scale(1.08);
+    }
+
+    .hotspot-dot.selected-dot {
+      box-shadow: 0 0 0 3px #fff, 0 0 12px rgba(255,165,0,0.95);
+    }
+
+    .hover-tooltip {
+      position: fixed;
+      display: none;
+      background: rgba(0,0,0,0.98);
+      color: orange;
+      border: 1px solid orange;
+      padding: 6px 8px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      line-height: 1.35;
+      min-width: 120px;
+      max-width: 260px;
+      white-space: normal;
+      z-index: 999999;
+      pointer-events: none;
+      box-shadow: 0 0 18px rgba(255,165,0,0.25);
+    }
+
+    /* ── Link Picker Modal (iPad-friendly add-link form) ─────────── */
+    #linkModal,
+    #uploadModal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 1000000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    #linkModal.show,
+    #uploadModal.show { display: flex; }
+    #linkModal .lm-card,
+    #uploadModal .lm-card {
+      background: #0a0a0a;
+      border: 1px solid orange;
+      border-radius: 10px;
+      padding: 20px;
+      width: 100%;
+      max-width: 440px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 0 40px rgba(255,165,0,0.4);
+      color: #ffd27f;
+      font-size: 14px;
+    }
+    #linkModal h3,
+    #uploadModal h3 {
+      color: orange;
+      font-size: 16px;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #443;
+      letter-spacing: 0.05em;
+    }
+    #linkModal label,
+    #uploadModal label {
+      display: block;
+      margin-top: 12px;
+      margin-bottom: 4px;
+      font-size: 12px;
+      color: #ffaa50;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    #linkModal select, #linkModal input[type=text],
+    #uploadModal select, #uploadModal input[type=text],
+    #uploadModal input[type=password], #uploadModal input[type=file] {
+      width: 100%;
+      padding: 10px 12px;
+      background: #1a1a1a;
+      border: 1px solid #553300;
+      border-radius: 6px;
+      color: #ffd27f;
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+    }
+    #linkModal select:focus, #linkModal input[type=text]:focus,
+    #uploadModal select:focus, #uploadModal input[type=text]:focus,
+    #uploadModal input[type=password]:focus {
+      border-color: orange;
+      box-shadow: 0 0 0 2px rgba(255,165,0,0.2);
+    }
+    #linkModal .lm-row,
+    #uploadModal .lm-row { display: flex; gap: 8px; margin-top: 16px; }
+    #linkModal .lm-btn,
+    #uploadModal .lm-btn {
+      flex: 1;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #553300;
+      background: #1a1a1a;
+      color: #ffd27f;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+    }
+    #linkModal .lm-btn.primary,
+    #uploadModal .lm-btn.primary {
+      background: orange;
+      color: #000;
+      border-color: orange;
+    }
+    #linkModal .lm-btn:active,
+    #uploadModal .lm-btn:active { transform: scale(0.97); }
+    #linkModal .lm-hint,
+    #uploadModal .lm-hint {
+      font-size: 11px;
+      color: #886633;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+    #uploadModal .lm-hint code {
+      background: #1a1208;
+      color: #ffd27f;
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-size: 11px;
+    }
+    #linkModal .lm-thumb-preview,
+    #uploadModal .lm-thumb-preview {
+      margin-top: 6px;
+      max-width: 80px;
+      max-height: 80px;
+      border: 1px solid #443;
+      border-radius: 4px;
+      background: #000;
+      object-fit: cover;
+      display: none;
+    }
+    #linkModal .lm-thumb-preview.show,
+    #uploadModal .lm-thumb-preview.show { display: block; }
+    #upStatus.success { color: #8cffb1; }
+    #upStatus.error { color: #ff6b6b; }
+
+    .popup {
+      position: absolute;
+      min-width: 220px;
+      max-width: 280px;
+      background: rgba(10,10,10,0.98);
+      color: #ffcc80;
+      border: 1px solid orange;
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 0 18px rgba(255,165,0,0.3);
+      z-index: 9999;
+      display: none;
+      pointer-events: auto;
+    }
+
+    .popup.show {
+      display: block;
+    }
+
+    .popup-close {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      border: none;
+      background: transparent;
+      color: orange;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .popup-title {
+      font-weight: bold;
+      color: orange;
+      margin-bottom: 8px;
+      padding-right: 22px;
+      line-height: 1.35;
+    }
+
+    .popup-type {
+      color: #ffd27f;
+      font-weight: bold;
+      margin-bottom: 0;
+    }
+
+    .thumb-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .thumb-scroll {
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      padding: 8px 4px;
+      border: 1px solid orange;
+      border-radius: 8px;
+      background: #0a0a0a;
+    }
+
+    .thumb-scroll::-webkit-scrollbar {
+      height: 10px;
+    }
+
+    .thumb-scroll::-webkit-scrollbar-thumb {
+      background: orange;
+      border-radius: 999px;
+    }
+
+    .thumb-btn {
+      flex: 0 0 auto;
+      width: 120px;
+      height: 90px;
+      padding: 0;
+      border: 2px solid orange;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #000;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .thumb-btn.active {
+      box-shadow: 0 0 0 2px #fff;
+      transform: scale(1.03);
+    }
+
+    .thumb-btn.moving-thumb {
+      opacity: 0.6;
+      outline: 2px dashed #ffd27f;
+    }
+
+    .thumb-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .video-badge {
+      position: absolute;
+      bottom: 6px;
+      right: 6px;
+      background: rgba(0,0,0,0.85);
+      color: orange;
+      border: 1px solid orange;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 12px;
+      font-weight: bold;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .video-fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: orange;
+      font-weight: bold;
+      font-size: 0.78rem;
+      padding: 6px;
+      text-align: center;
+      background: #050505;
+    }
+
+    .mel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .mel-count {
+      color: #ffd27f;
+      font-size: 0.95rem;
+    }
+
+    .notes-global-controls {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 0 0 10px;
+    }
+
+    .notes-global-controls .btn {
+      padding: 7px 12px;
+      font-size: 0.9rem;
+    }
+
+    #results {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 6px;
+    }
+
+    th, td {
+      border: 1px solid orange;
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+      background: #111;
+    }
+
+    th {
+      white-space: nowrap;
+    }
+
+    .chapter-col {
+      white-space: nowrap;
+      color: #ffd27f;
+      font-weight: bold;
+      text-align: center;
+      width: 70px;
+    }
+
+    .mel-col {
+      white-space: normal;
+      color: #ffb84d;
+      font-style: italic;
+      min-width: 90px;
+    }
+
+    .mel-pill {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 2px 7px;
+      font-size: 0.72rem;
+      font-style: normal;
+      font-weight: bold;
+      border-radius: 4px;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+      line-height: 1.4;
+    }
+
+    .mel-pill.disp-appr {
+      background: #3a2a00;
+      color: #ffcc66;
+      border: 1px solid #ffcc66;
+    }
+
+    .mel-pill.contact-mcc {
+      background: #3a0a0a;
+      color: #ff8c8c;
+      border: 1px solid #ff8c8c;
+    }
+
+    .formatted-text {
+      white-space: pre-wrap;
+      line-height: 1.5;
+    }
+
+    .notes-cell {
+      vertical-align: top !important;
+      white-space: normal !important;
+      padding: 10px 6px !important;
+      min-width: 350px;
+      max-width: 800px;
+    }
+
+    .notes-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin: 0;
+      padding: 0;
+      white-space: normal;
+    }
+
+    .notes-header {
+      display: block;
+      margin: 0;
+      padding: 0;
+      line-height: 1.25;
+      white-space: normal;
+      word-break: break-word;
+      font-weight: bold;
+      color: #ffd27f;
+    }
+
+    .notes-line {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      line-height: 1.25;
+      white-space: normal;
+    }
+
+    .notes-line.level-1 { padding-left: 20px; }
+    .notes-line.level-2 { padding-left: 40px; }
+    .notes-line.level-3 { padding-left: 60px; }
+
+    .notes-checkbox {
+      margin: 1px 0 0 0;
+      width: 15px;
+      height: 15px;
+      accent-color: orange;
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+
+    .notes-text {
+      flex: 1;
+      margin: 0;
+      padding: 0;
+      white-space: normal;
+      word-break: break-word;
+      line-height: 1.45;
+      max-width: 100%;
+    }
+
+    .mel-notes-details {
+      border: 1px solid rgba(255, 165, 0, 0.55);
+      border-radius: 8px;
+      background: #0b0b0b;
+      padding: 10px 12px;
+      width: 100%;
+    }
+
+    .mel-notes-summary {
+      cursor: pointer;
+      font-weight: bold;
+      color: orange;
+      list-style-position: inside;
+      user-select: none;
+    }
+
+    .mel-notes-summary:hover {
+      color: #ffd27f;
+    }
+
+    .mel-section {
+      margin-top: 8px;
+      border-top: 1px solid rgba(255, 165, 0, 0.25);
+      padding-top: 7px;
+    }
+
+    .mel-section:first-of-type {
+      border-top: none;
+    }
+
+    .mel-section-title {
+      font-weight: bold;
+      color: #ffd27f;
+      margin-bottom: 5px;
+    }
+
+    .notes-plain {
+      display: block;
+      margin: 0 0 5px 0;
+      line-height: 1.35;
+      white-space: normal;
+      word-break: break-word;
+    }
+
+    .mel-procedure-block {
+      margin-top: 8px;
+      border: 1px solid rgba(255, 165, 0, 0.55);
+      border-radius: 8px;
+      background: #0b0b0b;
+      padding: 10px 12px;
+    }
+
+    .mel-procedure-summary {
+      cursor: pointer;
+      font-weight: bold;
+      color: orange;
+      list-style-position: inside;
+      user-select: none;
+    }
+
+    .mel-procedure-summary:hover {
+      color: #ffd27f;
+    }
+
+    .mel-procedure-inner {
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 165, 0, 0.25);
+    }
+
+    .mel-procedure-label {
+      display: block;
+      font-weight: bold;
+      color: orange;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+    }
+
+    .mel-procedure-select {
+      width: 100%;
+      padding: 6px 8px;
+      background: #111;
+      color: orange;
+      border: 1px solid orange;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .mel-procedure-select:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.35);
+    }
+
+    .mel-procedure-body {
+      display: none;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 165, 0, 0.25);
+    }
+
+    .mel-procedure-body.is-open {
+      display: block;
+    }
+
+    .mel-procedure-title {
+      font-weight: bold;
+      color: #ffd27f;
+      margin-bottom: 4px;
+    }
+
+    .mel-procedure-amm {
+      font-style: italic;
+      color: #ffb84d;
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+    }
+
+    .mel-procedure-steps {
+      margin: 0;
+      padding-left: 20px;
+      line-height: 1.45;
+    }
+
+    .mel-procedure-steps li {
+      margin-bottom: 4px;
+    }
+
+    .mel-procedure-empty {
+      color: #ffb84d;
+      font-style: italic;
+      font-size: 0.85rem;
+    }
+
+    .action-col {
+      text-align: center;
+      white-space: nowrap;
+      width: 120px;
+    }
+
+    .image-btn {
+      display: inline-block;
+      padding: 7px 10px;
+      border: 1px solid orange;
+      border-radius: 4px;
+      color: orange;
+      background: #111;
+      cursor: pointer;
+      font-weight: bold;
+      margin: 2px;
+    }
+
+    .image-btn:hover {
+      background: orange;
+      color: #000;
+    }
+
+    .highlight-row {
+      background: #1a1a1a;
+    }
+
+    .error,
+    .no-results {
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    .error { color: red; }
+
+    @media (max-width: 768px) {
+      .viewer-stage {
+        width: 95%;
+        max-width: none;
+        min-height: 220px;
+      }
+
+      .viewer-stage.large-view {
+        width: 98%;
+        max-width: none;
+        min-height: 430px;
+      }
+
+      .thumb-btn {
+        width: 95px;
+        height: 72px;
+      }
+
+      .viewer-video {
+        height: 260px;
+      }
+
+      table, thead, tbody, th, td, tr {
+        display: block;
+        width: 100%;
+      }
+
+      thead { display: none; }
+
+      tr {
+        margin-bottom: 14px;
+        border: 1px solid orange;
+        border-radius: 8px;
+        padding: 10px;
+        background: #111;
+      }
+
+      td {
+        border: none;
+        padding: 7px 0;
+      }
+
+      td::before {
+        content: attr(data-label);
+        display: block;
+        color: #ffb84d;
+        font-weight: bold;
+        margin-bottom: 3px;
+      }
+
+      .notes-line.level-1 { padding-left: 14px; }
+      .notes-line.level-2 { padding-left: 28px; }
+      .notes-line.level-3 { padding-left: 42px; }
+
+      .chapter-col {
+        text-align: left;
+        width: auto;
+      }
+    }
+  td[data-label="Notes"] {
+      width: 40%;
+    }
+
+
+/* B737 EDITOR ADDITIONS */
+.status-readout {
+  min-width: 90px;
+  text-align: center;
+  font-weight: bold;
+  color: #ffd27f;
+  padding: 6px 8px;
+  border: 1px solid orange;
+  border-radius: 6px;
+  background: #111;
+  font-size: 0.9rem;
+}
+
+.viewer-overlay {
+  pointer-events: auto !important;
+}
+
+.draft-dot {
+  background: #ff7a00 !important;
+  box-shadow: 0 0 0 3px #fff, 0 0 14px rgba(255,165,0,1) !important;
+}
+
+.set-dot-row {
+  outline: 2px solid #ff7a00;
+  background: #2a1a00;
+}
+
+.editor-help {
+  text-align:center;
+  color:#ffd27f;
+  font-size:0.9rem;
+  margin:-4px 0 10px;
+}
+
+.action-col {
+  width: 190px !important;
+  min-width: 190px !important;
+  max-width: 190px !important;
+}
+
+.action-col .image-btn {
+  margin: 3px;
+}
+
+@media (max-width: 768px) {
+  .action-col {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  .status-readout {
+    flex: 1 1 160px;
+  }
+}
+
+
+/* Quiz full-width responsive mode */
+.viewer-stage.quiz-full-mode {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  background: transparent !important;
+  cursor: default !important;
+}
+
+.viewer-stage.quiz-full-mode .zoom-shell,
+.viewer-stage.quiz-full-mode .zoom-content {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  display: block !important;
+}
+
+.quiz-full-frame {
+  width: 100%;
+  height: min(82vh, 720px);
+  min-height: 560px;
+  border: none;
+  display: block;
+  background: #000;
+  border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+  .quiz-full-frame {
+    height: 78vh;
+    min-height: 520px;
+    border-radius: 8px;
+  }
+}
+
+
+/* Responsive app mode with close control */
+.app-full-shell {
+  width: 100%;
+  background: transparent;
+}
+
+.app-close-row {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 8px;
+}
+
+.app-close-btn {
+  background: #111;
+  color: orange;
+  border: 1px solid orange;
+  padding: 7px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.85rem;
+}
+
+.app-close-btn:hover {
+  background: orange;
+  color: #000;
+}
+
+.quiz-full-frame {
+  width: 100%;
+  height: min(82vh, 760px);
+  min-height: 560px;
+  border: none;
+  display: block;
+  background: #000;
+  border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+  .quiz-full-frame {
+    height: 78vh;
+    min-height: 520px;
+    border-radius: 8px;
+  }
+}
+
+
+/* Quiz thumbnail tile */
+.app-thumb-tile {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: radial-gradient(circle at top, #1f2937, #000);
+  color: orange;
+  font-weight: 900;
+  text-align: center;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+}
+
+.app-thumb-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.app-thumb-label {
+  font-size: 0.72rem;
+  line-height: 1.1;
+}
+
+
+.quiz-fallback-tile {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: radial-gradient(circle at top, #1b2a3d, #000);
+  color: orange;
+  font-weight: 900;
+  text-align: center;
+  letter-spacing: 0.4px;
+}
+.quiz-fallback-tile .quiz-icon-big { font-size: 28px; line-height: 1; }
+.quiz-fallback-tile .quiz-title { font-size: 15px; line-height: 1; }
+.quiz-fallback-tile .quiz-small { font-size: 9px; line-height: 1.1; padding: 0 4px; }
+
+
+/* Viewer-style chapter thumbnails */
+.thumb-btn.chapter-cover-thumb::after {
+  content: attr(data-chapter-label);
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  background: rgba(0,0,0,0.85);
+  color: orange;
+  border: 1px solid orange;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: bold;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.thumb-btn.chapter-cover-thumb.expanded-chapter {
+  box-shadow: 0 0 0 2px #ffd27f, 0 0 14px rgba(255,165,0,0.65);
+}
+
+.quiz-badge,
+.tribal-badge,
+.main-points-badge {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  background: #000;
+  color: orange;
+  border: 2px solid orange;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1.1;
+  pointer-events: none;
+  z-index: 20;
+  box-shadow: 0 0 6px rgba(255,165,0,0.7);
+}
+
+
+/* Single Add Link thumbnail style */
+.quiz-fallback-tile .quiz-title {
+  color: orange;
+  font-weight: 900;
+  font-size: 14px;
+  line-height: 1.05;
+  text-transform: uppercase;
+  padding: 4px;
+}
+
+
+/* Organized editor controls */
+.organized-controls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  justify-content:center;
+  align-items:center;
+}
+
+.control-group{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  align-items:center;
+  padding:6px;
+  border:1px solid rgba(255,165,0,.25);
+  border-radius:8px;
+  background:rgba(255,165,0,.04);
+}
+
+.nav-group{border-color:rgba(255,165,0,.45);}
+.zoom-group{border-color:rgba(255,210,120,.4);}
+.dot-group{border-color:rgba(255,120,0,.35);}
+.media-group{border-color:rgba(255,180,0,.35);}
+.order-group{border-color:rgba(255,140,0,.35);}
+.filter-group{border-color:rgba(255,220,120,.35);}
+
+@media (max-width:768px){
+  .control-group{
+    width:100%;
+    justify-content:center;
+  }
+
+  .status-readout{
+    width:100%;
+    text-align:center;
+  }
+}
+
+</style>
+</head>
+<body>
+  <h1>B737 Maintenance Aid Editor</h1>
+
+  <div class="top-bar">
+    <input id="searchBox" type="text" placeholder="Search fault, MEL, troubleshooting, notes, aircraft part, or chapter..." />
+  </div>
+
+  <div class="panel">
+    <div class="viewer-controls organized-controls">
+
+      <div class="control-group nav-group">
+        <button class="btn" id="prevBtn" type="button" title="Previous image">◀</button>
+        <button class="btn" id="nextBtn" type="button" title="Next image">▶</button>
+      </div>
+
+      <div class="control-group zoom-group">
+        <button class="btn" id="zoomOutBtn" type="button" title="Zoom out">−</button>
+        <div class="zoom-readout" id="zoomReadout" title="Zoom level">100%</div>
+        <button class="btn" id="zoomInBtn" type="button" title="Zoom in">+</button>
+        <button class="btn big-toggle" id="toggleSizeBtn" type="button" title="Toggle larger image view">⤢</button>
+      </div>
+
+      <div class="control-group dot-group">
+        <button class="btn" id="deleteDotBtn" type="button" title="Delete selected dot">Del Dot</button>
+        <button class="btn" id="deleteAllDotsBtn" type="button" title="Delete all dots">Clr Dots</button>
+      </div>
+
+      <div class="control-group media-group">
+        <button class="btn" id="addVideoBtn" type="button" title="Add video after selected thumbnail">+Vid</button>
+        <button class="btn" id="deleteVideoBtn" type="button" title="Delete selected video">Del Vid</button>
+
+        <button class="btn" id="addLinkThumbBtn" type="button" title="Add Main Points, Quiz, Tribal Knowledge, or any page link before the selected thumbnail in this chapter">+Link</button>
+        <button class="btn" id="deleteLinkThumbBtn" type="button" title="Delete selected link thumbnail">Del Link</button>
+
+        <button class="btn" id="uploadImageBtn" type="button" title="Upload an image to a chapter folder on the server">⬆ Upload</button>
+
+        <button class="btn" id="deleteImageThumbBtn" type="button" title="Hide selected image thumbnail">Del Img</button>
+        <button class="btn" id="restoreImageThumbsBtn" type="button" title="Restore hidden images">Restore</button>
+      </div>
+
+      <div class="control-group order-group">
+        <button class="btn" id="moveThumbLeftBtn" type="button" title="Move selected thumbnail left">◀ Img</button>
+        <button class="btn" id="moveThumbRightBtn" type="button" title="Move selected thumbnail right">Img ▶</button>
+        <button class="btn" id="resetThumbOrderBtn" type="button" title="Reset thumbnail order">Reset</button>
+      </div>
+
+      <div class="control-group filter-group">
+        <button class="btn active-filter" id="toggleImageMelsBtn" type="button" title="Toggle image MELs only">Img MEL</button>
+        <button class="btn" id="clearFilterBtn" type="button" title="Show all MELs">All MEL</button>
+      </div>
+    </div>
+
+    <div id="relatedStatus" class="related-status" style="display:none;">Browsing all images</div>
+
+    <div class="viewer-stage" id="viewerStage">
+      <div class="zoom-shell" id="zoomShell">
+        <div class="zoom-content" id="zoomContent">
+          <img id="viewerImage" class="viewer-image" src="" alt="Selected image" />
+          <div id="viewerOverlay" class="viewer-overlay">
+            <div class="popup" id="viewerPopup">
+              <button class="popup-close" id="viewerPopupClose" type="button">&times;</button>
+              <div class="popup-title" id="viewerPopupTitle"></div>
+              <div class="popup-type" id="viewerPopupType"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="thumb-wrap">
+      <button class="btn" id="thumbLeftBtn" type="button">◀</button>
+      <div id="thumbnailBar" class="thumb-scroll"></div>
+      <button class="btn" id="thumbRightBtn" type="button">▶</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="mel-header">
+      <div class="panel-title" style="margin-bottom:0;">MEL Info</div>
+      <div id="melCount" class="mel-count">Loading MEL data...</div>
+    </div>
+    <div class="notes-global-controls">
+      <button class="btn" id="expandAllNotesBtn" type="button">Expand All Notes</button>
+      <button class="btn" id="collapseAllNotesBtn" type="button">Collapse All Notes</button>
+    </div>
+    <div id="results"></div>
+  </div>
+
+  <!-- ── Link Picker Modal (iPad-friendly add-link form) ─────────── -->
+  <div id="linkModal" role="dialog" aria-modal="true" aria-labelledby="linkModalTitle">
+    <div class="lm-card">
+      <h3 id="linkModalTitle">Add Link Thumbnail</h3>
+
+      <label for="lmPreset">Quick presets</label>
+      <select id="lmPreset">
+        <option value="">— Custom (fill in below) —</option>
+        <option value="3dlocator">3D Location Finder</option>
+        <option value="partnumbers">Common Part Numbers</option>
+        <option value="mainpoints">Main Points (current chapter)</option>
+        <option value="tribal">Tribal Knowledge (current chapter)</option>
+        <option value="quiz">Quiz (current chapter)</option>
+      </select>
+      <div class="lm-hint">Preset auto-fills the fields below using the current chapter. Edit before saving if you want.</div>
+
+      <label for="lmLabel">Label</label>
+      <input type="text" id="lmLabel" placeholder="e.g. Main Points" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false">
+
+      <label for="lmUrl">Link URL (where clicking the thumbnail goes)</label>
+      <input type="text" id="lmUrl" placeholder="e.g. main_points/B737_ATA21_Main_Points.html" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+
+      <label for="lmThumb">Thumbnail image path (leave blank for text fallback)</label>
+      <input type="text" id="lmThumb" placeholder="e.g. images/21/mainpoints.png" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <img id="lmThumbPreview" class="lm-thumb-preview" alt="Thumbnail preview">
+
+      <label for="lmChapter">Chapter</label>
+      <select id="lmChapter"></select>
+      <div class="lm-hint">The link will be inserted after the currently selected thumbnail in this chapter.</div>
+
+      <div class="lm-row">
+        <button type="button" class="lm-btn" id="lmCancel">Cancel</button>
+        <button type="button" class="lm-btn primary" id="lmSave">Add Link</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Upload Image Modal ─────────────────────────────────────── -->
+  <div id="uploadModal" role="dialog" aria-modal="true" aria-labelledby="uploadModalTitle">
+    <div class="lm-card">
+      <h3 id="uploadModalTitle">Upload Image to Chapter</h3>
+
+      <label for="upChapter">Chapter</label>
+      <select id="upChapter"></select>
+      <div class="lm-hint">The image will be uploaded to the <code>images/&lt;chapter&gt;/</code> folder on the server.</div>
+
+      <label for="upFile">Image file (PNG / JPG / WEBP)</label>
+      <input type="file" id="upFile" accept="image/png,image/jpeg,image/webp">
+      <img id="upPreview" class="lm-thumb-preview" alt="Image preview">
+
+      <label for="upName">Filename on server</label>
+      <input type="text" id="upName" placeholder="e.g. 21_5.png" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <div class="lm-hint">
+        Naming convention for chapter images: <code>21_5.png</code>, <code>22_18.png</code>, etc.<br>
+        For chapter covers: <code>chapter21.png</code>. For link thumbnails: any name like <code>mainpoints.png</code>.<br>
+        Auto-filled based on chapter and next available number — edit if needed.
+      </div>
+
+      <label for="upPassword">Upload password</label>
+      <input type="password" id="upPassword" placeholder="Required" autocomplete="current-password">
+      <div class="lm-hint">Stops random people from uploading to your server. Remembered for this browser session.</div>
+
+      <div id="upStatus" class="lm-hint" style="min-height:18px;margin-top:8px;"></div>
+
+      <div class="lm-row">
+        <button type="button" class="lm-btn" id="upCancel">Cancel</button>
+        <button type="button" class="lm-btn primary" id="upSave">Upload</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="hoverTooltip" class="hover-tooltip"></div>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://vtibzkzkyatwbydbagau.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0aWJ6a3preWF0d2J5ZGJhZ2F1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMTc4MjcsImV4cCI6MjA5MDg5MzgyN30._7OG7-KGZduwUyg0bzWubxSPtgjXpPeMaTsgpGXV8YY";
+
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const VIDEO_INSERTIONS = [
+      {
+        afterImageNumber: 3,
+        key: "video-after-3",
+        fileId: "1TdPpdONgtGt-vWWyl-lk2Z82t7n_Un_v",
+        label: "Video 1"
+      },
+      {
+        afterImageNumber: 15,
+        key: "video-after-15",
+        fileId: "1USK8H5ArV0Aj5jgnw15gyqUotQFDUzG-",
+        label: "Video 2"
+      },
+      {
+        afterImageNumber: 174,
+        key: "video-after-174",
+        fileId: "1nfOsadylJg6oKnLOCLadDb7N7b2EXEt6",
+        label: "Video 3"
+      }
+    ];
+
+    const QUIZ_APP = {
+      type: "quiz",
+      key: "knowledge-check-q1",
+      label: "Knowledge Check",
+      chapter: "21",
+      imageLabel: "Knowledge Check",
+      imageName: "knowledge_check.png",
+      imageUrl: "images/knowledge_check.png",
+      originalUrl: "https://willdeluna.github.io/chapter21quiz_1/",
+      previewUrl: "https://willdeluna.github.io/chapter21quiz_1/",
+      sortOrder: 21005.5
+    };
+
+    // Chapter cover thumbnails. These files use your folder path:
+    // images/36/chapter36.png, images/38/chapter38.png, etc.
+    // The extra chapter thumbnails are inserted in the thumbnail bar after image/chapter 35.
+    const AVAILABLE_CHAPTER_IMAGES = [
+      "00", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30",
+      "31", "32", "33", "34", "35",
+      "36", "38", "44", "45", "46", "49", "52", "57", "72", "80"
+    ];
+
+    const EXTRA_CHAPTER_THUMBNAILS_AFTER_35 = [
+      "36", "38", "44", "45", "46", "49", "52", "57", "72", "80"
+    ];
+
+    // Folder image setup.
+    // For Chapter 21, your image names are:
+    // images/21/1_1.png, images/21/1_2.png, images/21/1_3.png, etc.
+    //
+    // Later, add more chapters here:
+    // "22": { count: 60, prefix: "1" },
+    // "23": { count: 80, prefix: "1" },
+    const CHAPTER_FOLDER_CONFIG = {
+      "21": { count: 17, prefix: "21" },
+      "22": { count: 80, prefix: "22" },
+      "23": { count: 80, prefix: "23" },
+      "24": { count: 80, prefix: "24" },
+      "25": { count: 80, prefix: "25" },
+      "26": { count: 80, prefix: "26" },
+      "27": { count: 80, prefix: "27" },
+      "28": { count: 80, prefix: "28" },
+      "29": { count: 80, prefix: "29" },
+      "30": { count: 80, prefix: "30" },
+      "31": { count: 80, prefix: "31" },
+      "32": { count: 80, prefix: "32" },
+      "33": { count: 80, prefix: "33" },
+      "34": { count: 80, prefix: "34" },
+      "35": { count: 80, prefix: "35" },
+      "36": { count: 80, prefix: "36" },
+      "38": { count: 80, prefix: "38" },
+      "44": { count: 80, prefix: "44" },
+      "45": { count: 80, prefix: "45" },
+      "46": { count: 80, prefix: "46" },
+      "49": { count: 80, prefix: "49" },
+      "52": { count: 80, prefix: "52" },
+      "57": { count: 80, prefix: "57" },
+      "72": { count: 80, prefix: "72" },
+      "80": { count: 80, prefix: "80" }
+    };
+
+    // ─────────────────────────────────────────────────────────────
+    // Chapter image existence cache.
+    // Each chapter folder is configured for up to N (e.g. 80) numbered
+    // images, but in practice only a subset actually exists. To avoid
+    // showing rows of blank/broken thumbnails, we probe each chapter
+    // once, cache the list of existing image numbers in localStorage,
+    // and rebuild the thumbnail strip with only the real ones.
+    // The cover image (chapterNN.png) is always shown — it's expected
+    // to exist for every chapter listed above.
+    // ─────────────────────────────────────────────────────────────
+    const CHAPTER_IMAGE_CACHE_KEY = "b737EditorChapterImages";
+    // Map<chapterText, number[]> — existing imageNumber list per chapter.
+    // Empty array means "probed, none found". Missing entry means "not yet probed".
+    const chapterImageCache = new Map();
+
+    function loadChapterImageCache() {
+      try {
+        const raw = localStorage.getItem(CHAPTER_IMAGE_CACHE_KEY);
+        if (!raw) return;
+        const obj = JSON.parse(raw);
+        if (obj && typeof obj === "object") {
+          Object.keys(obj).forEach(k => {
+            if (Array.isArray(obj[k])) {
+              // Empty arrays often come from a bad first probe (esp. iPad
+              // Safari when concurrency cap dropped requests). Skip them
+              // so we re-probe rather than trusting the bad result.
+              if (obj[k].length === 0) return;
+              chapterImageCache.set(String(k), obj[k].map(Number));
+            }
+          });
+        }
+      } catch (err) {
+        console.warn("Could not read chapter image cache", err);
+      }
+    }
+
+    function saveChapterImageCache() {
+      try {
+        const obj = {};
+        chapterImageCache.forEach((nums, ch) => { obj[ch] = nums; });
+        localStorage.setItem(CHAPTER_IMAGE_CACHE_KEY, JSON.stringify(obj));
+      } catch (err) {
+        console.warn("Could not save chapter image cache", err);
+      }
+    }
+
+    // Probe one chapter for which numbered images actually exist.
+    // Loads every candidate image (1..configCount) and resolves to the
+    // array of imageNumbers that loaded successfully. Cached for next time.
+    // Resolves immediately from cache if already probed.
+    function probeChapterImages(chapter) {
+      const chapterText = String(chapter);
+      if (chapterImageCache.has(chapterText)) {
+        return Promise.resolve(chapterImageCache.get(chapterText));
+      }
+      const config = CHAPTER_FOLDER_CONFIG[chapterText];
+      if (!config || !Number(config.count)) {
+        chapterImageCache.set(chapterText, []);
+        return Promise.resolve([]);
+      }
+      const total = Number(config.count);
+
+      // ── Throttled probe (iPad Safari fix) ──────────────────────────
+      // Firing all `total` (up to 80) image loads at once overwhelmed
+      // iPad Safari's concurrent-connection cap — overflow requests got
+      // silently dropped and cached as failed. Run at most CONCURRENCY
+      // at a time instead.
+      const CONCURRENCY = 6;
+      return new Promise(resolveAll => {
+        const results = new Array(total);
+        let nextIndex = 0;
+        let active = 0;
+        let finished = 0;
+
+        function launchNext() {
+          while (active < CONCURRENCY && nextIndex < total) {
+            const i = nextIndex + 1;
+            const slot = nextIndex;
+            nextIndex++;
+            active++;
+            const img = new Image();
+            const done = ok => {
+              results[slot] = { i, ok };
+              active--;
+              finished++;
+              if (finished === total) {
+                const found = results.filter(r => r && r.ok).map(r => r.i).sort((a, b) => a - b);
+                chapterImageCache.set(chapterText, found);
+                saveChapterImageCache();
+                resolveAll(found);
+              } else {
+                launchNext();
+              }
+            };
+            img.onload = () => done(true);
+            img.onerror = () => done(false);
+            img.decoding = "async";
+            img.src = chapterImagePath(chapterText, i);
+          }
+        }
+        launchNext();
+      });
+    }
+
+    // ── Debounced re-render scheduler ────────────────────────────────
+    // Probing 25 chapters and re-rendering after each one rebuilt the
+    // entire thumbnail bar 25 times in a row, causing visible flicker
+    // and dropping iPad Safari into hitching. Coalesce updates into at
+    // most one rebuild every BATCH_MS instead.
+    let _probeRerenderTimer = null;
+    const PROBE_RERENDER_MS = 800;
+
+    function scheduleProbeRerender() {
+      if (_probeRerenderTimer) return;
+      _probeRerenderTimer = setTimeout(() => {
+        _probeRerenderTimer = null;
+        try {
+          const selectedKey = mediaItems[currentMediaIndex]?.key;
+          mediaItems = buildMediaItems(allImages);
+          attachImageRowsToMediaItems();
+          renderThumbnails(mediaItems);
+          if (typeof updateCollapsedThumbnailVisibility === "function") {
+            updateCollapsedThumbnailVisibility();
+          }
+          const newIdx = selectedKey
+            ? mediaItems.findIndex(it => it && it.key === selectedKey)
+            : -1;
+          if (newIdx >= 0 && newIdx !== currentMediaIndex) {
+            showMediaByIndex(newIdx);
+          }
+        } catch (e) {
+          console.warn("Debounced re-render after probe failed", e);
+        }
+      }, PROBE_RERENDER_MS);
+    }
+
+    // Probe every chapter in the config. Schedules a debounced re-render
+    // after each chapter completes so the strip fills in progressively
+    // without flicker. Boot path fires this without awaiting.
+    async function probeAllChaptersInBackground() {
+      const chapters = Object.keys(CHAPTER_FOLDER_CONFIG);
+      for (const ch of chapters) {
+        if (chapterImageCache.has(ch)) continue;
+        await probeChapterImages(ch);
+        scheduleProbeRerender();
+      }
+      // Final guaranteed render after the last chapter finishes
+      scheduleProbeRerender();
+    }
+
+    // Devtools helper: force a fresh re-scan of every chapter folder.
+    // Call rescanChapterImages() in the console after adding new image files.
+    window.rescanChapterImages = function rescanChapterImages() {
+      chapterImageCache.clear();
+      try { localStorage.removeItem(CHAPTER_IMAGE_CACHE_KEY); } catch (_) { /* noop */ }
+      probeAllChaptersInBackground();
+    };
+
+    // Chapter cover image search helper.
+    // Typing 21 loads: 21/chapter21.png
+    // Typing 23 loads: 23/chapter23.png
+    // Works for chapters 21 through 80.
+    function getChapterFromSearch(value) {
+      const clean = String(value || "").trim();
+
+      // Only jump to a chapter image when the search is EXACTLY a chapter number.
+      // This allows searches like "26 valve", "21 pack", "22 door", etc.
+      const match = clean.match(/^(\d{2})$/);
+      if (!match) return null;
+
+      const chapter = match[1];
+      return AVAILABLE_CHAPTER_IMAGES.includes(chapter) ? chapter : null;
+    }
+
+    function chapterImagePath(chapter, imageNumber = 0) {
+      const chapterText = String(chapter);
+      const config = CHAPTER_FOLDER_CONFIG[chapterText];
+
+      if (chapterText === "00") {
+        if (Number(imageNumber) === 0) return "images/00/1_1.png";
+        return `images/00/00_${imageNumber}.png`;
+      }
+
+      if (Number(imageNumber) > 0 && config) {
+        return `images/${chapterText}/${config.prefix}_${imageNumber}.png`;
+      }
+
+      return `images/${chapterText}/chapter${chapterText}.png`;
+    }
+
+    const searchBox = document.getElementById("searchBox");
+    const resultsDiv = document.getElementById("results");
+    const melCount = document.getElementById("melCount");
+    const expandAllNotesBtn = document.getElementById("expandAllNotesBtn");
+    const collapseAllNotesBtn = document.getElementById("collapseAllNotesBtn");
+    const relatedStatus = document.getElementById("relatedStatus");
+
+    const viewerStage = document.getElementById("viewerStage");
+    const zoomShell = document.getElementById("zoomShell");
+    const zoomContent = document.getElementById("zoomContent");
+    const viewerImage = document.getElementById("viewerImage");
+    const viewerOverlay = document.getElementById("viewerOverlay");
+    const hoverTooltip = document.getElementById("hoverTooltip");
+
+    const viewerPopup = document.getElementById("viewerPopup");
+    const viewerPopupTitle = document.getElementById("viewerPopupTitle");
+    const viewerPopupType = document.getElementById("viewerPopupType");
+    const viewerPopupClose = document.getElementById("viewerPopupClose");
+
+    const thumbnailBar = document.getElementById("thumbnailBar");
+
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const thumbLeftBtn = document.getElementById("thumbLeftBtn");
+    const thumbRightBtn = document.getElementById("thumbRightBtn");
+    const clearFilterBtn = document.getElementById("clearFilterBtn");
+    const toggleImageMelsBtn = document.getElementById("toggleImageMelsBtn");
+    const zoomOutBtn = document.getElementById("zoomOutBtn");
+    const zoomInBtn = document.getElementById("zoomInBtn");
+    const toggleSizeBtn = document.getElementById("toggleSizeBtn");
+    const zoomReadout = document.getElementById("zoomReadout");
+    const statusReadout = document.getElementById("statusReadout");
+    const deleteDotBtn = document.getElementById("deleteDotBtn");
+    const deleteAllDotsBtn = document.getElementById("deleteAllDotsBtn");
+    const addVideoBtn = document.getElementById("addVideoBtn");
+    const addLinkThumbBtn = document.getElementById("addLinkThumbBtn");
+    const deleteLinkThumbBtn = document.getElementById("deleteLinkThumbBtn");
+    const deleteVideoBtn = document.getElementById("deleteVideoBtn");
+    const deleteImageThumbBtn = document.getElementById("deleteImageThumbBtn");
+    const moveThumbLeftBtn = document.getElementById("moveThumbLeftBtn");
+    const moveThumbRightBtn = document.getElementById("moveThumbRightBtn");
+    const resetThumbOrderBtn = document.getElementById("resetThumbOrderBtn");
+    const restoreImageThumbsBtn = document.getElementById("restoreImageThumbsBtn");
+
+    let allFaults = [];
+    let filteredFaults = [];
+    let allImages = [];
+    let mediaItems = [];
+    let currentHotspots = [];
+    let currentMediaIndex = 0;
+    let expandedThumbnailChapter = null;
+    let selectedMelId = null;
+    let currentSearchText = "";
+    let activeChapterFilter = null;
+    let currentImageMelIds = [];
+    let selectedHotspotId = null;
+    let setDotModeMelId = null;
+    let draftDot = null;
+    let zoomLevel = 1;
+let filterToCurrentImageDots = false;
+    let isVideoShowing = false;
+
+    // IMPORTANT:
+    // The 737 editor saves pasted videos in localStorage under this exact key.
+    // The 737 viewer reads the same key so videos added/placed in the editor appear here too.
+    const EDITOR_VIDEO_STORAGE_KEY = "b737EditorCustomVideos";
+    const HIDDEN_IMAGE_THUMB_STORAGE_KEY = "b737EditorHiddenImageThumbs";
+    const THUMB_ORDER_STORAGE_KEY = "b737EditorThumbnailOrder";
+    const CUSTOM_QUIZ_STORAGE_KEY = "b737EditorQuizThumbs";
+    const CUSTOM_TRIBAL_STORAGE_KEY = "b737EditorTribalThumbs";
+
+    // ── Baked-in default link thumbnails ─────────────────────────────
+    // These appear for any visitor who hasn't added their own links yet
+    // (e.g. fresh iPad, new visitor). If a user adds/removes/reorders
+    // links, their changes save to localStorage and override these.
+    // To reset to defaults, the user can clear site data in their browser.
+    const DEFAULT_QUIZ_THUMBS = [
+      {
+        type: "quiz",
+        key: "link-thumb-1779203037974",
+        label: "3D Locator",
+        chapter: "00",
+        imageLabel: "3D Locator",
+        imageName: "3D_locator.png",
+        imageUrl: "images/00/3D_locator.png",
+        originalUrl: "B737_Location_Finder.html",
+        previewUrl: "B737_Location_Finder.html",
+        sortOrder: 8.5,
+        afterItemKey: null
+      },
+      {
+        type: "quiz",
+        key: "link-thumb-1779207692514",
+        label: "Common Part Numbers",
+        chapter: "00",
+        imageLabel: "Common Part Numbers",
+        imageName: "part_numbers.png",
+        imageUrl: "images/00/part_numbers.png",
+        originalUrl: "Common_Part_Numbers.html",
+        previewUrl: "Common_Part_Numbers.html",
+        sortOrder: 7.5,
+        afterItemKey: null
+      },
+      {
+        type: "quiz",
+        key: "link-thumb-1779328282600",
+        label: "Main Points",
+        chapter: "21",
+        imageLabel: "Main Points",
+        imageName: "mainpoints.png",
+        imageUrl: "images/21/mainpoints.png",
+        originalUrl: "main_points/B737_ATA21_Main_Points.html",
+        previewUrl: "main_points/B737_ATA21_Main_Points.html",
+        sortOrder: 11.5,
+        afterItemKey: "chapter-21-2"
+      },
+      {
+        type: "quiz",
+        key: "link-thumb-1779365620209",
+        label: "Tribal Knowledge",
+        imageLabel: "Tribal Knowledge",
+        imageName: "tribal_knowledge.png",
+        imageUrl: "images/21/tribal_knowledge.png",
+        originalUrl: "tribal_knowledge/ATA21_tribal_knowledge.html",
+        previewUrl: "tribal_knowledge/ATA21_tribal_knowledge.html",
+        chapter: "21",
+        sortOrder: 12.5,
+        afterItemKey: "chapter-21-1"
+      },
+      {
+        type: "quiz",
+        key: "link-thumb-1779365683237",
+        label: "ATA 21 Quiz",
+        imageLabel: "ATA 21 Quiz",
+        imageName: "quiz.png",
+        imageUrl: "images/00/quiz.png",
+        originalUrl: "quiz/ATA21_Quiz.html",
+        previewUrl: "quiz/ATA21_Quiz.html",
+        chapter: "21",
+        sortOrder: 13.5,
+        afterItemKey: "chapter-21-1"
+      }
+    ];
+
+    const DEFAULT_TRIBAL_THUMBS = [
+      {
+        type: "tribal",
+        key: "tribal-thumb-1777568023466",
+        label: "ATA 22 Tribal Knowledge 1",
+        imageLabel: "ATA 22 Tribal Knowledge 1",
+        imageName: "tribal_knowledge.png",
+        imageUrl: "images/21/tribal_knowledge.png",
+        thumbUrl: "images/21/tribal_knowledge.png",
+        previewUrl: "ATA22_tribal_knowledge.html",
+        originalUrl: "ATA22_tribal_knowledge.html",
+        chapter: "",
+        sortOrder: 9.5,
+        afterItemKey: null
+      }
+    ];
+
+    const DEFAULT_EDITOR_VIDEOS = [
+      {
+        type: "video",
+        label: "Game",
+        originalUrl: "https://drive.google.com/file/d/1XeBR0aKNTkytq_3PSwiNHDTjHUMWRv6B/view?usp=drive_link",
+        afterImageNumber: -99,
+        thumbUrl: "https://drive.google.com/thumbnail?id=1XeBR0aKNTkytq_3PSwiNHDTjHUMWRv6B&sz=w1000",
+        previewUrl: "https://drive.google.com/file/d/1XeBR0aKNTkytq_3PSwiNHDTjHUMWRv6B/preview"
+      }
+    ];
+    const CUSTOM_MAIN_POINTS_STORAGE_KEY = "b737EditorMainPointsThumbs";
+    
+    try {
+      const cleanupKey = "b737QuizCleanup_v4";
+      if (!localStorage.getItem(cleanupKey)) {
+        const oldQuiz = JSON.parse(localStorage.getItem(CUSTOM_QUIZ_STORAGE_KEY) || "[]");
+        if (Array.isArray(oldQuiz)) {
+          const cleaned = oldQuiz.filter(q => q && q.key !== "knowledge-check-q1");
+          localStorage.setItem(CUSTOM_QUIZ_STORAGE_KEY, JSON.stringify(cleaned));
+        }
+        localStorage.setItem(cleanupKey, "done");
+      }
+    } catch (err) {
+      console.warn("Quiz cleanup skipped", err);
+    }
+
+    let customVideos = loadEditorVideos();
+    let customQuizThumbs = loadQuizThumbs();
+    let customTribalThumbs = loadTribalThumbs();
+    let customMainPointsThumbs = loadMainPointsThumbs();
+    let hiddenImageThumbs = loadHiddenImageThumbs();
+    let savedThumbnailOrder = loadThumbnailOrder();
+    let allNotesExpanded = false;
+
+    let relatedMediaIndexes = [];
+    let relatedMediaPointer = 0;
+    let activeRelatedMelRef = null;
+
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let startScrollLeft = 0;
+    let startScrollTop = 0;
+    let dragMoved = false;
+
+    const MIN_ZOOM = 1;
+    const MAX_ZOOM = 3;
+    const ZOOM_STEP = 0.25;
+    const NORMAL_VIEW_ZOOM = 1;
+    const LARGE_VIEW_ZOOM = 1.6;
+    let isLargeView = false;
+
+    function setStatus(message, isAlert = false) {
+      if (!statusReadout) return;
+      statusReadout.textContent = message;
+      statusReadout.style.color = isAlert ? "#ff9e9e" : "#ffd27f";
+    }
+
+    function updateRelatedStatus() {
+      if (activeRelatedMelRef && relatedMediaIndexes.length > 0) {
+        relatedStatus.textContent = `Viewing ${relatedMediaPointer + 1} of ${relatedMediaIndexes.length} related MEL image${relatedMediaIndexes.length === 1 ? "" : "s"} for ${activeRelatedMelRef}`;
+      } else {
+        relatedStatus.textContent = "Browsing all images";
+      }
+    }
+
+    function clearRelatedMode() {
+      relatedMediaIndexes = [];
+      relatedMediaPointer = 0;
+      activeRelatedMelRef = null;
+      updateRelatedStatus();
+    }
+
+    function updateZoom() {
+      const percent = Math.round(zoomLevel * 100);
+      zoomContent.style.width = percent + "%";
+      zoomReadout.textContent = percent + "%";
+      closeViewerPopup();
+      hideTooltip();
+
+      if (zoomLevel <= 1) {
+        zoomShell.style.justifyContent = "center";
+        viewerStage.scrollLeft = 0;
+        viewerStage.scrollTop = 0;
+      } else {
+        zoomShell.style.justifyContent = "flex-start";
+      }
+    }
+
+    function setZoom(nextZoom) {
+      zoomLevel = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, Number(nextZoom.toFixed(2))));
+      updateZoom();
+    }
+
+    function zoomIn() {
+      if (isVideoShowing) return;
+      setZoom(zoomLevel + ZOOM_STEP);
+    }
+
+    function zoomOut() {
+      if (isVideoShowing) return;
+      setZoom(zoomLevel - ZOOM_STEP);
+    }
+
+    function resetZoom() {
+      setZoom(isLargeView ? LARGE_VIEW_ZOOM : NORMAL_VIEW_ZOOM);
+    }
+
+    function applyViewerSizeMode() {
+      viewerStage.classList.toggle("large-view", isLargeView);
+
+      if (toggleSizeBtn) {
+        toggleSizeBtn.textContent = isLargeView ? "⤡" : "⤢";
+        toggleSizeBtn.title = isLargeView ? "Return image to normal size" : "Make image larger inside app";
+        toggleSizeBtn.classList.toggle("active-filter", isLargeView);
+      }
+
+      if (!isVideoShowing) {
+        setZoom(isLargeView ? LARGE_VIEW_ZOOM : NORMAL_VIEW_ZOOM);
+      }
+
+      requestAnimationFrame(() => {
+        viewerStage.scrollLeft = 0;
+        viewerStage.scrollTop = 0;
+      });
+    }
+
+    function toggleLargeImageView() {
+      if (isVideoShowing) {
+        setStatus("Large view is for images", true);
+        return;
+      }
+
+      isLargeView = !isLargeView;
+      applyViewerSizeMode();
+      setStatus(isLargeView ? "Large image view" : "Normal image view");
+    }
+
+
+
+    function removeViewerQuiz() {
+      const existingShell = document.getElementById("viewerAppShell");
+      if (existingShell) existingShell.remove();
+
+      const existingQuiz = document.getElementById("viewerQuizFrame");
+      if (existingQuiz) existingQuiz.remove();
+
+      if (viewerStage) viewerStage.classList.remove("quiz-full-mode");
+    }
+
+    function resetViewerBox() {
+      if (viewerStage) viewerStage.classList.remove("quiz-full-mode");
+    }
+
+    function closeQuizApp() {
+      removeViewerQuiz();
+      resetViewerBox();
+
+      isVideoShowing = false;
+      viewerImage.style.display = "block";
+      viewerOverlay.style.display = "block";
+
+      if (mediaItems && mediaItems.length) {
+        let fallbackIndex = Number(currentMediaIndex || 0);
+
+        if (
+          mediaItems[fallbackIndex] &&
+          (mediaItems[fallbackIndex].type === "quiz" ||
+           mediaItems[fallbackIndex].type === "app" ||
+           mediaItems[fallbackIndex].type === "tribal" ||
+           mediaItems[fallbackIndex].type === "mainpoints" ||
+           mediaItems[fallbackIndex].type === "video")
+        ) {
+          let foundIndex = -1;
+
+          for (let i = fallbackIndex - 1; i >= 0; i--) {
+            if (mediaItems[i] && mediaItems[i].type !== "quiz" && mediaItems[i].type !== "app" && mediaItems[i].type !== "mainpoints" && mediaItems[i].type !== "tribal" && mediaItems[i].type !== "video") {
+              foundIndex = i;
+              break;
+            }
+          }
+
+          if (foundIndex < 0) {
+            for (let i = fallbackIndex + 1; i < mediaItems.length; i++) {
+              if (mediaItems[i] && mediaItems[i].type !== "quiz" && mediaItems[i].type !== "app" && mediaItems[i].type !== "mainpoints" && mediaItems[i].type !== "tribal" && mediaItems[i].type !== "video") {
+                foundIndex = i;
+                break;
+              }
+            }
+          }
+
+          fallbackIndex = foundIndex >= 0 ? foundIndex : 0;
+        }
+
+        showMediaByIndex(fallbackIndex);
+      } else {
+        setStatus("App closed");
+        relatedStatus.textContent = "Browsing all images";
+      }
+    }
+
+    function openQuizApp(appItem = QUIZ_APP) {
+      clearRelatedMode();
+      removeViewerVideo();
+      removeViewerQuiz();
+      clearHotspots();
+      closeViewerPopup();
+      hideTooltip();
+
+      isVideoShowing = true;
+      selectedHotspotId = null;
+      selectedMelId = null;
+      currentHotspots = [];
+
+      viewerStage.classList.add("quiz-full-mode");
+      viewerImage.style.display = "none";
+      viewerOverlay.style.display = "none";
+
+      const shell = document.createElement("div");
+      shell.id = "viewerAppShell";
+      shell.className = "app-full-shell";
+
+      const closeRow = document.createElement("div");
+      closeRow.className = "app-close-row";
+
+      const closeBtn = document.createElement("button");
+      closeBtn.className = "app-close-btn";
+      closeBtn.type = "button";
+      const isTribalPage = appItem.type === "tribal";
+      const isMainPointsPage = appItem.type === "mainpoints";
+      closeBtn.textContent = "Close Window";
+      closeBtn.title = "Close linked window and return to viewer";
+      closeBtn.addEventListener("click", closeQuizApp);
+
+      const iframe = document.createElement("iframe");
+      iframe.id = "viewerQuizFrame";
+      iframe.className = "quiz-full-frame";
+      iframe.src = appItem.previewUrl || "https://willdeluna.github.io/chapter21quiz_1/";
+      iframe.allow = "fullscreen; autoplay";
+      iframe.allowFullscreen = true;
+      iframe.setAttribute("scrolling", "auto");
+
+      closeRow.appendChild(closeBtn);
+      shell.appendChild(closeRow);
+      shell.appendChild(iframe);
+      zoomContent.appendChild(shell);
+
+      relatedStatus.textContent = `${appItem.type === "mainpoints" ? "MAIN POINTS" : appItem.type === "tribal" ? "Tribal Knowledge" : "Mini play window"}: ${appItem.label || "Quiz App"}`;
+      setStatus(appItem.type === "mainpoints" ? "MAIN POINTS page loaded" : appItem.type === "tribal" ? "Tribal page loaded" : "Quiz app loaded");
+    }
+
+    function escapeHtml(text) {
+      if (text == null) return "";
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function closeViewerPopup() {
+      viewerPopup.classList.remove("show");
+    }
+
+    function positionPopup(xPercent, yPercent) {
+      const popupWidth = viewerPopup.offsetWidth || 240;
+      const popupHeight = viewerPopup.offsetHeight || 100;
+      const gap = 16;
+
+      const hotspotX = (xPercent / 100) * viewerOverlay.clientWidth;
+      const hotspotY = (yPercent / 100) * viewerOverlay.clientHeight;
+
+      let left = hotspotX + gap;
+      let top = hotspotY - popupHeight / 2;
+
+      if (left + popupWidth > viewerOverlay.clientWidth - 10) {
+        left = hotspotX - popupWidth - gap;
+      }
+
+      if (left < 10) left = 10;
+      if (top < 10) top = 10;
+      if (top + popupHeight > viewerOverlay.clientHeight - 10) {
+        top = viewerOverlay.clientHeight - popupHeight - 10;
+      }
+
+      viewerPopup.style.left = left + "px";
+      viewerPopup.style.top = top + "px";
+    }
+
+    function openPopup(fault, label, xPercent, yPercent) {
+      viewerPopupTitle.textContent = fault.fault_code || label || "Hotspot";
+      viewerPopupType.textContent = `MEL — ${fault.mel_reference || "No Ref"}`;
+      viewerPopup.classList.add("show");
+      positionPopup(xPercent, yPercent);
+    }
+
+    function showTooltip(evt, html) {
+      hoverTooltip.innerHTML = html;
+      hoverTooltip.style.display = "block";
+      moveTooltip(evt);
+    }
+
+    function moveTooltip(evt) {
+      if (hoverTooltip.style.display !== "block") return;
+
+      const gap = 16;
+      let left = evt.clientX + gap;
+      let top = evt.clientY + gap;
+
+      const rect = hoverTooltip.getBoundingClientRect();
+
+      if (left + rect.width > window.innerWidth - 10) {
+        left = evt.clientX - rect.width - gap;
+      }
+
+      if (top + rect.height > window.innerHeight - 10) {
+        top = evt.clientY - rect.height - gap;
+      }
+
+      hoverTooltip.style.left = left + "px";
+      hoverTooltip.style.top = top + "px";
+    }
+
+    function hideTooltip() {
+      hoverTooltip.style.display = "none";
+    }
+
+    function clearHotspots() {
+      viewerOverlay.querySelectorAll(".saved-hotspot, .draft-hotspot").forEach(el => el.remove());
+    }
+
+    function removeViewerVideo() {
+      const existingVideo = document.getElementById("viewerVideo");
+      if (existingVideo) existingVideo.remove();
+      const existingWrap = document.getElementById("viewerVideoWrap");
+      if (existingWrap) existingWrap.remove();
+    }
+
+
+    function scrollToEndOfPreviousChapter(chapter, behavior = "auto") {
+      const chapterNumber = Number(chapter);
+      const previousChapter = String(chapterNumber - 1).padStart(2, "0");
+
+      const previousIndexes = mediaItems
+        .map((item, index) => ({ item, index }))
+        .filter(({ item, index }) =>
+          item &&
+          String(item.chapter) === previousChapter &&
+          document.querySelector(`.thumb-btn[data-media-index="${index}"]`)?.style.display !== "none"
+        );
+
+      let targetIndex = null;
+
+      if (previousIndexes.length) {
+        targetIndex = previousIndexes[previousIndexes.length - 1].index;
+      } else {
+        const coverIndex = mediaItems.findIndex(item =>
+          (item.type === "chapter" || item.type === "quiz") &&
+          String(item.chapter) === String(chapter) &&
+          Number(item.chapterImageNumber) === 0
+        );
+
+        targetIndex = coverIndex !== -1 ? coverIndex : null;
+      }
+
+      if (targetIndex === null) return;
+
+      const btn = document.querySelector(`.thumb-btn[data-media-index="${targetIndex}"]`);
+      if (!btn || !thumbnailBar) return;
+
+      const targetLeft =
+        btn.offsetLeft -
+        thumbnailBar.offsetLeft -
+        (thumbnailBar.clientWidth * 0.18);
+
+      thumbnailBar.scrollTo({
+        left: Math.max(0, targetLeft),
+        behavior
+      });
+    }
+
+
+    function isChapterCoverItem(item) {
+      return item && item.type === "chapter" && Number(item.chapterImageNumber || 0) === 0;
+    }
+
+    function isLearningThumbItem(item) {
+      return item && (item.type === "quiz" || item.type === "app" || item.type === "tribal" || item.type === "mainpoints");
+    }
+
+    function getThumbnailChapter(item, mediaIndex) {
+      if (!item) return "";
+      if (item.chapter) return String(item.chapter);
+
+      // Older saved MAIN POINTS / Tribal / Quiz thumbnails may not have a chapter saved.
+      // Treat them like regular chapter images by assigning them to the nearest chapter
+      // thumbnail before their saved position.
+      if (isLearningThumbItem(item)) {
+        for (let i = Number(mediaIndex) - 1; i >= 0; i--) {
+          const candidate = mediaItems[i];
+          if (candidate && candidate.chapter) return String(candidate.chapter);
+        }
+      }
+
+      return "";
+    }
+
+    function shouldShowThumbnail(item) {
+      if (!item) return false;
+      if (isChapterCoverItem(item)) return true;
+      if (expandedThumbnailChapter && item.chapter && String(item.chapter) === String(expandedThumbnailChapter)) return true;
+      return !item.chapter && item.type === "video";
+    }
+
+    function updateCollapsedThumbnailVisibility() {
+      document.querySelectorAll(".thumb-btn").forEach(btn => {
+        const item = mediaItems[Number(btn.dataset.mediaIndex)];
+        btn.style.display = shouldShowThumbnail(item) ? "" : "none";
+        if (isChapterCoverItem(item)) {
+          btn.classList.toggle("expanded-chapter", String(item.chapter) === String(expandedThumbnailChapter));
+        }
+      });
+    }
+
+    function centerThumbnailByMediaIndex(mediaIndex, behavior = "auto") {
+      const btn = document.querySelector(`.thumb-btn[data-media-index="${mediaIndex}"]`);
+      if (!btn || !thumbnailBar) return;
+      const targetLeft =
+        btn.offsetLeft -
+        thumbnailBar.offsetLeft -
+        (thumbnailBar.clientWidth / 2) +
+        (btn.offsetWidth / 2);
+      thumbnailBar.scrollTo({ left: Math.max(0, targetLeft), behavior });
+    }
+
+    function expandChapterThumbnails(chapter, behavior = "smooth") {
+      expandedThumbnailChapter = chapter ? String(chapter) : null;
+      updateCollapsedThumbnailVisibility();
+      const coverIndex = mediaItems.findIndex(item => isChapterCoverItem(item) && String(item.chapter) === String(expandedThumbnailChapter));
+      if (coverIndex !== -1) requestAnimationFrame(() => centerThumbnailByMediaIndex(coverIndex, behavior));
+    }
+
+    function getVisibleMediaIndexes() {
+      return mediaItems.map((item, index) => shouldShowThumbnail(item) ? index : null).filter(index => index !== null);
+    }
+
+    function getNextVisibleMediaIndex(direction) {
+      const visibleIndexes = getVisibleMediaIndexes();
+      if (!visibleIndexes.length) return currentMediaIndex;
+      const currentPosition = visibleIndexes.indexOf(Number(currentMediaIndex));
+      if (currentPosition === -1) return visibleIndexes[0];
+      const nextPosition = (currentPosition + direction + visibleIndexes.length) % visibleIndexes.length;
+      return visibleIndexes[nextPosition];
+    }
+
+    function getBadgeSequence(item, mediaIndex, type) {
+      const matching = mediaItems
+        .map((candidate, index) => ({ candidate, index }))
+        .filter(({ candidate }) => candidate && (type === "tribal" ? candidate.type === "tribal" : type === "mainpoints" ? candidate.type === "mainpoints" : (candidate.type === "quiz" || candidate.type === "app")));
+
+      const foundIndex = matching.findIndex(({ candidate, index }) => candidate === item || index === mediaIndex || candidate.key === item.key);
+      return foundIndex === -1 ? matching.length : foundIndex + 1;
+    }
+
+    function addQuizOrTribalBadge(btn, item, mediaIndex) {
+      // Badge labels removed on purpose. The thumbnails and links still work,
+      // but MP1 / TK1 / Q1 corner tags are no longer drawn.
+      return;
+    }
+
+    function setActiveThumbnailByMediaIndex(mediaIndex) {
+      document.querySelectorAll(".thumb-btn").forEach(btn => {
+        btn.classList.toggle("active", Number(btn.dataset.mediaIndex) === Number(mediaIndex));
+      });
+    }
+
+    function updateImageMelButton() {
+      toggleImageMelsBtn.textContent = filterToCurrentImageDots
+        ? "Img MEL"
+        : "All Img";
+
+      toggleImageMelsBtn.title = filterToCurrentImageDots
+        ? "Image MELs Only: ON"
+        : "Image MELs Only: OFF";
+
+      toggleImageMelsBtn.classList.toggle("active-filter", filterToCurrentImageDots);
+    }
+
+    function updateMelCount() {
+      melCount.textContent = `${filteredFaults.length} MEL entr${filteredFaults.length === 1 ? "y" : "ies"} shown`;
+    }
+
+    function splitNotesIntoStructuredLines(text) {
+      if (!text) return [];
+
+      let normalized = String(text).replace(/\r/g, " ").replace(/\n/g, " ").trim();
+      if (!normalized) return [];
+
+      // Put O) and M) section markers on their own lines.
+      normalized = normalized
+        .replace(/\s*\((O|M)\)\s*/gi, "\n($1) ")
+        .replace(/\s+(?=\d+[\.)]\s+)/g, "\n")     // 1. / 1)
+        .replace(/\s+(?=[a-z]\)\s+)/g, "\n")      // a) / b), but only when followed by a space
+        .replace(/\s+(?=[ivx]+\)\s+)/gi, "\n");  // i) / ii)
+
+      return normalized
+        .split("\n")
+        .map(line => line.trim())
+        .filter(Boolean);
+    }
+
+    function isSectionMarker(line) {
+      return /^\((O|M)\)\s*$/i.test(line) || /^\((O|M)\)\s+.+/i.test(line);
+    }
+
+    function getSectionType(line) {
+      const match = String(line || "").match(/^\((O|M)\)\s*/i);
+      return match ? match[1].toUpperCase() : "GENERAL";
+    }
+
+    function stripSectionMarker(line) {
+      return String(line || "").replace(/^\((O|M)\)\s*/i, "").trim();
+    }
+
+    function getIndentLevel(line) {
+      if (/^\d+[\.)]\s+/.test(line)) return 1;       // 1. or 1)
+      if (/^[a-z]\)\s+/i.test(line)) return 2;       // a)
+      if (/^[ivx]+\)\s+/i.test(line)) return 3;      // i)
+      return 0;
+    }
+
+    function isCheckableLine(line) {
+      const clean = String(line || "").trim();
+
+      // Avoid false checkboxes for temperature text like C, Celsius, 39 C, 39°C, etc.
+      if (/\b\d+\s*(?:°\s*)?C\b/i.test(clean) || /\bcelsius\b/i.test(clean)) return false;
+
+      // Only true checklist lines at the beginning of a line.
+      return (
+        /^\d+[\.)]\s+/.test(clean) ||
+        /^[a-z]\)\s+/i.test(clean) ||
+        /^[ivx]+\)\s+/i.test(clean)
+      );
+    }
+
+    function buildMelSections(text) {
+      const lines = splitNotesIntoStructuredLines(text);
+      const sections = [];
+      let current = { type: "GENERAL", lines: [] };
+
+      function pushCurrent() {
+        if (current.lines.length) sections.push(current);
+      }
+
+      lines.forEach(line => {
+        if (isSectionMarker(line)) {
+          pushCurrent();
+          const type = getSectionType(line);
+          const remainingText = stripSectionMarker(line);
+          current = { type, lines: [] };
+          if (remainingText) current.lines.push(remainingText);
+        } else {
+          current.lines.push(line);
+        }
+      });
+
+      pushCurrent();
+      return sections;
+    }
+
+    function sectionTitle(type) {
+      if (type === "O") return "(O) Operations Procedure";
+      if (type === "M") return "(M) Maintenance Procedure";
+      return "MEL Notes";
+    }
+
+    function formatNotesWithCheckboxes(text, rowId) {
+      const sections = buildMelSections(text);
+      if (!sections.length) return "—";
+
+      const bodyHtml = sections.map((section, sectionIndex) => {
+        const linesHtml = section.lines.map((line, index) => {
+          const safeLine = escapeHtml(line);
+          const level = Math.min(getIndentLevel(line), 3);
+          const checkboxId = `${rowId}-${sectionIndex}-${index}`;
+
+          if (isCheckableLine(line)) {
+            return `<label class="notes-line level-${level}">
+              <input type="checkbox" class="notes-checkbox" data-note-row="${rowId}" data-note-index="${checkboxId}" />
+              <span class="notes-text">${safeLine}</span>
+            </label>`;
+          }
+
+          return `<div class="notes-plain level-${level}">${safeLine}</div>`;
+        }).join("");
+
+        return `<div class="mel-section">
+          <div class="mel-section-title">${sectionTitle(section.type)}</div>
+          <div class="notes-block">${linesHtml}</div>
+        </div>`;
+      }).join("");
+
+      const openAttr = allNotesExpanded ? " open" : "";
+      return `<details class="mel-notes-details"${openAttr}>
+        <summary class="mel-notes-summary">MEL Instructions / Notes</summary>
+        ${bodyHtml}
+      </details>`;
+    }
+
+    function renderProcedureBlock(procedures, rowId) {
+      const list = Array.isArray(procedures) ? procedures : [];
+
+      if (!list.length) {
+        return `<details class="mel-procedure-block">
+          <summary class="mel-procedure-summary">M Procedure</summary>
+          <div class="mel-procedure-inner">
+            <div class="mel-procedure-empty">No M procedure on file for this MEL.</div>
+          </div>
+        </details>`;
+      }
+
+      const options = list.map((p, i) =>
+        `<option value="${i}">${escapeHtml(p.title || `Procedure ${i + 1}`)}</option>`
+      ).join("");
+
+      const bodies = list.map((p, i) => {
+        const stepsArr = Array.isArray(p.steps) ? p.steps : [];
+        const stepsHtml = stepsArr.length
+          ? `<ol class="mel-procedure-steps">${stepsArr.map(s => `<li>${escapeHtml(s)}</li>`).join("")}</ol>`
+          : `<div class="mel-procedure-empty">No steps recorded.</div>`;
+        const ammHtml = p.amm_reference
+          ? `<div class="mel-procedure-amm">AMM ${escapeHtml(p.amm_reference)}</div>`
+          : "";
+        return `<div class="mel-procedure-body${i === 0 ? " is-open" : ""}" data-proc-body="${rowId}-${i}">
+          <div class="mel-procedure-title">${escapeHtml(p.title || `Procedure ${i + 1}`)}</div>
+          ${ammHtml}
+          ${stepsHtml}
+        </div>`;
+      }).join("");
+
+      const summaryLabel = list.length > 1
+        ? `M Procedure (${list.length} options)`
+        : `M Procedure`;
+
+      return `<details class="mel-procedure-block">
+        <summary class="mel-procedure-summary">${summaryLabel}</summary>
+        <div class="mel-procedure-inner">
+          ${list.length > 1 ? `<label class="mel-procedure-label" for="proc-select-${rowId}">Select procedure</label>
+          <select class="mel-procedure-select" id="proc-select-${rowId}" data-proc-select="${rowId}" onchange="onProcedureSelectChange(${rowId}, this.value)">
+            ${options}
+          </select>` : ""}
+          ${bodies}
+        </div>
+      </details>`;
+    }
+
+    function onProcedureSelectChange(rowId, idx) {
+      document.querySelectorAll(`[data-proc-body^="${rowId}-"]`).forEach(el => {
+        el.classList.remove("is-open");
+      });
+      const target = document.querySelector(`[data-proc-body="${rowId}-${idx}"]`);
+      if (target) target.classList.add("is-open");
+    }
+
+    function renderDispatchPill(label) {
+      if (!label) return "";
+      const trimmed = String(label).trim();
+      if (!trimmed) return "";
+      const isContactMcc = /^contact\s+mcc$/i.test(trimmed);
+      const cls = isContactMcc ? "contact-mcc" : "disp-appr";
+      return `<br><span class="mel-pill ${cls}">${escapeHtml(trimmed)}</span>`;
+    }
+
+    function getMelChapter(melRef) {
+      if (!melRef) return 999;
+      const match = String(melRef).trim().match(/^(\d{2})-/);
+      return match ? parseInt(match[1], 10) : 999;
+    }
+
+    function getMelSortParts(melRef) {
+      if (!melRef) return [999, 999, 999, ""];
+
+      const clean = String(melRef).trim().toUpperCase();
+      const match = clean.match(/^(\d{2})-(\d{2})-(\d{2})([A-Z]?)/);
+
+      if (match) {
+        return [
+          parseInt(match[1], 10),
+          parseInt(match[2], 10),
+          parseInt(match[3], 10),
+          match[4] || ""
+        ];
+      }
+
+      const fallbackChapter = getMelChapter(clean);
+      return [fallbackChapter, 999, 999, clean];
+    }
+
+    function compareMelReferences(a, b) {
+      const aParts = getMelSortParts(a.mel_reference);
+      const bParts = getMelSortParts(b.mel_reference);
+
+      for (let i = 0; i < 3; i++) {
+        if (aParts[i] !== bParts[i]) return aParts[i] - bParts[i];
+      }
+
+      if (aParts[3] !== bParts[3]) {
+        return String(aParts[3]).localeCompare(String(bParts[3]));
+      }
+
+      return String(a.fault_code || "").localeCompare(String(b.fault_code || ""));
+    }
+
+    function compareFaultsForDisplay(a, b, searchText = "") {
+      const q = String(searchText || "").trim();
+      const aChapter = getMelChapter(a.mel_reference);
+      const bChapter = getMelChapter(b.mel_reference);
+
+      const searchIsChapter = /^\d{2}$/.test(q);
+      const wantedChapter = searchIsChapter ? parseInt(q, 10) : null;
+
+      if (searchIsChapter) {
+        const aPriority = aChapter === wantedChapter ? 0 : 1;
+        const bPriority = bChapter === wantedChapter ? 0 : 1;
+        if (aPriority !== bPriority) return aPriority - bPriority;
+      }
+
+      return compareMelReferences(a, b);
+    }
+
+    function applyFilters() {
+      const raw = String(currentSearchText || "").trim().toLowerCase();
+      const terms = raw.split(/\s+/).filter(Boolean);
+
+      currentImageMelIds = [...new Set(currentHotspots.map(h => Number(h.all_faults737_id)))];
+
+      filteredFaults = allFaults.filter(item => {
+        const chapter = getMelChapter(item.mel_reference);
+        const chapterText = chapter === 999 ? "" : String(chapter);
+
+        const searchableText = [
+          item.fault_code || "",
+          item.fault_description || "",
+          item.kind || "",
+          item.mel_reference || "",
+          item.notes || "",
+          item.troubleshooting_steps || "",
+          item.aircraft_part || "",
+          item.circuit_breakers || "",
+          item.severity_level || "",
+          chapterText
+        ].join(" ").toLowerCase();
+
+        const chapterMatch =
+          !activeChapterFilter ||
+          chapterText === String(activeChapterFilter);
+
+        const textMatch =
+          terms.length === 0 ||
+          terms.every(term => searchableText.includes(term));
+
+        const selectedMelMatch =
+          !selectedMelId || Number(item.id) === Number(selectedMelId);
+
+        const currentImageMatch =
+          !filterToCurrentImageDots ||
+          currentImageMelIds.length === 0 ||
+          currentImageMelIds.includes(Number(item.id));
+
+        return chapterMatch && textMatch && selectedMelMatch && currentImageMatch;
+      });
+
+      filteredFaults.sort((a, b) => compareFaultsForDisplay(a, b, currentSearchText));
+      renderResults(filteredFaults);
+      updateMelCount();
+    }
+
+    function renderResults(data) {
+      if (!data || !data.length) {
+        resultsDiv.innerHTML = "<p class='no-results'>No results found</p>";
+        return;
+      }
+
+      let html = `
+        <table>
+          <thead>
+            <tr>
+              <th>Chapter</th>
+              <th>Fault Code</th>
+              <th>Kind</th>
+              <th>MEL</th>
+              <th>Troubleshooting</th>
+              <th>Notes</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      data.forEach(item => {
+        let rowClass = "";
+        if (Number(item.id) === Number(setDotModeMelId)) {
+          rowClass = "set-dot-row";
+        } else if (Number(item.id) === Number(selectedMelId)) {
+          rowClass = "highlight-row";
+        }
+        const chapter = getMelChapter(item.mel_reference);
+
+        html += `
+          <tr id="mel-row-${item.id}" class="${rowClass}">
+            <td data-label="Chapter" class="chapter-col">${chapter === 999 ? "—" : chapter}</td>
+            <td data-label="Fault Code">${escapeHtml(item.fault_code || "—")}</td>
+            <td data-label="Kind">${escapeHtml(item.kind || "—")}</td>
+            <td data-label="MEL" class="mel-col">${escapeHtml(item.mel_reference || "—")}${renderDispatchPill(item.dispatch_label)}</td>
+            <td data-label="Troubleshooting" class="formatted-text">${escapeHtml(item.troubleshooting_steps || "—")}</td>
+            <td data-label="Notes" class="notes-cell">${formatNotesWithCheckboxes(item.notes || "", item.id)}${renderProcedureBlock(item.procedures, item.id)}</td>
+            <td data-label="Action" class="action-col">
+              <button class="image-btn" type="button" onclick="startSetDot(${item.id})">Set Dot</button>
+              <button class="image-btn" type="button" onclick="previewMel(${item.id})">View</button>
+            </td>
+          </tr>
+        `;
+      });
+
+      html += "</tbody></table>";
+      resultsDiv.innerHTML = html;
+      syncAllNotesButtonState();
+    }
+
+    function setAllNotes(open) {
+      allNotesExpanded = Boolean(open);
+      document.querySelectorAll(".mel-notes-details").forEach(details => {
+        details.open = allNotesExpanded;
+      });
+      syncAllNotesButtonState();
+    }
+
+    function syncAllNotesButtonState() {
+      if (!expandAllNotesBtn || !collapseAllNotesBtn) return;
+      expandAllNotesBtn.classList.toggle("active-filter", allNotesExpanded);
+      collapseAllNotesBtn.classList.toggle("active-filter", !allNotesExpanded);
+    }
+
+
+    function getGoogleDriveFileId(url) {
+      const text = String(url || "");
+      const match1 = text.match(/\/file\/d\/([^/]+)/);
+      const match2 = text.match(/[?&]id=([^&]+)/);
+      return match1 ? match1[1] : match2 ? match2[1] : null;
+    }
+
+    function getYouTubeId(url) {
+      const text = String(url || "");
+      const match =
+        text.match(/[?&]v=([^&]+)/) ||
+        text.match(/youtu\.be\/([^?&]+)/) ||
+        text.match(/youtube\.com\/shorts\/([^?&/]+)/) ||
+        text.match(/youtube\.com\/embed\/([^?&/]+)/);
+      return match ? match[1] : null;
+    }
+
+    function repairVideoItem(video, index) {
+      const url = video.originalUrl || video.previewUrl || "";
+      let thumbUrl = video.thumbUrl || "";
+      let previewUrl = video.previewUrl || url;
+
+      const driveId = getGoogleDriveFileId(url);
+      const youtubeId = getYouTubeId(url);
+
+      if (driveId) {
+        thumbUrl = thumbUrl || `https://drive.google.com/thumbnail?id=${driveId}&sz=w1000`;
+        previewUrl = `https://drive.google.com/file/d/${driveId}/preview`;
+      } else if (youtubeId) {
+        thumbUrl = thumbUrl || `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
+        previewUrl = `https://www.youtube.com/embed/${youtubeId}`;
+      }
+
+      return {
+        ...video,
+        type: "video",
+        key: video.key || `editor-video-${index}`,
+        label: video.label || `Video ${index + 1}`,
+        originalUrl: url,
+        thumbUrl,
+        previewUrl,
+        afterImageNumber: video.afterImageNumber ?? video.insertAfterImageNumber ?? null
+      };
+    }
+
+
+    function getThumbnailHideKey(item) {
+      if (!item) return "";
+      if (item.imageUrl) return String(item.imageUrl).trim().toLowerCase();
+      if (item.key) return String(item.key).trim().toLowerCase();
+      return "";
+    }
+
+    function loadHiddenImageThumbs() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(HIDDEN_IMAGE_THUMB_STORAGE_KEY) || "[]");
+        return Array.isArray(saved) ? saved : [];
+      } catch (err) {
+        console.warn("Could not read hidden image thumbnails", err);
+        return [];
+      }
+    }
+
+    function saveHiddenImageThumbs() {
+      try {
+        localStorage.setItem(HIDDEN_IMAGE_THUMB_STORAGE_KEY, JSON.stringify(hiddenImageThumbs));
+      } catch (err) {
+        console.warn("Could not save hidden image thumbnails", err);
+      }
+    }
+
+    function loadThumbnailOrder() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(THUMB_ORDER_STORAGE_KEY) || "[]");
+        return Array.isArray(saved) ? saved : [];
+      } catch (err) {
+        console.warn("Could not read thumbnail order", err);
+        return [];
+      }
+    }
+
+    function saveThumbnailOrder() {
+      try {
+        const order = mediaItems.map(item => item?.key).filter(Boolean);
+        savedThumbnailOrder = order;
+        localStorage.setItem(THUMB_ORDER_STORAGE_KEY, JSON.stringify(order));
+
+        // Keep app thumbnails movable across reloads too.
+        mediaItems.forEach((item, index) => {
+          if (item && item.type === "quiz" && item.quizIndex !== undefined && customQuizThumbs[item.quizIndex]) {
+            customQuizThumbs[item.quizIndex].sortOrder = index + 0.5;
+          }
+          if (item && item.type === "tribal" && item.tribalIndex !== undefined && customTribalThumbs[item.tribalIndex]) {
+            customTribalThumbs[item.tribalIndex].sortOrder = index + 0.5;
+          }
+          if (item && item.type === "mainpoints" && item.mainPointsIndex !== undefined && customMainPointsThumbs[item.mainPointsIndex]) {
+            customMainPointsThumbs[item.mainPointsIndex].sortOrder = index + 0.5;
+          }
+        });
+        saveQuizThumbs();
+        saveTribalThumbs();
+        saveMainPointsThumbs();
+      } catch (err) {
+        console.warn("Could not save thumbnail order", err);
+      }
+    }
+
+    function applySavedThumbnailOrder(items) {
+      const baseItems = [...items];
+      if (!savedThumbnailOrder.length) return baseItems;
+
+      // Build a key→item map for fast lookup
+      const byKey = new Map();
+      baseItems.forEach(it => { if (it && it.key) byKey.set(it.key, it); });
+
+      // First, walk the saved order and pick out items in that exact sequence.
+      // These are the "locked" items — their position is whatever the user chose.
+      const locked = [];
+      const lockedKeySet = new Set();
+      savedThumbnailOrder.forEach(key => {
+        if (byKey.has(key) && !lockedKeySet.has(key)) {
+          locked.push(byKey.get(key));
+          lockedKeySet.add(key);
+        }
+      });
+
+      // Anything NOT in the saved order is new (added since last move).
+      // Slot it into the locked sequence by natural sortOrder — between its
+      // two natural neighbors. This way new chapter images, new links, etc.
+      // appear near where they would naturally belong, not jammed at the end.
+      const newcomers = baseItems
+        .filter(it => it && it.key && !lockedKeySet.has(it.key))
+        .sort((a, b) => Number(a.sortOrder || 0) - Number(b.sortOrder || 0));
+
+      if (!newcomers.length) return locked;
+
+      // Insert each newcomer at the first slot whose locked item has a HIGHER
+      // sortOrder than the newcomer. Walks the locked array once per newcomer.
+      const result = [...locked];
+      newcomers.forEach(newItem => {
+        const newSort = Number(newItem.sortOrder || 0);
+        let insertAt = result.length; // default: end
+        for (let i = 0; i < result.length; i++) {
+          if (Number(result[i].sortOrder || 0) > newSort) {
+            insertAt = i;
+            break;
+          }
+        }
+        result.splice(insertAt, 0, newItem);
+      });
+
+      return result;
+    }
+
+    function resetThumbnailOrder() {
+      const confirmed = window.confirm("Reset the saved thumbnail order back to the default chapter order?");
+      if (!confirmed) return;
+
+      savedThumbnailOrder = [];
+      localStorage.removeItem(THUMB_ORDER_STORAGE_KEY);
+      refreshMediaAfterThumbnailChange(currentMediaIndex);
+      setStatus("Thumbnail order reset");
+    }
+
+    function isImageThumbHidden(item) {
+      const key = getThumbnailHideKey(item);
+      return key && hiddenImageThumbs.includes(key);
+    }
+
+    function refreshMediaAfterThumbnailChange(preferredIndex = 0) {
+      mediaItems = buildMediaItems(allImages);
+      attachImageRowsToMediaItems();
+      renderThumbnails(mediaItems);
+      updateCollapsedThumbnailVisibility();
+
+      if (mediaItems.length) {
+        const nextIndex = Math.max(0, Math.min(preferredIndex, mediaItems.length - 1));
+        showMediaByIndex(nextIndex);
+      } else {
+        viewerImage.removeAttribute("src");
+        currentHotspots = [];
+        renderHotspots();
+      }
+    }
+
+    function deleteSelectedImageThumbnail() {
+      const item = mediaItems[currentMediaIndex];
+
+      if (!item || item.type === "video" || item.type === "quiz") {
+        alert("Select an image thumbnail first, then click Delete Selected Image Thumbnail.");
+        setStatus("Select an image thumbnail first", true);
+        return;
+      }
+
+      const label = item.imageLabel || item.imageName || item.imageUrl || "this image thumbnail";
+      const confirmed = window.confirm(
+        `Hide this thumbnail from the editor?\n\n${label}\n\nThis does not delete the PNG file from your images folder.`
+      );
+
+      if (!confirmed) return;
+
+      const key = getThumbnailHideKey(item);
+      if (!key) {
+        setStatus("Could not identify selected thumbnail", true);
+        return;
+      }
+
+      if (!hiddenImageThumbs.includes(key)) {
+        hiddenImageThumbs.push(key);
+        saveHiddenImageThumbs();
+      }
+
+      const nextIndex = Math.max(0, currentMediaIndex - 1);
+      refreshMediaAfterThumbnailChange(nextIndex);
+      setStatus(`Thumbnail hidden: ${label}`);
+    }
+
+    function restoreHiddenImageThumbnails() {
+      if (!hiddenImageThumbs.length) {
+        setStatus("No hidden image thumbnails to restore");
+        return;
+      }
+
+      const confirmed = window.confirm(`Restore ${hiddenImageThumbs.length} hidden image thumbnail${hiddenImageThumbs.length === 1 ? "" : "s"}?`);
+      if (!confirmed) return;
+
+      hiddenImageThumbs = [];
+      saveHiddenImageThumbs();
+      refreshMediaAfterThumbnailChange(currentMediaIndex);
+      setStatus("Hidden image thumbnails restored");
+    }
+
+
+
+    function repairQuizThumb(item, index) {
+      return {
+        ...QUIZ_APP,
+        ...item,
+        type: "quiz",
+        key: item.key || `quiz-thumb-${index}`,
+        label: item.label || item.imageLabel || "Knowledge Check",
+        imageLabel: item.imageLabel || item.label || "Knowledge Check",
+        imageUrl: item.imageUrl || "images/knowledge_check.png",
+        previewUrl: item.previewUrl || item.quizUrl || item.originalUrl || "https://willdeluna.github.io/chapter21quiz_1/",
+        originalUrl: item.originalUrl || item.previewUrl || "https://willdeluna.github.io/chapter21quiz_1/",
+        sortOrder: Number(item.sortOrder) >= 999000 ? 21005.5 : Number(item.sortOrder || item.afterImageNumber || 21005.5),
+        afterItemKey: item.afterItemKey || null
+      };
+    }
+
+    function loadQuizThumbs() {
+      let savedThumbs = [];
+      let hasSavedState = false;
+      try {
+        const raw = localStorage.getItem(CUSTOM_QUIZ_STORAGE_KEY);
+        if (raw !== null) {
+          hasSavedState = true;
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            savedThumbs = parsed.filter(item => item && item.key !== "knowledge-check-q1");
+          }
+        }
+      } catch (err) {
+        console.warn("Could not read quiz thumbnails from localStorage", err);
+      }
+
+      // Merge defaults with saved state, deduplicating by key.
+      // - Saved entries (user-added or modified) take precedence — if a user
+      //   edited a default link, their version overrides the baked-in copy.
+      // - Defaults the user has explicitly *deleted* should stay deleted —
+      //   we track those in a separate "deleted defaults" list.
+      let deletedDefaultKeys = [];
+      try {
+        const delRaw = localStorage.getItem("b737EditorDeletedDefaultQuizKeys");
+        if (delRaw) deletedDefaultKeys = JSON.parse(delRaw) || [];
+      } catch (_) {}
+
+      const savedKeys = new Set(savedThumbs.map(t => t && t.key).filter(Boolean));
+      const merged = [...savedThumbs];
+
+      // Add any default that isn't already saved AND hasn't been deleted
+      DEFAULT_QUIZ_THUMBS.forEach(def => {
+        if (savedKeys.has(def.key)) return;
+        if (deletedDefaultKeys.includes(def.key)) return;
+        merged.push(def);
+      });
+
+      return merged.map(repairQuizThumb);
+    }
+
+    function saveQuizThumbs() {
+      try {
+        localStorage.setItem(CUSTOM_QUIZ_STORAGE_KEY, JSON.stringify(customQuizThumbs));
+      } catch (err) {
+        console.warn("Could not save quiz thumbnails", err);
+      }
+    }
+
+    function addQuizThumbnail() {
+      const quizUrl = window.prompt("Quiz link:", "https://willdeluna.github.io/chapter21quiz_1/");
+      if (!quizUrl || !quizUrl.trim()) return;
+
+      const thumbUrl = window.prompt("Thumbnail image path:", "images/knowledge_check.png") || "images/knowledge_check.png";
+      const label =
+        window.prompt("Quiz label:", `Knowledge Check ${customQuizThumbs.length + 1}`) ||
+        `Knowledge Check ${customQuizThumbs.length + 1}`;
+
+      let insertIndex = Number(currentMediaIndex || 0) + 1;
+
+      const activeThumb = document.querySelector(".thumb-btn.active");
+      if (activeThumb && activeThumb.dataset.mediaIndex) {
+        insertIndex = Number(activeThumb.dataset.mediaIndex) + 1;
+      }
+
+      insertIndex = Math.max(0, Math.min(insertIndex, mediaItems.length));
+      const selectedItem = mediaItems[Math.max(0, insertIndex - 1)] || mediaItems[currentMediaIndex] || null;
+      const selectedChapter = getThumbnailChapter(selectedItem, Math.max(0, insertIndex - 1));
+
+      const quiz = {
+        type: "quiz",
+        key: `quiz-thumb-${Date.now()}`,
+        label: label.trim(),
+        imageLabel: label.trim(),
+        imageName: thumbUrl.trim().split("/").pop(),
+        imageUrl: thumbUrl.trim(),
+        originalUrl: quizUrl.trim(),
+        previewUrl: quizUrl.trim(),
+        sortOrder: Number(selectedItem?.sortOrder || 0) + 0.01,
+        afterItemKey: selectedItem?.key || null,
+        chapter: selectedChapter || ""
+      };
+
+      customQuizThumbs.push(quiz);
+      saveQuizThumbs();
+
+      // Save exact visual order so it stays where you put it, even after reload.
+      const order = mediaItems.map(item => item && item.key).filter(Boolean);
+      order.splice(insertIndex, 0, quiz.key);
+      savedThumbnailOrder = order;
+      localStorage.setItem(THUMB_ORDER_STORAGE_KEY, JSON.stringify(order));
+
+      mediaItems = buildMediaItems(allImages);
+      attachImageRowsToMediaItems();
+      renderThumbnails(mediaItems);
+
+      const newIndex = mediaItems.findIndex(item => item.key === quiz.key);
+      if (newIndex !== -1) {
+        showMediaByIndex(newIndex);
+        requestAnimationFrame(() => {
+          const btn = document.querySelector(`.thumb-btn[data-media-index="${newIndex}"]`);
+          if (btn) btn.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+        });
+      }
+
+      setStatus("Quiz thumbnail added after selected thumbnail");
+    }
+
+    function deleteSelectedQuizThumbnail() {
+      const currentItem = mediaItems[currentMediaIndex];
+
+      if (!currentItem || currentItem.type !== "quiz") {
+        alert("Select a quiz thumbnail first, then click Delete Quiz.");
+        setStatus("Select a quiz thumbnail first", true);
+        return;
+      }
+
+      const quizIndex = currentItem.quizIndex;
+      if (quizIndex === undefined || !customQuizThumbs[quizIndex]) {
+        setStatus("Could not find selected quiz thumbnail", true);
+        return;
+      }
+
+      const confirmed = window.confirm(`Delete quiz thumbnail: ${customQuizThumbs[quizIndex].label || "Knowledge Check"}?`);
+      if (!confirmed) return;
+
+      customQuizThumbs.splice(quizIndex, 1);
+      saveQuizThumbs();
+
+      mediaItems = buildMediaItems(allImages);
+      attachImageRowsToMediaItems();
+      renderThumbnails(mediaItems);
+      showMediaByIndex(Math.max(0, currentMediaIndex - 1));
+      setStatus("Quiz thumbnail deleted");
+    }
+
+
+    function repairTribalThumb(item, index) {
+      item = item || {};
+      return {
+        type: "tribal",
+        key: item.key || `tribal-thumb-${index}`,
+        label: item.label || item.imageLabel || `Tribal Knowledge ${index + 1}`,
+        imageLabel: item.imageLabel || item.label || `Tribal Knowledge ${index + 1}`,
+        imageName: item.imageName || String(item.imageUrl || "tribal_knowledge.png").split("/").pop(),
+        imageUrl: item.imageUrl || item.thumbUrl || "tribal_knowledge.png",
+        thumbUrl: item.thumbUrl || item.imageUrl || "tribal_knowledge.png",
+        previewUrl: item.previewUrl || item.tribalUrl || item.originalUrl || "ATA22_DFCS_Clean_Version.html",
+        originalUrl: item.originalUrl || item.previewUrl || item.tribalUrl || "ATA22_DFCS_Clean_Version.html",
+        chapter: item.chapter || "",
+        sortOrder: Number.isFinite(Number(item.sortOrder)) ? Number(item.sortOrder) : 22000.5,
+        afterItemKey: item.afterItemKey || null
+      };
+    }
+
+    function loadTribalThumbs() {
+      try {
+        const raw = localStorage.getItem(CUSTOM_TRIBAL_STORAGE_KEY);
+        if (raw !== null) {
+          const saved = JSON.parse(raw);
+          return Array.isArray(saved) ? saved.map(repairTribalThumb) : [];
+        }
+      } catch (err) {
+        console.warn("Could not read tribal knowledge thumbnails", err);
+      }
+      // Fall back to baked-in defaults for first-time visitors
+      return DEFAULT_TRIBAL_THUMBS.map(repairTribalThumb);
+    }
+
+    function saveTribalThumbs() {
+      try {
+        localStorage.setItem(CUSTOM_TRIBAL_STORAGE_KEY, JSON.stringify(customTribalThumbs));
+      } catch (err) {
+        console.warn("Could not save tribal knowledge thumbnails", err);
+      }
+    }
+
+    function addTribalThumbnail() {
+      const pageUrl = window.prompt("Tribal knowledge HTML page link/path:", "ATA22_DFCS_Clean_Version.html");
+      if (!pageUrl || !pageUrl.trim()) return;
+
+      const thumbUrl = window.prompt("Thumbnail image path:", "tribal_knowledge.png") || "tribal_knowledge.png";
+      const label = window.prompt("Tribal knowledge label:", `ATA 22 Tribal Knowledge ${customTribalThumbs.length + 1}`) || `ATA 22 Tribal Knowledge ${customTribalThumbs.length + 1}`;
+
+      let insertIndex = Number(currentMediaIndex || 0) + 1;
+      const activeThumb = document.querySelector(".thumb-btn.active");
+      if (activeThumb && activeThumb.dataset.mediaIndex) {
+        insertIndex = Number(activeThumb.dataset.mediaIndex) + 1;
+      }
+      insertIndex = Math.max(0, Math.min(insertIndex, mediaItems.length));
+      const selectedItem = mediaItems[Math.max(0, insertIndex - 1)] || mediaItems[currentMediaIndex] || null;
+      const selectedChapter = getThumbnailChapter(selectedItem, Math.max(0, insertIndex - 1));
+
+      const tribal = {
+        type: "tribal",
+        key: `tribal-thumb-${Date.now()}`,
+        label: label.trim(),
+        imageLabel: label.trim(),
+        imageName: thumbUrl.trim().split("/").pop(),
+        imageUrl: thumbUrl.trim(),
+        thumbUrl: thumbUrl.trim(),
+        originalUrl: pageUrl.trim(),
+        previewUrl: pageUrl.trim(),
+        sortOrder: Number(selectedItem?.sortOrder || 0) + 0.02,
+        afterItemKey: selectedItem?.key || null,
+        chapter: selectedChapter || ""
+      };
+
+      customTribalThumbs.push(tribal);
+      saveTribalThumbs();
+
+      const order = mediaItems.map(item => item && item.key).filter(Boolean);
+      order.splice(insertIndex, 0, tribal.key);
+      savedThumbnailOrder = order;
+      localStorage.setItem(THUMB_ORDER_STORAGE_KEY, JSON.stringify(order));
+
+      mediaItems = buildMediaItems(allImages);
+      attachImageRowsToMediaItems();
+      renderThumbnails(mediaItems);
+
+      const newIndex = mediaItems.findIndex(item => item.key === tribal.key);
+      if (newIndex !== -1) {
+        showMediaByIndex(newIndex);
+        requestAnimationFrame(() => {
+          const btn = document.querySelector(`.thumb-btn[data-media-index="${newIndex}"]`);
+          if (btn) btn.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+        });
+      }
+
+      setStatus("Tribal knowledge thumbnail added after selected thumbnail");
+    }
+
+    function deleteSelectedTribalThumbnail() {
+      const currentItem = mediaItems[currentMediaIndex];
+      if (!currentItem || currentItem.type !== "tribal") {
+        alert("Select a tribal knowledge thumbnail first, then click Del Tribal.");
+        setStatus("Select a tribal thumbnail first", true);
+        return;
+      }
+
+      const tribalIndex = currentItem.tribalIndex;
+      if (tribalIndex === undefined || !customTribalThumbs[tribalIndex]) {
+        setStatus("Could not find selected tribal thumbnail", true);
+        return;
+      }
+
+      const confirmed = window.confirm(`Delete tribal knowledge thumbnail: ${customTribalThumbs[tribalIndex].label || "Tribal Knowledge"}?`);
+      if (!confirmed) return;
+
+      customTribalThumbs.splice(tribalIndex, 1);
+      saveTribalThumbs();
+
+      mediaItems = buildMediaItems(allImages);
+      attachImageRowsToMediaItems();
+      renderThumbnails(mediaItems);
+      showMediaByIndex(Math.max(0, currentMediaIndex - 1));
+      setStatus("Tribal knowledge thumbnail deleted");
+    }
+
+
+
+    function repairMainPointsThumb(item, index) {
+      item = item || {};
+      return {
+        type: "mainpoints",
+        key: item.key || `main-points-thumb-${index}`,
+        label: item.label || item.imageLabel || `MAIN POINTS ${index + 1}`,
+        imageLabel: item.imageLabel || item.label || `MAIN POINTS ${index + 1}`,
+        imageName: item.imageName || String(item.imageUrl || "main_points.png").split("/").pop(),
+        imageUrl: item.imageUrl || item.thumbUrl || "main_points.png",
+        thumbUrl: item.thumbUrl || item.imageUrl || "main_points.png",
+        previewUrl: item.previewUrl || item.mainPointsUrl || item.originalUrl || "MAIN_POINTS.html",
+        originalUrl: item.originalUrl || item.previewUrl || item.mainPointsUrl || "MAIN_POINTS.html",
+        chapter: item.chapter || "",
+        sortOrder: Number.isFinite(Number(item.sortOrder)) ? Number(item.sortOrder) : 22001.5,
+        afterItemKey: item.afterItemKey || null
+      };
+    }
+
+    function loadMainPointsThumbs() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(CUSTOM_MAIN_POINTS_STORAGE_KEY) || "[]");
+        return Array.isArray(saved) ? saved.map(repairMainPointsThumb) : [];
+      } catch (err) {
+        console.warn("Could not read MAIN POINTS thumbnails", err);
+        return [];
+      }
+    }
+
+    function saveMainPointsThumbs() {
+      try {
+        localStorage.setItem(CUSTOM_MAIN_POINTS_STORAGE_KEY, JSON.stringify(customMainPointsThumbs));
+      } catch (err) {
+        console.warn("Could not save MAIN POINTS thumbnails", err);
+      }
+    }
+
+    function addMainPointsThumbnail() {
+      const pageUrl = window.prompt("MAIN POINTS HTML page link/path:", "MAIN_POINTS.html");
+      if (!pageUrl || !pageUrl.trim()) return;
+
+      const thumbUrl = window.prompt("Thumbnail image path:", "main_points.png") || "main_points.png";
+      const label = window.prompt("MAIN POINTS label:", `MAIN POINTS ${customMainPointsThumbs.length + 1}`) || `MAIN POINTS ${customMainPointsThumbs.length + 1}`;
+
+      let insertIndex = Number(currentMediaIndex || 0) + 1;
+      const activeThumb = document.querySelector(".thumb-btn.active");
+      if (activeThumb && activeThumb.dataset.mediaIndex) {
+        insertIndex = Number(activeThumb.dataset.mediaIndex) + 1;
+      }
+      insertIndex = Math.max(0, Math.min(insertIndex, mediaItems.length));
+      const selectedItem = mediaItems[Math.max(0, insertIndex - 1)] || mediaItems[currentMediaIndex] || null;
+      const selectedChapter = getThumbnailChapter(selectedItem, Math.max(0, insertIndex - 1));
+
+      const mainPoints = {
+        type: "mainpoints",
+        key: `main-points-thumb-${Date.now()}`,
+        label: label.trim(),
+        imageLabel: label.trim(),
+        imageName: thumbUrl.trim().split("/").pop(),
+        imageUrl: thumbUrl.trim(),
+        thumbUrl: thumbUrl.trim(),
+        originalUrl: pageUrl.trim(),
+        previewUrl: pageUrl.trim(),
+        sortOrder: Number(selectedItem?.sortOrder || 0) + 0.03,
+        afterItemKey: selectedItem?.key || null,
+        chapter: selectedChapter || ""
+      };
+
+      customMainPointsThumbs.push(mainPoints);
+      saveMainPointsThumbs();
+
+      const order = mediaItems.map(item => item && item.key).filter(Boolean);
+      order.splice(insertIndex, 0, mainPoints.key);
+      savedThumbnailOrder = order;
+      localStorage.setItem(THUMB_ORDER_STORAGE_KEY, JSON.stringify(order));
+
+      mediaItems = buildMediaItems(allImages);
+      attachImageRowsToMediaItems();
+      renderThumbnails(mediaItems);
+
+      const newIndex = mediaItems.findIndex(item => item.key === mainPoints.key);
+      if (newIndex !== -1) {
+        showMediaByIndex(newIndex);
+        requestAnimationFrame(() => {
+          const btn = document.querySelector(`.thumb-btn[data-media-index="${newIndex}"]`);
+          if (btn) btn.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+        });
+      }
+
+      setStatus("MAIN POINTS thumbnail added after selected thumbnail");
+    }
+
+    function deleteSelectedMainPointsThumbnail() {
+      const currentItem = mediaItems[currentMediaIndex];
+      if (!currentItem || currentItem.type !== "mainpoints") {
+        alert("Select a MAIN POINTS thumbnail first, then click Del Main Points.");
+        setStatus("Select a MAIN POINTS thumbnail first", true);
+        return;
+      }
+
+      const mainPointsIndex = currentItem.mainPointsIndex;
+      if (mainPointsIndex === undefined || !customMainPointsThumbs[mainPointsIndex]) {
+        setStatus("Could not find selected MAIN POINTS thumbnail", true);
+        return;
+      }
+
+      const confirmed = window.confirm(`Delete MAIN POINTS thumbnail: ${customMainPointsThumbs[mainPointsIndex].label || "MAIN POINTS"}?`);
+      if (!confirmed) return;
+
+      customMainPointsThumbs.splice(mainPointsIndex, 1);
+      saveMainPointsThumbs();
+
+      mediaItems = buildMediaItems(allImages);
+      attachImageRowsToMediaItems();
+      renderThumbnails(mediaItems);
+      showMediaByIndex(Math.max(0, currentMediaIndex - 1));
+      setStatus("MAIN POINTS thumbnail deleted");
+    }
+
+
+    function getActiveInsertInfo() {
+      // Insert the new link thumbnail BEFORE/BEHIND the selected thumbnail,
+      // and keep it inside that selected thumbnail's chapter.
+      let selectedIndex = Number(currentMediaIndex || 0);
+      const activeThumb = document.querySelector(".thumb-btn.active");
+      if (activeThumb && activeThumb.dataset.mediaIndex) {
+        selectedIndex = Number(activeThumb.dataset.mediaIndex);
+      }
+
+      selectedIndex = Math.max(0, Math.min(selectedIndex, mediaItems.length - 1));
+      const selectedItem = mediaItems[selectedIndex] || mediaItems[currentMediaIndex] || null;
+      const selectedChapter =
+        getThumbnailChapter(selectedItem, selectedIndex) ||
+        expandedThumbnailChapter ||
+        activeChapterFilter ||
+        "21";
+
+      // "behind selected thumbnail" = placed immediately before selected thumbnail in the strip.
+      const insertIndex = selectedIndex;
+
+      return { insertIndex, selectedChapter, selectedIndex, selectedSortOrder: Number(selectedItem?.sortOrder || 0), selectedKey: selectedItem?.key || null };
+    }
+
+    // ── Modal-based add-link flow (iPad-friendly, replaces window.prompt) ──
+    // The original addLinkThumbnail() used three window.prompt() calls in
+    // sequence — workable on desktop but awful on iPad. This opens a real
+    // modal with quick-preset dropdown for the common links.
+    function addLinkThumbnail() {
+      openLinkModal();
+    }
+
+    function openLinkModal() {
+      const modal = document.getElementById("linkModal");
+      if (!modal) return;
+
+      // Populate chapter dropdown with chapters from the config + 00
+      const chapterSelect = document.getElementById("lmChapter");
+      chapterSelect.innerHTML = "";
+      const chapters = ["00", ...Object.keys(CHAPTER_FOLDER_CONFIG)];
+      const info = getActiveInsertInfo();
+      const currentChapter = String(info.selectedChapter || expandedThumbnailChapter || activeChapterFilter || "21");
+      chapters.forEach(ch => {
+        const opt = document.createElement("option");
+        opt.value = ch;
+        opt.textContent = ch === "00" ? "Chapter 00 (front matter)" : `Chapter ${ch}`;
+        if (ch === currentChapter) opt.selected = true;
+        chapterSelect.appendChild(opt);
+      });
+
+      // Reset fields
+      document.getElementById("lmPreset").value = "";
+      document.getElementById("lmLabel").value = "";
+      document.getElementById("lmUrl").value = "";
+      document.getElementById("lmThumb").value = "";
+      document.getElementById("lmThumbPreview").classList.remove("show");
+
+      modal.classList.add("show");
+      // Focus label after a tick so iOS keyboards behave
+      setTimeout(() => {
+        const labelInput = document.getElementById("lmLabel");
+        if (labelInput) labelInput.focus();
+      }, 100);
+    }
+
+    function closeLinkModal() {
+      const modal = document.getElementById("linkModal");
+      if (modal) modal.classList.remove("show");
+    }
+
+    function applyLinkPreset(preset) {
+      const ch = document.getElementById("lmChapter").value || "21";
+      const labelEl = document.getElementById("lmLabel");
+      const urlEl   = document.getElementById("lmUrl");
+      const thumbEl = document.getElementById("lmThumb");
+      switch (preset) {
+        case "3dlocator":
+          labelEl.value = "3D Locator";
+          urlEl.value   = "B737_Location_Finder.html";
+          thumbEl.value = "images/00/3D_locator.png";
+          document.getElementById("lmChapter").value = "00";
+          break;
+        case "partnumbers":
+          labelEl.value = "Common Part Numbers";
+          urlEl.value   = "Common_Part_Numbers.html";
+          thumbEl.value = "images/00/part_numbers.png";
+          document.getElementById("lmChapter").value = "00";
+          break;
+        case "mainpoints":
+          labelEl.value = "Main Points";
+          urlEl.value   = `main_points/B737_ATA${ch}_Main_Points.html`;
+          thumbEl.value = `images/${ch}/mainpoints.png`;
+          break;
+        case "tribal":
+          labelEl.value = "Tribal Knowledge";
+          urlEl.value   = `tribal_knowledge/ATA${ch}_tribal_knowledge.html`;
+          thumbEl.value = `images/${ch}/tribal_knowledge.png`;
+          break;
+        case "quiz":
+          labelEl.value = `ATA ${ch} Quiz`;
+          urlEl.value   = `quiz/ATA${ch}_Quiz.html`;
+          thumbEl.value = `images/00/quiz.png`;
+          break;
+      }
+      updateThumbPreview();
+    }
+
+    function updateThumbPreview() {
+      const preview = document.getElementById("lmThumbPreview");
+      const path = document.getElementById("lmThumb").value.trim();
+      if (path) {
+        preview.src = path;
+        preview.onload  = () => preview.classList.add("show");
+        preview.onerror = () => preview.classList.remove("show");
+      } else {
+        preview.classList.remove("show");
+      }
+    }
+
+    function saveLinkFromModal() {
+      const label    = document.getElementById("lmLabel").value.trim() || "Link";
+      const pageUrl  = document.getElementById("lmUrl").value.trim();
+      const thumbUrl = document.getElementById("lmThumb").value.trim();
+      const chapter  = String(document.getElementById("lmChapter").value || "21");
+
+      if (!pageUrl) {
+        alert("Please enter a Link URL.");
+        return;
+      }
+
+      const info = getActiveInsertInfo();
+
+      const linkThumb = {
+        type: "quiz",
+        key: `link-thumb-${Date.now()}`,
+        label,
+        imageLabel: label,
+        imageName: (thumbUrl.split("/").pop()) || "link_thumbnail.png",
+        imageUrl: thumbUrl,
+        originalUrl: pageUrl,
+        previewUrl: pageUrl,
+        chapter,
+        sortOrder: info.selectedSortOrder + 0.5,
+        afterItemKey: info.selectedKey || null
+      };
+
+      customQuizThumbs.push(linkThumb);
+      saveQuizThumbs();
+
+      mediaItems = buildMediaItems(allImages);
+      attachImageRowsToMediaItems();
+
+      const addedIndex = mediaItems.findIndex(item => item && item.key === linkThumb.key);
+      expandedThumbnailChapter = chapter;
+
+      renderThumbnails(mediaItems);
+      updateCollapsedThumbnailVisibility();
+      showMediaByIndex(addedIndex >= 0 ? addedIndex : Math.max(0, info.insertIndex));
+
+      requestAnimationFrame(() => {
+        const addedBtn = document.querySelector(`.thumb-btn[data-media-index="${addedIndex}"]`);
+        if (addedBtn && thumbnailBar) {
+          addedBtn.style.display = "";
+          addedBtn.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+        }
+      });
+
+      closeLinkModal();
+      setStatus(`Added "${label}" link to Chapter ${chapter}`);
+    }
+
+    // Wire up modal interactions (deferred until DOM is ready)
+    function initLinkModal() {
+      const preset = document.getElementById("lmPreset");
+      const thumb  = document.getElementById("lmThumb");
+      const save   = document.getElementById("lmSave");
+      const cancel = document.getElementById("lmCancel");
+      const modal  = document.getElementById("linkModal");
+      if (!preset || !save || !cancel) return;
+
+      preset.addEventListener("change", () => applyLinkPreset(preset.value));
+      thumb.addEventListener("input", updateThumbPreview);
+      save.addEventListener("click", saveLinkFromModal);
+      cancel.addEventListener("click", closeLinkModal);
+      // Tap outside card to close
+      modal.addEventListener("click", e => {
+        if (e.target === modal) closeLinkModal();
+      });
+      // Escape key
+      document.addEventListener("keydown", e => {
+        if (e.key === "Escape" && modal.classList.contains("show")) closeLinkModal();
+      });
+    }
+    // Init after DOM is ready
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initLinkModal);
+    } else {
+      initLinkModal();
+    }
+
+    // ── Image Upload Modal ──────────────────────────────────────────
+    // Opens a form to pick a file + filename + chapter, then POSTs to
+    // upload.php (which must be hosted next to this HTML file on the
+    // same Bluehost server). Sessions remember the password so you don't
+    // re-type it after the first upload.
+    const UPLOAD_ENDPOINT = "upload.php";   // path on Bluehost, relative to this file
+    const UPLOAD_PW_KEY = "b737EditorUploadPw";
+
+    function openUploadModal() {
+      const modal = document.getElementById("uploadModal");
+      if (!modal) return;
+
+      const chapterSelect = document.getElementById("upChapter");
+      chapterSelect.innerHTML = "";
+      const chapters = ["00", ...Object.keys(CHAPTER_FOLDER_CONFIG)];
+      const info = getActiveInsertInfo();
+      const currentChapter = String(info.selectedChapter || expandedThumbnailChapter || activeChapterFilter || "21");
+      chapters.forEach(ch => {
+        const opt = document.createElement("option");
+        opt.value = ch;
+        opt.textContent = ch === "00" ? "Chapter 00 (front matter)" : `Chapter ${ch}`;
+        if (ch === currentChapter) opt.selected = true;
+        chapterSelect.appendChild(opt);
+      });
+
+      // Pre-fill password from session storage if available
+      const savedPw = sessionStorage.getItem(UPLOAD_PW_KEY) || "";
+      document.getElementById("upPassword").value = savedPw;
+
+      document.getElementById("upFile").value = "";
+      document.getElementById("upName").value = "";
+      document.getElementById("upPreview").classList.remove("show");
+      const statusEl = document.getElementById("upStatus");
+      statusEl.textContent = "";
+      statusEl.className = "lm-hint";
+
+      // Suggest a filename based on the chapter
+      suggestUploadFilename();
+
+      modal.classList.add("show");
+    }
+
+    function closeUploadModal() {
+      const m = document.getElementById("uploadModal");
+      if (m) m.classList.remove("show");
+    }
+
+    function suggestUploadFilename() {
+      const ch = document.getElementById("upChapter").value;
+      if (!ch) return;
+      const config = CHAPTER_FOLDER_CONFIG[ch];
+      const prefix = config?.prefix || ch;
+      // Find the next available numbered image based on the existence cache
+      const existing = chapterImageCache.get(ch) || [];
+      const max = existing.length ? Math.max(...existing) : 0;
+      const next = max + 1;
+      const fileEl = document.getElementById("upFile");
+      let ext = "png";
+      if (fileEl.files && fileEl.files[0]) {
+        const fname = fileEl.files[0].name.toLowerCase();
+        if (fname.endsWith(".jpg") || fname.endsWith(".jpeg")) ext = "jpg";
+        else if (fname.endsWith(".webp")) ext = "webp";
+      }
+      document.getElementById("upName").value = `${prefix}_${next}.${ext}`;
+    }
+
+    function previewUploadFile() {
+      const fileEl = document.getElementById("upFile");
+      const preview = document.getElementById("upPreview");
+      const file = fileEl.files && fileEl.files[0];
+      if (!file) {
+        preview.classList.remove("show");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = e => {
+        preview.src = e.target.result;
+        preview.classList.add("show");
+      };
+      reader.readAsDataURL(file);
+      // Re-suggest filename now that we know the extension
+      suggestUploadFilename();
+    }
+
+    async function doUpload() {
+      const statusEl = document.getElementById("upStatus");
+      statusEl.className = "lm-hint";
+      statusEl.textContent = "";
+
+      const fileEl = document.getElementById("upFile");
+      const file = fileEl.files && fileEl.files[0];
+      if (!file) {
+        statusEl.textContent = "Please choose a file first.";
+        statusEl.className = "lm-hint error";
+        return;
+      }
+
+      const filename = (document.getElementById("upName").value || "").trim();
+      if (!filename) {
+        statusEl.textContent = "Please enter a filename.";
+        statusEl.className = "lm-hint error";
+        return;
+      }
+      // Basic filename safety — no path traversal, no weird chars
+      if (!/^[A-Za-z0-9._-]+\.(png|jpg|jpeg|webp)$/i.test(filename)) {
+        statusEl.textContent = "Filename must be like name.png / name.jpg / name.webp (letters, numbers, underscore, dash, dot only).";
+        statusEl.className = "lm-hint error";
+        return;
+      }
+
+      const chapter = document.getElementById("upChapter").value;
+      const password = document.getElementById("upPassword").value;
+      if (!password) {
+        statusEl.textContent = "Upload password required.";
+        statusEl.className = "lm-hint error";
+        return;
+      }
+
+      statusEl.textContent = "Uploading…";
+      statusEl.className = "lm-hint";
+
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("chapter", chapter);
+      fd.append("filename", filename);
+      fd.append("password", password);
+
+      try {
+        const res = await fetch(UPLOAD_ENDPOINT, { method: "POST", body: fd });
+        const txt = await res.text();
+        let json;
+        try { json = JSON.parse(txt); }
+        catch { json = { ok: false, error: "Server didn't return JSON. Response was: " + txt.slice(0, 200) }; }
+
+        if (res.ok && json.ok) {
+          statusEl.textContent = `Uploaded → ${json.path}`;
+          statusEl.className = "lm-hint success";
+          // Remember the password for this session
+          sessionStorage.setItem(UPLOAD_PW_KEY, password);
+          // Capture the anchor BEFORE the rebuild
+          const anchorKey = mediaItems[currentMediaIndex]?.key || null;
+          // The upload response gives us the chapter and imageNumber, which
+          // deterministically map to the media-item key generated by
+          // createChapterMediaItem(). That's the item we want to reposition.
+          const uploadedKey = json.imageNumber
+            ? `chapter-${chapter}-${Number(json.imageNumber)}`
+            : null;
+          // Update the chapter image cache so the new image shows up
+          if (json.imageNumber && CHAPTER_FOLDER_CONFIG[chapter]) {
+            const existing = chapterImageCache.get(chapter) || [];
+            if (!existing.includes(json.imageNumber)) {
+              existing.push(json.imageNumber);
+              existing.sort((a, b) => a - b);
+              chapterImageCache.set(chapter, existing);
+              saveChapterImageCache();
+            }
+          }
+          // Refresh the thumbnail strip so the new image appears
+          mediaItems = buildMediaItems(allImages);
+          attachImageRowsToMediaItems();
+
+          // Reposition the uploaded image into its chapter group.
+          // The old anchor-based logic depended on whatever thumb the user had
+          // selected, which meant a saved thumbnail order in localStorage could
+          // park the new image at the end of the strip. Instead, place the new
+          // image right after the last existing item belonging to the same
+          // chapter (or right after the chapter cover if it's the first one).
+          console.log('[upload] uploadedKey=', uploadedKey, 'json.imageNumber=', json.imageNumber, 'chapter=', chapter);
+          if (uploadedKey) {
+            const uploadedIdx = mediaItems.findIndex(it => it && it.key === uploadedKey);
+            if (uploadedIdx >= 0) {
+              // Pull the uploaded item out of wherever applySavedThumbnailOrder
+              // put it, so we can re-insert it in the right spot.
+              const [picked] = mediaItems.splice(uploadedIdx, 1);
+
+              // Find the latest index that still belongs to this chapter.
+              // We prefer landing right after the last existing chapter image
+              // (so the strip stays "cover, img1, img2, … , NEW"); failing that,
+              // we land right after the chapter cover itself.
+              // NOTE: match on chapter, not type — attachImageRowsToMediaItems()
+              // may have already promoted some "chapter" items to "image" type
+              // if they have a matching Supabase row, but their chapter field
+              // is preserved.
+              let insertAfterIdx = -1;
+              for (let i = 0; i < mediaItems.length; i++) {
+                const it = mediaItems[i];
+                if (!it || it.key === uploadedKey) continue;
+                if (String(it.chapter || "") === String(chapter)) {
+                  insertAfterIdx = i;
+                }
+              }
+              console.log('[upload] insertAfterIdx=', insertAfterIdx, 'for chapter', chapter);
+
+              if (insertAfterIdx >= 0) {
+                mediaItems.splice(insertAfterIdx + 1, 0, picked);
+                console.log('[upload] repositioned', uploadedKey, 'to index', insertAfterIdx + 1);
+              } else {
+                // No chapter items in the strip at all? Put it back where it was.
+                mediaItems.splice(uploadedIdx, 0, picked);
+                console.warn('[upload] chapter', chapter, 'not found in mediaItems, kept natural slot');
+              }
+
+              // Persist so the placement survives reloads (and future rebuilds).
+              try { saveThumbnailOrder(); console.log('[upload] saved order'); } catch (e) { console.warn('[upload] save failed', e); }
+            } else {
+              console.warn('[upload] uploadedKey not found in rebuilt mediaItems');
+            }
+          } else {
+            console.warn('[upload] missing uploadedKey, no reposition');
+          }
+
+          renderThumbnails(mediaItems);
+          updateCollapsedThumbnailVisibility();
+          // Keep the selection on the anchor (the thumb the user had selected)
+          if (anchorKey) {
+            const reIdx = mediaItems.findIndex(it => it && it.key === anchorKey);
+            if (reIdx >= 0) currentMediaIndex = reIdx;
+          }
+          setStatus(`Uploaded ${filename} to chapter ${chapter}`);
+          // Auto-close after a short delay
+          setTimeout(closeUploadModal, 1500);
+        } else {
+          statusEl.textContent = "Upload failed: " + (json.error || `HTTP ${res.status}`);
+          statusEl.className = "lm-hint error";
+        }
+      } catch (err) {
+        statusEl.textContent = "Network error: " + err.message;
+        statusEl.className = "lm-hint error";
+      }
+    }
+
+    function initUploadModal() {
+      const btn      = document.getElementById("uploadImageBtn");
+      const modal    = document.getElementById("uploadModal");
+      const chapter  = document.getElementById("upChapter");
+      const file     = document.getElementById("upFile");
+      const save     = document.getElementById("upSave");
+      const cancel   = document.getElementById("upCancel");
+      if (!btn || !modal || !save) return;
+
+      btn.addEventListener("click", openUploadModal);
+      chapter.addEventListener("change", suggestUploadFilename);
+      file.addEventListener("change", previewUploadFile);
+      save.addEventListener("click", doUpload);
+      cancel.addEventListener("click", closeUploadModal);
+      modal.addEventListener("click", e => { if (e.target === modal) closeUploadModal(); });
+      document.addEventListener("keydown", e => {
+        if (e.key === "Escape" && modal.classList.contains("show")) closeUploadModal();
+      });
+    }
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initUploadModal);
+    } else {
+      initUploadModal();
+    }
+
+    function deleteSelectedLinkThumbnail() {
+      const currentItem = mediaItems[currentMediaIndex];
+
+      if (!currentItem || !["quiz", "app", "tribal", "mainpoints"].includes(currentItem.type)) {
+        alert("Select a link thumbnail first, then click Del Link.");
+        setStatus("Select a link thumbnail first", true);
+        return;
+      }
+
+      const confirmed = window.confirm(`Delete link thumbnail: ${currentItem.label || "Link"}?`);
+      if (!confirmed) return;
+
+      // If this is a default link (in DEFAULT_QUIZ_THUMBS), record its key
+      // in the "deleted defaults" list so it doesn't reappear on next load.
+      const itemKey = currentItem.key;
+      if (itemKey && DEFAULT_QUIZ_THUMBS.some(d => d.key === itemKey)) {
+        try {
+          const delKey = "b737EditorDeletedDefaultQuizKeys";
+          const cur = JSON.parse(localStorage.getItem(delKey) || "[]");
+          if (!cur.includes(itemKey)) {
+            cur.push(itemKey);
+            localStorage.setItem(delKey, JSON.stringify(cur));
+          }
+        } catch (_) {}
+      }
+
+      let deleted = false;
+
+      if (currentItem.quizIndex !== undefined && customQuizThumbs[currentItem.quizIndex]) {
+        customQuizThumbs.splice(currentItem.quizIndex, 1);
+        saveQuizThumbs();
+        deleted = true;
+      } else if (currentItem.tribalIndex !== undefined && customTribalThumbs[currentItem.tribalIndex]) {
+        customTribalThumbs.splice(currentItem.tribalIndex, 1);
+        saveTribalThumbs();
+        deleted = true;
+      } else if (currentItem.mainPointsIndex !== undefined && customMainPointsThumbs[currentItem.mainPointsIndex]) {
+        customMainPointsThumbs.splice(currentItem.mainPointsIndex, 1);
+        saveMainPointsThumbs();
+        deleted = true;
+      } else if (itemKey && DEFAULT_QUIZ_THUMBS.some(d => d.key === itemKey)) {
+        // Default link that's not in customQuizThumbs yet — just mark it
+        // deleted; the merge in loadQuizThumbs() will skip it next time.
+        deleted = true;
+      }
+
+      if (!deleted) {
+        setStatus("Could not delete selected link", true);
+        return;
+      }
+
+      mediaItems = buildMediaItems(allImages);
+      attachImageRowsToMediaItems();
+      renderThumbnails(mediaItems);
+      showMediaByIndex(Math.max(0, currentMediaIndex - 1));
+      setStatus("Link thumbnail deleted");
+    }
+
+
+    function loadEditorVideos() {
+      try {
+        const raw = localStorage.getItem(EDITOR_VIDEO_STORAGE_KEY);
+        if (raw !== null) {
+          const saved = JSON.parse(raw);
+          return Array.isArray(saved) ? saved.map(repairVideoItem) : [];
+        }
+      } catch (err) {
+        console.warn("Could not read editor videos from localStorage", err);
+      }
+      // Fall back to baked-in defaults for first-time visitors
+      return DEFAULT_EDITOR_VIDEOS.map(repairVideoItem);
+    }
+
+
+    function saveEditorVideos() {
+      try {
+        localStorage.setItem(EDITOR_VIDEO_STORAGE_KEY, JSON.stringify(customVideos));
+      } catch (err) {
+        console.warn("Could not save editor videos", err);
+      }
+    }
+
+    function makeVideoItem(url, label, afterImageNumber = null) {
+      const driveId = getGoogleDriveFileId(url);
+      const youtubeId = getYouTubeId(url);
+
+      if (driveId) {
+        return {
+          type: "video",
+          label,
+          originalUrl: url,
+          afterImageNumber,
+          thumbUrl: `https://drive.google.com/thumbnail?id=${driveId}&sz=w1000`,
+          previewUrl: `https://drive.google.com/file/d/${driveId}/preview`
+        };
+      }
+
+      if (youtubeId) {
+        return {
+          type: "video",
+          label,
+          originalUrl: url,
+          afterImageNumber,
+          thumbUrl: `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`,
+          previewUrl: `https://www.youtube.com/embed/${youtubeId}?rel=0&modestbranding=1`
+        };
+      }
+
+      return {
+        type: "video",
+        label,
+        originalUrl: url,
+        afterImageNumber,
+        thumbUrl: "",
+        previewUrl: url
+      };
+    }
+
+    function getSelectedThumbnailPlacement() {
+      const activeThumb = document.querySelector(".thumb-btn.active");
+      if (activeThumb && activeThumb.dataset.mediaIndex) {
+        const item = mediaItems[Number(activeThumb.dataset.mediaIndex)];
+        if (item && (item.type === "image" || item.type === "chapter" || item.type === "quiz")) {
+          if (item.chapterImageNumber !== undefined && item.chapterImageNumber !== null) {
+            return Number(item.sortOrder || 0);
+          }
+          return Number(item.imageIndex || 0) + 1;
+        }
+      }
+
+      const currentItem = mediaItems[currentMediaIndex];
+      if (currentItem && (currentItem.type === "image" || currentItem.type === "chapter" || currentItem.type === "quiz")) {
+        return Number(currentItem.sortOrder || currentMediaIndex + 1);
+      }
+
+      return null;
+    }
+
+    function addVideoLink() {
+      const url = window.prompt("Paste video link. Google Drive, YouTube, or direct video link:");
+      if (!url || !url.trim()) return;
+
+      const defaultLabel = `Video ${customVideos.length + 1}`;
+      const label = window.prompt("Video label:", defaultLabel) || defaultLabel;
+
+      const placement = getSelectedThumbnailPlacement();
+      const video = makeVideoItem(url.trim(), label.trim(), placement);
+
+      customVideos.push(video);
+      saveEditorVideos();
+
+      mediaItems = buildMediaItems(allImages);
+      attachImageRowsToMediaItems();
+      renderThumbnails(mediaItems);
+
+      const newIndex = mediaItems.findIndex(item => item.type === "video" && item.originalUrl === video.originalUrl && item.label === video.label);
+      if (newIndex !== -1) showMediaByIndex(newIndex);
+
+      setStatus(placement === null ? `Video added at end: ${label}` : `Video added after selected thumbnail: ${label}`);
+    }
+
+    function deleteSelectedVideo() {
+      const currentItem = mediaItems[currentMediaIndex];
+
+      if (!currentItem || currentItem.type !== "video") {
+        alert("Select a video thumbnail first, then click Delete Selected Video.");
+        setStatus("Select a video thumbnail first", true);
+        return;
+      }
+
+      const videoIndex = currentItem.editorVideoIndex;
+      if (videoIndex === undefined || !customVideos[videoIndex]) {
+        setStatus("Could not find selected video", true);
+        return;
+      }
+
+      const confirmed = window.confirm(`Delete video thumbnail: ${customVideos[videoIndex].label || "Video"}?`);
+      if (!confirmed) return;
+
+      customVideos.splice(videoIndex, 1);
+      saveEditorVideos();
+
+      mediaItems = buildMediaItems(allImages);
+      attachImageRowsToMediaItems();
+      renderThumbnails(mediaItems);
+      showMediaByIndex(Math.max(0, currentMediaIndex - 1));
+      setStatus("Video deleted");
+    }
+
+
+    function getVideoPlacement(video) {
+      const placement = video.afterImageNumber ?? video.insertAfterImageNumber ?? null;
+
+      if (placement === "start") return 0;
+      if (placement === "end" || placement === "" || placement === null || placement === undefined) return null;
+
+      const number = Number(placement);
+      return Number.isFinite(number) ? number : null;
+    }
+
+    function createVideoMediaItem(video, videoIndex) {
+      return {
+        ...video,
+        type: "video",
+        key: video.key || `editor-video-${videoIndex}`,
+        editorVideoIndex: videoIndex,
+        label: video.label || `Video ${videoIndex + 1}`,
+        thumbUrl: video.thumbUrl || "",
+        previewUrl: video.previewUrl || video.originalUrl || "",
+        sortOrder: (() => {
+          const p = getVideoPlacement(video);
+          if (p === null) return 999999;
+          return Number(p) + 0.5;
+        })()
+      };
+    }
+
+    function getImageNumberFromRecord(img, fallbackNumber) {
+      const text = [img.image_name, img.image_label, img.image_url, img.sort_order]
+        .filter(v => v !== null && v !== undefined)
+        .join(" ");
+
+      const chapterMatch = String(img.chapter || "").match(/^(\d{2})$/);
+      if (chapterMatch) return Number(chapterMatch[1]);
+
+      const imageMatch = String(text).match(/(?:^|\D)(\d{1,3})(?:\.png|\D|$)/i);
+      if (imageMatch) return Number(imageMatch[1]);
+
+      return fallbackNumber;
+    }
+
+    function createChapterMediaItem(chapter, imageNumber = 0) {
+      const chapterText = String(chapter);
+      const isCover = Number(imageNumber) === 0;
+      const config = CHAPTER_FOLDER_CONFIG[chapterText];
+
+      return {
+        type: "chapter",
+        key: isCover ? `chapter-${chapterText}-cover` : `chapter-${chapterText}-${imageNumber}`,
+        chapter: chapterText,
+        chapterImageNumber: imageNumber,
+        imageIndex: null,
+        imageId: null,
+        imageName: isCover ? `chapter${chapterText}.png` : `${config?.prefix || chapterText}_${imageNumber}.png`,
+        imageLabel: isCover ? `Chapter ${chapterText}` : `Chapter ${chapterText} - ${config?.prefix || chapterText}_${imageNumber}.png`,
+        imageUrl: chapterImagePath(chapterText, imageNumber),
+        sortOrder: Number(chapterText) * 1000 + Number(imageNumber || 0)
+      };
+    }
+
+    function createChapterMediaItems(chapter) {
+      const chapterText = String(chapter);
+      const config = CHAPTER_FOLDER_CONFIG[chapterText];
+      const items = [];
+
+      // Cover is always shown — assumed to exist.
+      items.push(createChapterMediaItem(chapterText, 0));
+
+      // If we've probed this chapter, only emit thumbnails for the image
+      // numbers that actually exist. If we haven't probed yet, emit nothing
+      // for now — the background probe will rebuild as soon as it has data.
+      // This avoids the 80-blank-thumbnails problem.
+      if (chapterImageCache.has(chapterText)) {
+        const existing = chapterImageCache.get(chapterText) || [];
+        existing.forEach(i => {
+          items.push(createChapterMediaItem(chapterText, i));
+        });
+      } else if (config && Number(config.count) > 0) {
+        // Not yet probed. Show nothing numbered for now so the strip stays clean;
+        // probeAllChaptersInBackground() will fill these in once the probes finish.
+      }
+
+      return items;
+    }
+
+
+    function createChapter00MediaItems() {
+      const items = [];
+
+      // Match viewer: forced first 00-folder intro thumbnail.
+      items.push({
+        type: "chapter",
+        key: "chapter-00-1_1",
+        chapter: "00",
+        chapterImageNumber: 0,
+        imageIndex: null,
+        imageId: null,
+        imageName: "1_1.png",
+        imageLabel: "00 - 1_1.png",
+        imageUrl: "images/00/1_1.png",
+        sortOrder: -1000
+      });
+
+      // Then images/00/00_1.png, images/00/00_2.png, etc.
+      // Missing files hide themselves automatically.
+      for (let i = 1; i <= 6; i++) {
+        items.push({
+          type: "chapter",
+          key: `chapter-00-00_${i}`,
+          chapter: "00",
+          chapterImageNumber: i,
+          imageIndex: null,
+          imageId: null,
+          imageName: `00_${i}.png`,
+          imageLabel: `00 - 00_${i}.png`,
+          imageUrl: `images/00/00_${i}.png`,
+          sortOrder: -1000 + i
+        });
+      }
+
+      return items;
+    }
+
+    function buildMediaItems(images) {
+      const items = [];
+      const addedChapterItems = new Set();
+
+      // Show the custom Chapter 00 intro sequence before Chapter 21.
+      // Order: images/00/1_1.png, then images/00/00_1.png through 00_6.png.
+      items.push(...createChapter00MediaItems());
+      addedChapterItems.add("00");
+
+      customVideos.forEach((video, videoIndex) => {
+        if (getVideoPlacement(video) === 0) {
+          items.push(createVideoMediaItem(video, videoIndex));
+        }
+      });
+
+      // Folder images first.
+      // Chapter 21, 22, 23, 24, etc. use images/CHAPTER/CHAPTER_#.png.
+      // Missing image files are hidden automatically.
+      Object.keys(CHAPTER_FOLDER_CONFIG)
+        .sort((a, b) => Number(a) - Number(b))
+        .forEach(chapter => {
+          items.push(...createChapterMediaItems(chapter));
+          addedChapterItems.add(chapter);
+        });
+
+      // Movable Knowledge Check thumbnails.
+      customQuizThumbs.forEach((quiz, quizIndex) => {
+        items.push({
+          ...repairQuizThumb(quiz, quizIndex),
+          quizIndex
+        });
+      });
+
+      // Movable Tribal Knowledge page thumbnails.
+      customTribalThumbs.forEach((tribal, tribalIndex) => {
+        items.push({
+          ...repairTribalThumb(tribal, tribalIndex),
+          tribalIndex
+        });
+      });
+
+      // Movable MAIN POINTS page thumbnails.
+      customMainPointsThumbs.forEach((mainPoints, mainPointsIndex) => {
+        items.push({
+          ...repairMainPointsThumb(mainPoints, mainPointsIndex),
+          mainPointsIndex
+        });
+      });
+
+      images.forEach((img, index) => {
+        const imageNumber = getImageNumberFromRecord(img, index + 1);
+        const chapterText = String(img.chapter || "").trim();
+        const urlText = String(img.image_url || "").toLowerCase();
+
+        if (
+          /images\/00\/(?:1_1|00_\d+)\.png/i.test(urlText) ||
+          /images\/\d{2}\/chapter\d{2}\.png/i.test(urlText) ||
+          /images\/\d{2}\/\d+_\d+\.png/i.test(urlText)
+        ) {
+          return;
+        }
+
+        if (chapterText) addedChapterItems.add(chapterText);
+
+        items.push({
+          type: "image",
+          key: `image-${img.id}`,
+          imageIndex: index,
+          imageId: img.id,
+          chapter: chapterText,
+          imageName: img.image_name || "",
+          imageLabel: img.image_label || img.image_name || `Image ${imageNumber}`,
+          imageUrl: img.image_url,
+          sortOrder: 900000 + Number(img.sort_order || imageNumber || index)
+        });
+
+        const matches = VIDEO_INSERTIONS.filter(v => Number(v.afterImageNumber) === imageNumber);
+
+        matches.forEach(video => {
+          items.push({
+            type: "video",
+            key: video.key,
+            fileId: video.fileId,
+            label: video.label,
+            thumbUrl: `https://drive.google.com/thumbnail?id=${video.fileId}&sz=w1000`,
+            previewUrl: `https://drive.google.com/file/d/${video.fileId}/preview`
+          });
+        });
+
+        customVideos.forEach((video, videoIndex) => {
+          if (getVideoPlacement(video) === imageNumber) {
+            items.push(createVideoMediaItem(video, videoIndex));
+          }
+        });
+      });
+
+      // Other chapter cover thumbnails still show after Chapter 21 image set.
+      AVAILABLE_CHAPTER_IMAGES.forEach(chapter => {
+        if (!addedChapterItems.has(chapter)) {
+          items.push(createChapterMediaItem(chapter, 0));
+          addedChapterItems.add(chapter);
+        }
+      });
+
+      customVideos.forEach((video, videoIndex) => {
+        if (getVideoPlacement(video) === null) {
+          items.push(createVideoMediaItem(video, videoIndex));
+        }
+      });
+
+      // ── Anchor resolution pass ──
+      // Custom thumbs (quiz / tribal / mainpoints / link) that were added with
+      // an "afterItemKey" should land RIGHT AFTER the anchor item, regardless
+      // of what its sortOrder is at this moment. This makes placement durable
+      // across refreshes: the saved anchor key always wins over a stale numeric
+      // sortOrder that could have drifted.
+      //
+      // Each type gets a different small offset so multiple thumbs anchored
+      // to the same item stay in a stable visual order (quiz/link, then
+      // tribal, then mainpoints), and ties among items of the same type are
+      // broken by an additional micro-offset.
+      const itemByKey = new Map();
+      items.forEach(it => { if (it && it.key) itemByKey.set(it.key, it); });
+
+      const TYPE_OFFSET = { quiz: 0.10, tribal: 0.20, mainpoints: 0.30 };
+      // Track per-anchor-per-type counts so multiple siblings get unique offsets
+      const siblingCounts = new Map(); // key = `${anchorKey}|${type}` → count so far
+
+      items.forEach(it => {
+        if (!it || !it.afterItemKey) return;
+        if (!["quiz", "tribal", "mainpoints"].includes(it.type)) return;
+        const anchor = itemByKey.get(it.afterItemKey);
+        if (!anchor) return; // anchor not in this build; keep its stored sortOrder
+        const baseOffset = TYPE_OFFSET[it.type] || 0.5;
+        const siblingKey = `${it.afterItemKey}|${it.type}`;
+        const n = siblingCounts.get(siblingKey) || 0;
+        siblingCounts.set(siblingKey, n + 1);
+        // Each subsequent sibling of the same type gets +0.001 to keep order stable
+        it.sortOrder = Number(anchor.sortOrder || 0) + baseOffset + n * 0.001;
+      });
+
+      const defaultSortedItems = items
+        .filter(item => item.type === "video" || !isImageThumbHidden(item))
+        .sort((a, b) => Number(a.sortOrder || 0) - Number(b.sortOrder || 0));
+
+      // Honor any user moves saved via ◀ Img / Img ▶. If savedThumbnailOrder
+      // is empty (or this is a first run), this is a no-op and items keep
+      // their natural sortOrder. After a move it reinstates the user's order.
+      return applySavedThumbnailOrder(defaultSortedItems);
+    }
+
+
+    function attachImageRowsToMediaItems() {
+      mediaItems.forEach(item => {
+        if (!item || !item.imageUrl) return;
+
+        const match = allImages.find(img =>
+          String(img.image_url || "").trim().toLowerCase() ===
+          String(item.imageUrl || "").trim().toLowerCase()
+        );
+
+        if (match?.id) {
+          item.type = "image";
+          item.imageId = match.id;
+          item.imageIndex = allImages.findIndex(img => Number(img.id) === Number(match.id));
+          item.imageName = match.image_name || item.imageName;
+          item.imageLabel = match.image_label || item.imageLabel;
+          item.chapter = match.chapter || item.chapter;
+        }
+      });
+    }
+
+
+    function normalizeChapterSearch(value) {
+      const clean = String(value || "").trim();
+      const match = clean.match(/^(\d{2})$/);
+      return match ? match[1] : null;
+    }
+
+    async function jumpToImageForSearch(searchText) {
+      const chapter = getChapterFromSearch(searchText);
+      if (!chapter) return;
+
+      // If user has already typed more after the chapter number, do not jump/reset.
+      if (searchBox.value.trim() !== String(searchText).trim()) return;
+
+      clearRelatedMode();
+      await showChapterImage(chapter);
+    }
+
+    async function showChapterImage(chapter) {
+      const coverIndex = mediaItems.findIndex(item =>
+        isChapterCoverItem(item) && String(item.chapter) === String(chapter)
+      );
+      expandChapterThumbnails(chapter, "smooth");
+      if (coverIndex !== -1) {
+        await showMediaByIndex(coverIndex);
+      }
+    }
+
+    async function loadFaults() {
+      try {
+        const BASE_COLUMNS = `
+            id,
+            fault_code,
+            fault_description,
+            kind,
+            mel_reference,
+            troubleshooting_steps,
+            severity_level,
+            reported_at,
+            resolved,
+            resolved_at,
+            circuit_breakers,
+            notes,
+            aircraft_part
+        `;
+
+        // Try with dispatch_label first; fall back if the column doesn't exist yet
+        let data, error;
+        ({ data, error } = await supabaseClient
+          .from("all_faults737")
+          .select(BASE_COLUMNS + ", dispatch_label"));
+
+        if (error && /dispatch_label/i.test(error.message || "")) {
+          console.warn("dispatch_label column not present yet; loading without it.");
+          ({ data, error } = await supabaseClient
+            .from("all_faults737")
+            .select(BASE_COLUMNS));
+        }
+
+        if (error) throw error;
+
+        // Pull all M procedures and group them by mel_reference for fast lookup
+        const { data: procData, error: procError } = await supabaseClient
+          .from("mel_procedures")
+          .select("mel_reference, title, amm_reference, steps, sort_order")
+          .order("sort_order", { ascending: true });
+
+        if (procError) {
+          console.warn("Could not load mel_procedures (table may not exist yet):", procError.message);
+        }
+
+        const procByRef = {};
+        (procData || []).forEach(p => {
+          const key = (p.mel_reference || "").trim();
+          if (!key) return;
+          if (!procByRef[key]) procByRef[key] = [];
+          procByRef[key].push(p);
+        });
+
+        allFaults = (data || []).map(f => ({
+          ...f,
+          procedures: procByRef[(f.mel_reference || "").trim()] || []
+        }));
+        allFaults.sort(compareMelReferences);
+        applyFilters();
+
+        if (!allFaults.length) {
+          resultsDiv.innerHTML = "<p class='no-results'>No MEL rows found in all_faults737. Run the sample INSERT SQL, then refresh.</p>";
+          melCount.textContent = "0 MEL entries shown";
+        }
+      } catch (err) {
+        console.error(err);
+        resultsDiv.innerHTML = `<p class='error'>Error loading MEL data from all_faults737: ${escapeHtml(err.message || err)}</p>`;
+        melCount.textContent = "MEL load error";
+      }
+    }
+
+    async function loadImages() {
+      try {
+        // Pull cached chapter-image lists first so the initial render
+        // skips the missing-image slots.
+        loadChapterImageCache();
+
+        const { data, error } = await supabaseClient
+          .from("aircraft_images737")
+          .select(`
+            id,
+            chapter,
+            image_name,
+            image_label,
+            image_url,
+            sort_order
+          `)
+          .order("sort_order", { ascending: true });
+
+        if (error) throw error;
+
+        // Do NOT replace the MEL results with an image error if the image table is empty.
+        // The chapter-cover buttons below can still show files like images/49/chapter49.png.
+        allImages = data || [];
+        customVideos = loadEditorVideos();
+        mediaItems = buildMediaItems(allImages);
+        attachImageRowsToMediaItems();
+        renderThumbnails(mediaItems);
+
+        if (!allImages.length) {
+          relatedStatus.textContent = "No aircraft_images737 rows found — showing folder/chapter thumbnails only";
+        }
+
+        if (mediaItems.length) {
+          await showMediaByIndex(0);
+        }
+
+        // Kick off background probing of any chapters we haven't seen yet.
+        // Each completed chapter triggers a strip re-render so images
+        // appear progressively.
+        probeAllChaptersInBackground();
+      } catch (err) {
+        console.error(err);
+        relatedStatus.textContent = "Error loading aircraft_images737 — showing chapter cover thumbnails only";
+        allImages = [];
+        customVideos = loadEditorVideos();
+        loadChapterImageCache();
+        mediaItems = buildMediaItems(allImages);
+        renderThumbnails(mediaItems);
+        if (mediaItems.length) await showMediaByIndex(0);
+        probeAllChaptersInBackground();
+      }
+    }
+
+
+    async function moveSelectedThumbnail(direction) {
+      if (!mediaItems.length) return;
+
+      const fromIndex = currentMediaIndex;
+      const toIndex = fromIndex + direction;
+
+      if (toIndex < 0 || toIndex >= mediaItems.length) {
+        setStatus("Thumbnail is already at the end", true);
+        return;
+      }
+
+      const [movedItem] = mediaItems.splice(fromIndex, 1);
+      mediaItems.splice(toIndex, 0, movedItem);
+      saveThumbnailOrder();
+      renderThumbnails(mediaItems);
+      await showMediaByIndex(toIndex);
+
+      const movedLabel = movedItem.imageLabel || movedItem.label || movedItem.imageName || "Thumbnail";
+      setStatus(`Saved new thumbnail order: ${movedLabel}`);
+    }
+
+
+    function getAppThumbHtml(item) {
+      return `<div class="app-thumb-tile">
+        <div class="app-thumb-icon">🎮</div>
+        <div class="app-thumb-label">${escapeHtml(item.label || "Quiz")}</div>
+      </div>`;
+    }
+
+    // Track the signature of the last render so we can skip identical
+    // re-renders entirely (huge perf win during probe loops, where the
+    // bar gets re-rendered multiple times with the same items).
+    let _lastRenderSignature = "";
+
+    function buildThumbnailSignature(items) {
+      // Cheap fingerprint of the current items + their order + thumb URLs.
+      // If this matches the last render, we don't need to touch the DOM.
+      let sig = "";
+      for (let i = 0; i < items.length; i++) {
+        const it = items[i];
+        if (!it) continue;
+        sig += (it.key || it.imageUrl || it.label || "") + "|" + (it.type || "") + "/";
+      }
+      return sig;
+    }
+
+    function renderThumbnails(items) {
+      // Skip the work entirely if nothing material has changed.
+      const sig = buildThumbnailSignature(items);
+      if (sig === _lastRenderSignature && thumbnailBar.children.length === items.length) {
+        return;
+      }
+      _lastRenderSignature = sig;
+
+      // Build everything in an off-DOM fragment, then swap in one paint.
+      // This is dramatically less flickery than the previous innerHTML="" approach.
+      const frag = document.createDocumentFragment();
+
+      items.forEach((item, mediaIndex) => {
+        const btn = document.createElement("button");
+        btn.className = "thumb-btn";
+        btn.type = "button";
+        btn.dataset.mediaIndex = mediaIndex;
+
+        if (isChapterCoverItem(item)) {
+          btn.classList.add("chapter-cover-thumb");
+          btn.dataset.chapterLabel = item.chapter === "00" ? "00" : `CH ${item.chapter}`;
+        }
+
+        const image = document.createElement("img");
+        // iOS Safari perf hints — defers offscreen loads and runs decode
+        // off the main thread.
+        image.loading = "lazy";
+        image.decoding = "async";
+
+        if (item.type === "image" || item.type === "chapter") {
+          image.src = item.imageUrl;
+          image.alt = item.imageLabel || `Image ${item.imageIndex + 1}`;
+          image.onerror = () => {
+            if (item.type === "chapter") {
+              btn.style.display = "none";
+            }
+          };
+          btn.title = item.chapter
+            ? `Chapter ${item.chapter} - ${item.imageLabel}`
+            : item.imageLabel;
+          btn.appendChild(image);
+        } else if (item.type === "quiz" || item.type === "app" || item.type === "tribal" || item.type === "mainpoints") {
+          const appLabel = item.type === "mainpoints" ? "MAIN POINTS" : item.type === "tribal" ? "Tribal Knowledge" : "Knowledge Check";
+          btn.title = item.label || appLabel;
+
+          const thumb = item.thumbUrl || item.imageUrl;
+          if (thumb) {
+            image.src = thumb;
+            image.alt = item.label || `${appLabel} Thumbnail`;
+            image.onerror = () => {
+              image.remove();
+              const fallback = document.createElement("div");
+              fallback.className = "quiz-fallback-tile";
+              fallback.innerHTML = `<div class="quiz-title">${escapeHtml(item.label || "LINK")}</div>`;
+              btn.insertBefore(fallback, btn.firstChild);
+            };
+            btn.appendChild(image);
+          } else {
+            const fallback = document.createElement("div");
+            fallback.className = "quiz-fallback-tile";
+            fallback.innerHTML = `<div class="quiz-title">${escapeHtml(item.label || "LINK")}</div>`;
+            btn.appendChild(fallback);
+          }
+
+          addQuizOrTribalBadge(btn, item, mediaIndex);
+        } else {
+          btn.title = item.label || "Video";
+
+          if (item.thumbUrl) {
+            image.src = item.thumbUrl;
+            image.alt = item.label || "Video Thumbnail";
+            btn.appendChild(image);
+          } else {
+            const fallback = document.createElement("div");
+            fallback.className = "video-fallback";
+            fallback.textContent = item.label || "VIDEO";
+            btn.appendChild(fallback);
+          }
+
+          const badge = document.createElement("div");
+          badge.className = "video-badge";
+          badge.textContent = "VIDEO";
+          btn.appendChild(badge);
+        }
+
+        btn.addEventListener("click", async () => {
+          clearRelatedMode();
+          selectedMelId = null;
+
+          if (isChapterCoverItem(item)) {
+            const sameChapterOpen = String(expandedThumbnailChapter || "") === String(item.chapter || "");
+            expandedThumbnailChapter = sameChapterOpen ? null : String(item.chapter);
+            updateCollapsedThumbnailVisibility();
+            relatedStatus.textContent = sameChapterOpen
+              ? "Chapter thumbnails collapsed"
+              : `Chapter ${item.chapter} thumbnails expanded`;
+          }
+
+          await showMediaByIndex(mediaIndex);
+          applyFilters();
+        });
+
+        frag.appendChild(btn);
+      });
+
+      // Atomic swap: clear and append the entire fragment in one go.
+      // The browser only paints once for this whole operation, so the
+      // visible "flicker" of incremental innerHTML changes goes away.
+      thumbnailBar.replaceChildren(frag);
+
+      updateCollapsedThumbnailVisibility();
+    }
+
+    async function loadHotspotsForImage(imageId) {
+      try {
+        const { data, error } = await supabaseClient
+          .from("image_hotspot737")
+          .select(`
+            id,
+            aircraft_image_id,
+            all_faults737_id,
+            hotspot_x,
+            hotspot_y,
+            hotspot_label,
+            dot_color,
+            is_active
+          `)
+          .eq("aircraft_image_id", imageId)
+          .eq("is_active", true);
+
+        if (error) throw error;
+
+        currentHotspots = data || [];
+        renderHotspots();
+        applyFilters();
+        updateImageMelButton();
+
+        if (currentHotspots.length) {
+          setStatus(`${currentHotspots.length} saved dot${currentHotspots.length === 1 ? "" : "s"} loaded for this image`);
+        }
+      } catch (err) {
+        console.error(err);
+        currentHotspots = [];
+        renderHotspots();
+        applyFilters();
+        updateImageMelButton();
+      }
+    }
+
+    function renderHotspots() {
+      clearHotspots();
+      if (isVideoShowing) return;
+
+      currentHotspots.forEach(item => {
+        const fault = allFaults.find(f => Number(f.id) === Number(item.all_faults737_id));
+        if (!fault) return;
+
+        const label = item.hotspot_label || fault.mel_reference || "MEL";
+        const tooltipHtml = `${escapeHtml(fault.fault_code || label)}<br>${escapeHtml(fault.mel_reference || "")}`;
+
+        const dot = document.createElement("div");
+        dot.className = "hotspot-dot saved-hotspot";
+
+        if (Number(selectedHotspotId) === Number(item.id)) {
+          dot.classList.add("selected-dot");
+        }
+
+        dot.style.left = item.hotspot_x + "%";
+        dot.style.top = item.hotspot_y + "%";
+        dot.style.background = item.dot_color || "orange";
+
+        dot.addEventListener("mouseenter", (e) => showTooltip(e, tooltipHtml));
+        dot.addEventListener("mousemove", moveTooltip);
+        dot.addEventListener("mouseleave", hideTooltip);
+
+        dot.addEventListener("click", (e) => {
+          if (dragMoved) return;
+          e.stopPropagation();
+          selectedHotspotId = item.id;
+          selectedMelId = item.all_faults737_id;
+          hideTooltip();
+          applyFilters();
+          renderHotspots();
+          openPopup(fault, label, Number(item.hotspot_x), Number(item.hotspot_y));
+
+          setTimeout(() => {
+            const row = document.getElementById(`mel-row-${item.all_faults737_id}`);
+            if (row) row.scrollIntoView({ behavior: "smooth", block: "center" });
+          }, 100);
+        });
+
+        viewerOverlay.appendChild(dot);
+      });
+
+      if (draftDot) {
+        const draft = document.createElement("div");
+        draft.className = "hotspot-dot draft-hotspot draft-dot";
+        draft.style.left = draftDot.x + "%";
+        draft.style.top = draftDot.y + "%";
+        viewerOverlay.appendChild(draft);
+      }
+    }
+
+    async function showImageMedia(item, mediaIndex) {
+      removeViewerQuiz();
+      removeViewerVideo();
+      viewerImage.style.display = "block";
+      viewerOverlay.style.display = "block";
+      isVideoShowing = false;
+
+      viewerImage.src = item.imageUrl;
+      viewerImage.alt = item.imageLabel || `Image ${item.imageIndex + 1}`;
+
+      currentMediaIndex = mediaIndex;
+      setActiveThumbnailByMediaIndex(mediaIndex);
+      centerThumbnailByMediaIndex(mediaIndex, "auto");
+
+      closeViewerPopup();
+      hideTooltip();
+      selectedHotspotId = null;
+      draftDot = null;
+      setDotModeMelId = null;
+      resetZoom();
+
+      if (item.type === "chapter" || item.type === "quiz" || !item.imageId) {
+        currentHotspots = [];
+        selectedMelId = null;
+        filterToCurrentImageDots = false;
+
+        // Thumbnail clicks should NOT type chapter numbers into the search box.
+        // Keep the search box exactly as the user left it.
+        activeChapterFilter = null;
+        relatedStatus.textContent = item.chapter
+          ? `Viewing ${item.imageLabel || `Chapter ${item.chapter}`}`
+          : "Browsing all images";
+
+        renderHotspots();
+        updateImageMelButton();
+        applyFilters();
+      } else {
+        activeChapterFilter = null;
+        await loadHotspotsForImage(item.imageId);
+      }
+
+      renderResults(filteredFaults);
+      if (!(item.type === "chapter" || item.type === "quiz" || !item.imageId)) updateRelatedStatus();
+    }
+
+    function showQuizApp() {
+      removeViewerVideo();
+      clearHotspots();
+      closeViewerPopup();
+      hideTooltip();
+
+      isVideoShowing = true;
+      viewerImage.style.display = "none";
+      viewerOverlay.style.display = "none";
+      selectedHotspotId = null;
+      currentHotspots = [];
+
+      const iframe = document.createElement("iframe");
+      iframe.id = "viewerVideo";
+      iframe.className = "viewer-video";
+      iframe.src = QUIZ_APP.previewUrl;
+      iframe.allow = "autoplay; fullscreen; clipboard-read; clipboard-write";
+      iframe.allowFullscreen = true;
+
+      zoomContent.appendChild(iframe);
+      document.querySelectorAll(".thumb-btn").forEach(btn => btn.classList.remove("active"));
+      applyFilters();
+      relatedStatus.textContent = "Mini play window: Quiz Game";
+      setStatus("Quiz mini window open");
+    }
+
+    function showVideoMedia(item, mediaIndex) {
+      removeViewerQuiz();
+      removeViewerVideo();
+      clearHotspots();
+      closeViewerPopup();
+      hideTooltip();
+
+      isVideoShowing = true;
+      viewerImage.style.display = "none";
+      viewerOverlay.style.display = "none";
+      selectedHotspotId = null;
+      currentHotspots = [];
+      currentMediaIndex = mediaIndex;
+
+      const iframe = document.createElement("iframe");
+      iframe.id = "viewerVideo";
+      iframe.className = "viewer-video";
+      iframe.src = item.previewUrl;
+      iframe.allow = "autoplay";
+      iframe.allowFullscreen = true;
+
+      zoomContent.appendChild(iframe);
+      setActiveThumbnailByMediaIndex(mediaIndex);
+      applyFilters();
+
+      // Do not call scrollIntoView here; it makes the page jump on smartphones.
+updateRelatedStatus();
+    }
+
+    async function showMediaByIndex(mediaIndex) {
+      if (!mediaItems.length) return;
+
+      if (mediaIndex < 0) mediaIndex = mediaItems.length - 1;
+      if (mediaIndex >= mediaItems.length) mediaIndex = 0;
+
+      const item = mediaItems[mediaIndex];
+      if (!item) return;
+
+      if (item.type === "video") {
+        showVideoMedia(item, mediaIndex);
+      } else if (item.type === "app" || item.type === "quiz" || item.type === "tribal" || item.type === "mainpoints") {
+        currentMediaIndex = mediaIndex;
+        setActiveThumbnailByMediaIndex(mediaIndex);
+        openQuizApp(item);
+      } else {
+        await showImageMedia(item, mediaIndex);
+      }
+    }
+
+    async function showRelatedMediaByPointer() {
+      if (!relatedMediaIndexes.length) return;
+      const mediaIndex = relatedMediaIndexes[relatedMediaPointer];
+      await showMediaByIndex(mediaIndex);
+    }
+
+    window.previewMel = async function(melId) {
+      try {
+        selectedMelId = Number(melId);
+
+        const selectedFault = allFaults.find(f => Number(f.id) === Number(melId));
+        if (!selectedFault || !selectedFault.mel_reference) return;
+
+        const targetMelRef = String(selectedFault.mel_reference).trim();
+        activeRelatedMelRef = targetMelRef;
+
+        const matchingFaultIds = allFaults
+          .filter(f => String(f.mel_reference || "").trim() === targetMelRef)
+          .map(f => Number(f.id));
+
+        if (!matchingFaultIds.length) {
+          clearRelatedMode();
+          applyFilters();
+          return;
+        }
+
+        const { data, error } = await supabaseClient
+          .from("image_hotspot737")
+          .select(`
+            id,
+            aircraft_image_id,
+            all_faults737_id,
+            hotspot_x,
+            hotspot_y,
+            hotspot_label,
+            is_active
+          `)
+          .in("all_faults737_id", matchingFaultIds)
+          .eq("is_active", true);
+
+        if (error) throw error;
+
+        if (!data || !data.length) {
+          relatedMediaIndexes = [];
+          relatedMediaPointer = 0;
+          updateRelatedStatus();
+          applyFilters();
+          return;
+        }
+
+        const rawIndexes = data.map(h =>
+          mediaItems.findIndex(
+            item =>
+              item.type === "image" &&
+              Number(item.imageId) === Number(h.aircraft_image_id)
+          )
+        ).filter(i => i !== -1);
+
+        relatedMediaIndexes = [...new Set(rawIndexes)].sort((a, b) => a - b);
+        relatedMediaPointer = 0;
+        updateRelatedStatus();
+
+        if (!relatedMediaIndexes.length) {
+          clearRelatedMode();
+          applyFilters();
+          return;
+        }
+
+        await showRelatedMediaByPointer();
+
+        const currentImageId = mediaItems[relatedMediaIndexes[relatedMediaPointer]]?.imageId;
+        const hotspotForCurrentImage =
+          data.find(h =>
+            Number(h.aircraft_image_id) === Number(currentImageId) &&
+            Number(h.all_faults737_id) === Number(selectedMelId)
+          ) ||
+          data.find(h => Number(h.aircraft_image_id) === Number(currentImageId)) ||
+          data[0];
+
+        if (hotspotForCurrentImage) {
+          selectedHotspotId = hotspotForCurrentImage.id;
+          renderHotspots();
+
+          const popupFault =
+            allFaults.find(f => Number(f.id) === Number(hotspotForCurrentImage.all_faults737_id)) ||
+            selectedFault;
+
+          setTimeout(() => {
+            openPopup(
+              popupFault,
+              hotspotForCurrentImage.hotspot_label || popupFault.mel_reference,
+              Number(hotspotForCurrentImage.hotspot_x),
+              Number(hotspotForCurrentImage.hotspot_y)
+            );
+          }, 150);
+        }
+
+        applyFilters();
+
+        setTimeout(() => {
+          const row = document.getElementById(`mel-row-${selectedMelId}`);
+          if (row) row.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 120);
+      } catch (err) {
+        console.error("previewMel error:", err);
+      }
+    };
+
+
+    async function ensureImageRowForCurrentMediaItem(item) {
+      if (!item) return null;
+
+      if (item.imageId) return item.imageId;
+
+      if (item.imageUrl) {
+        const existingMatch = allImages.find(img => String(img.image_url || "") === String(item.imageUrl || ""));
+        if (existingMatch?.id) {
+          item.type = "image";
+          item.imageId = existingMatch.id;
+          item.imageIndex = allImages.findIndex(img => Number(img.id) === Number(existingMatch.id));
+          return existingMatch.id;
+        }
+
+        const payload = {
+          chapter: item.chapter || null,
+          image_name: item.imageName || item.imageLabel || "chapter image",
+          image_label: item.imageLabel || item.imageName || "Chapter Image",
+          image_url: item.imageUrl,
+          sort_order: Number(item.sortOrder || 0)
+        };
+
+        const { data, error } = await supabaseClient
+          .from("aircraft_images737")
+          .insert([payload])
+          .select("id, chapter, image_name, image_label, image_url, sort_order")
+          .single();
+
+        if (error) {
+          console.error("ensureImageRowForCurrentMediaItem error:", error);
+          alert("Could not create image row in aircraft_images737: " + error.message);
+          setStatus("Could not create image row: " + error.message, true);
+          return null;
+        }
+
+        allImages.push(data);
+        item.type = "image";
+        item.imageId = data.id;
+        item.imageIndex = allImages.length - 1;
+        item.imageName = data.image_name;
+        item.imageLabel = data.image_label;
+        item.imageUrl = data.image_url;
+
+        return data.id;
+      }
+
+      return null;
+    }
+
+    window.startSetDot = function(melId) {
+      setDotModeMelId = Number(melId);
+      draftDot = null;
+      selectedHotspotId = null;
+      closeViewerPopup();
+      hideTooltip();
+      renderHotspots();
+      renderResults(filteredFaults);
+
+      const fault = allFaults.find(f => Number(f.id) === Number(melId));
+      setStatus(`Set Dot mode: click image to place ${fault?.mel_reference || fault?.fault_code || "MEL"}`);
+    };
+
+    async function saveDraftDot() {
+      if (!setDotModeMelId || !draftDot) return;
+
+      const item = mediaItems[currentMediaIndex];
+      const imageId = await ensureImageRowForCurrentMediaItem(item);
+
+      if (!imageId) {
+        setStatus("Could not find or create an image row for this thumbnail", true);
+        return;
+      }
+
+      const fault = allFaults.find(f => Number(f.id) === Number(setDotModeMelId));
+      const label = fault?.mel_reference || fault?.fault_code || "MEL";
+
+      const payload = {
+        aircraft_image_id: Number(imageId),
+        all_faults737_id: Number(setDotModeMelId),
+        hotspot_x: Number(draftDot.x),
+        hotspot_y: Number(draftDot.y),
+        hotspot_label: label,
+        dot_color: "orange",
+        is_active: true
+      };
+
+      const { data, error } = await supabaseClient
+        .from("image_hotspot737")
+        .insert([payload])
+        .select("id, aircraft_image_id, all_faults737_id, hotspot_x, hotspot_y, hotspot_label, dot_color, is_active")
+        .single();
+
+      if (error) {
+        console.error("saveDraftDot error:", error);
+        alert("Could not save dot: " + error.message);
+        setStatus("Could not save dot: " + error.message, true);
+        return;
+      }
+
+      if (item) {
+        item.type = "image";
+        item.imageId = Number(imageId);
+      }
+
+      attachImageRowsToMediaItems();
+
+      selectedHotspotId = data?.id || null;
+      selectedMelId = Number(setDotModeMelId);
+      draftDot = null;
+      setDotModeMelId = null;
+
+      await loadHotspotsForImage(Number(imageId));
+      renderResults(filteredFaults);
+      setActiveThumbnailByMediaIndex(currentMediaIndex);
+      setStatus(`Dot saved for ${label}. It will reload after refresh.`);
+    }
+
+    async function deleteSelectedDot() {
+      if (!selectedHotspotId) {
+        alert("Select an orange dot first, then click Delete Selected Dot.");
+        setStatus("No dot selected", true);
+        return;
+      }
+
+      const { error } = await supabaseClient
+        .from("image_hotspot737")
+        .update({ is_active: false })
+        .eq("id", selectedHotspotId);
+
+      if (error) {
+        console.error(error);
+        setStatus("Could not delete selected dot", true);
+        return;
+      }
+
+      const item = mediaItems[currentMediaIndex];
+      selectedHotspotId = null;
+      selectedMelId = null;
+      closeViewerPopup();
+
+      if (item?.imageId) {
+        await loadHotspotsForImage(item.imageId);
+      } else {
+        renderHotspots();
+        applyFilters();
+      }
+
+      setStatus("Selected dot deleted");
+    }
+
+    async function deleteAllDots() {
+      const confirmed = window.confirm("Delete all active B737 dots from image_hotspot737?");
+      if (!confirmed) return;
+
+      const { error } = await supabaseClient
+        .from("image_hotspot737")
+        .update({ is_active: false })
+        .eq("is_active", true);
+
+      if (error) {
+        console.error(error);
+        setStatus("Could not delete all dots", true);
+        return;
+      }
+
+      currentHotspots = [];
+      selectedHotspotId = null;
+      selectedMelId = null;
+      closeViewerPopup();
+      renderHotspots();
+      applyFilters();
+      setStatus("All active B737 dots deleted");
+    }
+
+    viewerOverlay.addEventListener("click", async (e) => {
+      if (!setDotModeMelId) return;
+      if (e.target.closest(".hotspot-dot") || e.target.closest(".popup")) return;
+      if (isVideoShowing) return;
+
+      e.stopPropagation();
+
+      const rect = viewerOverlay.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+      draftDot = {
+        x: Math.max(0, Math.min(100, Number(x.toFixed(2)))),
+        y: Math.max(0, Math.min(100, Number(y.toFixed(2))))
+      };
+
+      renderHotspots();
+      await saveDraftDot();
+    });
+
+
+    prevBtn.addEventListener("click", async () => {
+      if (relatedMediaIndexes.length > 1) {
+        relatedMediaPointer =
+          (relatedMediaPointer - 1 + relatedMediaIndexes.length) % relatedMediaIndexes.length;
+        await showRelatedMediaByPointer();
+      } else {
+        clearRelatedMode();
+        await showMediaByIndex(currentMediaIndex - 1);
+      }
+    });
+
+    nextBtn.addEventListener("click", async () => {
+      if (relatedMediaIndexes.length > 1) {
+        relatedMediaPointer =
+          (relatedMediaPointer + 1) % relatedMediaIndexes.length;
+        await showRelatedMediaByPointer();
+      } else {
+        clearRelatedMode();
+        await showMediaByIndex(currentMediaIndex + 1);
+      }
+    });
+
+    thumbLeftBtn.addEventListener("click", () => {
+      thumbnailBar.scrollBy({ left: -300, behavior: "smooth" });
+    });
+
+    thumbRightBtn.addEventListener("click", () => {
+      thumbnailBar.scrollBy({ left: 300, behavior: "smooth" });
+    });
+
+    clearFilterBtn.addEventListener("click", () => {
+      selectedMelId = null;
+      selectedHotspotId = null;
+      activeChapterFilter = null;
+      currentSearchText = "";
+      searchBox.value = "";
+      filterToCurrentImageDots = false;
+      closeViewerPopup();
+      hideTooltip();
+      clearRelatedMode();
+      applyFilters();
+      updateImageMelButton();
+    });
+
+    toggleImageMelsBtn.addEventListener("click", () => {
+      filterToCurrentImageDots = !filterToCurrentImageDots;
+      closeViewerPopup();
+      hideTooltip();
+      applyFilters();
+      updateImageMelButton();
+    });
+
+    expandAllNotesBtn.addEventListener("click", () => setAllNotes(true));
+    collapseAllNotesBtn.addEventListener("click", () => setAllNotes(false));
+
+    zoomOutBtn.addEventListener("click", zoomOut);
+    zoomInBtn.addEventListener("click", zoomIn);
+    toggleSizeBtn.addEventListener("click", toggleLargeImageView);
+    deleteDotBtn.addEventListener("click", deleteSelectedDot);
+    deleteAllDotsBtn.addEventListener("click", deleteAllDots);
+    addVideoBtn.addEventListener("click", addVideoLink);
+    if (addLinkThumbBtn) addLinkThumbBtn.addEventListener("click", addLinkThumbnail);
+    if (deleteLinkThumbBtn) deleteLinkThumbBtn.addEventListener("click", deleteSelectedLinkThumbnail);
+    deleteVideoBtn.addEventListener("click", deleteSelectedVideo);
+    deleteImageThumbBtn.addEventListener("click", deleteSelectedImageThumbnail);
+    moveThumbLeftBtn.addEventListener("click", () => moveSelectedThumbnail(-1));
+    moveThumbRightBtn.addEventListener("click", () => moveSelectedThumbnail(1));
+    resetThumbOrderBtn.addEventListener("click", resetThumbnailOrder);
+    restoreImageThumbsBtn.addEventListener("click", restoreHiddenImageThumbnails);
+
+    viewerStage.addEventListener("wheel", (e) => {
+      if (isVideoShowing) return;
+      e.preventDefault();
+      if (e.deltaY < 0) zoomIn();
+      else zoomOut();
+    }, { passive: false });
+
+    viewerStage.addEventListener("mousedown", (e) => {
+      if (e.target.closest(".hotspot-dot") || e.target.closest(".popup")) return;
+      if (zoomLevel <= 1) return;
+      if (isVideoShowing) return;
+
+      isDragging = true;
+      dragMoved = false;
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+      startScrollLeft = viewerStage.scrollLeft;
+      startScrollTop = viewerStage.scrollTop;
+      viewerStage.classList.add("dragging");
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+
+      const dx = e.clientX - dragStartX;
+      const dy = e.clientY - dragStartY;
+
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragMoved = true;
+
+      viewerStage.scrollLeft = startScrollLeft - dx;
+      viewerStage.scrollTop = startScrollTop - dy;
+    });
+
+    document.addEventListener("mouseup", () => {
+      if (!isDragging) return;
+
+      isDragging = false;
+      viewerStage.classList.remove("dragging");
+
+      setTimeout(() => {
+        dragMoved = false;
+      }, 0);
+    });
+
+    viewerPopupClose.addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeViewerPopup();
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!viewerPopup.contains(e.target) && !e.target.closest(".hotspot-dot")) {
+        closeViewerPopup();
+      }
+    });
+
+    document.addEventListener("keydown", async (e) => {
+      if (e.key === "Escape") {
+        closeViewerPopup();
+        hideTooltip();
+      }
+
+      if (e.key === "ArrowLeft") {
+        if (relatedMediaIndexes.length > 1) {
+          relatedMediaPointer =
+            (relatedMediaPointer - 1 + relatedMediaIndexes.length) % relatedMediaIndexes.length;
+          await showRelatedMediaByPointer();
+        } else {
+          clearRelatedMode();
+          await showMediaByIndex(currentMediaIndex - 1);
+        }
+      }
+
+      if (e.key === "ArrowRight") {
+        if (relatedMediaIndexes.length > 1) {
+          relatedMediaPointer =
+            (relatedMediaPointer + 1) % relatedMediaIndexes.length;
+          await showRelatedMediaByPointer();
+        } else {
+          clearRelatedMode();
+          await showMediaByIndex(currentMediaIndex + 1);
+        }
+      }
+    });
+
+    viewerImage.addEventListener("load", () => {
+      if (!isVideoShowing) {
+        renderHotspots();
+        closeViewerPopup();
+        hideTooltip();
+      }
+    });
+
+    viewerImage.addEventListener("error", () => {
+      const missing = viewerImage.getAttribute("src") || "image";
+      relatedStatus.textContent = `Image not found: ${missing}`;
+    });
+
+    let searchTimer;
+    searchBox.addEventListener("input", (e) => {
+      clearTimeout(searchTimer);
+
+      const typed = e.target.value;
+      currentSearchText = typed;
+
+      searchTimer = setTimeout(async () => {
+        // If the user kept typing while this timer was waiting, ignore this old timer.
+        if (searchBox.value !== typed) return;
+
+        const clean = typed.trim();
+        const isExactChapter = /^\d{2}$/.test(clean);
+        const chapter = isExactChapter ? getChapterFromSearch(clean) : null;
+
+        if (chapter) {
+          await jumpToImageForSearch(clean);
+
+          // Do not let the chapter jump overwrite later typing.
+          if (searchBox.value !== typed) return;
+        } else {
+          // Any space/text after the number becomes normal Google-style search.
+          activeChapterFilter = null;
+          selectedMelId = null;
+          setDotModeMelId = null;
+          closeViewerPopup();
+          hideTooltip();
+          applyFilters();
+        }
+      }, 300);
+    });
+
+    updateZoom();
+    updateImageMelButton();
+    updateRelatedStatus();
+
+    (async function startApp() {
+      try {
+        await loadFaults();
+        await loadImages();
+        // Start with all MELs visible. Chapter filtering only happens after user clicks/searches a chapter.
+        activeChapterFilter = null;
+        currentSearchText = "";
+        searchBox.value = "";
+        filterToCurrentImageDots = false;
+        updateImageMelButton();
+        applyFilters();
+      } catch (err) {
+        console.error(err);
+      }
+    })();
+  
+    if (typeof quizAppBtn !== "undefined" && quizAppBtn) {
+      quizAppBtn.addEventListener("click", openQuizApp);
+    }
+
+</script>
+
+<div id="statusReadout" style="display:none;">Ready</div>
+
+</body>
+</html>

@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B737NG ATA 23 – Communications Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0e0a1a;
+  --card:#140f22;
+  --card2:#1a142e;
+  --purple:#9b72ff;
+  --purple2:#6b3fd4;
+  --green:#58cc02;
+  --green2:#46a302;
+  --green-bg:#071a0a;
+  --green-bdr:#1a4d1a;
+  --red:#ff4b4b;
+  --red2:#cc2a2a;
+  --red-bg:#1f0a0a;
+  --red-bdr:#5c1212;
+  --blue:#1cb0f6;
+  --gold:#ffc800;
+  --gold2:#c89800;
+  --text:#ede8ff;
+  --muted:#6a5a9a;
+  --border:#2a1e45;
+  --r:14px;
+}
+html,body{min-height:100vh;background:var(--bg);font-family:'Nunito',sans-serif;color:var(--text)}
+body{
+  display:flex;align-items:center;justify-content:center;padding:16px;
+  background:
+    radial-gradient(ellipse at 15% 0%,rgba(155,114,255,0.09) 0%,transparent 55%),
+    radial-gradient(ellipse at 85% 100%,rgba(107,63,212,0.05) 0%,transparent 50%),
+    var(--bg);
+}
+.wrap{width:100%;max-width:520px}
+.screen{display:none}.screen.on{display:block}
+
+/* ── HOME ── */
+.home-card{background:var(--card);border-radius:22px;padding:28px 24px;border:1px solid var(--border);box-shadow:0 0 0 1px #0a0812,0 24px 60px rgba(0,0,0,.9);text-align:center;position:relative;overflow:hidden}
+.home-card::before{content:'';position:absolute;top:-80px;left:-80px;width:280px;height:280px;background:radial-gradient(circle,rgba(155,114,255,.1) 0%,transparent 70%);pointer-events:none;border-radius:50%}
+.home-card::after{content:'';position:absolute;bottom:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(107,63,212,.06) 0%,transparent 70%);pointer-events:none;border-radius:50%}
+.plane{font-size:58px;display:block;animation:bob 3s ease-in-out infinite;margin-bottom:2px;filter:drop-shadow(0 0 18px rgba(155,114,255,.55))}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-11px) rotate(4deg)}}
+.home-badge{display:inline-block;color:var(--purple);font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:4px 14px;border-radius:99px;margin-bottom:8px;border:1.5px solid var(--purple2);position:relative;z-index:1}
+.home-h1{font-size:clamp(20px,5vw,28px);font-weight:900;line-height:1.15;margin-bottom:6px;color:#fff;position:relative;z-index:1}
+.home-h1 span{color:var(--purple)}
+.home-sub{font-size:12px;color:var(--muted);font-weight:600;line-height:1.55;max-width:340px;margin:0 auto 16px;position:relative;z-index:1}
+.home-pills{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-bottom:16px;position:relative;z-index:1}
+.pill{background:#0e0a1e;border:1.5px solid #2a1a50;border-radius:99px;padding:4px 11px;font-size:11px;font-weight:700;color:var(--purple2)}
+.home-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px;position:relative;z-index:1}
+.meta-box{background:#0e0a1e;border:1.5px solid var(--border);border-radius:12px;padding:11px 6px}
+.meta-n{font-size:26px;font-weight:900;color:var(--purple)}
+.meta-l{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.btn-go{width:100%;padding:14px;background:var(--purple);color:#fff;border:none;border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 5px 0 var(--purple2),0 8px 24px rgba(155,114,255,.3);transition:transform .12s,box-shadow .12s;letter-spacing:.3px;position:relative;z-index:1}
+.btn-go:hover{transform:translateY(-3px);box-shadow:0 8px 0 var(--purple2),0 12px 28px rgba(155,114,255,.35)}
+.btn-go:active{transform:translateY(3px);box-shadow:0 2px 0 var(--purple2)}
+
+/* ── QUIZ SHELL ── */
+.q-shell{background:var(--card);border-radius:20px;border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.9);overflow:hidden;max-height:490px;display:flex;flex-direction:column}
+.topbar{padding:10px 14px 9px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;flex-shrink:0;background:var(--card2)}
+.xbtn{width:27px;height:27px;border:1.5px solid var(--border);border-radius:7px;background:none;cursor:pointer;font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.xbtn:hover{background:#1f0709;border-color:var(--red);color:var(--red)}
+.prog-col{flex:1}
+.prog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.prog-cat{font-size:11px;font-weight:800;color:var(--purple);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px}
+.prog-n{font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap}
+.bar-bg{height:7px;background:#0e0a1e;border-radius:99px;overflow:hidden;border:1px solid #2a1a40}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--purple2),var(--purple),#c4a8ff);border-radius:99px;transition:width .5s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 8px rgba(155,114,255,.45)}
+.topbar-r{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.hearts{display:flex;gap:1px;font-size:14px}
+.heart{transition:all .3s}
+.heart.gone{opacity:.15;filter:grayscale(1);transform:scale(.65)}
+.xp-tag{background:#0e0a1e;border:1.5px solid #2a1a40;border-radius:99px;padding:3px 9px;font-size:12px;font-weight:800;color:var(--gold);white-space:nowrap}
+.streak-tag{background:#0e0a1e;border:1.5px solid #2a1a40;border-radius:99px;padding:3px 9px;font-size:11px;font-weight:800;color:#ff9600;white-space:nowrap}
+
+/* ── QUESTION BODY ── */
+.q-body{flex:1;overflow-y:auto;padding:13px 15px 0;scrollbar-width:thin;scrollbar-color:#2a1a40 transparent}
+.q-body::-webkit-scrollbar{width:4px}
+.q-body::-webkit-scrollbar-thumb{background:#2a1a40;border-radius:4px}
+.q-cat{font-size:11px;font-weight:800;color:var(--purple2);text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.q-dot{width:6px;height:6px;background:var(--purple);border-radius:50%;box-shadow:0 0 6px rgba(155,114,255,.8)}
+.q-text{font-size:clamp(13px,2.6vw,14.5px);font-weight:700;line-height:1.52;margin-bottom:12px;color:#e8e0ff}
+.opts{display:flex;flex-direction:column;gap:6px;padding-bottom:12px}
+.opt{width:100%;padding:10px 12px;background:#0e0a1e;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:9px;font-family:'Nunito',sans-serif;font-size:12.5px;font-weight:700;color:#b8a8d8;transition:all .13s;line-height:1.32;position:relative;overflow:hidden}
+.opt:hover:not(:disabled){border-color:var(--purple2);background:#180f2e;color:var(--purple);transform:translateX(3px)}
+.opt-l{width:24px;height:24px;border-radius:6px;background:#1a1230;border:1.5px solid #2e1e50;font-size:11px;font-weight:900;color:#5a3a8a;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.opt.picked-right{border-color:var(--green);background:var(--green-bg);color:#a0ffe0;animation:bumpR .4s cubic-bezier(.34,1.56,.64,1)}
+.opt.picked-right .opt-l{background:var(--green);border-color:var(--green);color:#000}
+.opt.picked-wrong{border-color:var(--red);background:var(--red-bg);color:#ffaaaa;animation:shakeW .35s}
+.opt.picked-wrong .opt-l{background:var(--red);border-color:var(--red);color:#fff}
+.opt.reveal-right{border-color:var(--green);background:var(--green-bg);color:#a0ffe0}
+.opt.reveal-right .opt-l{background:var(--green);border-color:var(--green);color:#000}
+.opt.faded{opacity:.22}
+.opt:disabled{cursor:default;transform:none!important}
+@keyframes bumpR{0%{transform:scale(1)}40%{transform:scale(1.025)}100%{transform:scale(1)}}
+@keyframes shakeW{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+
+/* ── FEEDBACK ── */
+.fb{flex-shrink:0;display:none;align-items:center;gap:9px;padding:10px 15px;border-top:1.5px solid transparent}
+.fb.on{display:flex}
+.fb.ok{background:#071a0a;border-color:var(--green-bdr)}
+.fb.no{background:#190408;border-color:var(--red-bdr)}
+.fb-icon{font-size:24px;flex-shrink:0}
+.fb-txt{flex:1;min-width:0}
+.fb-head{font-size:13px;font-weight:900}
+.fb.ok .fb-head{color:var(--green)}
+.fb.no .fb-head{color:var(--red)}
+.fb-detail{font-size:11px;font-weight:600;color:#6a5a8a;line-height:1.4;margin-top:2px}
+.btn-cont{padding:8px 14px;border:none;border-radius:9px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .12s}
+.fb.ok .btn-cont{background:var(--green);color:#000;box-shadow:0 3px 0 var(--green2)}
+.fb.ok .btn-cont:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--green2)}
+.fb.no .btn-cont{background:var(--red);color:#fff;box-shadow:0 3px 0 var(--red2)}
+.fb.no .btn-cont:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--red2)}
+
+/* ── RESULTS ── */
+.res-card{background:var(--card);border-radius:22px;padding:28px 22px;border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.9);text-align:center;position:relative;overflow:hidden}
+.res-card::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:300px;height:300px;background:radial-gradient(circle,rgba(155,114,255,.08) 0%,transparent 65%);border-radius:50%;pointer-events:none}
+.trophy{font-size:66px;display:block;animation:dropIn .7s cubic-bezier(.34,1.56,.64,1);position:relative;z-index:1;filter:drop-shadow(0 0 20px rgba(155,114,255,.5))}
+@keyframes dropIn{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.stars-row{display:flex;justify-content:center;gap:8px;margin:5px 0 12px;position:relative;z-index:1}
+.rstar{font-size:32px;opacity:0;filter:drop-shadow(0 0 8px rgba(155,114,255,.6))}
+.rstar.lit{animation:starIn .5s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes starIn{to{opacity:1;transform:scale(1) rotate(0)}from{opacity:0;transform:scale(0) rotate(-20deg)}}
+.res-title{font-size:clamp(20px,5vw,26px);font-weight:900;margin-bottom:3px;color:#fff;position:relative;z-index:1}
+.res-sub{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:18px;position:relative;z-index:1}
+.res-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px;position:relative;z-index:1}
+.res-box{background:#0e0a1e;border:1.5px solid var(--border);border-radius:12px;padding:12px 6px}
+.res-n{font-size:24px;font-weight:900;color:var(--purple)}
+.res-l{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.res-btns{display:flex;flex-direction:column;gap:8px;position:relative;z-index:1}
+.btn-again{width:100%;padding:14px;background:var(--purple);color:#fff;border:none;border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 5px 0 var(--purple2),0 7px 20px rgba(155,114,255,.25);transition:all .12s;letter-spacing:.3px}
+.btn-again:hover{transform:translateY(-2px);box-shadow:0 7px 0 var(--purple2),0 10px 24px rgba(155,114,255,.3)}
+.btn-again:active{transform:translateY(3px);box-shadow:0 2px 0 var(--purple2)}
+.btn-home-sm{width:100%;padding:11px;border:1.5px solid var(--border);border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:none;color:var(--muted);transition:all .15s}
+.btn-home-sm:hover{border-color:var(--purple2);color:var(--purple)}
+
+/* ── EFFECTS ── */
+.confetti{position:fixed;pointer-events:none;z-index:9999;animation:cfall linear forwards}
+@keyframes cfall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(110vh) rotate(700deg)}}
+.spark{position:fixed;pointer-events:none;z-index:9999;border-radius:50%;animation:spark ease-out forwards}
+@keyframes spark{to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0)}}
+.floatxp{position:fixed;pointer-events:none;z-index:9999;font-size:16px;font-weight:900;color:var(--gold);text-shadow:0 0 12px rgba(255,200,0,.5);animation:fxp .9s ease-out forwards}
+@keyframes fxp{0%{opacity:1;transform:translateY(0) scale(.7)}20%{transform:translateY(-8px) scale(1.1)}100%{opacity:0;transform:translateY(-60px) scale(.9)}}
+.popbadge{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:9999;font-size:34px;font-weight:900;animation:pbadge 1s ease forwards;white-space:nowrap;text-shadow:0 0 30px rgba(155,114,255,.8),0 4px 20px rgba(0,0,0,.5)}
+@keyframes pbadge{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}70%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-55%) scale(.9)}}
+@media(max-width:400px){.topbar{padding:9px 11px}.q-body{padding:11px 11px 0}.opts{gap:5px}.opt{padding:9px 10px;font-size:12px}.fb{padding:9px 12px}.home-card,.res-card{padding:22px 14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ═══ HOME ═══ -->
+<div id="home" class="screen on">
+<div class="home-card">
+  <span class="plane">📡</span>
+  <div class="home-badge">ATA Chapter 23</div>
+  <h1 class="home-h1">B737NG<br><span>Communications Quiz</span></h1>
+  <p class="home-sub">30 questions on VHF/HF radios, ACP, REU, interphone, PA, SELCAL, ACARS, CVR, ELT &amp; line maintenance tribal knowledge.</p>
+  <div class="home-pills">
+    <span class="pill">🎙️ VHF / HF</span>
+    <span class="pill">🎧 ACP / REU</span>
+    <span class="pill">📟 Radio Control</span>
+    <span class="pill">🔔 SELCAL</span>
+    <span class="pill">🧑‍✈️ Interphone</span>
+    <span class="pill">📣 PA System</span>
+    <span class="pill">🎙️ CVR / ELT</span>
+    <span class="pill">🏆 Tribal Rules</span>
+  </div>
+  <div class="home-meta">
+    <div class="meta-box"><div class="meta-n">30</div><div class="meta-l">Questions</div></div>
+    <div class="meta-box"><div class="meta-n">3</div><div class="meta-l">Lives</div></div>
+    <div class="meta-box"><div class="meta-n">8</div><div class="meta-l">Topics</div></div>
+  </div>
+  <button class="btn-go" onclick="startGame()">📡 Start Quiz</button>
+</div>
+</div>
+
+<!-- ═══ QUIZ ═══ -->
+<div id="quiz" class="screen">
+<div class="q-shell">
+  <div class="topbar">
+    <button class="xbtn" onclick="confirmQuit()">✕</button>
+    <div class="prog-col">
+      <div class="prog-top">
+        <span class="prog-cat" id="cat-lbl">VHF / HF</span>
+        <span class="prog-n"><span id="qn">1</span>/<span id="qtot">30</span></span>
+      </div>
+      <div class="bar-bg"><div class="bar-fill" id="bar" style="width:0%"></div></div>
+    </div>
+    <div class="topbar-r">
+      <div class="streak-tag">🔥<span id="streak-n">0</span></div>
+      <div class="hearts" id="hearts">
+        <span class="heart" id="h0">❤️</span><span class="heart" id="h1">❤️</span><span class="heart" id="h2">❤️</span>
+      </div>
+      <div class="xp-tag">⚡<span id="xpdis">0</span></div>
+    </div>
+  </div>
+  <div class="q-body" id="q-body">
+    <div class="q-cat"><div class="q-dot"></div><span id="q-cat">VHF / HF</span></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="opts" id="opts"></div>
+  </div>
+  <div class="fb" id="fb">
+    <span class="fb-icon" id="fb-icon">✅</span>
+    <div class="fb-txt">
+      <div class="fb-head" id="fb-head">Correct!</div>
+      <div class="fb-detail" id="fb-det"></div>
+    </div>
+    <button class="btn-cont" id="btn-cont" onclick="advance()">Next →</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══ RESULT ═══ -->
+<div id="result" class="screen">
+<div class="res-card">
+  <span class="trophy" id="trophy">🏆</span>
+  <div class="stars-row">
+    <span class="rstar" id="rs0">⭐</span><span class="rstar" id="rs1">⭐</span><span class="rstar" id="rs2">⭐</span>
+  </div>
+  <div class="res-title" id="res-title">Session Complete!</div>
+  <div class="res-sub" id="res-sub">Great work!</div>
+  <div class="res-grid">
+    <div class="res-box"><div class="res-n" id="r-xp">0</div><div class="res-l">XP</div></div>
+    <div class="res-box"><div class="res-n" id="r-acc">0%</div><div class="res-l">Accuracy</div></div>
+    <div class="res-box"><div class="res-n" id="r-str">0</div><div class="res-l">Best Streak</div></div>
+  </div>
+  <div class="res-btns">
+    <button class="btn-again" onclick="startGame()">🔁 Play Again</button>
+    <button class="btn-home-sm" onclick="goHome()">← Back to Home</button>
+  </div>
+</div>
+</div>
+
+</div>
+<script>
+// ═══ AUDIO ═══
+const AC=window.AudioContext||window.webkitAudioContext;let actx=null;
+function ctx(){if(!actx)actx=new AC();return actx;}
+function playCorrect(){try{const c=ctx();[523,659,784,1047].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;const t=c.currentTime+i*.07;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.16,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.22);o.start(t);o.stop(t+.25);});}catch(e){}}
+function playWrong(){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sawtooth';o.frequency.setValueAtTime(280,c.currentTime);o.frequency.exponentialRampToValueAtTime(80,c.currentTime+.35);g.gain.setValueAtTime(.13,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.4);o.start();o.stop(c.currentTime+.45);}catch(e){}}
+function playCombo(){try{const c=ctx();[880,1108,1320,1760].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='triangle';o.frequency.value=f;const t=c.currentTime+i*.05;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.2,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.28);o.start(t);o.stop(t+.3);});}catch(e){}}
+function playVictory(){try{const c=ctx();[523,659,784,1047,1319,1568,2093].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;const t=c.currentTime+i*.09;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.18,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+.32);o.start(t);o.stop(t+.35);});}catch(e){}}
+function playClick(){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=440;g.gain.setValueAtTime(.06,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.07);o.start();o.stop(c.currentTime+.08);}catch(e){}}
+
+// ═══ QUESTION BANK ═══
+// correct: the right answer text — options shuffled at render time
+const BANK=[
+// ── VHF / HF ─────────────────────────────────────────────────────────────────
+{c:"🎙️ VHF / HF",
+ correct:"Line-of-sight radio used for all normal ATC and company voice communications",
+ q:"What is the PRIMARY purpose of the VHF radio system on the B737NG?",
+ o:["Line-of-sight radio used for all normal ATC and company voice communications",
+    "Long-range satellite-based voice communication for oceanic routes",
+    "Data-only system used exclusively for ACARS messaging",
+    "Backup communication system used only when HF is unavailable"],
+ d:"VHF is the primary communication system, used constantly for ATC contact, company frequency, and ATIS. It is line-of-sight, meaning range is limited by altitude and terrain. The B737NG carries three independent VHF radios — VHF 1, VHF 2, and a third dedicated to ACARS."},
+
+{c:"🎙️ VHF / HF",
+ correct:"Long-range communication using skywave propagation — used for oceanic routes where VHF range is insufficient",
+ q:"How does the HF radio system differ from VHF in terms of range and use?",
+ o:["Long-range communication using skywave propagation — used for oceanic routes where VHF range is insufficient",
+    "HF is line-of-sight like VHF but operates on a higher frequency band for improved clarity",
+    "HF is only used on the ground for clearance delivery — it is inhibited in flight",
+    "HF replaces VHF when the aircraft is above FL280 due to atmospheric interference"],
+ d:"HF radio uses skywave propagation — signals bounce off the ionosphere to achieve ranges of thousands of miles. It is used on oceanic and remote routes where VHF coverage is unavailable. An antenna coupler automatically tunes the vertical stabiliser leading-edge antenna to match each selected frequency."},
+
+{c:"🎙️ VHF / HF",
+ correct:"The HF antenna coupler is tuning to match the selected frequency — normal if under 15 seconds",
+ q:"After selecting a new HF frequency, a 1 kHz tuning tone is heard for several seconds. What does this indicate?",
+ o:["The HF antenna coupler is tuning to match the selected frequency — normal if under 15 seconds",
+    "The HF system has detected a fault and is performing a self-test before engaging",
+    "Static on the oceanic frequency is being filtered — the tone is a noise-cancellation signal",
+    "The HF transceiver is warming up — normal after a cold-soak at high altitude"],
+ d:"A brief 1 kHz tuning tone during HF frequency selection is completely normal — the antenna coupler is automatically adjusting to match the antenna impedance to the new frequency. This typically lasts 7–15 seconds. If the tone continues beyond 15 seconds, suspect a fault in the coupler or antenna circuit."},
+
+{c:"🎙️ VHF / HF",
+ correct:"Suspect an HF system fault — normal tuning takes 7–15 seconds; a tone beyond that indicates a problem",
+ q:"An HF tuning tone has been ongoing for more than 20 seconds. What should a line mechanic suspect?",
+ o:["Suspect an HF system fault — normal tuning takes 7–15 seconds; a tone beyond that indicates a problem",
+    "This is normal on certain oceanic frequencies — no action required",
+    "The HF BITE system is running a full self-test which takes up to 30 seconds",
+    "The Captain has manually held the PTT — check for a stuck transmit switch"],
+ d:"Normal HF antenna coupler tuning takes 7–15 seconds. A tone exceeding 15–20 seconds is a classic line maintenance clue pointing to a fault in the antenna coupler, the antenna feed, or the transceiver itself. Don't ignore it — this is a textbook write-up starter."},
+
+{c:"🎙️ VHF / HF",
+ correct:"VHF 1 and VHF 2 are used for voice communications; the third VHF (VHF 3) is dedicated to ACARS data",
+ q:"How are the three VHF radios on the B737NG allocated?",
+ o:["VHF 1 and VHF 2 are used for voice communications; the third VHF (VHF 3) is dedicated to ACARS data",
+    "All three are used for voice — ACARS uses a separate dedicated HF data modem",
+    "VHF 1 is Captain's primary; VHF 2 is First Officer's primary; VHF 3 is a shared standby",
+    "VHF 1 handles ATC; VHF 2 handles company; VHF 3 handles ATIS automatically"],
+ d:"VHF 1 and VHF 2 handle crew voice communications. VHF 3 is allocated to ACARS, sharing the radio infrastructure to send data link messages. VHF 1 antenna is on the upper fuselage; VHF 2 is on the rear lower fuselage; VHF 3 is on the forward lower fuselage."},
+
+// ── ACP / REU ─────────────────────────────────────────────────────────────────
+{c:"🎧 ACP / REU",
+ correct:"The ACP is where each crew member controls radio selection, volume, transmit source, and mic keying",
+ q:"What is the role of the Audio Control Panel (ACP) in the B737NG communications system?",
+ o:["The ACP is where each crew member controls radio selection, volume, transmit source, and mic keying",
+    "The ACP processes and routes all audio signals — it is the core routing computer for all comms",
+    "The ACP only controls PA and interphone volume — radio selection is done from the RCP",
+    "The ACP is a backup panel used only when the REU fails"],
+ d:"The ACP is the crew interface for all audio. It controls which transmitter is selected (where the mic goes), which receivers are monitored (what can be heard), and PTT (push-to-talk). There is one ACP per crew station — Captain, First Officer, and Observer."},
+
+{c:"🎧 ACP / REU",
+ correct:"The REU (Remote Electronics Unit) routes all audio signals — weird audio across multiple systems points to the REU first",
+ q:"What is the REU and why is it the first suspect when audio problems affect multiple systems simultaneously?",
+ o:["The REU (Remote Electronics Unit) routes all audio signals — weird audio across multiple systems points to the REU first",
+    "The REU is a backup power supply for the ACP — it only activates during electrical failures",
+    "The REU is the satellite communications processor — it only affects SATCOM audio paths",
+    "The REU stores recorded audio — it is only relevant to CVR troubleshooting"],
+ d:"Everything audio passes through the REU. It is the central routing hub connecting ACPs, radios, intercoms, and PA. If a single system has a problem, suspect that system's LRU. But if audio is wrong across multiple systems at the same time — the REU is the single point of failure to check first."},
+
+{c:"🎧 ACP / REU",
+ correct:"The crew member can only transmit and receive on one radio; receiver switches are inoperative and volume is preset",
+ q:"When the ACP ALT-NORM switch is placed to ALT, what is the effect on crew communications capability?",
+ o:["The crew member can only transmit and receive on one radio; receiver switches are inoperative and volume is preset",
+    "The ACP routes all audio through the REU backup path with no operational limitation",
+    "ALT mode activates the PA system as the primary communication channel",
+    "ALT mode disconnects the boom mic and enables the oxygen mask mic automatically"],
+ d:"ALT mode is a degraded emergency bypass. The ACP at that station is bypassed: the crew member can only use one radio (Captain/Observer → VHF 1, First Officer → VHF 2), receiver switches are inoperative, and audio is heard at a preset volume through the headset. This keeps basic comms alive even if the ACP fails."},
+
+{c:"🎧 ACP / REU",
+ correct:"Captain and Observer → VHF 1; First Officer → VHF 2",
+ q:"In ALT (emergency bypass) mode, which radio is each crew member hardwired to?",
+ o:["Captain and Observer → VHF 1; First Officer → VHF 2",
+    "Captain → VHF 1; First Officer → VHF 2; Observer → VHF 3",
+    "All crew members → VHF 1 as a shared emergency channel",
+    "Captain → HF; First Officer → VHF 1; Observer → VHF 2"],
+ d:"In ALT mode the hardwired paths are: Captain → VHF 1, Observer → VHF 1, First Officer → VHF 2. This ensures both pilots have independent voice communication paths even in a complete ACP or REU failure scenario."},
+
+{c:"🎧 ACP / REU",
+ correct:"V = voice transmissions only; R = station identifiers only; B = both simultaneously",
+ q:"The ACP filter switch has positions V, R, and B. What does each do?",
+ o:["V = voice transmissions only; R = station identifiers only; B = both simultaneously",
+    "V = VHF monitoring; R = radio volume reduce; B = both VHF and HF monitor together",
+    "V = volume boost; R = receive only mode; B = broadcast to both speakers",
+    "V = VOR audio; R = radio beacon range; B = both navigation audio sources"],
+ d:"The filter switch shapes what you hear on the selected radio: V passes only voice transmissions, R passes only station identifier morse code (useful for VOR identification), and B passes both simultaneously. It has no effect on transmit capability."},
+
+// ── RADIO CONTROL PANEL ───────────────────────────────────────────────────────
+{c:"📟 Radio Control",
+ correct:"Any RCP can control any radio — flexibility is built in so a failed panel or path doesn't strand a radio",
+ q:"The B737NG has multiple Radio Control Panels (RCPs). What is a key operational advantage of this design?",
+ o:["Any RCP can control any radio — flexibility is built in so a failed panel or path doesn't strand a radio",
+    "Each RCP is dedicated to one specific radio — RCP 1 only tunes VHF 1, RCP 2 only tunes VHF 2",
+    "RCPs are redundant displays only — the ACP performs all actual tuning functions",
+    "RCPs can only tune the radio on their side of the cockpit — cross-side tuning requires a menu selection"],
+ d:"Each RCP can tune any radio, giving crews flexibility when a panel or communication path has a problem. If the normal panel for a radio fails, the crew can still control that radio from another RCP. The Offside Tuning light illuminates when a radio is being tuned by a panel not normally associated with it."},
+
+{c:"📟 Radio Control",
+ correct:"The RCP (Radio Control Panel) itself is faulty — PANEL FAIL is a direct LRU isolation clue",
+ q:"A PANEL FAIL message appears on the radio tuning display. What does this indicate?",
+ o:["The RCP (Radio Control Panel) itself is faulty — PANEL FAIL is a direct LRU isolation clue",
+    "The radio associated with this panel has failed — the panel is reporting the transceiver fault",
+    "A data bus interruption between the RCP and the REU — check wiring before the RCP",
+    "The panel is in ALT mode — PANEL FAIL only appears during emergency operations"],
+ d:"PANEL FAIL directly indicates the Radio Control Panel itself is the faulty component. This is one of the fastest LRU isolation messages in ATA 23 — the system is telling you exactly what to replace. This avoids unnecessary troubleshooting of the radio or wiring."},
+
+{c:"📟 Radio Control",
+ correct:"No communication or data connection between the RCP and the tuned radio — a major quick-isolation clue",
+ q:"The radio display shows '---- ----' (dashes). What does this mean and why is it significant for troubleshooting?",
+ o:["No communication or data connection between the RCP and the tuned radio — a major quick-isolation clue",
+    "The radio is in standby mode and has not been initialised yet — cycle power to reset",
+    "The display is showing a blank frequency because ACARS has taken over tuning control",
+    "This is the normal display when the Offside Tuning light is illuminated"],
+ d:"'---- ----' means there is no data/communication connection between the panel and the radio. It is not a frequency display issue — it means the control path has broken. This rapidly isolates the fault to the data bus, the radio LRU, or a connector between them. The main points call it a 'huge quick-isolation clue.'"},
+
+// ── SELCAL ────────────────────────────────────────────────────────────────────
+{c:"🔔 SELCAL",
+ correct:"A selective calling system that alerts the crew of an incoming call without requiring continuous radio monitoring",
+ q:"What is SELCAL and what operational problem does it solve for long-range flights?",
+ o:["A selective calling system that alerts the crew of an incoming call without requiring continuous radio monitoring",
+    "A system that automatically selects the best HF frequency for current ionospheric conditions",
+    "A data link that sends weather and NOTAM updates to the CDU without crew action",
+    "A digital encryption system that secures voice transmissions on HF frequencies"],
+ d:"SELCAL allows crew to keep HF volume low (HF has high background noise and is fatiguing to monitor continuously) while still being alerted when ground wants to contact them. A four-letter code unique to the aircraft is transmitted; when the decoder recognises it, a chime sounds and the CALL light on the ACP illuminates."},
+
+{c:"🔔 SELCAL",
+ correct:"A chime sounds and the CALL light illuminates on the ACP for the active transceiver — the crew then responds manually",
+ q:"How does the crew know a SELCAL call has been received, and what must they do next?",
+ o:["A chime sounds and the CALL light illuminates on the ACP for the active transceiver — the crew then responds manually",
+    "The radio automatically answers and begins recording the inbound message for CDU playback",
+    "An EICAS message appears and the radio is automatically switched to the calling frequency",
+    "A recorded announcement plays over the PA telling the crew to check the HF frequency"],
+ d:"When the SELCAL decoder recognises the aircraft's code, a chime sounds and the CALL light illuminates on the relevant ACP position. The crew must then manually select the transmitter and respond on the radio. SELCAL only alerts — it does not automatically connect or answer."},
+
+{c:"🔔 SELCAL",
+ correct:"A unique four-letter code from a 16-letter subset (A–S, excluding I, N, O) assigned by ASRI to the operator",
+ q:"What is a SELCAL code and where do the letters come from?",
+ o:["A unique four-letter code from a 16-letter subset (A–S, excluding I, N, O) assigned by ASRI to the operator",
+    "A six-digit numeric code assigned by ICAO and permanently embedded in the aircraft transponder",
+    "A three-letter airline designator combined with the aircraft registration number",
+    "A randomly generated code created by the HF transceiver at each power-on cycle"],
+ d:"Each SELCAL code is four letters arranged as two pairs (e.g., AB-CD), chosen from A through S excluding I, N, and O. No letter may repeat within a code. Codes are assigned by ASRI (Aviation Spectrum Resources Inc.) to the operator, not the aircraft — codes must be re-registered if the aircraft changes hands."},
+
+// ── INTERPHONE ────────────────────────────────────────────────────────────────
+{c:"🧑‍✈️ Interphone",
+ correct:"The ground interphone switch on the aft overhead panel must be ON — leaving it OFF is the most common no-ground-comm write-up",
+ q:"Ground crew report they cannot communicate with the flight deck via the service interphone. What is the most likely cause?",
+ o:["The ground interphone switch on the aft overhead panel must be ON — leaving it OFF is the most common no-ground-comm write-up",
+    "The flight interphone jacks at the nose gear must be plugged in before the system activates",
+    "The REU requires a 5-minute warm-up before service interphone becomes available",
+    "The crew must select INT on both ACPs simultaneously for ground comms to work"],
+ d:"The most common ATA 23 write-up on the ground is 'no comms with ground crew.' The first check is always the SERVICE INTERPHONE switch on the aft overhead panel — if it is OFF, the external service interphone jacks (excluding the APU panel 'FLIGHT' jack) are disconnected. Classic trap, very fast fix."},
+
+{c:"🧑‍✈️ Interphone",
+ correct:"Flight interphone connects flight deck positions and the nose gear ground crew station; service interphone adds all external service jacks when switched ON",
+ q:"What is the difference between the flight interphone and the service interphone systems?",
+ o:["Flight interphone connects flight deck positions and the nose gear ground crew station; service interphone adds all external service jacks when switched ON",
+    "Flight interphone is used only in flight; service interphone is only used on the ground",
+    "They are identical systems — the naming difference is just a legacy Boeing convention",
+    "Flight interphone uses the ACP; service interphone uses a separate dedicated panel"],
+ d:"The flight interphone system connects all flight deck positions and the nose gear ground crew station — it is the internal crew communication backbone. The service interphone, when switched ON, additionally connects external service jacks around the aircraft for ground crews. Both systems use the ACP for crew access via the INT position."},
+
+{c:"🧑‍✈️ Interphone",
+ correct:"Push the GRD CALL switch — this activates a horn at the nose wheel well to alert ground personnel",
+ q:"A crew member needs to alert ground personnel who are not on headsets. What control does this?",
+ o:["Push the GRD CALL switch — this activates a horn at the nose wheel well to alert ground personnel",
+    "Select INT on the ACP and transmit — the interphone speaker at the nose gear broadcasts automatically",
+    "Push the CABIN CALL switch — it rings both cabin crew and external ground stations",
+    "There is no way to alert ground personnel without a headset — they must initiate contact"],
+ d:"The GRD CALL switch on the ACP sounds a horn located at the nose wheel well area, alerting ground personnel that the flight deck wants to communicate. Ground crew can then plug into the nearest interphone jack and make contact."},
+
+// ── PA SYSTEM ─────────────────────────────────────────────────────────────────
+{c:"📣 PA System",
+ correct:"Cockpit PA has highest priority, then cabin attendant, then pre-recorded or music — only one source plays at a time",
+ q:"The PA system uses priority logic. What is the correct order from highest to lowest priority?",
+ o:["Cockpit PA has highest priority, then cabin attendant, then pre-recorded or music — only one source plays at a time",
+    "Music plays continuously and PA interrupts it only when the flight deck selects PA",
+    "All PA sources share equal priority — the system mixes multiple sources simultaneously",
+    "Cabin attendant has highest priority over cockpit during boarding for safety announcements"],
+ d:"PA priority ensures only the most important audio source plays at any time. Cockpit announcements override everything. Cabin attendant announcements override pre-recorded messages and music. There is no mixing — the highest priority source takes over completely until it releases the system."},
+
+{c:"📣 PA System",
+ correct:"High chime = SELCAL or passenger call; low chime = seat belt/no smoking signs; high-low chime = crew call (cockpit to cabin or cabin to cockpit)",
+ q:"The PA chime system uses different chime patterns to signal different events. Which pattern is correct?",
+ o:["High chime = SELCAL or passenger call; low chime = seat belt/no smoking signs; high-low chime = crew call (cockpit to cabin or cabin to cockpit)",
+    "High chime = crew call; low chime = SELCAL alert; single chime = PA announcement starting",
+    "All chimes sound identical — the difference is only in how many times the chime repeats",
+    "High chime = emergency; low chime = normal call; no chime = automated PA announcement"],
+ d:"Chimes carry specific meaning: a high tone signals SELCAL or a passenger call button; a low tone indicates a sign change (seat belt or no smoking); a high-low sequence signals a crew call between the cockpit and cabin. Understanding chime patterns helps troubleshoot which system is generating unexpected sounds."},
+
+{c:"📣 PA System",
+ correct:"Push the ATTEND button twice — this generates a specific chime pattern that alerts the cabin crew at their station",
+ q:"How does a flight deck crew member call a specific cabin crew member (CCM) station?",
+ o:["Push the ATTEND button twice — this generates a specific chime pattern that alerts the cabin crew at their station",
+    "Dial the cabin station number on the ACP INT selector and press PTT",
+    "Select PA on the ACP and announce the station name — the PA system routes to that station only",
+    "The flight deck cannot selectively call individual cabin stations — only a general PA is possible"],
+ d:"Pushing the ATTEND button twice sends a call signal that generates a chime at the cabin crew station. From a CCM station, pushing '2' twice calls the flight deck. These specific button sequences allow targeted calls without occupying the PA system for general announcements."},
+
+// ── CVR ───────────────────────────────────────────────────────────────────────
+{c:"🎙️ CVR / ELT",
+ correct:"4 channels — Captain mic, First Officer mic, Observer mic, and one cockpit area (ambient) microphone",
+ q:"How many recording channels does the B737NG Cockpit Voice Recorder (CVR) have and what does each capture?",
+ o:["4 channels — Captain mic, First Officer mic, Observer mic, and one cockpit area (ambient) microphone",
+    "2 channels — one for radio transmissions and one for cockpit interphone only",
+    "6 channels — one per crew station plus separate ATC in and out channels",
+    "1 channel — a single mixed audio track combining all cockpit audio sources"],
+ d:"The CVR records four channels simultaneously: Captain's ACP audio, First Officer's ACP audio, Observer's ACP audio, and a cockpit area microphone that captures ambient sounds, aural warnings, and conversations not on headsets. This multi-channel design provides the most complete picture of flight deck communications."},
+
+{c:"🎙️ CVR / ELT",
+ correct:"120 minutes — it is a continuous loop that overwrites the oldest audio when full",
+ q:"How long does the B737NG CVR retain audio, and how is the recording managed?",
+ o:["120 minutes — it is a continuous loop that overwrites the oldest audio when full",
+    "8 hours — solid-state recorders store all audio for a full long-haul flight",
+    "30 minutes — only the final approach and landing are preserved",
+    "Unlimited — the CVR stores all audio since the last manual erase"],
+ d:"The CVR records the most recent 120 minutes of cockpit audio on a continuous loop. When full, it overwrites the oldest data. This is why preservation of the CVR after an incident is time-critical — taxiing, APU running, and crew conversation after an event will overwrite the crucial flight data."},
+
+{c:"🎙️ CVR / ELT",
+ correct:"Only on the ground with the parking brake set — safety logic prevents accidental in-flight erasure",
+ q:"Under what condition can the CVR be erased?",
+ o:["Only on the ground with the parking brake set — safety logic prevents accidental in-flight erasure",
+    "At any time by pushing the ERASE button on the CVR panel — no interlock exists",
+    "Only by maintenance personnel using the CDU maintenance page — crew cannot erase it",
+    "Automatically after each flight — the CVR resets itself during the post-flight power-down sequence"],
+ d:"CVR erasure requires the aircraft to be on the ground with the parking brake set. Both conditions must be true simultaneously. This interlock prevents accidental or deliberate erasure of accident/incident audio in flight. Maintenance must verify both conditions before performing CVR tests that require erasure."},
+
+{c:"🎙️ CVR / ELT",
+ correct:"The RIPS (Recorder Independent Power Supply) provides approximately 10 minutes of backup power after main power loss",
+ q:"What keeps the CVR recording after the aircraft loses main electrical power?",
+ o:["The RIPS (Recorder Independent Power Supply) provides approximately 10 minutes of backup power after main power loss",
+    "The CVR automatically stops recording on power loss — it is not powered independently",
+    "The aircraft battery bus provides power until the battery is depleted",
+    "The CVR uses the same backup power as the flight deck emergency lights — approximately 90 minutes"],
+ d:"The RIPS (Recorder Independent Power Supply) is a dedicated battery that keeps the CVR running for approximately 10 minutes after all other power is lost. This captures the critical audio immediately following a catastrophic event when main power may be gone. It is separate from the aircraft battery bus."},
+
+// ── ELT ───────────────────────────────────────────────────────────────────────
+{c:"🎙️ CVR / ELT",
+ correct:"A G-switch (inertia switch) inside the ELT activates it automatically when deceleration forces exceed a threshold on impact",
+ q:"What triggers the Emergency Locator Transmitter (ELT) to activate automatically?",
+ o:["A G-switch (inertia switch) inside the ELT activates it automatically when deceleration forces exceed a threshold on impact",
+    "Loss of radio contact for more than 30 minutes automatically triggers the ELT",
+    "The ELT activates when the CVR detects an EGPWS warning — the two systems are linked",
+    "The ELT is triggered by the squawk 7700 transponder code being set by the crew"],
+ d:"The ELT contains an inertia (G-force) switch that activates the transmitter when it detects the rapid deceleration forces associated with a crash. The crew can also manually activate the ELT from the cockpit control panel. Both paths ensure the ELT transmits even if the crew is incapacitated."},
+
+{c:"🎙️ CVR / ELT",
+ correct:"121.5 MHz and 243 MHz for local homing; 406 MHz for satellite-based location to approximately 3 km accuracy",
+ q:"On which frequencies does the ELT transmit, and what does each provide?",
+ o:["121.5 MHz and 243 MHz for local homing; 406 MHz for satellite-based location to approximately 3 km accuracy",
+    "406 MHz only — older VHF frequencies were retired from ELT service in 2009",
+    "121.5 MHz only — used by all search and rescue aircraft for direction finding",
+    "2182 kHz (HF maritime distress) and 406 MHz — one per frequency band for coverage"],
+ d:"The ELT transmits on 121.5 MHz (civil aviation guard) and 243 MHz (military guard) for nearby aircraft and rescue teams to home in on. The 406 MHz digital signal is detected by Cospas-Sarsat satellites and provides a position fix of approximately 3 km accuracy, enabling search and rescue operations to begin before anyone is physically overhead."},
+
+// ── ACARS / SATCOM ────────────────────────────────────────────────────────────
+{c:"🏆 Tribal Rules",
+ correct:"ACARS uses VHF 3 to send and receive digital data messages between the aircraft and airline operations",
+ q:"How does ACARS communicate and what type of data does it carry?",
+ o:["ACARS uses VHF 3 to send and receive digital data messages between the aircraft and airline operations",
+    "ACARS uses a dedicated HF data modem that is independent of the voice radio system",
+    "ACARS uses SATCOM exclusively — VHF is too slow for reliable data transmission",
+    "ACARS is a one-way system that only receives data from the ground — it cannot transmit"],
+ d:"ACARS (Aircraft Communications Addressing and Reporting System) uses VHF 3 for data link. Messages include OOOI reports (Out, Off, On, In times), performance data, weather, route uplinks, and maintenance items. The management unit is in the E&E compartment and is accessed via the CDU DLK page."},
+
+{c:"🏆 Tribal Rules",
+ correct:"SATCOM provides global voice and data via satellite — covering polar and oceanic routes where VHF/HF may be unreliable",
+ q:"What advantage does SATCOM provide over VHF and HF for long-range operations?",
+ o:["SATCOM provides global voice and data via satellite — covering polar and oceanic routes where VHF/HF may be unreliable",
+    "SATCOM is faster than VHF but has less range — it is mainly used near airports",
+    "SATCOM replaces both VHF and HF completely — no other radio system is needed with SATCOM fitted",
+    "SATCOM provides voice only — data is always handled by ACARS over VHF 3"],
+ d:"SATCOM provides near-global voice and data connectivity, including polar routes where HF propagation is unreliable and VHF range is insufficient. Signal delays and occasional dropouts are normal characteristics of satellite links — don't immediately call these faults. Controlled via CDU and ACP."},
+
+// ── TRIBAL KNOWLEDGE ─────────────────────────────────────────────────────────
+{c:"🏆 Tribal Rules",
+ correct:"The REU is the central audio hub — faults affecting multiple systems simultaneously point to it as the single common component",
+ q:"TRIBAL RULE: 'If audio is weird across multiple systems at once, suspect the REU early.' Why?",
+ o:["The REU is the central audio hub — faults affecting multiple systems simultaneously point to it as the single common component",
+    "REU faults always generate an EICAS message — look for REU FAIL before troubleshooting anything else",
+    "The REU controls radio tuning — multi-system audio faults are caused by frequency drift",
+    "REU is only suspect when the CVR stops recording — that is the only REU failure mode"],
+ d:"If a single radio has bad audio, suspect that radio's LRU. But if the Captain's comms, First Officer's comms, and interphone all sound wrong at the same time, those systems only share one common component: the REU. Start there rather than chasing individual radios."},
+
+{c:"🏆 Tribal Rules",
+ correct:"Check the SERVICE INTERPHONE switch on the aft overhead — this is the most common cause of no-ground-comms write-ups",
+ q:"TRIBAL RULE: 'Service interphone switch OFF is a classic no-ground-comm trap.' What should always be checked first?",
+ o:["Check the SERVICE INTERPHONE switch on the aft overhead — this is the most common cause of no-ground-comms write-ups",
+    "Check all nose gear interphone jacks for debris — contaminated jacks cause no-comms faults",
+    "Pull the REU circuit breaker and reset — no-ground-comms always requires an REU reset",
+    "Check the ground crew headset — this write-up is almost always equipment, not aircraft"],
+ d:"The single most common ATA 23 write-up resolved in minutes: ground crew cannot talk to the flight deck. First check: is the SERVICE INTERPHONE switch on the aft overhead panel ON? If not, the external jacks are disconnected. This catches the fault before any wiring or LRU investigation begins."},
+
+{c:"🏆 Tribal Rules",
+ correct:"PANEL FAIL = the RCP itself; '---- ----' = no data connection to the radio — both give fast LRU isolation without further testing",
+ q:"TRIBAL RULE: Two display messages on the radio control panel give direct LRU isolation clues. What are they and what do they mean?",
+ o:["PANEL FAIL = the RCP itself; '---- ----' = no data connection to the radio — both give fast LRU isolation without further testing",
+    "PANEL FAIL = transceiver fault; '---- ----' = antenna fault — check the appropriate LRU for each",
+    "PANEL FAIL = REU fault; '---- ----' = ACP fault — the panel is only reporting upstream failures",
+    "Both messages mean the same thing — a bus fault between the RCP and REU"],
+ d:"PANEL FAIL tells you the RCP is faulty — replace the panel. '---- ----' tells you the data path to the radio is broken — investigate the connection between the RCP and the transceiver (wiring, connectors, transceiver LRU). Both messages dramatically shorten troubleshooting time by pointing directly at the fault location."},
+
+{c:"🏆 Tribal Rules",
+ correct:"Signal delays and dropouts are normal SATCOM characteristics — do not call them faults without evidence of a hardware problem",
+ q:"TRIBAL RULE: 'SATCOM drops may be normal — don't chase ghosts.' What does this mean for line maintenance?",
+ o:["Signal delays and dropouts are normal SATCOM characteristics — do not call them faults without evidence of a hardware problem",
+    "SATCOM faults always repeat within 3 flights — only write up faults that occur three times",
+    "SATCOM signal strength should be verified with ground test equipment before each flight",
+    "Any SATCOM dropout requires an immediate CDU fault log check and LRU swap"],
+ d:"SATCOM uses satellite links that are inherently subject to signal degradation during satellite handoffs, polar geometry, and atmospheric conditions. Brief delays, minor dropouts, and signal variation are system characteristics, not equipment faults. Before condemning any SATCOM LRU, verify there is a repeatable hardware fault rather than chasing normal propagation effects."}
+];
+
+// ═══ ANSWER RANDOMISATION ═══
+// Correct answer stored as text — shuffled fresh every render so position is always random
+function shuffleOptions(q){
+  const opts=[...q.o];
+  for(let i=opts.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[opts[i],opts[j]]=[opts[j],opts[i]];}
+  return{shuffled:opts,correctIdx:opts.indexOf(q.correct)};
+}
+
+// ═══ STATE ═══
+const G={qs:[],idx:0,hearts:3,xp:0,streak:0,bestStreak:0,correct:0,done:false,correctIdx:0};
+function shuffle(a){return a.sort(()=>Math.random()-.5)}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on')}
+function goHome(){show('home')}
+function confirmQuit(){if(confirm('Quit this quiz?'))goHome();}
+
+function startGame(){
+  G.qs=shuffle([...BANK]);
+  G.idx=0;G.hearts=3;G.xp=0;G.streak=0;G.bestStreak=0;G.correct=0;
+  updateHearts();
+  document.getElementById('xpdis').textContent='0';
+  document.getElementById('streak-n').textContent='0';
+  document.getElementById('qtot').textContent=G.qs.length;
+  show('quiz');renderQ();
+}
+
+function renderQ(){
+  G.done=false;
+  document.getElementById('fb').className='fb';document.getElementById('fb').style.display='none';
+  const q=G.qs[G.idx];
+  document.getElementById('cat-lbl').textContent=q.c;
+  document.getElementById('q-cat').textContent=q.c;
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('qn').textContent=G.idx+1;
+  document.getElementById('bar').style.width=Math.round((G.idx/G.qs.length)*100)+'%';
+
+  const {shuffled,correctIdx}=shuffleOptions(q);
+  G.correctIdx=correctIdx;
+
+  const cont=document.getElementById('opts');cont.innerHTML='';
+  const keys=['A','B','C','D'];
+  shuffled.forEach((txt,i)=>{
+    const b=document.createElement('button');
+    b.className='opt';
+    b.innerHTML=`<span class="opt-l">${keys[i]}</span><span>${txt}</span>`;
+    b.onclick=()=>pick(i);
+    cont.appendChild(b);
+    b.style.opacity='0';b.style.transform='translateX(-16px)';
+    setTimeout(()=>{b.style.transition='opacity .22s ease,transform .22s ease';b.style.opacity='1';b.style.transform='translateX(0)';},70+i*50);
+  });
+  document.getElementById('q-body').scrollTop=0;
+}
+
+function pick(idx){
+  if(G.done)return;G.done=true;
+  const correct=idx===G.correctIdx;
+  const btns=[...document.querySelectorAll('.opt')];
+  btns.forEach(b=>b.disabled=true);
+  btns[G.correctIdx].classList.add('reveal-right');
+  if(correct){
+    btns[idx].classList.remove('reveal-right');btns[idx].classList.add('picked-right');
+    btns.forEach((b,i)=>{if(i!==idx)b.classList.add('faded');});
+    G.correct++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+    const xpGain=G.streak>=5?20:G.streak>=3?15:10;G.xp+=xpGain;
+    document.getElementById('xpdis').textContent=G.xp;
+    document.getElementById('streak-n').textContent=G.streak;
+    showFeedback(true,G.qs[G.idx].d,xpGain);spawnSparks(btns[idx]);playCorrect();
+    if(G.streak===3){showPopBadge('🔥 3 Streak!');playCombo();}
+    if(G.streak===5){showPopBadge('⚡ 5 in a row!');playCombo();}
+    if(G.streak===10){showPopBadge('🌟 10 Streak!');playCombo();}
+  } else {
+    btns[idx].classList.add('picked-wrong');
+    btns.forEach((b,i)=>{if(i!==idx&&i!==G.correctIdx)b.classList.add('faded');});
+    G.streak=0;G.hearts--;
+    document.getElementById('streak-n').textContent=0;
+    updateHearts();showFeedback(false,G.qs[G.idx].d,0);playWrong();
+  }
+}
+
+function showFeedback(ok,detail,xp){
+  const fb=document.getElementById('fb');
+  fb.className='fb on '+(ok?'ok':'no');fb.style.display='flex';
+  const icons=ok?['✅','🎉','🌟','⭐','🔥','💡','🎯','🏅']:['❌'];
+  const heads=ok?['Correct!','Great!','Well done!','Spot on!','Nailed it!','Right on!','Excellent!']:['Not quite!'];
+  document.getElementById('fb-icon').textContent=icons[Math.floor(Math.random()*icons.length)];
+  document.getElementById('fb-head').textContent=heads[Math.floor(Math.random()*heads.length)];
+  document.getElementById('fb-det').textContent=detail;
+  const cont=document.getElementById('btn-cont');
+  cont.textContent=(G.idx>=G.qs.length-1||G.hearts<=0)?'See Results →':'Continue →';
+  if(ok&&xp)floatXP('+'+xp+' XP',cont);
+}
+
+function advance(){
+  playClick();G.idx++;
+  if(G.idx>=G.qs.length||G.hearts<=0)showResult();else renderQ();
+}
+
+function updateHearts(){
+  [0,1,2].forEach(i=>document.getElementById('h'+i).classList.toggle('gone',i>=G.hearts));
+}
+
+function showResult(){
+  const acc=G.idx?Math.round((G.correct/G.idx)*100):0;
+  const stars=acc>=90?3:acc>=70?2:acc>=50?1:0;
+  const trophies=['😅','🥉','🥈','🏆'];
+  const titles=['Keep Practicing!','Nice Try!','Well Done!','Outstanding! 🎯'];
+  const subs=['Review the ATA 23 manual and try again.','Good effort — study the explanations!','Strong Communications knowledge!','You are an ATA 23 expert! ✈️'];
+  document.getElementById('trophy').textContent=trophies[stars];
+  document.getElementById('res-title').textContent=titles[stars];
+  document.getElementById('res-sub').textContent=subs[stars];
+  document.getElementById('r-xp').textContent=G.xp;
+  document.getElementById('r-acc').textContent=acc+'%';
+  document.getElementById('r-str').textContent=G.bestStreak;
+  ['rs0','rs1','rs2'].forEach((id,i)=>{
+    const el=document.getElementById(id);
+    el.classList.remove('lit');el.style.animationDelay='0s';
+    if(i<stars)setTimeout(()=>{el.style.animationDelay=(i*.2)+'s';el.classList.add('lit');},500+i*120);
+  });
+  show('result');
+  if(acc>=60)setTimeout(()=>{launchConfetti(acc);playVictory();},300);
+}
+
+function launchConfetti(acc){
+  const cols=['#9b72ff','#6b3fd4','#58cc02','#ffc800','#1cb0f6','#ff4b4b','#fff'];
+  const shapes=['●','■','▲','◆','★','✦','✧'];
+  const count=Math.min(35+Math.floor(acc/4),70);
+  for(let i=0;i<count;i++){
+    setTimeout(()=>{
+      const el=document.createElement('div');el.className='confetti';
+      el.textContent=shapes[Math.floor(Math.random()*shapes.length)];
+      el.style.cssText=`left:${Math.random()*100}vw;top:-20px;color:${cols[Math.floor(Math.random()*cols.length)]};font-size:${9+Math.random()*13}px;animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.4}s`;
+      document.body.appendChild(el);setTimeout(()=>el.remove(),4000);
+    },i*22);
+  }
+}
+
+function spawnSparks(btn){
+  const rect=btn.getBoundingClientRect();
+  const cx=rect.left+rect.width/2,cy=rect.top+rect.height/2;
+  const cols=['#9b72ff','#c4a8ff','#ffc800','#fff','#58cc02'];
+  for(let i=0;i<10;i++){
+    const el=document.createElement('div');el.className='spark';
+    const a=(i/10)*Math.PI*2,d=28+Math.random()*44;
+    el.style.cssText=`left:${cx}px;top:${cy}px;width:${4+Math.random()*5}px;height:${4+Math.random()*5}px;background:${cols[i%cols.length]};--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;animation-duration:${.4+Math.random()*.25}s`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),800);
+  }
+}
+
+function floatXP(txt,refEl){
+  const rect=refEl.getBoundingClientRect();
+  const el=document.createElement('div');el.className='floatxp';el.textContent=txt;
+  el.style.cssText=`left:${rect.left+rect.width*.5}px;top:${rect.top-10}px`;
+  document.body.appendChild(el);setTimeout(()=>el.remove(),1000);
+}
+
+function showPopBadge(txt){
+  const el=document.createElement('div');el.className='popbadge';el.textContent=txt;
+  document.body.appendChild(el);setTimeout(()=>el.remove(),1100);
+}
+
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('quiz').classList.contains('on'))return;
+  const map={'1':0,'2':1,'3':2,'4':3,'a':0,'b':1,'c':2,'d':3};
+  const k=e.key.toLowerCase();
+  if(!G.done&&map[k]!==undefined)pick(map[k]);
+  if(G.done&&(e.key==='Enter'||e.key===' ')){e.preventDefault();advance();}
+});
+</script>
+</body>
+</html>

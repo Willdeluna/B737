@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>B737 ATA 27 Main Points</title>
+  <style>
+    :root {
+      --bg: #050505;
+      --panel: #101010;
+      --orange: #ff9f1c;
+      --amber: #ffd27f;
+      --soft: rgba(255, 159, 28, 0.18);
+      --line: rgba(255, 159, 28, 0.55);
+      --white: #f7efe4;
+      --muted: #bda777;
+      --red: #ff5f56;
+      --blue: #62d8ff;
+      --green: #8cffb1;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--white);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(255,159,28,0.22), transparent 28%),
+        radial-gradient(circle at 85% 20%, rgba(98,216,255,0.13), transparent 26%),
+        linear-gradient(135deg, #000, #080808 45%, #130b02);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,159,28,0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,159,28,0.045) 1px, transparent 1px);
+      background-size: 46px 46px;
+      mask-image: radial-gradient(circle at center, black, transparent 82%);
+    }
+
+    header {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 36px 18px 18px;
+      text-align: center;
+      position: relative;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--amber);
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.55);
+      border-radius: 999px;
+      padding: 8px 14px;
+      box-shadow: 0 0 22px var(--soft);
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      font-size: .8rem;
+    }
+
+    h1 {
+      margin: 18px 0 8px;
+      color: var(--orange);
+      font-size: clamp(2rem, 6vw, 4.8rem);
+      line-height: .96;
+      text-shadow: 0 0 18px rgba(255,159,28,.38), 0 0 42px rgba(255,159,28,.16);
+    }
+
+    .subtitle {
+      max-width: 850px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.55;
+    }
+
+    .hero-strip {
+      max-width: 1180px;
+      margin: 24px auto 8px;
+      padding: 0 18px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .hero-card {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,159,28,.1), rgba(0,0,0,.72));
+      border-radius: 22px;
+      padding: 20px;
+      min-height: 140px;
+      position: relative;
+      overflow: hidden;
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    }
+
+    .hero-card:hover {
+      transform: translateY(-8px) scale(1.015);
+      box-shadow: 0 0 34px rgba(255,159,28,.24);
+      border-color: var(--orange);
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      right: -58px;
+      bottom: -58px;
+      border: 1px solid rgba(255,159,28,.28);
+      border-radius: 50%;
+    }
+
+    .hero-icon { font-size: 2.2rem; margin-bottom: 8px; }
+    .hero-title { color: var(--amber); font-size: 1.25rem; font-weight: 900; }
+    .hero-text { color: var(--muted); margin-top: 8px; line-height: 1.42; }
+
+    main {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 22px 18px 48px;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .system-section {
+      border: 1px solid var(--line);
+      background: rgba(9,9,9,.88);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: 0 0 30px rgba(0,0,0,.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .system-section::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--orange), var(--blue), transparent);
+      opacity: .75;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: radial-gradient(circle at top, rgba(255,159,28,.28), rgba(0,0,0,.75));
+      font-size: 1.65rem;
+      box-shadow: inset 0 0 18px rgba(255,159,28,.12);
+    }
+
+    h2 {
+      margin: 0;
+      color: var(--orange);
+      font-size: 1.2rem;
+      letter-spacing: .01em;
+    }
+
+    .cards {
+      display: grid;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .idea-card {
+      border: 1px solid rgba(255,159,28,.28);
+      background: linear-gradient(135deg, rgba(255,159,28,.06), rgba(255,255,255,.02));
+      border-radius: 16px;
+      padding: 13px 14px;
+      transition: transform .22s ease, box-shadow .22s ease, background .22s ease, border-color .22s ease;
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .idea-card:hover {
+      transform: translateX(8px) scale(1.025);
+      border-color: var(--orange);
+      background: linear-gradient(135deg, rgba(255,159,28,.18), rgba(98,216,255,.06));
+      box-shadow: 0 0 26px rgba(255,159,28,.21);
+    }
+
+    .idea-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,.08), transparent);
+      transform: translateX(-120%);
+      transition: transform .55s ease;
+    }
+
+    .idea-card:hover::after { transform: translateX(120%); }
+
+    .main-idea {
+      display: block;
+      color: var(--amber);
+      font-weight: 900;
+      font-size: 1rem;
+      margin-bottom: 5px;
+    }
+
+    .arrow {
+      color: var(--orange);
+      font-weight: 900;
+      margin-right: 4px;
+    }
+
+    .real-world {
+      display: block;
+      color: #ead9b8;
+      line-height: 1.42;
+      font-size: .96rem;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-top: 8px;
+      color: #111;
+      background: var(--orange);
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: .72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .wide { grid-column: 1 / -1; }
+
+    .memory-map {
+      margin-top: 20px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 22px;
+      background: linear-gradient(135deg, rgba(255,159,28,.1), rgba(0,0,0,.72));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .memory-map h2 { font-size: 1.45rem; margin-bottom: 14px; }
+
+    .map-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .map-card {
+      border: 1px solid rgba(255,159,28,.38);
+      border-radius: 20px;
+      padding: 18px;
+      background: rgba(0,0,0,.55);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+
+    .map-card:hover {
+      transform: translateY(-7px) rotate(-.5deg);
+      box-shadow: 0 0 28px rgba(98,216,255,.16), 0 0 34px rgba(255,159,28,.12);
+    }
+
+    .map-number {
+      color: var(--blue);
+      font-size: 2rem;
+      font-weight: 900;
+    }
+
+    .map-title {
+      color: var(--amber);
+      font-weight: 900;
+      font-size: 1.2rem;
+      margin: 4px 0 8px;
+    }
+
+    .map-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #ead9b8;
+      line-height: 1.65;
+    }
+
+    .fail-list {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .fail-chip {
+      border: 1px solid rgba(255,95,86,.55);
+      background: rgba(255,95,86,.08);
+      color: #ffd6d3;
+      padding: 14px;
+      border-radius: 16px;
+      font-weight: 800;
+      text-align: center;
+      transition: transform .2s ease, background .2s ease;
+    }
+
+    .fail-chip:hover {
+      transform: scale(1.06);
+      background: rgba(255,95,86,.18);
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 26px 18px 38px;
+    }
+
+    @media (max-width: 900px) {
+      .hero-strip, .map-grid { grid-template-columns: 1fr; }
+      .section-grid { grid-template-columns: 1fr; }
+      .fail-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 520px) {
+      main { padding: 18px 10px 34px; }
+      header { padding-top: 24px; }
+      .system-section, .memory-map { border-radius: 18px; padding: 14px; }
+      .fail-list { grid-template-columns: 1fr; }
+      .idea-card:hover { transform: scale(1.015); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">✅ B737 ATA 27 • Flight Controls</div>
+    <h1>Flight Controls Made Line-Mechanic Simple</h1>
+    <p class="subtitle">A fast interactive study page for primary controls, secondary controls, protection logic, trim, spoilers, flaps, and the “don’t parts-cannon this” troubleshooting clues.</p>
+  </header>
+
+  <section class="hero-strip">
+    <div class="hero-card">
+      <div class="hero-icon">🎮</div>
+      <div class="hero-title">Primary Controls</div>
+      <div class="hero-text">Ailerons, elevators, and rudder fly the airplane through cables, PCUs, and hydraulic boost.</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-icon">🛬</div>
+      <div class="hero-title">Secondary Controls</div>
+      <div class="hero-text">Flaps, slats, spoilers, and trim improve performance, stability, and landing behavior.</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-icon">⚠️</div>
+      <div class="hero-title">Protection Logic</div>
+      <div class="hero-text">Asymmetry, skew, runaway trim, speedbrake logic, and rudder monitoring keep the airplane safe.</div>
+    </div>
+  </section>
+
+  <main>
+    <section class="section-grid">
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🧠</div><h2>Big Picture — How It All Works</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Two systems: primary and secondary</span><span class="real-world"><span class="arrow">→</span>Primary flies the airplane. Secondary improves performance and handling.</span></div>
+          <div class="idea-card"><span class="main-idea">737 = mechanical with hydraulic boost</span><span class="real-world"><span class="arrow">→</span>It is not fly-by-wire. Cables and linkages still matter.</span><span class="tag">real 737 DNA</span></div>
+          <div class="idea-card"><span class="main-idea">Hydraulic A and B power most controls</span><span class="real-world"><span class="arrow">→</span>Redundancy keeps the aircraft controllable after failures.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">↔️</div><h2>Ailerons — Roll Control</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Cable + hydraulic PCU system moves ailerons</span><span class="real-world"><span class="arrow">→</span>Pilot input is mechanical, hydraulic power does the muscle work.</span></div>
+          <div class="idea-card"><span class="main-idea">Two PCUs use A and B systems</span><span class="real-world"><span class="arrow">→</span>If one side fails, the other can still assist roll control.</span></div>
+          <div class="idea-card"><span class="main-idea">If one aileron jams, shear rivets isolate it</span><span class="real-world"><span class="arrow">→</span>The other side can keep working.</span><span class="tag">jam protection</span></div>
+          <div class="idea-card"><span class="main-idea">Manual reversion is possible</span><span class="real-world"><span class="arrow">→</span>Heavy controls, but still controllable.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">✈️</div><h2>Elevators — Pitch Control</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Control columns move elevators through cables and PCUs</span><span class="real-world"><span class="arrow">→</span>Pitch input travels mechanically, then gets hydraulic boost.</span></div>
+          <div class="idea-card"><span class="main-idea">Autopilot and mach trim can also move elevators</span><span class="real-world"><span class="arrow">→</span>Pitch complaints may involve flight control logic, not just columns.</span></div>
+          <div class="idea-card"><span class="main-idea">Elevator tab function changes with flaps</span><span class="real-world"><span class="arrow">→</span>Flaps up helps balance. Flaps down helps control.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔄</div><h2>Rudder — Yaw Control</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Controlled by pedals and trim knob</span><span class="real-world"><span class="arrow">→</span>Both pilot input and trim command affect rudder position.</span></div>
+          <div class="idea-card"><span class="main-idea">Main PCU uses hydraulic A + B together</span><span class="real-world"><span class="arrow">→</span>Rudder power depends on both main hydraulic systems.</span></div>
+          <div class="idea-card"><span class="main-idea">Standby PCU is backup</span><span class="real-world"><span class="arrow">→</span>Standby hydraulic source can preserve rudder control.</span></div>
+          <div class="idea-card"><span class="main-idea">Rudder limiter reduces movement above 137 knots</span><span class="real-world"><span class="arrow">→</span>Prevents overstress at higher airspeeds.</span><span class="tag">speed protection</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🧭</div><h2>Rudder Advanced Systems</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Yaw damper stabilizes aircraft automatically</span><span class="real-world"><span class="arrow">→</span>Works through the flight and helps damp unwanted yaw.</span></div>
+          <div class="idea-card"><span class="main-idea">Force Fight Monitor detects conflicting pressures</span><span class="real-world"><span class="arrow">→</span>If A and B fight, standby rudder can be activated.</span><span class="tag">high value clue</span></div>
+          <div class="idea-card"><span class="main-idea">WTRIS adds rudder during manual reversion turns</span><span class="real-world"><span class="arrow">→</span>Wheel-to-rudder interconnect helps roll control when hydraulics are degraded.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🪶</div><h2>Spoilers & Speedbrakes</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">12 spoilers total</span><span class="real-world"><span class="arrow">→</span>Some assist roll in flight. Others dump lift on the ground.</span></div>
+          <div class="idea-card"><span class="main-idea">Spoilers move after about 11° control wheel</span><span class="real-world"><span class="arrow">→</span>They help ailerons once enough roll command exists.</span></div>
+          <div class="idea-card"><span class="main-idea">Speedbrake lever movement starts around 5°</span><span class="real-world"><span class="arrow">→</span>Lever position matters for flight and ground logic.</span></div>
+          <div class="idea-card"><span class="main-idea">Lever positions: DOWN, ARMED, FLIGHT, UP</span><span class="real-world"><span class="arrow">→</span>Know the lever state before chasing spoiler write-ups.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">⚠️</div><h2>Auto Speedbrake Logic</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Auto deploy on landing needs key conditions</span><span class="real-world"><span class="arrow">→</span>Below 10 ft, gear down, thrust idle, and lever armed.</span><span class="tag">testable</span></div>
+          <div class="idea-card"><span class="main-idea">RTO deploys when reversers are used</span><span class="real-world"><span class="arrow">→</span>Rejected takeoff logic helps dump lift and stop.</span></div>
+          <div class="idea-card"><span class="main-idea">DO NOT ARM light means a system problem</span><span class="real-world"><span class="arrow">→</span>Think antiskid, actuator, or signal issue.</span></div>
+          <div class="idea-card"><span class="main-idea">Autostow retracts speedbrakes in protection cases</span><span class="real-world"><span class="arrow">→</span>Protects the wing at high speed or weight.</span></div>
+          <div class="idea-card"><span class="main-idea">Lever stop prevents full extension in some SFP cases</span><span class="real-world"><span class="arrow">→</span>Prevents full extension in flight with flaps up.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🛬</div><h2>Flaps — Huge Maintenance Topic</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Trailing edge flaps are hydraulically powered by system B</span><span class="real-world"><span class="arrow">→</span>Hydraulic B problems can become flap problems.</span></div>
+          <div class="idea-card"><span class="main-idea">Alternate flaps use an electric motor backup</span><span class="real-world"><span class="arrow">→</span>Slower, but gives another way to move flaps.</span></div>
+          <div class="idea-card"><span class="main-idea">Detents: 0, 1, 2, 5, 10, 15, 25, 30, 40</span><span class="real-world"><span class="arrow">→</span>Always compare command, indication, and actual movement.</span></div>
+          <div class="idea-card"><span class="main-idea">One PDU drives both wings mechanically</span><span class="real-world"><span class="arrow">→</span>Torque tubes connect the entire system.</span></div>
+          <div class="idea-card"><span class="main-idea">Torque brake stops the system if jammed</span><span class="real-world"><span class="arrow">→</span>Protection before the drive train destroys itself.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🛑</div><h2>Flap Protection Systems</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Asymmetry = left vs right mismatch</span><span class="real-world"><span class="arrow">→</span>System stops before the airplane gets a major rolling moment.</span></div>
+          <div class="idea-card"><span class="main-idea">Skew = flap sections out of sync</span><span class="real-world"><span class="arrow">→</span>Different sections not tracking together will shut the system down.</span></div>
+          <div class="idea-card"><span class="main-idea">Uncommanded movement = flaps move when they shouldn’t</span><span class="real-world"><span class="arrow">→</span>System shuts down to stop runaway motion.</span><span class="tag">big one</span></div>
+          <div class="idea-card"><span class="main-idea">All three close the bypass valve</span><span class="real-world"><span class="arrow">→</span>Hydraulic power is removed to stop flap movement.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">⚡</div><h2>Flap Load Relief</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">If speed is too high, flaps retract automatically</span><span class="real-world"><span class="arrow">→</span>This protects the flap structure.</span></div>
+          <div class="idea-card"><span class="main-idea">Flaps 40 retract to 30 around 163 knots</span><span class="real-world"><span class="arrow">→</span>Automatic movement can be normal.</span></div>
+          <div class="idea-card"><span class="main-idea">Flaps 30 retract to 25 around 176 knots</span><span class="real-world"><span class="arrow">→</span>Do not mistake load relief for a fault.</span><span class="tag">no warning</span></div>
+          <div class="idea-card"><span class="main-idea">No cockpit warning, only movement</span><span class="real-world"><span class="arrow">→</span>That’s why crews may report “flaps moved by themselves.”</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">⚖️</div><h2>Stabilizer Trim</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Primary pitch trim system</span><span class="real-world"><span class="arrow">→</span>Stabilizer trim changes the airplane’s pitch balance.</span></div>
+          <div class="idea-card"><span class="main-idea">Electric trim is normal operation</span><span class="real-world"><span class="arrow">→</span>Main method for trimming during flight.</span></div>
+          <div class="idea-card"><span class="main-idea">Manual trim wheels are backup</span><span class="real-world"><span class="arrow">→</span>Still available if electrical trim is not usable.</span></div>
+          <div class="idea-card"><span class="main-idea">Column cutout switches stop opposite-direction trim</span><span class="real-world"><span class="arrow">→</span>If pilot moves column against trim, cutout logic protects the system.</span><span class="tag">runaway clue</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🚧</div><h2>Trim Protection</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Trim cutout switches stop runaway trim</span><span class="real-world"><span class="arrow">→</span>Always check cutout switches first for runaway trim write-ups.</span></div>
+          <div class="idea-card"><span class="main-idea">Limit switches prevent stabilizer overtravel</span><span class="real-world"><span class="arrow">→</span>Stops the system at travel limits.</span></div>
+          <div class="idea-card"><span class="main-idea">Trim speed changes with flap position</span><span class="real-world"><span class="arrow">→</span>Flaps up is slow. Flaps down is fast.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🎯</div><h2>Feel Systems</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Feel and centering units simulate aerodynamic forces</span><span class="real-world"><span class="arrow">→</span>Gives the pilot realistic control resistance.</span></div>
+          <div class="idea-card"><span class="main-idea">Elevator feel computer increases force with airspeed</span><span class="real-world"><span class="arrow">→</span>Higher speed should feel heavier.</span></div>
+          <div class="idea-card"><span class="main-idea">EFSM adds force near stall</span><span class="real-world"><span class="arrow">→</span>Safety cue to discourage deeper stall entry.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔧</div><h2>Maintenance / Troubleshooting Gold</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Most flight control problems are not the surfaces</span><span class="real-world"><span class="arrow">→</span>Usually sensors, rigging, or control valves.</span></div>
+          <div class="idea-card"><span class="main-idea">Flap issues: check asymmetry and skew first</span><span class="real-world"><span class="arrow">→</span>Protection logic often tells the story.</span></div>
+          <div class="idea-card"><span class="main-idea">Spoiler issues: check hydraulic shutoff valves and rigging</span><span class="real-world"><span class="arrow">→</span>Bad position or shutoff logic can look like a bad spoiler.</span></div>
+          <div class="idea-card"><span class="main-idea">Rudder issues: check FFM and PCU pressures</span><span class="real-world"><span class="arrow">→</span>Do not ignore pressure disagreement logic.</span></div>
+          <div class="idea-card"><span class="main-idea">BITE is your friend: FSEU and SMYD</span><span class="real-world"><span class="arrow">→</span>Use fault data before replacing expensive parts.</span><span class="tag">parts cannon stays holstered</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="memory-map">
+      <h2>🧠 Easy Way to Remember ATA 27</h2>
+      <div class="map-grid">
+        <div class="map-card"><div class="map-number">1</div><div class="map-title">Fly the Airplane</div><ul><li>Ailerons</li><li>Elevators</li><li>Rudder</li></ul></div>
+        <div class="map-card"><div class="map-number">2</div><div class="map-title">Help the Airplane</div><ul><li>Flaps / slats</li><li>Spoilers</li><li>Speedbrakes</li></ul></div>
+        <div class="map-card"><div class="map-number">3</div><div class="map-title">Balance the Airplane</div><ul><li>Stabilizer trim</li><li>Mach trim</li><li>Feel systems</li></ul></div>
+        <div class="map-card"><div class="map-number">4</div><div class="map-title">Protect the Airplane</div><ul><li>Asymmetry / skew / UCM</li><li>Load relief</li><li>Cutout switches</li></ul></div>
+      </div>
+
+      <h2 style="margin-top:24px;">🔥 Real Line MX Takeaways</h2>
+      <div class="fail-list">
+        <div class="fail-chip">Flap problems<br><small>check asymmetry / skew</small></div>
+        <div class="fail-chip">Spoiler problems<br><small>check rigging + valves</small></div>
+        <div class="fail-chip">Rudder problems<br><small>check FFM + PCU pressure</small></div>
+        <div class="fail-chip">Trim runaway<br><small>check cutout switches first</small></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    B737 ATA 27 quick-study page • Flight controls, protection logic, and line-maintenance troubleshooting.
+  </footer>
+</body>
+</html>

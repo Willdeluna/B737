@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>B737 ATA 49 Main Points</title>
+  <style>
+    :root {
+      --bg: #050505;
+      --panel: #101010;
+      --panel2: #17110a;
+      --orange: #ff9f1c;
+      --amber: #ffd27f;
+      --soft: rgba(255, 159, 28, 0.18);
+      --line: rgba(255, 159, 28, 0.55);
+      --white: #f7efe4;
+      --muted: #bda777;
+      --red: #ff5f56;
+      --blue: #62d8ff;
+      --green: #8cffb1;
+      --purple: #b794ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--white);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(255,159,28,0.22), transparent 28%),
+        radial-gradient(circle at 85% 20%, rgba(98,216,255,0.13), transparent 26%),
+        radial-gradient(circle at 50% 90%, rgba(183,148,255,0.12), transparent 25%),
+        linear-gradient(135deg, #000, #080808 45%, #130b02);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,159,28,0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,159,28,0.045) 1px, transparent 1px);
+      background-size: 46px 46px;
+      mask-image: radial-gradient(circle at center, black, transparent 82%);
+    }
+
+    header {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 36px 18px 18px;
+      text-align: center;
+      position: relative;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--amber);
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.55);
+      border-radius: 999px;
+      padding: 8px 14px;
+      box-shadow: 0 0 22px var(--soft);
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      font-size: .8rem;
+    }
+
+    h1 {
+      margin: 18px 0 8px;
+      color: var(--orange);
+      font-size: clamp(2rem, 6vw, 4.9rem);
+      line-height: .96;
+      text-shadow: 0 0 18px rgba(255,159,28,.38), 0 0 42px rgba(255,159,28,.16);
+    }
+
+    .subtitle {
+      max-width: 900px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.55;
+    }
+
+    .hero-strip {
+      max-width: 1180px;
+      margin: 24px auto 8px;
+      padding: 0 18px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .hero-card {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,159,28,.1), rgba(0,0,0,.72));
+      border-radius: 22px;
+      padding: 20px;
+      min-height: 140px;
+      position: relative;
+      overflow: hidden;
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    }
+
+    .hero-card:hover {
+      transform: translateY(-8px) scale(1.015);
+      box-shadow: 0 0 34px rgba(255,159,28,.24);
+      border-color: var(--orange);
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      right: -58px;
+      bottom: -58px;
+      border: 1px solid rgba(255,159,28,.28);
+      border-radius: 50%;
+    }
+
+    .hero-icon { font-size: 2.2rem; margin-bottom: 8px; }
+    .hero-title { color: var(--amber); font-size: 1.25rem; font-weight: 900; }
+    .hero-text { color: var(--muted); margin-top: 8px; line-height: 1.42; }
+
+    main {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 22px 18px 48px;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .system-section {
+      border: 1px solid var(--line);
+      background: rgba(9,9,9,.88);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: 0 0 30px rgba(0,0,0,.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .system-section::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--orange), var(--blue), transparent);
+      opacity: .75;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: radial-gradient(circle at top, rgba(255,159,28,.28), rgba(0,0,0,.75));
+      font-size: 1.65rem;
+      box-shadow: inset 0 0 18px rgba(255,159,28,.12);
+    }
+
+    h2 {
+      margin: 0;
+      color: var(--orange);
+      font-size: 1.2rem;
+      letter-spacing: .01em;
+    }
+
+    .cards {
+      display: grid;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .idea-card {
+      border: 1px solid rgba(255,159,28,.28);
+      background: linear-gradient(135deg, rgba(255,159,28,.06), rgba(255,255,255,.02));
+      border-radius: 16px;
+      padding: 13px 14px;
+      transition: transform .22s ease, box-shadow .22s ease, background .22s ease, border-color .22s ease;
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .idea-card:hover {
+      transform: translateX(8px) scale(1.025);
+      border-color: var(--orange);
+      background: linear-gradient(135deg, rgba(255,159,28,.18), rgba(98,216,255,.06));
+      box-shadow: 0 0 26px rgba(255,159,28,.21);
+    }
+
+    .idea-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,.08), transparent);
+      transform: translateX(-120%);
+      transition: transform .55s ease;
+    }
+
+    .idea-card:hover::after { transform: translateX(120%); }
+
+    .main-idea {
+      display: block;
+      color: var(--amber);
+      font-weight: 900;
+      font-size: 1rem;
+      margin-bottom: 5px;
+    }
+
+    .arrow {
+      color: var(--orange);
+      font-weight: 900;
+      margin-right: 4px;
+    }
+
+    .real-world {
+      display: block;
+      color: #ead9b8;
+      line-height: 1.42;
+      font-size: .96rem;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-top: 8px;
+      color: #111;
+      background: var(--orange);
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: .72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .tag.blue { background: var(--blue); }
+    .tag.green { background: var(--green); }
+    .tag.purple { background: var(--purple); }
+
+    .wide { grid-column: 1 / -1; }
+
+    .memory-map {
+      margin-top: 20px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 22px;
+      background: linear-gradient(135deg, rgba(255,159,28,.1), rgba(0,0,0,.72));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .memory-map h2 { font-size: 1.45rem; margin-bottom: 14px; }
+
+    .map-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .map-card {
+      border: 1px solid rgba(255,159,28,.38);
+      border-radius: 20px;
+      padding: 18px;
+      background: rgba(0,0,0,.55);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+
+    .map-card:hover {
+      transform: translateY(-7px) rotate(-.5deg);
+      box-shadow: 0 0 28px rgba(98,216,255,.16), 0 0 34px rgba(255,159,28,.12);
+    }
+
+    .map-number {
+      color: var(--blue);
+      font-size: 2rem;
+      font-weight: 900;
+    }
+
+    .map-title {
+      color: var(--amber);
+      font-weight: 900;
+      font-size: 1.2rem;
+      margin: 4px 0 8px;
+    }
+
+    .map-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #ead9b8;
+      line-height: 1.65;
+    }
+
+    .fail-list {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .fail-chip {
+      border: 1px solid rgba(255,95,86,.55);
+      background: rgba(255,95,86,.08);
+      color: #ffd6d3;
+      padding: 14px;
+      border-radius: 16px;
+      font-weight: 800;
+      text-align: center;
+      transition: transform .2s ease, background .2s ease;
+    }
+
+    .fail-chip:hover {
+      transform: scale(1.06);
+      background: rgba(255,95,86,.18);
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 26px 18px 38px;
+    }
+
+    @media (max-width: 900px) {
+      .hero-strip, .map-grid { grid-template-columns: 1fr; }
+      .section-grid { grid-template-columns: 1fr; }
+      .fail-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 520px) {
+      body { padding: 0; }
+      main { padding: 18px 10px 34px; }
+      header { padding-top: 24px; }
+      .system-section, .memory-map { border-radius: 18px; padding: 14px; }
+      .fail-list { grid-template-columns: 1fr; }
+      .idea-card:hover { transform: scale(1.015); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">✅ B737 ATA 49 • Auxiliary Power Unit</div>
+    <h1>APU Made Line-Mechanic Simple</h1>
+    <p class="subtitle">Hover over each idea. The APU is not just "a small engine" — it's a self-contained power plant with its own fuel, electrical, pneumatic, and protection systems. Follow Start → Run → Load → Protect.</p>
+  </header>
+
+  <section class="hero-strip">
+    <div class="hero-card">
+      <div class="hero-icon">✈️</div>
+      <div class="hero-title">Start &amp; Run</div>
+      <div class="hero-text">Starter-generator spins the turbine. Ignition and fuel start the engine. ECU controls the entire sequence.</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-icon">⚡</div>
+      <div class="hero-title">Produce Power</div>
+      <div class="hero-text">Generator provides 400 Hz electrical power. Bleed air supports engine start and aircraft systems.</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-icon">🛡️</div>
+      <div class="hero-title">Control &amp; Protect</div>
+      <div class="hero-text">ECU monitors EGT, speed, oil pressure, and sensors. Aggressive auto-shutdowns protect the unit.</div>
+    </div>
+  </section>
+
+  <main>
+    <section class="section-grid">
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🧠</div><h2>Big Picture — Independent Power</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">APU = small turbine in the tail</span><span class="real-world"><span class="arrow">→</span>Provides electrical power and bleed air without main engines.</span><span class="tag">big picture</span></div>
+          <div class="idea-card"><span class="main-idea">Three main jobs</span><span class="real-world"><span class="arrow">→</span>Power on ground, start engines, backup power in flight.</span><span class="tag blue">core roles</span></div>
+          <div class="idea-card"><span class="main-idea">High altitude reduces capability</span><span class="real-world"><span class="arrow">→</span>~90 kVA to 32,000 ft, dropping to ~66 kVA at 41,000 ft.</span><span class="tag">altitude limits</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">✈️</div><h2>APU Engine Design</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Single shaft turbine engine</span><span class="real-world"><span class="arrow">→</span>Compressor → combustor → turbine — runs at constant speed.</span><span class="tag">core design</span></div>
+          <div class="idea-card"><span class="main-idea">100% speed ≈ 48,800 RPM</span><span class="real-world"><span class="arrow">→</span>Required to produce 400 Hz electrical power.</span><span class="tag">operating point</span></div>
+          <div class="idea-card"><span class="main-idea">Accessory gearbox runs starter-gen, fuel, oil</span><span class="real-world"><span class="arrow">→</span>Single shaft drives everything off one gearbox.</span><span class="tag">system layout</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🌬️</div><h2>Air Inlet Door — Often Overlooked</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Door MUST be open before start</span><span class="real-world"><span class="arrow">→</span>ECU verifies door position before allowing start.</span><span class="tag purple">critical interlock</span></div>
+          <div class="idea-card"><span class="main-idea">Door opens automatically with APU switch</span><span class="real-world"><span class="arrow">→</span>Pilot doesn't manually open it.</span><span class="tag">auto operation</span></div>
+          <div class="idea-card"><span class="main-idea">Door position feedback is critical</span><span class="real-world"><span class="arrow">→</span>Loss of signal = no start or shutdown.</span><span class="tag">common fault</span></div>
+          <div class="idea-card"><span class="main-idea">Stuck or unsynced door = #1 no-start cause</span><span class="real-world"><span class="arrow">→</span>Check door position before troubleshooting deeper.</span><span class="tag">real mx reality</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🧠</div><h2>ECU — Electronic Control Unit</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Controls everything — fuel, speed, bleed, protection</span><span class="real-world"><span class="arrow">→</span>Like a FADEC for the APU.</span><span class="tag">central brain</span></div>
+          <div class="idea-card"><span class="main-idea">Receives sensor inputs and aircraft signals</span><span class="real-world"><span class="arrow">→</span>EGT, speed, pressure, oil temp, and more.</span><span class="tag">input map</span></div>
+          <div class="idea-card"><span class="main-idea">Drives start sequence automatically</span><span class="real-world"><span class="arrow">→</span>Threshold-based logic — speed triggers each step.</span><span class="tag blue">sequence control</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔥</div><h2>Start Sequence</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Inlet door → starter spin → ignition → fuel</span><span class="real-world"><span class="arrow">→</span>Then self-sustain at ~7% speed.</span><span class="tag">sequence overview</span></div>
+          <div class="idea-card"><span class="main-idea">Ignition off at ~60% speed</span><span class="real-world"><span class="arrow">→</span>Engine is self-sustaining at this point.</span><span class="tag">transition</span></div>
+          <div class="idea-card"><span class="main-idea">Starter disengages at ~70%</span><span class="real-world"><span class="arrow">→</span>Mechanical decoupling protects the starter.</span><span class="tag">protection</span></div>
+          <div class="idea-card"><span class="main-idea">Ready to load at ~95%</span><span class="real-world"><span class="arrow">→</span>Generator and bleed can now supply aircraft systems.</span><span class="tag green">ready state</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">⚡</div><h2>Starter-Generator</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Same unit motors for start, generates after run</span><span class="real-world"><span class="arrow">→</span>Saves weight — dual function design.</span><span class="tag">design</span></div>
+          <div class="idea-card"><span class="main-idea">Power conversion: AC/DC → 270VDC → AC → starter</span><span class="real-world"><span class="arrow">→</span>Complex electrical path during start.</span><span class="tag">electrical path</span></div>
+          <div class="idea-card"><span class="main-idea">Start system faults = usually electrical</span><span class="real-world"><span class="arrow">→</span>Conversion units fail more than the motor itself.</span><span class="tag purple">real mx reality</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">⛽</div><h2>Fuel & Lube Systems</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Fuel comes from the left main tank</span><span class="real-world"><span class="arrow">→</span>ECU meters fuel based on speed, temp, pressure.</span><span class="tag">fuel path</span></div>
+          <div class="idea-card"><span class="main-idea">Fuel solenoid opens at ~7% speed</span><span class="real-world"><span class="arrow">→</span>Synchronized with the start sequence.</span><span class="tag">interlock</span></div>
+          <div class="idea-card"><span class="main-idea">Oil pressure normal ≈ 60–74 psi</span><span class="real-world"><span class="arrow">→</span>Low oil pressure triggers a shutdown after ~20 sec.</span><span class="tag">limits</span></div>
+          <div class="idea-card"><span class="main-idea">Oil temp >290°F also shuts down APU</span><span class="real-world"><span class="arrow">→</span>Heat damages bearings — protection is aggressive.</span><span class="tag purple">protection</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🌬️</div><h2>Bleed Air System</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Provides air for start, packs, pressurization</span><span class="real-world"><span class="arrow">→</span>Major integration point with ATA 36.</span><span class="tag blue">cross-system</span></div>
+          <div class="idea-card"><span class="main-idea">IGVs control airflow into the compressor</span><span class="real-world"><span class="arrow">→</span>Adjusts based on bleed demand and conditions.</span><span class="tag">flow control</span></div>
+          <div class="idea-card"><span class="main-idea">Surge control valve dumps air if needed</span><span class="real-world"><span class="arrow">→</span>Prevents compressor stall under low airflow.</span><span class="tag">protection</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">⚠️</div><h2>Protective Shutdowns</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">APU shuts down for fire, overspeed, overtemp</span><span class="real-world"><span class="arrow">→</span>Plus low oil, no start, and sensor failures.</span><span class="tag purple">shutdown triggers</span></div>
+          <div class="idea-card"><span class="main-idea">Overspeed limit is ~106%</span><span class="real-world"><span class="arrow">→</span>Fast shutdown to prevent rotor damage.</span><span class="tag">limit</span></div>
+          <div class="idea-card"><span class="main-idea">Shutdown closes fuel, ignition, IGVs</span><span class="real-world"><span class="arrow">→</span>ECU does everything automatically.</span><span class="tag">auto protection</span></div>
+          <div class="idea-card"><span class="main-idea">Normal shutdown has 60-second cool-down</span><span class="real-world"><span class="arrow">→</span>Prevents carbon coking — never bypass unless emergency.</span><span class="tag green">best practice</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔧</div><h2>Maintenance / Troubleshooting Gold</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Most APU faults = sensors or control logic</span><span class="real-world"><span class="arrow">→</span>Not actual engine failures most of the time.</span><span class="tag purple">real mx reality</span></div>
+          <div class="idea-card"><span class="main-idea">Always check BITE before swapping hardware</span><span class="real-world"><span class="arrow">→</span>Fault history and CDU pages are gold.</span><span class="tag">best practice</span></div>
+          <div class="idea-card"><span class="main-idea">Air inlet door = #1 no-start cause</span><span class="real-world"><span class="arrow">→</span>Door position feedback issues are very common.</span><span class="tag">common fault</span></div>
+          <div class="idea-card"><span class="main-idea">Bleed system issues can look like APU faults</span><span class="real-world"><span class="arrow">→</span>Cross-system troubleshooting — check ATA 36 too.</span><span class="tag">cross-system</span></div>
+          <div class="idea-card"><span class="main-idea">Data Memory Module stays with the APU</span><span class="real-world"><span class="arrow">→</span>Not the ECU — fault history travels with the unit.</span><span class="tag">useful detail</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="memory-map">
+      <h2>🧠 Simple Way to Remember ATA 49</h2>
+      <div class="map-grid">
+        <div class="map-card"><div class="map-number">1</div><div class="map-title">Start</div><ul><li>Inlet door</li><li>Starter-gen</li><li>Ignition + fuel</li></ul></div>
+        <div class="map-card"><div class="map-number">2</div><div class="map-title">Run &amp; Load</div><ul><li>Self-sustain</li><li>Generator</li><li>Bleed air</li></ul></div>
+        <div class="map-card"><div class="map-number">3</div><div class="map-title">Protect</div><ul><li>ECU</li><li>Sensors</li><li>Auto shutdown</li></ul></div>
+      </div>
+
+      <h2 style="margin-top:24px;">🔥 Real Line MX Takeaways</h2>
+      <div class="fail-list">
+        <div class="fail-chip">Air inlet door<br><small>#1 no-start cause</small></div>
+        <div class="fail-chip">Most faults<br><small>= sensors or logic</small></div>
+        <div class="fail-chip">Oil system<br><small>frequent shutdown trigger</small></div>
+        <div class="fail-chip">Always check BITE<br><small>before touching hardware</small></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    B737 ATA 49 APU quick-study page • Built for line-maintenance brain speed.
+  </footer>
+</body>
+</html>

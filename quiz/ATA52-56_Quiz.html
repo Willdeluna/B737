@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B737NG ATA 52-56 – Doors &amp; Windows Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1a0f00;
+  --card:#1e1200;
+  --card2:#251800;
+  --orange:#f5a623;
+  --orange2:#c47b0e;
+  --green:#58cc02;
+  --green2:#46a302;
+  --green-bg:#071a0a;
+  --green-bdr:#1a4d1a;
+  --red:#ff4b4b;
+  --red2:#cc2a2a;
+  --red-bg:#1f0a0a;
+  --red-bdr:#5c1212;
+  --blue:#1cb0f6;
+  --gold:#ffc800;
+  --gold2:#c89800;
+  --text:#f0e8d8;
+  --muted:#8a7050;
+  --border:#3a2508;
+  --r:14px;
+}
+html,body{min-height:100vh;background:var(--bg);font-family:'Nunito',sans-serif;color:var(--text)}
+body{
+  display:flex;align-items:center;justify-content:center;padding:16px;
+  background:
+    radial-gradient(ellipse at 15% 0%,rgba(245,166,35,0.09) 0%,transparent 55%),
+    radial-gradient(ellipse at 85% 100%,rgba(245,166,35,0.04) 0%,transparent 50%),
+    var(--bg);
+}
+.wrap{width:100%;max-width:520px}
+.screen{display:none}
+.screen.on{display:block}
+
+/* ── HOME ── */
+.home-card{background:var(--card);border-radius:22px;padding:28px 24px;border:1px solid var(--border);box-shadow:0 0 0 1px #120a00,0 24px 60px rgba(0,0,0,.9);text-align:center;position:relative;overflow:hidden}
+.home-card::before{content:'';position:absolute;top:-80px;left:-80px;width:280px;height:280px;background:radial-gradient(circle,rgba(245,166,35,.1) 0%,transparent 70%);pointer-events:none;border-radius:50%}
+.home-card::after{content:'';position:absolute;bottom:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(245,166,35,.06) 0%,transparent 70%);pointer-events:none;border-radius:50%}
+.plane{font-size:58px;display:block;animation:bob 3s ease-in-out infinite;margin-bottom:2px;filter:drop-shadow(0 0 18px rgba(245,166,35,.55))}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-11px) rotate(4deg)}}
+.home-badge{display:inline-block;color:var(--orange);font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:4px 14px;border-radius:99px;margin-bottom:8px;border:1.5px solid var(--orange2);position:relative;z-index:1}
+.home-h1{font-size:clamp(20px,5vw,28px);font-weight:900;line-height:1.15;margin-bottom:6px;color:#fff;position:relative;z-index:1}
+.home-h1 span{color:var(--orange)}
+.home-sub{font-size:12px;color:var(--muted);font-weight:600;line-height:1.55;max-width:340px;margin:0 auto 16px;position:relative;z-index:1}
+.home-pills{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-bottom:16px;position:relative;z-index:1}
+.pill{background:#120a00;border:1.5px solid #2e1800;border-radius:99px;padding:4px 11px;font-size:11px;font-weight:700;color:var(--orange2)}
+.home-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px;position:relative;z-index:1}
+.meta-box{background:#120a00;border:1.5px solid var(--border);border-radius:12px;padding:11px 6px}
+.meta-n{font-size:26px;font-weight:900;color:var(--orange)}
+.meta-l{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.btn-go{width:100%;padding:14px;background:var(--orange);color:#000;border:none;border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 5px 0 var(--orange2),0 8px 24px rgba(245,166,35,.3);transition:transform .12s,box-shadow .12s;letter-spacing:.3px;position:relative;z-index:1}
+.btn-go:hover{transform:translateY(-3px);box-shadow:0 8px 0 var(--orange2),0 12px 28px rgba(245,166,35,.35)}
+.btn-go:active{transform:translateY(3px);box-shadow:0 2px 0 var(--orange2)}
+
+/* ── QUIZ SHELL ── */
+.q-shell{background:var(--card);border-radius:20px;border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.9);overflow:hidden;max-height:490px;display:flex;flex-direction:column}
+.topbar{padding:10px 14px 9px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;flex-shrink:0;background:var(--card2)}
+.xbtn{width:27px;height:27px;border:1.5px solid var(--border);border-radius:7px;background:none;cursor:pointer;font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.xbtn:hover{background:#1f0709;border-color:var(--red);color:var(--red)}
+.prog-col{flex:1}
+.prog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.prog-cat{font-size:11px;font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px}
+.prog-n{font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap}
+.bar-bg{height:7px;background:#120a00;border-radius:99px;overflow:hidden;border:1px solid #2a1400}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--orange2),var(--orange),#ffd27f);border-radius:99px;transition:width .5s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 8px rgba(245,166,35,.45)}
+.topbar-r{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.hearts{display:flex;gap:1px;font-size:14px}
+.heart{transition:all .3s}
+.heart.gone{opacity:.15;filter:grayscale(1);transform:scale(.65)}
+.xp-tag{background:#120a00;border:1.5px solid #2a1a00;border-radius:99px;padding:3px 9px;font-size:12px;font-weight:800;color:var(--gold);white-space:nowrap}
+.streak-tag{background:#120a00;border:1.5px solid #2a1a00;border-radius:99px;padding:3px 9px;font-size:11px;font-weight:800;color:#ff9600;white-space:nowrap}
+
+/* ── QUESTION BODY ── */
+.q-body{flex:1;overflow-y:auto;padding:13px 15px 0;scrollbar-width:thin;scrollbar-color:#2a1400 transparent}
+.q-body::-webkit-scrollbar{width:4px}
+.q-body::-webkit-scrollbar-thumb{background:#2a1400;border-radius:4px}
+.q-cat{font-size:11px;font-weight:800;color:var(--orange2);text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.q-dot{width:6px;height:6px;background:var(--orange);border-radius:50%;box-shadow:0 0 6px rgba(245,166,35,.8)}
+.q-text{font-size:clamp(13px,2.6vw,14.5px);font-weight:700;line-height:1.52;margin-bottom:12px;color:#f5e8d0}
+.opts{display:flex;flex-direction:column;gap:6px;padding-bottom:12px}
+.opt{width:100%;padding:10px 12px;background:#120a00;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:9px;font-family:'Nunito',sans-serif;font-size:12.5px;font-weight:700;color:#c8a878;transition:all .13s;line-height:1.32;position:relative;overflow:hidden}
+.opt:hover:not(:disabled){border-color:var(--orange2);background:#1e1000;color:var(--orange);transform:translateX(3px)}
+.opt-l{width:24px;height:24px;border-radius:6px;background:#1e1000;border:1.5px solid #3a2000;font-size:11px;font-weight:900;color:#6a5030;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.opt.picked-right{border-color:var(--green);background:var(--green-bg);color:#a0ffe0;animation:bumpR .4s cubic-bezier(.34,1.56,.64,1)}
+.opt.picked-right .opt-l{background:var(--green);border-color:var(--green);color:#000}
+.opt.picked-wrong{border-color:var(--red);background:var(--red-bg);color:#ffaaaa;animation:shakeW .35s}
+.opt.picked-wrong .opt-l{background:var(--red);border-color:var(--red);color:#fff}
+.opt.reveal-right{border-color:var(--green);background:var(--green-bg);color:#a0ffe0}
+.opt.reveal-right .opt-l{background:var(--green);border-color:var(--green);color:#000}
+.opt.faded{opacity:.22}
+.opt:disabled{cursor:default;transform:none!important}
+@keyframes bumpR{0%{transform:scale(1)}40%{transform:scale(1.025)}100%{transform:scale(1)}}
+@keyframes shakeW{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+
+/* ── FEEDBACK ── */
+.fb{flex-shrink:0;display:none;align-items:center;gap:9px;padding:10px 15px;border-top:1.5px solid transparent}
+.fb.on{display:flex}
+.fb.ok{background:#071a0a;border-color:var(--green-bdr)}
+.fb.no{background:#190408;border-color:var(--red-bdr)}
+.fb-icon{font-size:24px;flex-shrink:0}
+.fb-txt{flex:1;min-width:0}
+.fb-head{font-size:13px;font-weight:900}
+.fb.ok .fb-head{color:var(--green)}
+.fb.no .fb-head{color:var(--red)}
+.fb-detail{font-size:11px;font-weight:600;color:#7a6040;line-height:1.4;margin-top:2px}
+.btn-cont{padding:8px 14px;border:none;border-radius:9px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .12s}
+.fb.ok .btn-cont{background:var(--green);color:#000;box-shadow:0 3px 0 var(--green2)}
+.fb.ok .btn-cont:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--green2)}
+.fb.no .btn-cont{background:var(--red);color:#fff;box-shadow:0 3px 0 var(--red2)}
+.fb.no .btn-cont:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--red2)}
+
+/* ── RESULTS ── */
+.res-card{background:var(--card);border-radius:22px;padding:28px 22px;border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.9);text-align:center;position:relative;overflow:hidden}
+.res-card::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:300px;height:300px;background:radial-gradient(circle,rgba(245,166,35,.08) 0%,transparent 65%);border-radius:50%;pointer-events:none}
+.trophy{font-size:66px;display:block;animation:dropIn .7s cubic-bezier(.34,1.56,.64,1);position:relative;z-index:1;filter:drop-shadow(0 0 20px rgba(245,166,35,.5))}
+@keyframes dropIn{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.stars-row{display:flex;justify-content:center;gap:8px;margin:5px 0 12px;position:relative;z-index:1}
+.rstar{font-size:32px;opacity:0;filter:drop-shadow(0 0 8px rgba(245,166,35,.6))}
+.rstar.lit{animation:starIn .5s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes starIn{to{opacity:1;transform:scale(1) rotate(0)}from{opacity:0;transform:scale(0) rotate(-20deg)}}
+.res-title{font-size:clamp(20px,5vw,26px);font-weight:900;margin-bottom:3px;color:#fff;position:relative;z-index:1}
+.res-sub{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:18px;position:relative;z-index:1}
+.res-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px;position:relative;z-index:1}
+.res-box{background:#120a00;border:1.5px solid var(--border);border-radius:12px;padding:12px 6px}
+.res-n{font-size:24px;font-weight:900;color:var(--orange)}
+.res-l{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.res-btns{display:flex;flex-direction:column;gap:8px;position:relative;z-index:1}
+.btn-again{width:100%;padding:14px;background:var(--orange);color:#000;border:none;border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 5px 0 var(--orange2),0 7px 20px rgba(245,166,35,.25);transition:all .12s;letter-spacing:.3px}
+.btn-again:hover{transform:translateY(-2px);box-shadow:0 7px 0 var(--orange2),0 10px 24px rgba(245,166,35,.3)}
+.btn-again:active{transform:translateY(3px);box-shadow:0 2px 0 var(--orange2)}
+.btn-home-sm{width:100%;padding:11px;border:1.5px solid var(--border);border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:none;color:var(--muted);transition:all .15s}
+.btn-home-sm:hover{border-color:var(--orange2);color:var(--orange)}
+
+/* ── EFFECTS ── */
+.confetti{position:fixed;pointer-events:none;z-index:9999;animation:cfall linear forwards}
+@keyframes cfall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(110vh) rotate(700deg)}}
+.spark{position:fixed;pointer-events:none;z-index:9999;border-radius:50%;animation:spark ease-out forwards}
+@keyframes spark{to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0)}}
+.floatxp{position:fixed;pointer-events:none;z-index:9999;font-size:16px;font-weight:900;color:var(--gold);text-shadow:0 0 12px rgba(255,200,0,.5);animation:fxp .9s ease-out forwards}
+@keyframes fxp{0%{opacity:1;transform:translateY(0) scale(.7)}20%{transform:translateY(-8px) scale(1.1)}100%{opacity:0;transform:translateY(-60px) scale(.9)}}
+.popbadge{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:9999;font-size:34px;font-weight:900;animation:pbadge 1s ease forwards;white-space:nowrap;text-shadow:0 0 30px rgba(245,166,35,.8),0 4px 20px rgba(0,0,0,.5)}
+@keyframes pbadge{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}70%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-55%) scale(.9)}}
+
+@media(max-width:400px){.topbar{padding:9px 11px}.q-body{padding:11px 11px 0}.opts{gap:5px}.opt{padding:9px 10px;font-size:12px}.fb{padding:9px 12px}.home-card,.res-card{padding:22px 14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ═══ HOME ═══ -->
+<div id="home" class="screen on">
+<div class="home-card">
+  <span class="plane">🧠</span>
+  <div class="home-badge">ATA Chapter 52-56</div>
+  <h1 class="home-h1">B737NG Doors<br><span>Comprehension Quiz</span></h1>
+  <p class="home-sub">21 questions on door latches, slides, airstair, flight deck door, cargo door, windows &amp; tribal knowledge.</p>
+  <div class="home-pills">
+    <span class="pill">🚪 Latch/Light</span>
+    <span class="pill">🛟 Slide Safety</span>
+    <span class="pill">🪜 Airstair</span>
+    <span class="pill">🔒 Flight Deck</span>
+    <span class="pill">💡 Overwing</span>
+    <span class="pill">📦 Cargo Door</span>
+    <span class="pill">🧩 Multi-Light</span>
+    <span class="pill">🪟 Window</span>
+    <span class="pill">🎯 LRU Quiz</span>
+    <span class="pill">🏆 Tribal Rules</span>
+  </div>
+  <div class="home-meta">
+    <div class="meta-box"><div class="meta-n">21</div><div class="meta-l">Questions</div></div>
+    <div class="meta-box"><div class="meta-n">3</div><div class="meta-l">Lives</div></div>
+    <div class="meta-box"><div class="meta-n">10</div><div class="meta-l">Topics</div></div>
+  </div>
+  <button class="btn-go" onclick="startGame()">✈️ Start Quiz</button>
+</div>
+</div>
+
+<!-- ═══ QUIZ ═══ -->
+<div id="quiz" class="screen">
+<div class="q-shell">
+  <div class="topbar">
+    <button class="xbtn" onclick="confirmQuit()">✕</button>
+    <div class="prog-col">
+      <div class="prog-top">
+        <span class="prog-cat" id="cat-lbl">FCC Logic</span>
+        <span class="prog-n"><span id="qn">1</span>/<span id="qtot">21</span></span>
+      </div>
+      <div class="bar-bg"><div class="bar-fill" id="bar" style="width:0%"></div></div>
+    </div>
+    <div class="topbar-r">
+      <div class="streak-tag">🔥<span id="streak-n">0</span></div>
+      <div class="hearts" id="hearts">
+        <span class="heart" id="h0">❤️</span><span class="heart" id="h1">❤️</span><span class="heart" id="h2">❤️</span>
+      </div>
+      <div class="xp-tag">⚡<span id="xpdis">0</span></div>
+    </div>
+  </div>
+  <div class="q-body" id="q-body">
+    <div class="q-cat"><div class="q-dot"></div><span id="q-cat">FCC Logic</span></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="opts" id="opts"></div>
+  </div>
+  <div class="fb" id="fb">
+    <span class="fb-icon" id="fb-icon">✅</span>
+    <div class="fb-txt">
+      <div class="fb-head" id="fb-head">Correct!</div>
+      <div class="fb-detail" id="fb-det"></div>
+    </div>
+    <button class="btn-cont" id="btn-cont" onclick="advance()">Next →</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══ RESULT ═══ -->
+<div id="result" class="screen">
+<div class="res-card">
+  <span class="trophy" id="trophy">🏆</span>
+  <div class="stars-row">
+    <span class="rstar" id="rs0">⭐</span>
+    <span class="rstar" id="rs1">⭐</span>
+    <span class="rstar" id="rs2">⭐</span>
+  </div>
+  <div class="res-title" id="res-title">Session Complete!</div>
+  <div class="res-sub" id="res-sub">Great work!</div>
+  <div class="res-grid">
+    <div class="res-box"><div class="res-n" id="r-xp">0</div><div class="res-l">XP</div></div>
+    <div class="res-box"><div class="res-n" id="r-acc">0%</div><div class="res-l">Accuracy</div></div>
+    <div class="res-box"><div class="res-n" id="r-str">0</div><div class="res-l">Best Streak</div></div>
+  </div>
+  <div class="res-btns">
+    <button class="btn-again" onclick="startGame()">🔁 Play Again</button>
+    <button class="btn-home-sm" onclick="goHome()">← Back to Home</button>
+  </div>
+</div>
+</div>
+
+</div>
+<script>
+// ═══════════════ AUDIO ═══════════════
+const AC=window.AudioContext||window.webkitAudioContext;
+let actx=null;
+function ctx(){if(!actx)actx=new AC();return actx;}
+function playCorrect(){try{const c=ctx();[523,659,784,1047].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;const t=c.currentTime+i*.07;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.16,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.22);o.start(t);o.stop(t+.25);});}catch(e){}}
+function playWrong(){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sawtooth';o.frequency.setValueAtTime(280,c.currentTime);o.frequency.exponentialRampToValueAtTime(80,c.currentTime+.35);g.gain.setValueAtTime(.13,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.4);o.start();o.stop(c.currentTime+.45);}catch(e){}}
+function playCombo(){try{const c=ctx();[880,1108,1320,1760].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='triangle';o.frequency.value=f;const t=c.currentTime+i*.05;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.2,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.28);o.start(t);o.stop(t+.3);});}catch(e){}}
+function playVictory(){try{const c=ctx();[523,659,784,1047,1319,1568,2093].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;const t=c.currentTime+i*.09;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.18,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+.32);o.start(t);o.stop(t+.35);});}catch(e){}}
+function playClick(){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=440;g.gain.setValueAtTime(.06,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.07);o.start();o.stop(c.currentTime+.08);}catch(e){}}
+
+// ═══════════════ QUESTION BANK ═══════════════
+// Each question stores the CORRECT ANSWER TEXT in `correct` — not an index.
+// Options are shuffled at render time so position is always random.
+const BANK=[
+{c:"🚪 Core",q:"On the B737NG, door indication lights are driven by:",correct:"Latch position switches — locked/unlocked state",o:["Door surface contact pressure sensors","Latch position switches — locked/unlocked state","Cabin pressure differential across the door","Optical proximity scanners at each frame"],d:"Latch position drives door indication. Switches confirm latch state, not just door closure. Light follows latch rollers, not the door itself."},
+{c:"💡 Light",q:"TRIBAL: \'Door light on P5 panel.\' Most likely cause:",correct:"Latch roller not fully seated",o:["Switch has failed — replace the proximity sensor","Latch roller not fully seated","Cabin pressure differential too low to seal","Pilot accidentally pressed test pushbutton"],d:"Latch position drives indication. Door is closed but switch input indicates not latched. Don\'t replace the switch — check that the latch roller is fully seated."},
+{c:"💡 Light",q:"TRIBAL: \'Door closes but the light stays on.\' Cause:",correct:"Latch rollers not fully engaged on closure",o:["Door seal has lost pressure containment","Latch rollers not fully engaged on closure","Indication wire is degraded behind panel","Cabin pressurization isn\'t applied yet"],d:"Light follows latch rollers. Need full engagement to clear the light. Don\'t call the switch bad — verify the rollers seat fully."},
+{c:"🚪 Close",q:"TRIBAL: \'Door is difficult to close.\' Action:",correct:"Check guide pins and alignment first",o:["Force the handle to complete closure","Check guide pins and alignment first","Apply lubricant and try closure again","Adjust the latch tension at next service"],d:"Don\'t force the handle — can damage latching mechanism. Check guide pins and alignment first. Force is the parts cannon move on doors."},
+{c:"🛟 Slide",q:"TRIBAL: \'Door opened → emergency slide deploys.\' Cause:",correct:"Slide was armed — automatic deployment",o:["Slide pack has failed and deployed early","Slide was armed — automatic deployment","Cabin pressure ejected the slide","Slide auto-deploy is a self-test event"],d:"Slide was armed. Always confirm DISARMED before opening. Instant deployment when armed — easy to forget. Confirm disarmed before opening, every time."},
+{c:"🪜 Air",q:"TRIBAL: \'Airstair won\'t extend.\' Required sequence:",correct:"Door must open first — interlock",o:["Power must be on and AC bus energized","Door must open first — interlock","Cabin pressurization needs to be zero","Hydraulic Sys A must be pressurized"],d:"Airstair has sequencing interlocks. Door must open first. Don\'t troubleshoot the airstair without checking door state. Interlocks gate the operation."},
+{c:"🪜 Air",q:"TRIBAL: \'Airstair won\'t retract.\' Cause:",correct:"Handrail or ladder not stowed — safety switch",o:["Hydraulic Sys A pressure too low to retract","Handrail or ladder not stowed — safety switch","Pneumatic backup is engaged in error","Stair motor thermal protection has tripped"],d:"Safety switches enforce stowage. Handrail or ladder not stowed blocks retraction. Don\'t force it — verify all stowage points are correct."},
+{c:"🔒 FDD",q:"TRIBAL: \'Flight deck door won\'t open from the cabin.\' Cause:",correct:"Pilot switch position (AUTO/DENY)",o:["Mechanical jam — needs MX to free","Pilot switch position (AUTO/DENY)","Cabin pressure differential blocks opening","Avionics bus failure denies signal"],d:"Flight deck door is logic-driven. Check pilot switch position — electric lock engaged by pilot. Not a mechanical jam in most cases."},
+{c:"⚠️ Lock",q:"TRIBAL: \'LOCK FAIL light on flight deck door.\' Interpretation:",correct:"Command vs actual position mismatch",o:["Electric lock has failed and disengaged","Command vs actual position mismatch","Door power source is on backup battery","Cabin emergency mode has been triggered"],d:"LOCK FAIL = disagreement. Command vs actual mismatch. Don\'t replace the lock — verify which side has disagreement (commanded vs actual position)."},
+{c:"💡 Wing",q:"TRIBAL: \'OVERWING EXIT light on.\' Most likely cause:",correct:"Door not fully seated or not locked",o:["Proximity switches failed simultaneously","Door not fully seated or not locked","Latch has stretched in service","Sensor wire harness has degraded"],d:"Overwing light = seating or lock issue. Door not fully seated. Don\'t replace switches — verify seating first."},
+{c:"📦 Cargo",q:"TRIBAL: \'Main deck cargo door won\'t open.\' Required conditions:",correct:"Sys A hydraulics, parking brake set, gear down",o:["Cabin pressure equalized — just open it","Sys A hydraulics, parking brake set, gear down","APU running with bleed valve open","All emergency power switches in NORM"],d:"Multiple conditions: Sys A hydraulics, parking brake set, gear down. Don\'t replace door components — verify all conditions met. Cargo door has multiple gates."},
+{c:"📦 Cargo",q:"TRIBAL: \'Cargo door shows UNLOCKED + CLOSED both on.\' Cause:",correct:"Door not properly cycled — incomplete",o:["Sensors have failed — replace both","Door not properly cycled — incomplete","Indication wire short between sensors","System normal — light test is in progress"],d:"Incomplete cycle. Cycle the door fully. Don\'t call the indication confusing — it\'s telling you the cycle wasn\'t completed. Run the full cycle."},
+{c:"📦 Cargo",q:"TRIBAL: \'Cargo door moves but stops mid-travel.\' Investigation:",correct:"Sequencing valves — latch → pull-in → lift",o:["Replace the cargo door actuator","Sequencing valves — latch → pull-in → lift","Hydraulic pressure dropped during cycle","Cargo door motor thermal protection tripped"],d:"Sequencing valves drive cargo door — latch → pull-in → lift. Check valve sequencing, not the actuator. Sequencing controls the motion."},
+{c:"📦 Cargo",q:"TRIBAL: \'Lower cargo door won\'t stay open.\' Cause:",correct:"Counterbalance detent has failed",o:["Hydraulic pressure has bled off too quickly","Counterbalance detent has failed","Latch needs adjustment to grip the strike","Wind catches the door as it opens"],d:"Counterbalance holds the door open. Detent failure means the door falls. Don\'t adjust the latch — fix the counterbalance detent."},
+{c:"🧩 Multi",q:"TRIBAL: \'Multiple door lights illuminated at once.\' Cause:",correct:"Common power/ground or PSEU shared",o:["Three independent sensor failures","Common power/ground or PSEU shared","Mid-cycle cabin pressurization spike","All doors actually not latched correctly"],d:"Multi-symptom = common root. Check PSEU and common power/ground. Don\'t replace multiple sensors — find the shared node. Same principle as ATA 32."},
+{c:"🪟 Window",q:"TRIBAL: \'Window crack concern — outer pane.\' Significance:",correct:"Outer layer is non-structural — may be cosmetic",o:["Immediate replacement required","Outer layer is non-structural — may be cosmetic","Window must be NDT inspected immediately","Replace inner pane to redistribute load"],d:"Multi-layer design: outer pane (non-structural), inner pane (structural). Outer cracks may be cosmetic. Verify which pane cracked before scheduling replacement."},
+{c:"🎯 LRU",q:"Door light won\'t clear after closing. Should you swap the switch?",correct:"NO — verify latch rollers are fully seated",o:["YES — switch failure is the typical cause","NO — verify latch rollers are fully seated","YES — and swap the indicator bulb too","NO — recalibrate the proximity sensor first"],d:"NO. Latch roller not fully seated is more common. Verify full engagement before replacing switches. Switch replacement is the parts cannon move."},
+{c:"🎯 LRU",q:"Cargo door won\'t open. Should you replace the actuator?",correct:"NO — verify Sys A, parking brake, gear down",o:["YES — actuators are the failure-prone parts","NO — verify Sys A, parking brake, gear down","YES — and swap both sequencing valves","NO — defuel and check the fuel system"],d:"NO. Cargo door has multiple conditions. Verify hydraulics, parking brake, gear position. Replacing the actuator without checking conditions wastes parts."},
+{c:"🎯 LRU",q:"Multiple door lights on. Should you replace the door switches?",correct:"NO — common root, check PSEU/power/ground",o:["YES — multiple failures need multiple swaps","NO — common root, check PSEU/power/ground","YES — and recalibrate each sensor","NO — defer until next maintenance check"],d:"NO. Multi-symptom = common root. Check PSEU and shared power/ground first. Replacing multiple sensors when they share a node is the parts cannon move."},
+{c:"🏆 Rules",q:"The ATA 52-56 troubleshooting principle is:",correct:"Latch position drives most door faults",o:["Replace switches first — fastest fix","Latch position drives most door faults","Always defuel before any door work","Replace sensors as a paired preventive set"],d:"Latch position drives most door indication faults. Verify rollers, alignment, and seating before swapping switches. Most door faults are mechanical seating, not electrical."},
+{c:"🏆 Rules",q:"Before opening any cabin emergency door, always:",correct:"Confirm slide is DISARMED — instant deploy",o:["Verify cabin pressure has been depressurized","Confirm slide is DISARMED — instant deploy","Disconnect the door electrical harness","Apply hydraulic backup pressure first"],d:"Confirm DISARMED before opening. Slide deploys automatically when armed — easy to forget. This is universal safety practice on all transport doors with armed slides."}
+];
+
+// ═══════════════ ANSWER RANDOMISATION ═══════════════
+// Shuffles options at render time; tracks correct answer by TEXT, not index.
+// This means every play-through has fully random answer positions.
+function shuffleOptions(q){
+  const opts=[...q.o];
+  for(let i=opts.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [opts[i],opts[j]]=[opts[j],opts[i]];
+  }
+  const correctIdx=opts.indexOf(q.correct);
+  return{shuffled:opts,correctIdx};
+}
+
+// ═══════════════ STATE ═══════════════
+const G={qs:[],idx:0,hearts:3,xp:0,streak:0,bestStreak:0,correct:0,done:false,correctIdx:0};
+function shuffle(a){return a.sort(()=>Math.random()-.5)}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on')}
+function goHome(){show('home')}
+function confirmQuit(){if(confirm('Quit this quiz?'))goHome();}
+
+function startGame(){
+  G.qs=shuffle([...BANK]);
+  G.idx=0;G.hearts=3;G.xp=0;G.streak=0;G.bestStreak=0;G.correct=0;
+  updateHearts();
+  document.getElementById('xpdis').textContent='0';
+  document.getElementById('streak-n').textContent='0';
+  document.getElementById('qtot').textContent=G.qs.length;
+  show('quiz');
+  renderQ();
+}
+
+function renderQ(){
+  G.done=false;
+  const fb=document.getElementById('fb');
+  fb.className='fb';fb.style.display='none';
+  const q=G.qs[G.idx];
+  document.getElementById('cat-lbl').textContent=q.c;
+  document.getElementById('q-cat').textContent=q.c;
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('qn').textContent=G.idx+1;
+  document.getElementById('bar').style.width=Math.round((G.idx/G.qs.length)*100)+'%';
+
+  // Shuffle options fresh for every render — answer position is always random
+  const {shuffled,correctIdx}=shuffleOptions(q);
+  G.correctIdx=correctIdx;
+
+  const cont=document.getElementById('opts');
+  cont.innerHTML='';
+  const keys=['A','B','C','D'];
+  shuffled.forEach((txt,i)=>{
+    const b=document.createElement('button');
+    b.className='opt';
+    b.innerHTML=`<span class="opt-l">${keys[i]}</span><span>${txt}</span>`;
+    b.onclick=()=>pick(i,shuffled);
+    cont.appendChild(b);
+    b.style.opacity='0';b.style.transform='translateX(-16px)';
+    setTimeout(()=>{b.style.transition='opacity .22s ease,transform .22s ease';b.style.opacity='1';b.style.transform='translateX(0)';},70+i*50);
+  });
+
+  document.getElementById('q-body').scrollTop=0;
+}
+
+function pick(idx,shuffled){
+  if(G.done)return;
+  G.done=true;
+  const correct=idx===G.correctIdx;
+  const btns=[...document.querySelectorAll('.opt')];
+  btns.forEach(b=>b.disabled=true);
+  btns[G.correctIdx].classList.add('reveal-right');
+  if(correct){
+    btns[idx].classList.remove('reveal-right');
+    btns[idx].classList.add('picked-right');
+    btns.forEach((b,i)=>{if(i!==idx)b.classList.add('faded');});
+    G.correct++;G.streak++;
+    if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+    const xpGain=G.streak>=5?20:G.streak>=3?15:10;
+    G.xp+=xpGain;
+    document.getElementById('xpdis').textContent=G.xp;
+    document.getElementById('streak-n').textContent=G.streak;
+    showFeedback(true,G.qs[G.idx].d,xpGain);
+    spawnSparks(btns[idx]);
+    playCorrect();
+    if(G.streak===3){showPopBadge('🔥 3 Streak!');playCombo();}
+    if(G.streak===5){showPopBadge('⚡ 5 in a row!');playCombo();}
+    if(G.streak===10){showPopBadge('🌟 10 Streak!');playCombo();}
+  } else {
+    btns[idx].classList.add('picked-wrong');
+    btns.forEach((b,i)=>{if(i!==idx&&i!==G.correctIdx)b.classList.add('faded');});
+    G.streak=0;G.hearts--;
+    document.getElementById('streak-n').textContent=0;
+    updateHearts();
+    showFeedback(false,G.qs[G.idx].d,0);
+    playWrong();
+  }
+}
+
+function showFeedback(ok,detail,xp){
+  const fb=document.getElementById('fb');
+  fb.className='fb on '+(ok?'ok':'no');
+  fb.style.display='flex';
+  const icons=ok?['✅','🎉','🌟','⭐','🔥','💡','🎯','🏅']:['❌'];
+  const heads=ok?['Correct!','Great!','Well done!','Spot on!','Nailed it!','Right on!','Excellent!']:['Not quite!'];
+  document.getElementById('fb-icon').textContent=icons[Math.floor(Math.random()*icons.length)];
+  document.getElementById('fb-head').textContent=heads[Math.floor(Math.random()*heads.length)];
+  document.getElementById('fb-det').textContent=detail;
+  const cont=document.getElementById('btn-cont');
+  cont.textContent=(G.idx>=G.qs.length-1||G.hearts<=0)?'See Results →':'Continue →';
+  if(ok&&xp)floatXP('+'+xp+' XP',cont);
+}
+
+function advance(){
+  playClick();
+  G.idx++;
+  if(G.idx>=G.qs.length||G.hearts<=0)showResult();
+  else renderQ();
+}
+
+function updateHearts(){
+  [0,1,2].forEach(i=>{
+    document.getElementById('h'+i).classList.toggle('gone',i>=G.hearts);
+  });
+}
+
+function showResult(){
+  const acc=G.idx?Math.round((G.correct/G.idx)*100):0;
+  const stars=acc>=90?3:acc>=70?2:acc>=50?1:0;
+  const trophies=['😅','🥉','🥈','🏆'];
+  const titles=['Keep Practicing!','Nice Try!','Well Done!','Outstanding! 🎯'];
+  const subs=['Review the ATA 22 DFCS manual and try again.','Good effort — study the explanations!','Strong DFCS knowledge!','You are an ATA 22 expert! ✈️'];
+  document.getElementById('trophy').textContent=trophies[stars];
+  document.getElementById('res-title').textContent=titles[stars];
+  document.getElementById('res-sub').textContent=subs[stars];
+  document.getElementById('r-xp').textContent=G.xp;
+  document.getElementById('r-acc').textContent=acc+'%';
+  document.getElementById('r-str').textContent=G.bestStreak;
+  ['rs0','rs1','rs2'].forEach((id,i)=>{
+    const el=document.getElementById(id);
+    el.classList.remove('lit');el.style.animationDelay='0s';
+    if(i<stars)setTimeout(()=>{el.style.animationDelay=(i*.2)+'s';el.classList.add('lit');},500+i*120);
+  });
+  show('result');
+  if(acc>=60)setTimeout(()=>{launchConfetti(acc);playVictory();},300);
+}
+
+function launchConfetti(acc){
+  const cols=['#f5a623','#ffd27f','#58cc02','#ffc800','#1cb0f6','#ff4b4b','#fff'];
+  const shapes=['●','■','▲','◆','★','✦','✧'];
+  const count=Math.min(35+Math.floor(acc/4),70);
+  for(let i=0;i<count;i++){
+    setTimeout(()=>{
+      const el=document.createElement('div');
+      el.className='confetti';
+      el.textContent=shapes[Math.floor(Math.random()*shapes.length)];
+      el.style.cssText=`left:${Math.random()*100}vw;top:-20px;color:${cols[Math.floor(Math.random()*cols.length)]};font-size:${9+Math.random()*13}px;animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.4}s`;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),4000);
+    },i*22);
+  }
+}
+
+function spawnSparks(btn){
+  const rect=btn.getBoundingClientRect();
+  const cx=rect.left+rect.width/2,cy=rect.top+rect.height/2;
+  const cols=['#f5a623','#ffd27f','#ffc800','#fff','#58cc02'];
+  for(let i=0;i<10;i++){
+    const el=document.createElement('div');
+    el.className='spark';
+    const a=(i/10)*Math.PI*2,d=28+Math.random()*44;
+    el.style.cssText=`left:${cx}px;top:${cy}px;width:${4+Math.random()*5}px;height:${4+Math.random()*5}px;background:${cols[i%cols.length]};--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;animation-duration:${.4+Math.random()*.25}s`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),800);
+  }
+}
+
+function floatXP(txt,refEl){
+  const rect=refEl.getBoundingClientRect();
+  const el=document.createElement('div');
+  el.className='floatxp';el.textContent=txt;
+  el.style.cssText=`left:${rect.left+rect.width*.5}px;top:${rect.top-10}px`;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1000);
+}
+
+function showPopBadge(txt){
+  const el=document.createElement('div');
+  el.className='popbadge';el.textContent=txt;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1100);
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('quiz').classList.contains('on'))return;
+  const map={'1':0,'2':1,'3':2,'4':3,'a':0,'b':1,'c':2,'d':3};
+  const k=e.key.toLowerCase();
+  if(!G.done&&map[k]!==undefined)pick(map[k],[]);
+  if(G.done&&(e.key==='Enter'||e.key===' ')){e.preventDefault();advance();}
+});
+</script>
+</body>
+</html>

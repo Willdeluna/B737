@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATA 30 Ice & Rain Protection Tribal Knowledge</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --bg: #050505;
+      --panel: #101010;
+      --orange: #ff9f1c;
+      --orange2: #ffd28a;
+      --green: #48d17a;
+      --red: #ff5c5c;
+      --blue: #77c8ff;
+      --muted: #b99461;
+      --line: rgba(255,159,28,.55);
+    }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(255,159,28,.15), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(119,200,255,.10), transparent 30%),
+        var(--bg);
+      color: var(--orange);
+      line-height: 1.5;
+    }
+    .page { max-width: 1180px; margin: 0 auto; padding: 22px; }
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 28px;
+      background: linear-gradient(135deg, rgba(255,159,28,.12), rgba(0,0,0,.65));
+      box-shadow: 0 0 40px rgba(255,159,28,.12);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "ATA 30";
+      position: absolute;
+      right: -12px;
+      bottom: -32px;
+      font-size: clamp(56px, 12vw, 150px);
+      font-weight: 900;
+      color: rgba(255,159,28,.06);
+      pointer-events: none;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 4.2rem);
+      letter-spacing: .04em;
+      color: var(--orange2);
+    }
+    .subtitle {
+      margin: 8px 0 16px;
+      color: #fff0d6;
+      font-size: 1.12rem;
+      max-width: 820px;
+    }
+    .tagline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: rgba(0,0,0,.45);
+      color: var(--orange2);
+      font-weight: 700;
+    }
+    .rule-box {
+      margin-top: 18px;
+      border-left: 4px solid var(--orange);
+      background: rgba(255,159,28,.09);
+      padding: 12px 14px;
+      border-radius: 10px;
+      color: #ffe5b8;
+      font-weight: 700;
+      max-width: 920px;
+    }
+    .nav {
+      margin: 18px 0;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+    a.nav-btn, button {
+      border: 1px solid var(--orange);
+      color: var(--orange);
+      background: #111;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: none;
+      transition: .18s ease;
+    }
+    a.nav-btn:hover, button:hover {
+      background: var(--orange);
+      color: #000;
+      transform: translateY(-1px);
+    }
+    .progress {
+      min-width: 220px;
+      color: var(--orange2);
+      font-weight: 800;
+      text-align: right;
+    }
+    .progress-bar {
+      height: 9px;
+      margin-top: 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+      background: #090909;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--orange), var(--green));
+      transition: width .25s ease;
+    }
+    .section-title {
+      margin: 30px 0 12px;
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .section-title h2 {
+      margin: 0;
+      color: var(--orange2);
+      font-size: clamp(1.45rem, 3vw, 2.2rem);
+    }
+    .section-note { color: var(--muted); font-weight: 700; }
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .scenario-card {
+      border: 1px solid rgba(255,159,28,.45);
+      background: linear-gradient(180deg, rgba(255,159,28,.07), rgba(0,0,0,.42));
+      border-radius: 18px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .scenario-card.done {
+      border-color: rgba(72,209,122,.85);
+      box-shadow: 0 0 22px rgba(72,209,122,.10);
+    }
+    .scenario-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .scenario-num {
+      color: #000;
+      background: var(--orange);
+      font-weight: 900;
+      border-radius: 999px;
+      padding: 5px 10px;
+      white-space: nowrap;
+    }
+    .writeup {
+      color: #fff4df;
+      font-size: 1.06rem;
+      font-weight: 800;
+      margin: 10px 0 12px;
+    }
+    .think-list {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(0,0,0,.42);
+      border: 1px solid rgba(255,159,28,.3);
+    }
+    .think-list.open { display: block; animation: rise .22s ease; }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .check { color: var(--green); font-weight: 900; }
+    .nope { color: var(--red); font-weight: 900; }
+    .trap {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(255,92,92,.08);
+      border-left: 3px solid var(--red);
+      color: #ffb8b8;
+      font-weight: 700;
+    }
+    .lesson {
+      margin-top: 10px;
+      color: var(--orange2);
+      font-weight: 800;
+      border-top: 1px dashed rgba(255,159,28,.35);
+      padding-top: 8px;
+    }
+    .quiz-card {
+      border: 1px solid rgba(255,159,28,.45);
+      border-radius: 18px;
+      background: rgba(255,159,28,.04);
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+    .quiz-question {
+      color: #fff4df;
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin: 0 0 14px;
+    }
+    .answers { display: flex; gap: 10px; flex-wrap: wrap; }
+    .answer-result {
+      display: none;
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(0,0,0,.45);
+      border: 1px solid rgba(255,159,28,.3);
+      color: #f4d9ad;
+    }
+    .answer-result.show { display: block; animation: rise .22s ease; }
+    .rules {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      counter-reset: rules;
+    }
+    .rule {
+      counter-increment: rules;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      border: 1px solid rgba(255,159,28,.36);
+      border-radius: 16px;
+      padding: 13px;
+      background: rgba(255,159,28,.055);
+      color: #f4d9ad;
+    }
+    .rule::before {
+      content: counter(rules);
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      width: 31px;
+      height: 31px;
+      border-radius: 50%;
+      background: var(--orange);
+      color: #000;
+      font-weight: 900;
+    }
+    .rule strong { color: var(--orange2); }
+    .bottom-line {
+      margin: 28px 0 10px;
+      padding: 18px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(255,159,28,.10), rgba(0,0,0,.55));
+      color: #ffe5b8;
+      font-weight: 700;
+    }
+    .bottom-line h3 {
+      margin: 0 0 8px;
+      color: var(--orange2);
+    }
+    .footer {
+      margin: 28px 0 10px;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    @media (max-width: 820px) {
+      .page { padding: 14px; }
+      .hero { padding: 20px; }
+      .scenario-grid, .rules { grid-template-columns: 1fr; }
+      .progress { text-align: left; width: 100%; }
+      .nav { align-items: stretch; }
+      .nav-links { width: 100%; }
+      a.nav-btn, button { width: 100%; }
+      .scenario-head { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="tagline">🧠 B737NG ATA 30 • Ice & Rain Protection Tribal Knowledge</div>
+      <h1>ATA 30 Tribal Knowledge</h1>
+      <p class="subtitle">ATA 30 = prevent ice before it forms. Thermal (bleed) for wings/engine, electrical for probes/windows, mechanical for rain.</p>
+      <div class="rule-box">Core Rule: Always ask 'is this a heat problem or a logic shutdown?' Many 'failures' are actually logic protections doing their job.</div>
+    </section>
+
+    <div class="nav">
+      <div class="nav-links">
+        <a class="nav-btn" href="#game">Scenarios</a>
+        <a class="nav-btn" href="#quiz">LRU Quiz</a>
+        <a class="nav-btn" href="#rules">Top 10 Rules</a>
+        <a class="nav-btn" href="#bottom">Bottom Line</a>
+      </div>
+      <div class="progress">
+        <div id="progressText">0 of 17 interactions complete</div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+    </div>
+
+    <section id="game">
+      <div class="section-title">
+        <h2>🎮 "Heat or Logic Shutdown?" — Scenarios</h2>
+        <span class="section-note">Read first. Guess. Then reveal.</span>
+      </div>
+      <div class="scenario-grid" id="scenarioGrid"></div>
+    </section>
+
+    <section id="quiz">
+      <div class="section-title">
+        <h2>🎯 Change the LRU or Pass?</h2>
+        <span class="section-note">Answer YES or NO before revealing why.</span>
+      </div>
+            <div class="quiz-card">
+        <p class="quiz-question">Wing anti-ice OFF on takeoff. Failure?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(0, false)">YES — Failure</button>
+          <button onclick="answerQuiz(0, true)">NO — Normal</button>
+        </div>
+        <div class="answer-result" id="quiz0"><strong>❌ NO.</strong> Normal automatic switch-off for thrust conservation.</div>
+      </div>
+      <div class="quiz-card">
+        <p class="quiz-question">PITOT heat light ON. Probe overheating?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(1, false)">YES — Overheat</button>
+          <button onclick="answerQuiz(1, true)">NO — No current</button>
+        </div>
+        <div class="answer-result" id="quiz1"><strong>❌ NO.</strong> Light ON means no current flowing — it's a failure indication.</div>
+      </div>
+      <div class="quiz-card">
+        <p class="quiz-question">Window OVERHEAT won’t reset. WHCU bad?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(2, false)">YES — Replace WHCU</button>
+          <button onclick="answerQuiz(2, true)">NO — Let it cool</button>
+        </div>
+        <div class="answer-result" id="quiz2"><strong>❌ NO.</strong> Window must cool below threshold before reset works.</div>
+      </div>
+      <div class="quiz-card">
+        <p class="quiz-question">Poor rain visibility. Replace wipers?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(3, false)">YES — Replace wipers</button>
+          <button onclick="answerQuiz(3, true)">NO — Check coating</button>
+        </div>
+        <div class="answer-result" id="quiz3"><strong>❌ NO.</strong> Hydrophobic coating wears — check it first.</div>
+      </div>
+    </section>
+
+    <section id="rules">
+      <div class="section-title">
+        <h2>🛠 Top 10 ATA 30 Tribal Knowledge Rules</h2>
+        <span class="section-note">The stuff that saves time and parts.</span>
+      </div>
+      <div class="rules">
+                <div class="rule"><span><strong>Ice protection = prevent, not remove</strong>.</span></div>
+        <div class="rule"><span><strong>Wing and engine anti-ice = bleed air systems</strong>.</span></div>
+        <div class="rule"><span><strong>Probe heat = electric + current monitoring</strong>.</span></div>
+        <div class="rule"><span><strong>Probe light ON = failure</strong> — not working.</span></div>
+        <div class="rule"><span><strong>WTAI auto OFF on takeoff = normal</strong>.</span></div>
+        <div class="rule"><span><strong>Overheat protections exist mostly on ground</strong>.</span></div>
+        <div class="rule"><span><strong>Window heat ON light = drawing power</strong>.</span></div>
+        <div class="rule"><span><strong>Many “failures” are logic protections</strong>.</span></div>
+        <div class="rule"><span><strong>Probe heaters are not repairable</strong> — replace unit.</span></div>
+        <div class="rule"><span><strong>Always ask: heat problem or logic shutdown?</strong></span></div>
+      </div>
+    </section>
+
+    <section id="bottom" class="bottom-line">
+      <h3>🔚 Bottom Line</h3>
+      <div>ATA 30 controls temperature intelligently. Air heats surfaces, electricity protects sensors and windows, and logic prevents damage. Many ground 'failures' are actually overheat protections.</div>
+    </section>
+
+    <div class="footer">ATA 30 Ice & Rain Protection Tribal Knowledge • Built for line maintenance learning</div>
+  </main>
+
+  <script>
+    const scenarios = [{"title": "Scenario 1", "writeup": "“Wing anti-ice not working on ground.”", "checks": ["Check thrust lever position", "Check overheat switches"], "trap": "Valve replaced. Reality: throttles advanced → valves CLOSE automatically on ground.", "lesson": "WTAI is inhibited at high thrust on ground."}, {"title": "Scenario 2", "writeup": "“Wing anti-ice turns OFF on takeoff.”", "checks": ["Normal logic — switch trips OFF for thrust conservation"], "trap": "Treated as failure. Reality: automatic switch off is normal at takeoff.", "lesson": "WTAI off on takeoff is normal."}, {"title": "Scenario 3", "writeup": "“Wing anti-ice overheats on ground.”", "checks": ["Cooling airflow is low on ground", "Check solenoid/precooler operation"], "trap": "System assumed broken. Reality: designed for flight cooling — ground use risks overheat.", "lesson": "Ground = high heat / low cooling risk."}, {"title": "Scenario 4", "writeup": "“Engine anti-ice ON but no heating.”", "checks": ["Check TAI valve", "Check bleed air source"], "trap": "Electrical command good → system assumed OK. Reality: valve uses bleed air, not electric heat.", "lesson": "Engine A/I needs bleed air, not just signal."}, {"title": "Scenario 5", "writeup": "“COWL ANTI-ICE light ON.”", "checks": ["Check overpressure (>65 psi)"], "trap": "Icing chased. Reality: indicates duct pressure problem, not ice.", "lesson": "COWL A/I light = duct pressure."}, {"title": "Scenario 6", "writeup": "“PITOT heat light ON.”", "checks": ["Means no current flowing to heater", "NOT overheating"], "trap": "Treated as overheat. Reality: light ON = failure condition (no current).", "lesson": "Pitot heat light ON = failure."}, {"title": "Scenario 7", "writeup": "“No current draw on probe.”", "checks": ["Replace probe — heater is internal, not repairable"], "trap": "Wiring chased indefinitely. Reality: probe heater is internal, replace unit.", "lesson": "Probe heaters are non-repairable."}, {"title": "Scenario 8", "writeup": "“Window heat ON light not illuminated.”", "checks": ["Check if window already warm", "No load = no light"], "trap": "WHCU replaced. Reality: ON light only when current is flowing.", "lesson": "Window heat ON light = current flowing."}, {"title": "Scenario 9", "writeup": "“WINDOW OVERHEAT light.”", "checks": ["Check temp > ~145°F", "WHCU protection active", "System locks out until reset"], "trap": "Switch cycled before cooling. Reality: must cycle switch after window cools.", "lesson": "Cool first, then reset."}, {"title": "Scenario 10", "writeup": "“Poor visibility in rain but wipers OK.”", "checks": ["Check hydrophobic coating condition"], "trap": "Wipers replaced. Reality: coating repels water and wears over time.", "lesson": "Hydrophobic coating wears out."}, {"title": "Scenario 11", "writeup": "“Wipers stop working.”", "checks": ["Check motor thermal protection"], "trap": "Motor replaced. Reality: auto shuts off at high temperature.", "lesson": "Wiper auto-off is thermal protection."}, {"title": "Scenario 12", "writeup": "“Frozen drain mast / leaks.”", "checks": ["Check heater operation — heat is automatic (no switch)"], "trap": "Switch sought. Reality: heaters powered whenever aircraft is powered.", "lesson": "Drain mast heat is always on."}, {"title": "Scenario 13", "writeup": "“Valve light BRIGHT.”", "checks": ["Valve in transit OR mismatch", "Not necessarily failed"], "trap": "Valve replaced. Reality: bright can mean in-transit indication.", "lesson": "Light brightness has meaning."}];
+    const TOTAL = 17;
+    const completed = new Set();
+
+    function updateProgress() {
+      const count = completed.size;
+      document.getElementById("progressText").textContent = count + " of " + TOTAL + " interactions complete";
+      document.getElementById("progressFill").style.width = Math.min((count / TOTAL) * 100, 100) + "%";
+    }
+
+    function revealScenario(index) {
+      const card = document.getElementById("scenario-card-" + index);
+      const body = document.getElementById("scenario-body-" + index);
+      body.classList.toggle("open");
+      card.classList.add("done");
+      completed.add("s" + index);
+      updateProgress();
+    }
+
+    function answerQuiz(index, correct) {
+      const box = document.getElementById("quiz" + index);
+      box.classList.add("show");
+      box.style.borderColor = correct ? "rgba(72,209,122,.85)" : "rgba(255,92,92,.85)";
+      completed.add("q" + index);
+      updateProgress();
+    }
+
+    function buildScenarios() {
+      const grid = document.getElementById("scenarioGrid");
+      grid.innerHTML = scenarios.map(function(s, i) {
+        const checksHtml = s.checks.map(function(c) {
+          return '<li><span class="check">&#9989;</span> ' + c + '</li>';
+        }).join("");
+        const dontHtml = s.dont ? '<li><span class="nope">&#10060;</span> ' + s.dont + '</li>' : "";
+        const trapHtml = s.trap ? '<div class="trap">&#9888;&#65039; <strong>TRAP:</strong> ' + s.trap + '</div>' : "";
+        return ''
+          + '<article class="scenario-card" id="scenario-card-' + i + '">'
+          + '  <div class="scenario-head">'
+          + '    <span class="scenario-num">&#9992;&#65039; ' + s.title + '</span>'
+          + '    <button onclick="revealScenario(' + i + ')">Reveal Checks</button>'
+          + '  </div>'
+          + '  <div class="writeup">' + s.writeup + '</div>'
+          + '  <div class="think-list" id="scenario-body-' + i + '">'
+          + '    <strong>Think first:</strong>'
+          + '    <ul>' + checksHtml + dontHtml + '</ul>'
+          + trapHtml
+          + '    <div class="lesson">Tribal Lesson: ' + s.lesson + '</div>'
+          + '  </div>'
+          + '</article>';
+      }).join("");
+    }
+
+    buildScenarios();
+    updateProgress();
+  </script>
+</body>
+</html>

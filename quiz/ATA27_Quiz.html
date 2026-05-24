@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B737NG ATA 27 – Flight Controls Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1a0f00;
+  --card:#1e1200;
+  --card2:#251800;
+  --orange:#f5a623;
+  --orange2:#c47b0e;
+  --green:#58cc02;
+  --green2:#46a302;
+  --green-bg:#071a0a;
+  --green-bdr:#1a4d1a;
+  --red:#ff4b4b;
+  --red2:#cc2a2a;
+  --red-bg:#1f0a0a;
+  --red-bdr:#5c1212;
+  --blue:#1cb0f6;
+  --gold:#ffc800;
+  --gold2:#c89800;
+  --text:#f0e8d8;
+  --muted:#8a7050;
+  --border:#3a2508;
+  --r:14px;
+}
+html,body{min-height:100vh;background:var(--bg);font-family:'Nunito',sans-serif;color:var(--text)}
+body{
+  display:flex;align-items:center;justify-content:center;padding:16px;
+  background:
+    radial-gradient(ellipse at 15% 0%,rgba(245,166,35,0.09) 0%,transparent 55%),
+    radial-gradient(ellipse at 85% 100%,rgba(245,166,35,0.04) 0%,transparent 50%),
+    var(--bg);
+}
+.wrap{width:100%;max-width:520px}
+.screen{display:none}
+.screen.on{display:block}
+
+/* ── HOME ── */
+.home-card{background:var(--card);border-radius:22px;padding:28px 24px;border:1px solid var(--border);box-shadow:0 0 0 1px #120a00,0 24px 60px rgba(0,0,0,.9);text-align:center;position:relative;overflow:hidden}
+.home-card::before{content:'';position:absolute;top:-80px;left:-80px;width:280px;height:280px;background:radial-gradient(circle,rgba(245,166,35,.1) 0%,transparent 70%);pointer-events:none;border-radius:50%}
+.home-card::after{content:'';position:absolute;bottom:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(245,166,35,.06) 0%,transparent 70%);pointer-events:none;border-radius:50%}
+.plane{font-size:58px;display:block;animation:bob 3s ease-in-out infinite;margin-bottom:2px;filter:drop-shadow(0 0 18px rgba(245,166,35,.55))}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-11px) rotate(4deg)}}
+.home-badge{display:inline-block;color:var(--orange);font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:4px 14px;border-radius:99px;margin-bottom:8px;border:1.5px solid var(--orange2);position:relative;z-index:1}
+.home-h1{font-size:clamp(20px,5vw,28px);font-weight:900;line-height:1.15;margin-bottom:6px;color:#fff;position:relative;z-index:1}
+.home-h1 span{color:var(--orange)}
+.home-sub{font-size:12px;color:var(--muted);font-weight:600;line-height:1.55;max-width:340px;margin:0 auto 16px;position:relative;z-index:1}
+.home-pills{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-bottom:16px;position:relative;z-index:1}
+.pill{background:#120a00;border:1.5px solid #2e1800;border-radius:99px;padding:4px 11px;font-size:11px;font-weight:700;color:var(--orange2)}
+.home-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px;position:relative;z-index:1}
+.meta-box{background:#120a00;border:1.5px solid var(--border);border-radius:12px;padding:11px 6px}
+.meta-n{font-size:26px;font-weight:900;color:var(--orange)}
+.meta-l{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.btn-go{width:100%;padding:14px;background:var(--orange);color:#000;border:none;border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 5px 0 var(--orange2),0 8px 24px rgba(245,166,35,.3);transition:transform .12s,box-shadow .12s;letter-spacing:.3px;position:relative;z-index:1}
+.btn-go:hover{transform:translateY(-3px);box-shadow:0 8px 0 var(--orange2),0 12px 28px rgba(245,166,35,.35)}
+.btn-go:active{transform:translateY(3px);box-shadow:0 2px 0 var(--orange2)}
+
+/* ── QUIZ SHELL ── */
+.q-shell{background:var(--card);border-radius:20px;border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.9);overflow:hidden;max-height:490px;display:flex;flex-direction:column}
+.topbar{padding:10px 14px 9px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;flex-shrink:0;background:var(--card2)}
+.xbtn{width:27px;height:27px;border:1.5px solid var(--border);border-radius:7px;background:none;cursor:pointer;font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.xbtn:hover{background:#1f0709;border-color:var(--red);color:var(--red)}
+.prog-col{flex:1}
+.prog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.prog-cat{font-size:11px;font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px}
+.prog-n{font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap}
+.bar-bg{height:7px;background:#120a00;border-radius:99px;overflow:hidden;border:1px solid #2a1400}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--orange2),var(--orange),#ffd27f);border-radius:99px;transition:width .5s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 8px rgba(245,166,35,.45)}
+.topbar-r{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.hearts{display:flex;gap:1px;font-size:14px}
+.heart{transition:all .3s}
+.heart.gone{opacity:.15;filter:grayscale(1);transform:scale(.65)}
+.xp-tag{background:#120a00;border:1.5px solid #2a1a00;border-radius:99px;padding:3px 9px;font-size:12px;font-weight:800;color:var(--gold);white-space:nowrap}
+.streak-tag{background:#120a00;border:1.5px solid #2a1a00;border-radius:99px;padding:3px 9px;font-size:11px;font-weight:800;color:#ff9600;white-space:nowrap}
+
+/* ── QUESTION BODY ── */
+.q-body{flex:1;overflow-y:auto;padding:13px 15px 0;scrollbar-width:thin;scrollbar-color:#2a1400 transparent}
+.q-body::-webkit-scrollbar{width:4px}
+.q-body::-webkit-scrollbar-thumb{background:#2a1400;border-radius:4px}
+.q-cat{font-size:11px;font-weight:800;color:var(--orange2);text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.q-dot{width:6px;height:6px;background:var(--orange);border-radius:50%;box-shadow:0 0 6px rgba(245,166,35,.8)}
+.q-text{font-size:clamp(13px,2.6vw,14.5px);font-weight:700;line-height:1.52;margin-bottom:12px;color:#f5e8d0}
+.opts{display:flex;flex-direction:column;gap:6px;padding-bottom:12px}
+.opt{width:100%;padding:10px 12px;background:#120a00;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:9px;font-family:'Nunito',sans-serif;font-size:12.5px;font-weight:700;color:#c8a878;transition:all .13s;line-height:1.32;position:relative;overflow:hidden}
+.opt:hover:not(:disabled){border-color:var(--orange2);background:#1e1000;color:var(--orange);transform:translateX(3px)}
+.opt-l{width:24px;height:24px;border-radius:6px;background:#1e1000;border:1.5px solid #3a2000;font-size:11px;font-weight:900;color:#6a5030;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.opt.picked-right{border-color:var(--green);background:var(--green-bg);color:#a0ffe0;animation:bumpR .4s cubic-bezier(.34,1.56,.64,1)}
+.opt.picked-right .opt-l{background:var(--green);border-color:var(--green);color:#000}
+.opt.picked-wrong{border-color:var(--red);background:var(--red-bg);color:#ffaaaa;animation:shakeW .35s}
+.opt.picked-wrong .opt-l{background:var(--red);border-color:var(--red);color:#fff}
+.opt.reveal-right{border-color:var(--green);background:var(--green-bg);color:#a0ffe0}
+.opt.reveal-right .opt-l{background:var(--green);border-color:var(--green);color:#000}
+.opt.faded{opacity:.22}
+.opt:disabled{cursor:default;transform:none!important}
+@keyframes bumpR{0%{transform:scale(1)}40%{transform:scale(1.025)}100%{transform:scale(1)}}
+@keyframes shakeW{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+
+/* ── FEEDBACK ── */
+.fb{flex-shrink:0;display:none;align-items:center;gap:9px;padding:10px 15px;border-top:1.5px solid transparent}
+.fb.on{display:flex}
+.fb.ok{background:#071a0a;border-color:var(--green-bdr)}
+.fb.no{background:#190408;border-color:var(--red-bdr)}
+.fb-icon{font-size:24px;flex-shrink:0}
+.fb-txt{flex:1;min-width:0}
+.fb-head{font-size:13px;font-weight:900}
+.fb.ok .fb-head{color:var(--green)}
+.fb.no .fb-head{color:var(--red)}
+.fb-detail{font-size:11px;font-weight:600;color:#7a6040;line-height:1.4;margin-top:2px}
+.btn-cont{padding:8px 14px;border:none;border-radius:9px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .12s}
+.fb.ok .btn-cont{background:var(--green);color:#000;box-shadow:0 3px 0 var(--green2)}
+.fb.ok .btn-cont:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--green2)}
+.fb.no .btn-cont{background:var(--red);color:#fff;box-shadow:0 3px 0 var(--red2)}
+.fb.no .btn-cont:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--red2)}
+
+/* ── RESULTS ── */
+.res-card{background:var(--card);border-radius:22px;padding:28px 22px;border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.9);text-align:center;position:relative;overflow:hidden}
+.res-card::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:300px;height:300px;background:radial-gradient(circle,rgba(245,166,35,.08) 0%,transparent 65%);border-radius:50%;pointer-events:none}
+.trophy{font-size:66px;display:block;animation:dropIn .7s cubic-bezier(.34,1.56,.64,1);position:relative;z-index:1;filter:drop-shadow(0 0 20px rgba(245,166,35,.5))}
+@keyframes dropIn{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.stars-row{display:flex;justify-content:center;gap:8px;margin:5px 0 12px;position:relative;z-index:1}
+.rstar{font-size:32px;opacity:0;filter:drop-shadow(0 0 8px rgba(245,166,35,.6))}
+.rstar.lit{animation:starIn .5s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes starIn{to{opacity:1;transform:scale(1) rotate(0)}from{opacity:0;transform:scale(0) rotate(-20deg)}}
+.res-title{font-size:clamp(20px,5vw,26px);font-weight:900;margin-bottom:3px;color:#fff;position:relative;z-index:1}
+.res-sub{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:18px;position:relative;z-index:1}
+.res-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px;position:relative;z-index:1}
+.res-box{background:#120a00;border:1.5px solid var(--border);border-radius:12px;padding:12px 6px}
+.res-n{font-size:24px;font-weight:900;color:var(--orange)}
+.res-l{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.res-btns{display:flex;flex-direction:column;gap:8px;position:relative;z-index:1}
+.btn-again{width:100%;padding:14px;background:var(--orange);color:#000;border:none;border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 5px 0 var(--orange2),0 7px 20px rgba(245,166,35,.25);transition:all .12s;letter-spacing:.3px}
+.btn-again:hover{transform:translateY(-2px);box-shadow:0 7px 0 var(--orange2),0 10px 24px rgba(245,166,35,.3)}
+.btn-again:active{transform:translateY(3px);box-shadow:0 2px 0 var(--orange2)}
+.btn-home-sm{width:100%;padding:11px;border:1.5px solid var(--border);border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:none;color:var(--muted);transition:all .15s}
+.btn-home-sm:hover{border-color:var(--orange2);color:var(--orange)}
+
+/* ── EFFECTS ── */
+.confetti{position:fixed;pointer-events:none;z-index:9999;animation:cfall linear forwards}
+@keyframes cfall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(110vh) rotate(700deg)}}
+.spark{position:fixed;pointer-events:none;z-index:9999;border-radius:50%;animation:spark ease-out forwards}
+@keyframes spark{to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0)}}
+.floatxp{position:fixed;pointer-events:none;z-index:9999;font-size:16px;font-weight:900;color:var(--gold);text-shadow:0 0 12px rgba(255,200,0,.5);animation:fxp .9s ease-out forwards}
+@keyframes fxp{0%{opacity:1;transform:translateY(0) scale(.7)}20%{transform:translateY(-8px) scale(1.1)}100%{opacity:0;transform:translateY(-60px) scale(.9)}}
+.popbadge{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:9999;font-size:34px;font-weight:900;animation:pbadge 1s ease forwards;white-space:nowrap;text-shadow:0 0 30px rgba(245,166,35,.8),0 4px 20px rgba(0,0,0,.5)}
+@keyframes pbadge{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}70%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-55%) scale(.9)}}
+
+@media(max-width:400px){.topbar{padding:9px 11px}.q-body{padding:11px 11px 0}.opts{gap:5px}.opt{padding:9px 10px;font-size:12px}.fb{padding:9px 12px}.home-card,.res-card{padding:22px 14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ═══ HOME ═══ -->
+<div id="home" class="screen on">
+<div class="home-card">
+  <span class="plane">🧠</span>
+  <div class="home-badge">ATA Chapter 27</div>
+  <h1 class="home-h1">B737NG Flight Controls<br><span>Comprehension Quiz</span></h1>
+  <p class="home-sub">26 questions on PCUs, feel, spoilers, rudder, flaps, trim, hydraulic redundancy &amp; tribal knowledge.</p>
+  <div class="home-pills">
+    <span class="pill">🧠 Core</span>
+    <span class="pill">🎮 Feel/Breakout</span>
+    <span class="pill">🪶 Spoilers/Flaps</span>
+    <span class="pill">🛬 Speedbrake</span>
+    <span class="pill">🎚️ Rudder/Yaw</span>
+    <span class="pill">⚙️ Trim</span>
+    <span class="pill">💡 Low Press</span>
+    <span class="pill">🎯 LRU Quiz</span>
+    <span class="pill">🏆 Tribal Rules</span>
+  </div>
+  <div class="home-meta">
+    <div class="meta-box"><div class="meta-n">26</div><div class="meta-l">Questions</div></div>
+    <div class="meta-box"><div class="meta-n">3</div><div class="meta-l">Lives</div></div>
+    <div class="meta-box"><div class="meta-n">9</div><div class="meta-l">Topics</div></div>
+  </div>
+  <button class="btn-go" onclick="startGame()">✈️ Start Quiz</button>
+</div>
+</div>
+
+<!-- ═══ QUIZ ═══ -->
+<div id="quiz" class="screen">
+<div class="q-shell">
+  <div class="topbar">
+    <button class="xbtn" onclick="confirmQuit()">✕</button>
+    <div class="prog-col">
+      <div class="prog-top">
+        <span class="prog-cat" id="cat-lbl">FCC Logic</span>
+        <span class="prog-n"><span id="qn">1</span>/<span id="qtot">26</span></span>
+      </div>
+      <div class="bar-bg"><div class="bar-fill" id="bar" style="width:0%"></div></div>
+    </div>
+    <div class="topbar-r">
+      <div class="streak-tag">🔥<span id="streak-n">0</span></div>
+      <div class="hearts" id="hearts">
+        <span class="heart" id="h0">❤️</span><span class="heart" id="h1">❤️</span><span class="heart" id="h2">❤️</span>
+      </div>
+      <div class="xp-tag">⚡<span id="xpdis">0</span></div>
+    </div>
+  </div>
+  <div class="q-body" id="q-body">
+    <div class="q-cat"><div class="q-dot"></div><span id="q-cat">FCC Logic</span></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="opts" id="opts"></div>
+  </div>
+  <div class="fb" id="fb">
+    <span class="fb-icon" id="fb-icon">✅</span>
+    <div class="fb-txt">
+      <div class="fb-head" id="fb-head">Correct!</div>
+      <div class="fb-detail" id="fb-det"></div>
+    </div>
+    <button class="btn-cont" id="btn-cont" onclick="advance()">Next →</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══ RESULT ═══ -->
+<div id="result" class="screen">
+<div class="res-card">
+  <span class="trophy" id="trophy">🏆</span>
+  <div class="stars-row">
+    <span class="rstar" id="rs0">⭐</span>
+    <span class="rstar" id="rs1">⭐</span>
+    <span class="rstar" id="rs2">⭐</span>
+  </div>
+  <div class="res-title" id="res-title">Session Complete!</div>
+  <div class="res-sub" id="res-sub">Great work!</div>
+  <div class="res-grid">
+    <div class="res-box"><div class="res-n" id="r-xp">0</div><div class="res-l">XP</div></div>
+    <div class="res-box"><div class="res-n" id="r-acc">0%</div><div class="res-l">Accuracy</div></div>
+    <div class="res-box"><div class="res-n" id="r-str">0</div><div class="res-l">Best Streak</div></div>
+  </div>
+  <div class="res-btns">
+    <button class="btn-again" onclick="startGame()">🔁 Play Again</button>
+    <button class="btn-home-sm" onclick="goHome()">← Back to Home</button>
+  </div>
+</div>
+</div>
+
+</div>
+<script>
+// ═══════════════ AUDIO ═══════════════
+const AC=window.AudioContext||window.webkitAudioContext;
+let actx=null;
+function ctx(){if(!actx)actx=new AC();return actx;}
+function playCorrect(){try{const c=ctx();[523,659,784,1047].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;const t=c.currentTime+i*.07;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.16,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.22);o.start(t);o.stop(t+.25);});}catch(e){}}
+function playWrong(){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sawtooth';o.frequency.setValueAtTime(280,c.currentTime);o.frequency.exponentialRampToValueAtTime(80,c.currentTime+.35);g.gain.setValueAtTime(.13,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.4);o.start();o.stop(c.currentTime+.45);}catch(e){}}
+function playCombo(){try{const c=ctx();[880,1108,1320,1760].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='triangle';o.frequency.value=f;const t=c.currentTime+i*.05;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.2,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.28);o.start(t);o.stop(t+.3);});}catch(e){}}
+function playVictory(){try{const c=ctx();[523,659,784,1047,1319,1568,2093].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;const t=c.currentTime+i*.09;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.18,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+.32);o.start(t);o.stop(t+.35);});}catch(e){}}
+function playClick(){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=440;g.gain.setValueAtTime(.06,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.07);o.start();o.stop(c.currentTime+.08);}catch(e){}}
+
+// ═══════════════ QUESTION BANK ═══════════════
+// Each question stores the CORRECT ANSWER TEXT in `correct` — not an index.
+// Options are shuffled at render time so position is always random.
+const BANK=[
+{c:"🧠 Core",q:"On the B737NG, flight controls are BEST described as:",correct:"Mechanical + hydraulic + electrical layered",o:["Pure mechanical — no hydraulics needed","Mechanical + hydraulic + electrical layered","Fly-by-wire with no mechanical backup","Electric-only system with no hydraulics"],d:"B737NG flight controls combine mechanical (cables/pulleys), hydraulic (PCUs powered by Sys A/B), and electrical (yaw damper, trim, autopilot) layers. Separate them when troubleshooting — they\'re three different problems with three different solution paths."},
+{c:"🧠 Core",q:"When troubleshooting flight controls, the line MX rule is to:",correct:"Separate mechanical, hydraulic, and electrical layers",o:["Replace the surface first — fastest fix","Separate mechanical, hydraulic, and electrical layers","Always start with the PCU replacement task","Cycle the breakers and observe behavior"],d:"Separate mechanical / hydraulic / electrical — they\'re three different problems. Trying to fix all three at once wastes parts and time. ATA 27\'s #1 tribal rule."},
+{c:"🎮 Feel",q:"TRIBAL: Pilot reports \'heavy control wheel feel.\' First investigation should be:",correct:"Check hydraulic A/B, feel unit, and PCU input",o:["Replace both aileron PCUs immediately","Check hydraulic A/B, feel unit, and PCU input","Defer the aircraft and call OEM rep","Inspect the aileron surfaces for damage"],d:"Feel force is ARTIFICIAL (spring + hydraulic). Check Sys A/B hydraulic pressure, feel and centering unit, and PCU input BEFORE chasing the surfaces. Aileron PCU replacement is a parts cannon move."},
+{c:"🎮 Feel",q:"Control wheel feel on the B737NG is created by:",correct:"An artificial feel system using spring + hydraulics",o:["The actual aerodynamic load on the surfaces","An artificial feel system using spring + hydraulics","Mechanical resistance in the cable runs only","The autopilot servos resisting pilot input"],d:"Feel is artificial — created by a feel and centering unit (spring + hydraulic). It\'s NOT the actual aero load on the surfaces. This is why \'heavy feel\' isn\'t a real control problem."},
+{c:"🎮 Breakout",q:"TRIBAL: \'One control wheel won\'t move.\' The correct response is:",correct:"Verify transfer mechanism — other wheel still works",o:["Ground the aircraft for total loss of roll control","Verify transfer mechanism — other wheel still works","Replace the jammed wheel\'s control column","Defer indefinitely until parts arrive"],d:"Other wheel still works via torsion spring + breakout. NOT a total roll control loss. Check transfer mechanism for jam — don\'t ground the aircraft. Breakout is designed exactly for this case."},
+{c:"🪶 Spoilers",q:"TRIBAL: \'Ailerons move but no spoiler assist.\' Most likely cause:",correct:"Wheel input has not reached the ~11° threshold",o:["Aileron PCU is failing intermittently","Wheel input has not reached the ~11° threshold","Hydraulic Sys B has lost all pressure","Spoiler actuators all need replacement"],d:"Spoilers only engage after ~11° wheel input — that\'s the threshold. Below it, the ailerons are doing the work alone. Don\'t chase the aileron PCU; verify wheel input range first."},
+{c:"🪶 Spoilers",q:"B737NG spoilers have what backup capability?",correct:"No manual backup — hydraulic or nothing",o:["Mechanical reversion via the cable system","No manual backup — hydraulic or nothing","Pneumatic emergency deployment from the APU","Electric standby actuator on each spoiler"],d:"Spoilers have NO manual backup — they\'re hydraulic or nothing. Lose hydraulic supply, lose spoilers. Critical to know for fault analysis and dispatch decisions."},
+{c:"🛬 Speedbrake",q:"TRIBAL: \'Speedbrake DO NOT ARM light on.\' Likely cause is:",correct:"Logic fault — anti-skid, actuator, or air/ground",o:["The speedbrake lever itself has failed","Logic fault — anti-skid, actuator, or air/ground","Hydraulic Sys A has lost all pressure","Both throttles are stuck in idle position"],d:"DO NOT ARM = LOGIC system fault. Anti-skid, auto speedbrake actuator, or air/ground sensing — not the lever. Replacing the lever is a classic parts cannon mistake."},
+{c:"🛬 Speedbrake",q:"TRIBAL: \'Ground spoilers not deploying.\' First check should be:",correct:"Check WoW logic — interlock, MLG, proximity",o:["Replace the spoiler actuators as preventive","Check WoW logic — interlock, MLG, proximity","Replace hydraulic Sys A pump immediately","Defuel and inspect each spoiler manually"],d:"Weight-on-wheels logic must be satisfied. Check ground spoiler interlock valve, MLG compression cable, proximity sensor. Don\'t blame hydraulics first — WoW is the upstream gate."},
+{c:"🎚️ Rudder",q:"TRIBAL: \'Rudder sluggish at speed.\' Most likely cause:",correct:"Rudder is intentionally limited above ~137 kt",o:["Rudder PCU needs replacement immediately","Rudder is intentionally limited above ~137 kt","Standby rudder is automatically active","Yaw damper has frozen the control input"],d:"Rudder is INTENTIONALLY limited above ~137 knots — authority limiter at high speed. Designed-in behavior, not a fault. Don\'t replace PCU."},
+{c:"🎚️ Rudder",q:"TRIBAL: \'STBY RUD ON\' light illuminated. The correct interpretation is:",correct:"Real issue — force fight or pressure loss",o:["Normal indication — ignore it during flight","Real issue — force fight or pressure loss","System is in BITE test mode automatically","Pilot accidentally selected standby rudder"],d:"STBY RUD ON = a REAL control issue. Standby rudder activation means force fight monitor tripped OR pressure loss. Don\'t ignore this light — investigate the trigger condition."},
+{c:"🎚️ Yaw",q:"TRIBAL: \'Yaw oscillation in cruise.\' First investigation:",correct:"Check yaw damper system and SMYD inputs",o:["Replace the rudder PCU and rudder actuators","Check yaw damper system and SMYD inputs","Defuel the aircraft and check trim tabs","Replace both elevator feel computers"],d:"Yaw oscillation = YAW DAMPER system. Check yaw damper and SMYD (Stall Management Yaw Damper) inputs. Don\'t chase rudder hardware first — the damper controls stability automatically."},
+{c:"🎮 Column",q:"TRIBAL: \'Control column jam, one side only.\' Response should be:",correct:"Check breakout mechanism — other column usable",o:["Immediately ground the aircraft as a precaution","Check breakout mechanism — other column usable","Replace both control columns as a set","Defer indefinitely until OEM tech rep arrives"],d:"Other column is still usable after applying breakout force. NOT an immediate ground event. The breakout is designed exactly for column jam scenarios."},
+{c:"⚙️ Trim",q:"TRIBAL: \'Runaway stabilizer.\' The trained response is:",correct:"Use trim cutout switches — multiple protections",o:["Replace the stab trim actuator immediately","Use trim cutout switches — multiple protections","Hold the column against the trim direction","Wait for the actuator to time out naturally"],d:"Stab trim has MULTIPLE cutout protections — trim cutout switches and column cutout switch. Understand them before chasing the actuator. The system has built-in safeguards for exactly this case."},
+{c:"⚙️ Trim",q:"TRIBAL: \'Electric trim feels slow.\' Likely interpretation:",correct:"Slow trim with flaps UP is normal by design",o:["Trim motor is failing and needs replacement","Slow trim with flaps UP is normal by design","Trim cable system has stretched over cycles","Stab trim wheel friction needs adjustment"],d:"Trim speed varies by FLAP position. Flaps UP = SLOW trim; flaps NOT UP = fast trim. Slow trim with flaps up is normal design — don\'t replace the motor."},
+{c:"🪶 Flaps",q:"TRIBAL: \'Flaps stop moving mid-travel.\' The correct action is:",correct:"Stop — bypass valve has locked the system out",o:["Keep cycling the flap lever to free them","Stop — bypass valve has locked the system out","Force the lever harder to override the lock","Reset the flap circuit breakers and try again"],d:"Bypass valve locks the system out after protection trip. Continued cycling causes ADDITIONAL faults. Investigate skew detection, asymmetry, or bypass — don\'t keep cycling."},
+{c:"🪶 Flaps",q:"TRIBAL: \'Flaps retract by themselves at high speed.\' Interpretation:",correct:"Normal — load relief protects flap structure",o:["Real malfunction — flap drive has failed","Normal — load relief protects flap structure","Pilot accidentally moved the flap lever","Hydraulic Sys B pressure has dropped below limit"],d:"Load relief is NORMAL — it protects the flap structure when speed exceeds the threshold. Don\'t treat as a failure. Verify the speed exceeded the load relief setpoint."},
+{c:"🪶 Flaps",q:"TRIBAL: \'Alternate flaps very slow during extension.\' Interpretation:",correct:"Normal — alternate is electric, ~2.5 min total",o:["Alternate motor is failing intermittently","Normal — alternate is electric, ~2.5 min total","Hydraulic Sys B pressure dropped to backup","Flap drive transmission needs lubrication soon"],d:"Alternate flaps are slow BY DESIGN — they\'re electric, taking ~2.5 minutes for full extension. Don\'t compare to hydraulic speed. Normal alternate behavior."},
+{c:"💡 Low Press",q:"TRIBAL: \'FLT CONTROL LOW PRESS light\' behavior is:",correct:"Variable — STBY RUD changes the logic path",o:["Fixed logic — same in all configurations","Variable — STBY RUD changes the logic path","Always means hydraulic Sys A is failing","Always means hydraulic Sys B is failing"],d:"Light logic varies by configuration. STBY RUD switch position changes the logic path. Don\'t chase the hydraulic system blindly — understand the indication logic first."},
+{c:"🎯 LRU",q:"Flight control feels heavy. Should you replace the surface first?",correct:"NO — feel force is artificial, check hyd/feel",o:["YES — surface is the most likely root cause","NO — feel force is artificial, check hyd/feel","YES — fastest to replace and verify","NO — feel always means a stab trim problem"],d:"NO. Feel force is artificial. Check hydraulic vs feel vs mechanical. Surface replacement is a parts cannon move when feel is the complaint."},
+{c:"🎯 LRU",q:"Flap stops mid-travel. Should you force movement past the stop?",correct:"NO — protection is active, bypass locked",o:["YES — manual override is built in","NO — protection is active, bypass locked","YES — if hydraulic pressure is normal","NO — flap surfaces will be damaged"],d:"NO. Bypass valve has locked the system out for a reason. Investigate the protection trip — don\'t force it. Forcing causes additional damage."},
+{c:"🎯 LRU",q:"Spoilers not working. Should you replace the actuator first?",correct:"NO — check interlock and shutoff valves first",o:["YES — actuator is the most-failed item","NO — check interlock and shutoff valves first","YES — fastest fault-isolation method","NO — replace the speedbrake lever instead"],d:"NO. Check interlock and shutoff valves first. Most spoiler faults are upstream of the actuator itself — saves cost and time."},
+{c:"🎯 LRU",q:"Trim issue. Should you jump straight to the actuator?",correct:"NO — check electrical logic and cutout switches",o:["YES — actuator is the most expensive part","NO — check electrical logic and cutout switches","YES — actuator failure rate is highest","NO — replace both feel computers instead"],d:"NO. Check electrical logic and cutout switches first. Trim has multiple electrical safeties — most \'actuator\' faults are upstream electrical/logic issues."},
+{c:"🏆 Rules",q:"What\'s the unifying principle of ATA 27 troubleshooting?",correct:"Separate mechanical / hydraulic / electrical",o:["Replace the suspected part and observe","Separate mechanical / hydraulic / electrical","Always reset the FCC channels first","Defuel before any flight control work"],d:"Three different layers, three different problems. Separating them is the #1 tribal rule. Mechanical, hydraulic, and electrical each have distinct fault signatures."},
+{c:"🏆 Rules",q:"On dual hydraulic systems (A and B), if one is lost:",correct:"Partial control still exists — dual logic",o:["Total loss of all flight controls","Partial control still exists — dual logic","Aircraft is immediately ungovernable","Standby always takes over instantly"],d:"Dual systems mean PARTIAL control still exists. A/B hydraulic logic provides redundancy on primary flight controls — ailerons, elevators, rudder."},
+{c:"🏆 Rules",q:"When a flight control system \'stops itself\':",correct:"It detected something unsafe — find the trigger",o:["It\'s a software glitch — reset and continue","It detected something unsafe — find the trigger","It\'s a sensor failure — replace the sensor","Ignore it if behavior returns to normal"],d:"If the system stops itself, it detected something unsafe. Find the trigger condition before re-enabling. Protection trips are diagnostic clues, not just inconveniences."}
+];
+
+// ═══════════════ ANSWER RANDOMISATION ═══════════════
+// Shuffles options at render time; tracks correct answer by TEXT, not index.
+// This means every play-through has fully random answer positions.
+function shuffleOptions(q){
+  const opts=[...q.o];
+  for(let i=opts.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [opts[i],opts[j]]=[opts[j],opts[i]];
+  }
+  const correctIdx=opts.indexOf(q.correct);
+  return{shuffled:opts,correctIdx};
+}
+
+// ═══════════════ STATE ═══════════════
+const G={qs:[],idx:0,hearts:3,xp:0,streak:0,bestStreak:0,correct:0,done:false,correctIdx:0};
+function shuffle(a){return a.sort(()=>Math.random()-.5)}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on')}
+function goHome(){show('home')}
+function confirmQuit(){if(confirm('Quit this quiz?'))goHome();}
+
+function startGame(){
+  G.qs=shuffle([...BANK]);
+  G.idx=0;G.hearts=3;G.xp=0;G.streak=0;G.bestStreak=0;G.correct=0;
+  updateHearts();
+  document.getElementById('xpdis').textContent='0';
+  document.getElementById('streak-n').textContent='0';
+  document.getElementById('qtot').textContent=G.qs.length;
+  show('quiz');
+  renderQ();
+}
+
+function renderQ(){
+  G.done=false;
+  const fb=document.getElementById('fb');
+  fb.className='fb';fb.style.display='none';
+  const q=G.qs[G.idx];
+  document.getElementById('cat-lbl').textContent=q.c;
+  document.getElementById('q-cat').textContent=q.c;
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('qn').textContent=G.idx+1;
+  document.getElementById('bar').style.width=Math.round((G.idx/G.qs.length)*100)+'%';
+
+  // Shuffle options fresh for every render — answer position is always random
+  const {shuffled,correctIdx}=shuffleOptions(q);
+  G.correctIdx=correctIdx;
+
+  const cont=document.getElementById('opts');
+  cont.innerHTML='';
+  const keys=['A','B','C','D'];
+  shuffled.forEach((txt,i)=>{
+    const b=document.createElement('button');
+    b.className='opt';
+    b.innerHTML=`<span class="opt-l">${keys[i]}</span><span>${txt}</span>`;
+    b.onclick=()=>pick(i,shuffled);
+    cont.appendChild(b);
+    b.style.opacity='0';b.style.transform='translateX(-16px)';
+    setTimeout(()=>{b.style.transition='opacity .22s ease,transform .22s ease';b.style.opacity='1';b.style.transform='translateX(0)';},70+i*50);
+  });
+
+  document.getElementById('q-body').scrollTop=0;
+}
+
+function pick(idx,shuffled){
+  if(G.done)return;
+  G.done=true;
+  const correct=idx===G.correctIdx;
+  const btns=[...document.querySelectorAll('.opt')];
+  btns.forEach(b=>b.disabled=true);
+  btns[G.correctIdx].classList.add('reveal-right');
+  if(correct){
+    btns[idx].classList.remove('reveal-right');
+    btns[idx].classList.add('picked-right');
+    btns.forEach((b,i)=>{if(i!==idx)b.classList.add('faded');});
+    G.correct++;G.streak++;
+    if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+    const xpGain=G.streak>=5?20:G.streak>=3?15:10;
+    G.xp+=xpGain;
+    document.getElementById('xpdis').textContent=G.xp;
+    document.getElementById('streak-n').textContent=G.streak;
+    showFeedback(true,G.qs[G.idx].d,xpGain);
+    spawnSparks(btns[idx]);
+    playCorrect();
+    if(G.streak===3){showPopBadge('🔥 3 Streak!');playCombo();}
+    if(G.streak===5){showPopBadge('⚡ 5 in a row!');playCombo();}
+    if(G.streak===10){showPopBadge('🌟 10 Streak!');playCombo();}
+  } else {
+    btns[idx].classList.add('picked-wrong');
+    btns.forEach((b,i)=>{if(i!==idx&&i!==G.correctIdx)b.classList.add('faded');});
+    G.streak=0;G.hearts--;
+    document.getElementById('streak-n').textContent=0;
+    updateHearts();
+    showFeedback(false,G.qs[G.idx].d,0);
+    playWrong();
+  }
+}
+
+function showFeedback(ok,detail,xp){
+  const fb=document.getElementById('fb');
+  fb.className='fb on '+(ok?'ok':'no');
+  fb.style.display='flex';
+  const icons=ok?['✅','🎉','🌟','⭐','🔥','💡','🎯','🏅']:['❌'];
+  const heads=ok?['Correct!','Great!','Well done!','Spot on!','Nailed it!','Right on!','Excellent!']:['Not quite!'];
+  document.getElementById('fb-icon').textContent=icons[Math.floor(Math.random()*icons.length)];
+  document.getElementById('fb-head').textContent=heads[Math.floor(Math.random()*heads.length)];
+  document.getElementById('fb-det').textContent=detail;
+  const cont=document.getElementById('btn-cont');
+  cont.textContent=(G.idx>=G.qs.length-1||G.hearts<=0)?'See Results →':'Continue →';
+  if(ok&&xp)floatXP('+'+xp+' XP',cont);
+}
+
+function advance(){
+  playClick();
+  G.idx++;
+  if(G.idx>=G.qs.length||G.hearts<=0)showResult();
+  else renderQ();
+}
+
+function updateHearts(){
+  [0,1,2].forEach(i=>{
+    document.getElementById('h'+i).classList.toggle('gone',i>=G.hearts);
+  });
+}
+
+function showResult(){
+  const acc=G.idx?Math.round((G.correct/G.idx)*100):0;
+  const stars=acc>=90?3:acc>=70?2:acc>=50?1:0;
+  const trophies=['😅','🥉','🥈','🏆'];
+  const titles=['Keep Practicing!','Nice Try!','Well Done!','Outstanding! 🎯'];
+  const subs=['Review the ATA 22 DFCS manual and try again.','Good effort — study the explanations!','Strong DFCS knowledge!','You are an ATA 22 expert! ✈️'];
+  document.getElementById('trophy').textContent=trophies[stars];
+  document.getElementById('res-title').textContent=titles[stars];
+  document.getElementById('res-sub').textContent=subs[stars];
+  document.getElementById('r-xp').textContent=G.xp;
+  document.getElementById('r-acc').textContent=acc+'%';
+  document.getElementById('r-str').textContent=G.bestStreak;
+  ['rs0','rs1','rs2'].forEach((id,i)=>{
+    const el=document.getElementById(id);
+    el.classList.remove('lit');el.style.animationDelay='0s';
+    if(i<stars)setTimeout(()=>{el.style.animationDelay=(i*.2)+'s';el.classList.add('lit');},500+i*120);
+  });
+  show('result');
+  if(acc>=60)setTimeout(()=>{launchConfetti(acc);playVictory();},300);
+}
+
+function launchConfetti(acc){
+  const cols=['#f5a623','#ffd27f','#58cc02','#ffc800','#1cb0f6','#ff4b4b','#fff'];
+  const shapes=['●','■','▲','◆','★','✦','✧'];
+  const count=Math.min(35+Math.floor(acc/4),70);
+  for(let i=0;i<count;i++){
+    setTimeout(()=>{
+      const el=document.createElement('div');
+      el.className='confetti';
+      el.textContent=shapes[Math.floor(Math.random()*shapes.length)];
+      el.style.cssText=`left:${Math.random()*100}vw;top:-20px;color:${cols[Math.floor(Math.random()*cols.length)]};font-size:${9+Math.random()*13}px;animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.4}s`;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),4000);
+    },i*22);
+  }
+}
+
+function spawnSparks(btn){
+  const rect=btn.getBoundingClientRect();
+  const cx=rect.left+rect.width/2,cy=rect.top+rect.height/2;
+  const cols=['#f5a623','#ffd27f','#ffc800','#fff','#58cc02'];
+  for(let i=0;i<10;i++){
+    const el=document.createElement('div');
+    el.className='spark';
+    const a=(i/10)*Math.PI*2,d=28+Math.random()*44;
+    el.style.cssText=`left:${cx}px;top:${cy}px;width:${4+Math.random()*5}px;height:${4+Math.random()*5}px;background:${cols[i%cols.length]};--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;animation-duration:${.4+Math.random()*.25}s`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),800);
+  }
+}
+
+function floatXP(txt,refEl){
+  const rect=refEl.getBoundingClientRect();
+  const el=document.createElement('div');
+  el.className='floatxp';el.textContent=txt;
+  el.style.cssText=`left:${rect.left+rect.width*.5}px;top:${rect.top-10}px`;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1000);
+}
+
+function showPopBadge(txt){
+  const el=document.createElement('div');
+  el.className='popbadge';el.textContent=txt;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1100);
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('quiz').classList.contains('on'))return;
+  const map={'1':0,'2':1,'3':2,'4':3,'a':0,'b':1,'c':2,'d':3};
+  const k=e.key.toLowerCase();
+  if(!G.done&&map[k]!==undefined)pick(map[k],[]);
+  if(G.done&&(e.key==='Enter'||e.key===' ')){e.preventDefault();advance();}
+});
+</script>
+</body>
+</html>

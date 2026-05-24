@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B737NG ATA 26 – Fire Protection Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#170404;
+  --card:#1e0606;
+  --card2:#260808;
+  --fire:#ff4422;
+  --fire2:#c42200;
+  --green:#58cc02;
+  --green2:#46a302;
+  --green-bg:#071a0a;
+  --green-bdr:#1a4d1a;
+  --red:#ff4b4b;
+  --red2:#cc2a2a;
+  --red-bg:#2a0808;
+  --red-bdr:#6c1212;
+  --gold:#ffc800;
+  --gold2:#c89800;
+  --text:#f5e0dc;
+  --muted:#7a4040;
+  --border:#3a1010;
+  --r:14px;
+}
+html,body{min-height:100vh;background:var(--bg);font-family:'Nunito',sans-serif;color:var(--text)}
+body{
+  display:flex;align-items:center;justify-content:center;padding:16px;
+  background:
+    radial-gradient(ellipse at 15% 0%,rgba(255,68,34,.12) 0%,transparent 55%),
+    radial-gradient(ellipse at 85% 100%,rgba(196,34,0,.06) 0%,transparent 50%),
+    var(--bg);
+}
+.wrap{width:100%;max-width:520px}
+.screen{display:none}.screen.on{display:block}
+
+/* ── HOME ── */
+.home-card{background:var(--card);border-radius:22px;padding:28px 24px;border:1px solid var(--border);box-shadow:0 0 0 1px #0e0202,0 24px 60px rgba(0,0,0,.9);text-align:center;position:relative;overflow:hidden}
+.home-card::before{content:'';position:absolute;top:-80px;left:-80px;width:280px;height:280px;background:radial-gradient(circle,rgba(255,68,34,.12) 0%,transparent 70%);pointer-events:none;border-radius:50%}
+.home-card::after{content:'';position:absolute;bottom:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(196,34,0,.07) 0%,transparent 70%);pointer-events:none;border-radius:50%}
+.plane{font-size:58px;display:block;animation:bob 3s ease-in-out infinite;margin-bottom:2px;filter:drop-shadow(0 0 20px rgba(255,68,34,.7))}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-11px) rotate(4deg)}}
+.home-badge{display:inline-block;color:var(--fire);font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:4px 14px;border-radius:99px;margin-bottom:8px;border:1.5px solid var(--fire2);position:relative;z-index:1}
+.home-h1{font-size:clamp(20px,5vw,28px);font-weight:900;line-height:1.15;margin-bottom:6px;color:#fff;position:relative;z-index:1}
+.home-h1 span{color:var(--fire)}
+.home-sub{font-size:12px;color:var(--muted);font-weight:600;line-height:1.55;max-width:340px;margin:0 auto 16px;position:relative;z-index:1}
+.home-pills{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-bottom:16px;position:relative;z-index:1}
+.pill{background:#1a0404;border:1.5px solid #3a1010;border-radius:99px;padding:4px 11px;font-size:11px;font-weight:700;color:var(--fire2)}
+.home-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px;position:relative;z-index:1}
+.meta-box{background:#120202;border:1.5px solid var(--border);border-radius:12px;padding:11px 6px}
+.meta-n{font-size:26px;font-weight:900;color:var(--fire)}
+.meta-l{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.btn-go{width:100%;padding:14px;background:var(--fire);color:#fff;border:none;border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 5px 0 var(--fire2),0 8px 24px rgba(255,68,34,.35);transition:transform .12s,box-shadow .12s;letter-spacing:.3px;position:relative;z-index:1}
+.btn-go:hover{transform:translateY(-3px);box-shadow:0 8px 0 var(--fire2),0 12px 28px rgba(255,68,34,.4)}
+.btn-go:active{transform:translateY(3px);box-shadow:0 2px 0 var(--fire2)}
+
+/* ── QUIZ SHELL ── */
+.q-shell{background:var(--card);border-radius:20px;border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.9);overflow:hidden;max-height:490px;display:flex;flex-direction:column}
+.topbar{padding:10px 14px 9px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;flex-shrink:0;background:var(--card2)}
+.xbtn{width:27px;height:27px;border:1.5px solid var(--border);border-radius:7px;background:none;cursor:pointer;font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.xbtn:hover{background:#2a0808;border-color:var(--fire);color:var(--fire)}
+.prog-col{flex:1}
+.prog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.prog-cat{font-size:11px;font-weight:800;color:var(--fire);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px}
+.prog-n{font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap}
+.bar-bg{height:7px;background:#120202;border-radius:99px;overflow:hidden;border:1px solid #2a0a0a}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--fire2),var(--fire),#ff8866);border-radius:99px;transition:width .5s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 8px rgba(255,68,34,.5)}
+.topbar-r{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.hearts{display:flex;gap:1px;font-size:14px}
+.heart{transition:all .3s}.heart.gone{opacity:.15;filter:grayscale(1);transform:scale(.65)}
+.xp-tag{background:#120202;border:1.5px solid #3a1a00;border-radius:99px;padding:3px 9px;font-size:12px;font-weight:800;color:var(--gold);white-space:nowrap}
+.streak-tag{background:#120202;border:1.5px solid #3a1a00;border-radius:99px;padding:3px 9px;font-size:11px;font-weight:800;color:#ff9600;white-space:nowrap}
+
+/* ── QUESTION BODY ── */
+.q-body{flex:1;overflow-y:auto;padding:13px 15px 0;scrollbar-width:thin;scrollbar-color:#2a0a0a transparent}
+.q-body::-webkit-scrollbar{width:4px}
+.q-body::-webkit-scrollbar-thumb{background:#2a0a0a;border-radius:4px}
+.q-cat{font-size:11px;font-weight:800;color:var(--fire2);text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.q-dot{width:6px;height:6px;background:var(--fire);border-radius:50%;box-shadow:0 0 6px rgba(255,68,34,.9)}
+.q-text{font-size:clamp(13px,2.6vw,14.5px);font-weight:700;line-height:1.52;margin-bottom:12px;color:#f0dcd8}
+.opts{display:flex;flex-direction:column;gap:6px;padding-bottom:12px}
+.opt{width:100%;padding:10px 12px;background:#120202;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:9px;font-family:'Nunito',sans-serif;font-size:12.5px;font-weight:700;color:#c89888;transition:all .13s;line-height:1.32;position:relative;overflow:hidden}
+.opt:hover:not(:disabled){border-color:var(--fire2);background:#200808;color:var(--fire);transform:translateX(3px)}
+.opt-l{width:24px;height:24px;border-radius:6px;background:#1e0606;border:1.5px solid #3a1010;font-size:11px;font-weight:900;color:#5a2020;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.opt.picked-right{border-color:var(--green);background:var(--green-bg);color:#a0ffe0;animation:bumpR .4s cubic-bezier(.34,1.56,.64,1)}
+.opt.picked-right .opt-l{background:var(--green);border-color:var(--green);color:#000}
+.opt.picked-wrong{border-color:var(--red);background:var(--red-bg);color:#ffaaaa;animation:shakeW .35s}
+.opt.picked-wrong .opt-l{background:var(--red);border-color:var(--red);color:#fff}
+.opt.reveal-right{border-color:var(--green);background:var(--green-bg);color:#a0ffe0}
+.opt.reveal-right .opt-l{background:var(--green);border-color:var(--green);color:#000}
+.opt.faded{opacity:.22}
+.opt:disabled{cursor:default;transform:none!important}
+@keyframes bumpR{0%{transform:scale(1)}40%{transform:scale(1.025)}100%{transform:scale(1)}}
+@keyframes shakeW{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+
+/* ── FEEDBACK ── */
+.fb{flex-shrink:0;display:none;align-items:center;gap:9px;padding:10px 15px;border-top:1.5px solid transparent}
+.fb.on{display:flex}
+.fb.ok{background:#071a0a;border-color:var(--green-bdr)}
+.fb.no{background:#200404;border-color:#6c1212}
+.fb-icon{font-size:24px;flex-shrink:0}
+.fb-txt{flex:1;min-width:0}
+.fb-head{font-size:13px;font-weight:900}
+.fb.ok .fb-head{color:var(--green)}
+.fb.no .fb-head{color:var(--red)}
+.fb-detail{font-size:11px;font-weight:600;color:#7a4040;line-height:1.4;margin-top:2px}
+.btn-cont{padding:8px 14px;border:none;border-radius:9px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .12s}
+.fb.ok .btn-cont{background:var(--green);color:#000;box-shadow:0 3px 0 var(--green2)}
+.fb.ok .btn-cont:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--green2)}
+.fb.no .btn-cont{background:var(--red);color:#fff;box-shadow:0 3px 0 var(--red2)}
+.fb.no .btn-cont:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--red2)}
+
+/* ── RESULTS ── */
+.res-card{background:var(--card);border-radius:22px;padding:28px 22px;border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.9);text-align:center;position:relative;overflow:hidden}
+.res-card::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:300px;height:300px;background:radial-gradient(circle,rgba(255,68,34,.09) 0%,transparent 65%);border-radius:50%;pointer-events:none}
+.trophy{font-size:66px;display:block;animation:dropIn .7s cubic-bezier(.34,1.56,.64,1);position:relative;z-index:1;filter:drop-shadow(0 0 20px rgba(255,68,34,.5))}
+@keyframes dropIn{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.stars-row{display:flex;justify-content:center;gap:8px;margin:5px 0 12px;position:relative;z-index:1}
+.rstar{font-size:32px;opacity:0;filter:drop-shadow(0 0 8px rgba(255,68,34,.6))}
+.rstar.lit{animation:starIn .5s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes starIn{to{opacity:1;transform:scale(1) rotate(0)}from{opacity:0;transform:scale(0) rotate(-20deg)}}
+.res-title{font-size:clamp(20px,5vw,26px);font-weight:900;margin-bottom:3px;color:#fff;position:relative;z-index:1}
+.res-sub{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:18px;position:relative;z-index:1}
+.res-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px;position:relative;z-index:1}
+.res-box{background:#120202;border:1.5px solid var(--border);border-radius:12px;padding:12px 6px}
+.res-n{font-size:24px;font-weight:900;color:var(--fire)}
+.res-l{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.res-btns{display:flex;flex-direction:column;gap:8px;position:relative;z-index:1}
+.btn-again{width:100%;padding:14px;background:var(--fire);color:#fff;border:none;border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 5px 0 var(--fire2),0 7px 20px rgba(255,68,34,.25);transition:all .12s;letter-spacing:.3px}
+.btn-again:hover{transform:translateY(-2px);box-shadow:0 7px 0 var(--fire2),0 10px 24px rgba(255,68,34,.3)}
+.btn-again:active{transform:translateY(3px);box-shadow:0 2px 0 var(--fire2)}
+.btn-home-sm{width:100%;padding:11px;border:1.5px solid var(--border);border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:none;color:var(--muted);transition:all .15s}
+.btn-home-sm:hover{border-color:var(--fire2);color:var(--fire)}
+
+/* ── EFFECTS ── */
+.confetti{position:fixed;pointer-events:none;z-index:9999;animation:cfall linear forwards}
+@keyframes cfall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(110vh) rotate(700deg)}}
+.spark{position:fixed;pointer-events:none;z-index:9999;border-radius:50%;animation:spark ease-out forwards}
+@keyframes spark{to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0)}}
+.floatxp{position:fixed;pointer-events:none;z-index:9999;font-size:16px;font-weight:900;color:var(--gold);text-shadow:0 0 12px rgba(255,200,0,.5);animation:fxp .9s ease-out forwards}
+@keyframes fxp{0%{opacity:1;transform:translateY(0) scale(.7)}20%{transform:translateY(-8px) scale(1.1)}100%{opacity:0;transform:translateY(-60px) scale(.9)}}
+.popbadge{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:9999;font-size:34px;font-weight:900;animation:pbadge 1s ease forwards;white-space:nowrap;text-shadow:0 0 30px rgba(255,68,34,.9),0 4px 20px rgba(0,0,0,.5)}
+@keyframes pbadge{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}70%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-55%) scale(.9)}}
+@media(max-width:400px){.topbar{padding:9px 11px}.q-body{padding:11px 11px 0}.opts{gap:5px}.opt{padding:9px 10px;font-size:12px}.fb{padding:9px 12px}.home-card,.res-card{padding:22px 14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ═══ HOME ═══ -->
+<div id="home" class="screen on">
+<div class="home-card">
+  <span class="plane">🔥</span>
+  <div class="home-badge">ATA Chapter 26</div>
+  <h1 class="home-h1">B737NG<br><span>Fire Protection Quiz</span></h1>
+  <p class="home-sub">30 questions on engine fire loops, detection logic, fire handles, extinguisher bottles, APU, cargo, wheel well, lavatory &amp; tribal knowledge.</p>
+  <div class="home-pills">
+    <span class="pill">🔥 Engine Detection</span>
+    <span class="pill">🌡️ Loop Logic</span>
+    <span class="pill">⚠️ Fire Handles</span>
+    <span class="pill">🧯 Extinguishers</span>
+    <span class="pill">✈️ APU Fire</span>
+    <span class="pill">📦 Cargo Fire</span>
+    <span class="pill">🚻 Wheel/Lav</span>
+    <span class="pill">🏆 Tribal Rules</span>
+  </div>
+  <div class="home-meta">
+    <div class="meta-box"><div class="meta-n">30</div><div class="meta-l">Questions</div></div>
+    <div class="meta-box"><div class="meta-n">3</div><div class="meta-l">Lives</div></div>
+    <div class="meta-box"><div class="meta-n">8</div><div class="meta-l">Topics</div></div>
+  </div>
+  <button class="btn-go" onclick="startGame()">🔥 Start Quiz</button>
+</div>
+</div>
+
+<!-- ═══ QUIZ ═══ -->
+<div id="quiz" class="screen">
+<div class="q-shell">
+  <div class="topbar">
+    <button class="xbtn" onclick="confirmQuit()">✕</button>
+    <div class="prog-col">
+      <div class="prog-top">
+        <span class="prog-cat" id="cat-lbl">Engine Detection</span>
+        <span class="prog-n"><span id="qn">1</span>/<span id="qtot">30</span></span>
+      </div>
+      <div class="bar-bg"><div class="bar-fill" id="bar" style="width:0%"></div></div>
+    </div>
+    <div class="topbar-r">
+      <div class="streak-tag">🔥<span id="streak-n">0</span></div>
+      <div class="hearts" id="hearts">
+        <span class="heart" id="h0">❤️</span><span class="heart" id="h1">❤️</span><span class="heart" id="h2">❤️</span>
+      </div>
+      <div class="xp-tag">⚡<span id="xpdis">0</span></div>
+    </div>
+  </div>
+  <div class="q-body" id="q-body">
+    <div class="q-cat"><div class="q-dot"></div><span id="q-cat">Engine Detection</span></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="opts" id="opts"></div>
+  </div>
+  <div class="fb" id="fb">
+    <span class="fb-icon" id="fb-icon">✅</span>
+    <div class="fb-txt">
+      <div class="fb-head" id="fb-head">Correct!</div>
+      <div class="fb-detail" id="fb-det"></div>
+    </div>
+    <button class="btn-cont" id="btn-cont" onclick="advance()">Next →</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══ RESULT ═══ -->
+<div id="result" class="screen">
+<div class="res-card">
+  <span class="trophy" id="trophy">🏆</span>
+  <div class="stars-row">
+    <span class="rstar" id="rs0">⭐</span><span class="rstar" id="rs1">⭐</span><span class="rstar" id="rs2">⭐</span>
+  </div>
+  <div class="res-title" id="res-title">Session Complete!</div>
+  <div class="res-sub" id="res-sub">Great work!</div>
+  <div class="res-grid">
+    <div class="res-box"><div class="res-n" id="r-xp">0</div><div class="res-l">XP</div></div>
+    <div class="res-box"><div class="res-n" id="r-acc">0%</div><div class="res-l">Accuracy</div></div>
+    <div class="res-box"><div class="res-n" id="r-str">0</div><div class="res-l">Best Streak</div></div>
+  </div>
+  <div class="res-btns">
+    <button class="btn-again" onclick="startGame()">🔁 Play Again</button>
+    <button class="btn-home-sm" onclick="goHome()">← Back to Home</button>
+  </div>
+</div>
+</div>
+
+</div>
+<script>
+// ═══ AUDIO ═══
+const AC_=window.AudioContext||window.webkitAudioContext;let actx=null;
+function ctx(){if(!actx)actx=new AC_();return actx;}
+function playCorrect(){try{const c=ctx();[523,659,784,1047].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;const t=c.currentTime+i*.07;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.16,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.22);o.start(t);o.stop(t+.25);});}catch(e){}}
+function playWrong(){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sawtooth';o.frequency.setValueAtTime(280,c.currentTime);o.frequency.exponentialRampToValueAtTime(80,c.currentTime+.35);g.gain.setValueAtTime(.13,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.4);o.start();o.stop(c.currentTime+.45);}catch(e){}}
+function playCombo(){try{const c=ctx();[880,1108,1320,1760].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='triangle';o.frequency.value=f;const t=c.currentTime+i*.05;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.2,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.28);o.start(t);o.stop(t+.3);});}catch(e){}}
+function playVictory(){try{const c=ctx();[523,659,784,1047,1319,1568,2093].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;const t=c.currentTime+i*.09;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.18,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+.32);o.start(t);o.stop(t+.35);});}catch(e){}}
+function playClick(){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=440;g.gain.setValueAtTime(.06,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.07);o.start();o.stop(c.currentTime+.08);}catch(e){}}
+
+// ═══ QUESTION BANK ═══
+const BANK=[
+// ── ENGINE FIRE DETECTION ─────────────────────────────────────────────────────
+{c:"🔥 Engine Detection",
+ q:"Each engine on the B737NG has two fire/overheat detection loops. How many detector elements does each loop contain?",
+ correct:"Four elements per loop — eight total per engine, spread around the fan and core sections",
+ o:["Four elements per loop — eight total per engine, spread around the fan and core sections",
+    "Two elements per loop — one for overheat and one for fire in each zone",
+    "Six elements per loop — three in the fan zone and three in the core zone",
+    "One continuous sensing element per loop that wraps the full engine nacelle"],
+ d:"Each engine has two loops (A and B). Each loop contains four detector elements, giving eight detectors total per engine. The elements are distributed around the fan and core sections of the nacelle to provide comprehensive coverage and prevent any single point of failure."},
+
+{c:"🔥 Engine Detection",
+ q:"How does the engine fire/overheat detector element actually work?",
+ correct:"It is a gas-filled tube — heat expands the gas, pressure rises, and a pressure switch triggers an overheat or fire signal",
+ o:["It is a gas-filled tube — heat expands the gas, pressure rises, and a pressure switch triggers an overheat or fire signal",
+    "It is a thermistor wire — resistance drops with temperature and the control module detects the change",
+    "It is an optical sensor — it detects infrared radiation from flames and transmits a signal",
+    "It is a bimetallic strip — differential expansion closes a circuit at a set temperature"],
+ d:"The engine detector elements are gas-filled tubes. As temperature rises, the gas expands and pressure increases. At a predetermined temperature, the pressure triggers an overheat signal. At a higher temperature, it triggers a fire signal. Loss of pressure (tube rupture or leak) signals a loop fault — not a fire. This distinction is critical for troubleshooting."},
+
+{c:"🔥 Engine Detection",
+ q:"In NORMAL mode (OVHT DET switch in NORMAL), what logic is required to trigger a fire or overheat warning?",
+ correct:"Both Loop A AND Loop B must agree — one element from each loop must sense the condition simultaneously",
+ o:["Both Loop A AND Loop B must agree — one element from each loop must sense the condition simultaneously",
+    "Either loop alone is sufficient — any single element activation triggers the full warning",
+    "Three of the eight total elements must sense the condition to prevent false alarms",
+    "The control module averages both loops and triggers if the average exceeds the threshold"],
+ d:"Normal mode uses AND logic — both loops must agree before a warning is generated. This redundancy prevents nuisance warnings from a single faulty element or loop. If one loop fails, the OVHT DET switch can be selected to A or B to allow the healthy single loop to protect the engine."},
+
+{c:"🔥 Engine Detection",
+ q:"Loop A on Engine 1 has a suspected fault. The OVHT DET switch is moved to B. What does this mean operationally?",
+ correct:"Only Loop B is now active for Engine 1 — a single-loop condition where any element in Loop B triggers the warning",
+ o:["Only Loop B is now active for Engine 1 — a single-loop condition where any element in Loop B triggers the warning",
+    "Both loops remain active — the switch only changes which loop powers the cockpit annunciation",
+    "Loop B is selected as primary but Loop A remains as a silent backup monitor",
+    "The system switches to an average of both loops regardless of switch position"],
+ d:"Selecting A or B on the OVHT DET switch deactivates the opposite loop and runs the engine on single-loop protection. In this mode, any activated element in the selected loop alone triggers the warning — AND logic is removed. This is intentional: you still want protection even with one loop inoperative."},
+
+{c:"🔥 Engine Detection",
+ q:"What is the critical troubleshooting distinction between a loop FAULT indication and a FIRE warning?",
+ correct:"A loop fault means loss of pressure in the sensing element (broken tube or failed element) — not a fire. Treating a fault as a fire leads to unnecessary engine shutdown",
+ o:["A loop fault means loss of pressure in the sensing element (broken tube or failed element) — not a fire. Treating a fault as a fire leads to unnecessary engine shutdown",
+    "A loop fault and a fire warning are generated by the same circuit — only the amber vs red colour differentiates them",
+    "A loop fault always precedes a fire warning — it is an early warning of detector element degradation",
+    "Loop faults are generated by the BITE system only and have no cockpit light — they are ground-only indications"],
+ d:"This is one of the most important distinctions in ATA 26: loss of loop pressure triggers a FAULT indication (amber), not a fire warning (red). A broken sensing element looks like a fault, not a fire. Knowing this prevents unnecessary engine shutdown on the line and stops the expensive mistake of treating a broken wire as an inflight emergency."},
+
+{c:"🔥 Engine Detection",
+ q:"A full engine fire warning consists of which indications simultaneously?",
+ correct:"Master FIRE WARN lights (red), fire warning bell, and the engine fire warning switch light illuminates red",
+ o:["Master FIRE WARN lights (red), fire warning bell, and the engine fire warning switch light illuminates red",
+    "Master CAUTION lights (amber), OVHT/DET annunciator, and an EICAS advisory message",
+    "FIRE WARN light only — the bell is reserved for APU fire events only",
+    "The fire warning switch light illuminates and the FAULT light flashes — no bell until handle is pulled"],
+ d:"A full engine fire warning triggers the complete package: both Master FIRE WARN lights illuminate red, the fire warning bell sounds, and the engine fire warning switch (handle) illuminates red. An overheat (lower temperature threshold) only triggers Master CAUTION and the amber ENG OVERHEAT light — not the bell or red fire switch."},
+
+// ── LOOP LOGIC & INDICATIONS ──────────────────────────────────────────────────
+{c:"🌡️ Loop Logic",
+ q:"The ENG OVERHEAT light illuminates amber. What does this represent compared to a fire warning?",
+ correct:"A lower temperature threshold has been reached — triggers Master CAUTION and OVHT/DET annunciator, but NOT the fire bell or red fire switch light",
+ o:["A lower temperature threshold has been reached — triggers Master CAUTION and OVHT/DET annunciator, but NOT the fire bell or red fire switch light",
+    "The overheat light is the first stage of a fire warning — it always precedes the red fire switch illumination",
+    "An overheat indication is identical to a fire warning in all aspects except colour",
+    "The overheat light indicates a loop fault — the detection elements are out of calibration"],
+ d:"Overheat and fire are distinct thresholds. Overheat: lower temperature, amber ENG OVERHEAT light, Master CAUTION only. Fire: higher temperature, red fire warning switch, Master FIRE WARN lights, and fire bell. The ENG OVERHEAT light remains illuminated until temperature drops below the onset temperature — it does not self-reset while still hot."},
+
+{c:"🌡️ Loop Logic",
+ q:"Both loops on Engine 2 fail. What indication does this produce on the cockpit panel?",
+ correct:"The amber FAULT light illuminates on the P8 panel — dual loop failure is a fault, not a fire warning",
+ o:["The amber FAULT light illuminates on the P8 panel — dual loop failure is a fault, not a fire warning",
+    "A full engine fire warning is triggered — the system treats dual loop failure as a fire condition",
+    "No indication — the system requires at least one functional loop to generate any cockpit alert",
+    "The fire warning switch illuminates red and the bell sounds as a protective fail-safe"],
+ d:"Dual loop failure on an engine illuminates the amber FAULT light — it is a system fault, not a fire event. The fire detection control module distinguishes between loop pressure loss (fault) and actual thermal events (overheat/fire). Using BITE before condemning the loops helps pinpoint which element or section of the loop has actually failed."},
+
+{c:"🌡️ Loop Logic",
+ q:"The P8 panel shows FIRE (red), OVERHEAT (amber), and FAULT (amber). What colour differentiates a fire condition from a fault or overheat?",
+ correct:"FIRE = red. OVERHEAT and FAULT = amber. Red always indicates the highest alert level requiring immediate crew action",
+ o:["FIRE = red. OVERHEAT and FAULT = amber. Red always indicates the highest alert level requiring immediate crew action",
+    "All three indications are red — colour coding varies by aircraft age and modification standard",
+    "FIRE = amber flashing, OVERHEAT = amber steady, FAULT = white — the P8 uses a three-colour system",
+    "FIRE = red, OVERHEAT = red, FAULT = amber — overheat is treated with the same urgency as fire"],
+ d:"Colour coding on the P8 fire panel is clear and deliberate: FIRE = red (immediate action), OVERHEAT = amber (caution, monitor), FAULT = amber (system degraded, investigate). Understanding the colour hierarchy prevents over-reaction to faults and ensures correct prioritisation during genuine fire events."},
+
+{c:"🌡️ Loop Logic",
+ q:"The fire detection system uses the Hot Battery Bus for extinguishing but a different bus for detection. What powers engine/APU fire detection?",
+ correct:"Engine and APU fire detection is powered by the Battery Bus — extinguishing circuits use the Hot Battery Bus",
+ o:["Engine and APU fire detection is powered by the Battery Bus — extinguishing circuits use the Hot Battery Bus",
+    "Both detection and extinguishing use the Hot Battery Bus — they share the same power source",
+    "Detection uses DC Bus 1 and extinguishing uses DC Bus 2 — completely isolated power paths",
+    "Detection uses AC Transfer Bus 1 — the only AC-powered system in ATA 26"],
+ d:"Power source segregation is deliberate: engine/APU fire detection runs on the Battery Bus for continuous protection even with electrical faults. Extinguishing systems (engine, APU, and cargo bottles) run on the Hot Battery Bus, which stays powered regardless of battery switch position. Cargo and lav smoke detection run on DC Bus 1 and 2."},
+
+// ── FIRE HANDLES ──────────────────────────────────────────────────────────────
+{c:"⚠️ Fire Handles",
+ q:"Pulling the engine fire warning switch (handle) accomplishes which of the following actions?",
+ correct:"Closes fuel shutoff valve, removes generator from bus, closes hydraulic EDP supply, closes engine bleed air valve, and disables the thrust reverser",
+ o:["Closes fuel shutoff valve, removes generator from bus, closes hydraulic EDP supply, closes engine bleed air valve, and disables the thrust reverser",
+    "Only closes the fuel shutoff valve and arms the fire bottle — all other systems remain normal",
+    "Disconnects the engine from the airframe entirely and deploys the fire suppression agent automatically",
+    "Triggers automatic bottle discharge and silences the fire bell — no other system is affected"],
+ d:"Pulling the fire handle is a comprehensive isolation action — it simultaneously: closes the engine fuel shutoff valve (removes fuel from the fire area), trips the Generator Circuit Breaker (removes electrical source), closes the hydraulic Engine Driven Pump supply valve, closes the engine bleed air valve, and disables the thrust reverser isolation valve. It also arms the firing circuits so the handle can be rotated to discharge a bottle."},
+
+{c:"⚠️ Fire Handles",
+ q:"After pulling the engine fire handle, what must be done to discharge a fire extinguisher bottle?",
+ correct:"Rotate the handle — clockwise fires one bottle, counterclockwise fires the other bottle",
+ o:["Rotate the handle — clockwise fires one bottle, counterclockwise fires the other bottle",
+    "Push a separate DISCH button on the P8 panel — the handle pull only isolates the engine",
+    "The bottle discharges automatically 10 seconds after the handle is pulled",
+    "Pull the handle a second time — the first pull isolates, the second pull fires the bottle"],
+ d:"Pulling the fire handle isolates the engine and arms the firing circuits. To actually discharge a bottle, the handle must be rotated: clockwise directs one bottle to the engine, counterclockwise directs the other bottle. Each rotation electrically fires a squib that ruptures the bottle seal and releases Halon into the engine cowling."},
+
+{c:"⚠️ Fire Handles",
+ q:"When is the engine fire warning switch (handle) able to be pulled?",
+ correct:"When overheat or fire is detected, during an OVHT/FIRE test, or when the manual override button is pressed — it is locked out otherwise",
+ o:["When overheat or fire is detected, during an OVHT/FIRE test, or when the manual override button is pressed — it is locked out otherwise",
+    "At any time — the handle has no lockout mechanism and can be pulled freely by the crew",
+    "Only when a fire warning (not overheat) is active — overheat alone does not unlock the handle",
+    "Only on the ground — the handle is locked in flight unless both loops have confirmed fire"],
+ d:"The fire warning switch has an integral lock that prevents inadvertent pulling. It unlocks automatically when overheat or fire is detected, during the OVHT/FIRE test, or when the manual override button is deliberately pressed. This prevents accidental engine isolation during normal flight."},
+
+{c:"⚠️ Fire Handles",
+ q:"Pulling the engine fire handle closes the bleed air valve. What is the secondary effect of this on the wing?",
+ correct:"Wing anti-ice for the affected side is lost — the bleed air that supplies wing anti-ice is cut off with the engine bleed",
+ o:["Pulling the engine fire handle closes the bleed air valve. What is the secondary effect of this on the wing?",
+    "The wing fuel vent system is isolated — fuel vapour is contained in the affected wing",
+    "Wing lift is automatically redistributed through spoiler retraction on the affected side",
+    "No secondary effect — wing anti-ice has an independent bleed air source unaffected by the fire handle"],
+ d:"Closing the engine bleed air valve as part of the fire handle pull sequence removes that engine's bleed supply to the whole system on that side, including wing anti-ice. This is why pilots must be aware of icing conditions when shutting down an engine — one fire handle pull means one wing without thermal anti-ice protection."},
+
+// ── EXTINGUISHER BOTTLES ──────────────────────────────────────────────────────
+{c:"🧯 Extinguishers",
+ q:"How many fire extinguisher bottles serve the engines, and what flexibility do they offer?",
+ correct:"Two bottles total, shared between both engines — either bottle can be directed to either engine via the fire handle rotation direction",
+ o:["Two bottles total, shared between both engines — either bottle can be directed to either engine via the fire handle rotation direction",
+    "One bottle per engine — two total, each dedicated to its own engine with no cross-connection",
+    "Four bottles — two per engine, providing two discharges per engine before exhaustion",
+    "Three bottles — one dedicated to each engine and one shared reserve for a second application"],
+ d:"There are two Halon extinguisher bottles located in the main wheel well, shared between both engines. The colour-coded hoses route each bottle to either engine depending on which fire handle direction is selected. This means both bottles could be used on a single engine if a second application is needed, or one bottle on each engine in a dual-fire event."},
+
+{c:"🧯 Extinguishers",
+ q:"What is the nominal pressure of the engine fire extinguisher bottles and at what reference temperature?",
+ correct:"Approximately 800 PSI at 70°F (21°C) — pressure varies with temperature, so a temperature correction must be applied when checking serviceability",
+ o:["Approximately 800 PSI at 70°F (21°C) — pressure varies with temperature, so a temperature correction must be applied when checking serviceability",
+    "500 PSI at sea-level standard day conditions — pressure is independent of temperature",
+    "1,200 PSI at 70°F — the high pressure provides extended suppression duration",
+    "800 PSI at 32°F — the bottles are rated at freezing conditions for worst-case maintenance"],
+ d:"The bottles are pressurised with nitrogen at approximately 800 PSI at 70°F (21°C). Temperature directly affects pressure — a cold bottle will show lower pressure than a warm one, and vice versa. A pressure-temperature chart must be used when checking bottle serviceability. Condemning a bottle solely on low pressure in cold weather is a classic maintenance error."},
+
+{c:"🧯 Extinguishers",
+ q:"What causes the bottle safety relief port to open, and why is this important to know?",
+ correct:"Bottle temperature exceeding approximately 130°C causes the relief port to rupture and vent Halon — this can look like a used bottle but is actually thermal overpressure protection",
+ o:["Bottle temperature exceeding approximately 130°C causes the relief port to rupture and vent Halon — this can look like a used bottle but is actually thermal overpressure protection",
+    "The safety relief port opens during testing — it is a normal part of the bottle serviceability check",
+    "Low pressure opens the relief port as a cross-check of the squib firing circuit",
+    "The relief port opens only when both squibs fail simultaneously — it is the last-resort discharge path"],
+ d:"If bottle temperature reaches approximately 130°C, the safety relief port ruptures and releases Halon into the wheel well. This protects the bottle from overpressure rupture. A bottle found discharged after a hot weather event or a ramp fire nearby may have auto-vented rather than being fired. The DISCH light cannot distinguish between commanded discharge and thermal relief."},
+
+{c:"🧯 Extinguishers",
+ q:"The amber DISCH light illuminates on the P8 panel. What does this indicate?",
+ correct:"The related extinguisher bottle has discharged or lost pressure — it could be a commanded squib firing OR a thermal relief event or pressure loss",
+ o:["The amber DISCH light illuminates on the P8 panel. What does this indicate?",
+    "The bottle is pressurised and ready for use — DISCH means 'discharge-ready'",
+    "A squib has fired but the bottle seal has not broken — a partial discharge has occurred",
+    "The bottle pressure is below the minimum serviceable limit but has not fully discharged"],
+ d:"DISCH (amber) means the bottle pressure has dropped — either because the squib was fired (commanded discharge) or due to thermal relief or a leak. It does NOT confirm a successful crew-commanded discharge versus an unintended event. Investigation of the actual cause is required before returning the aircraft to service."},
+
+// ── APU FIRE ──────────────────────────────────────────────────────────────────
+{c:"✈️ APU Fire",
+ q:"How does the APU fire detection system differ from the engine fire detection system?",
+ correct:"The APU has fire detection only — no separate overheat loop. It has three sensing elements protecting the compartment and tailpipe, not the dual four-element loop design of the engines",
+ o:["The APU has fire detection only — no separate overheat loop. It has three sensing elements protecting the compartment and tailpipe, not the dual four-element loop design of the engines",
+    "The APU system is identical to the engine system with two loops of four elements each",
+    "The APU uses smoke detection rather than thermal sensing because it is in an enclosed compartment",
+    "The APU has overheat detection only — it relies on automatic shutdown before fire can develop"],
+ d:"The APU fire detection system is different: three sensing elements (not two loops of four), covering the APU compartment and tailpipe area, and no separate overheat loop. Don't troubleshoot the APU system using engine loop logic — they are different architectures. A fault in APU detection shows as APU DET INOP on the panel."},
+
+{c:"✈️ APU Fire",
+ q:"What happens automatically when an APU fire is detected?",
+ correct:"The APU automatically shuts down — this is normal protective behaviour, not a separate failure",
+ o:["The APU automatically shuts down — this is normal protective behaviour, not a separate failure",
+    "The APU continues to run but the extinguisher bottle discharges automatically",
+    "The APU bleed air valve closes but the APU continues generating electrical power",
+    "Nothing automatic — crew must manually shut down the APU using the fire handle"],
+ d:"APU fire detection triggers an automatic APU shutdown. This is the expected protective response — not a fault in the shutdown system. The APU fire extinguisher bottle does NOT discharge automatically; the crew must pull and operate the APU fire handle to discharge it. On the ground, the P28 panel also provides APU fire control."},
+
+{c:"✈️ APU Fire",
+ q:"How many extinguisher bottles are available for an APU fire?",
+ correct:"One bottle only — there is no backup bottle for the APU, unlike the engine system which has two shared bottles",
+ o:["One bottle only — there is no backup bottle for the APU, unlike the engine system which has two shared bottles",
+    "Two bottles — the same shared engine bottles can also be directed to the APU",
+    "Three bottles — a dedicated APU bottle plus access to both engine bottles as backups",
+    "One bottle with dual squibs — it can be discharged twice into the APU compartment"],
+ d:"The APU has only one dedicated extinguisher bottle — there is no second chance. The engine bottles cannot be cross-connected to the APU. This is why APU fire on the ground (when alternative extinguishers are available) and in flight (where that one bottle is all there is) are handled differently in the checklist."},
+
+{c:"✈️ APU Fire",
+ q:"How can maintenance verify the APU extinguisher bottle status externally on the aft fuselage?",
+ correct:"Two discharge indicator discs are visible externally — red disc indicates thermal overpressure relief, yellow disc indicates commanded extinguisher discharge",
+ o:["Two discharge indicator discs are visible externally — red disc indicates thermal overpressure relief, yellow disc indicates commanded extinguisher discharge",
+    "A green service light on the aft fuselage shows bottle pressure is within limits — light off means discharged",
+    "A pressure sight glass on the bottle itself is accessible through a maintenance panel — check it directly",
+    "The only way to verify is with the DISCH light on the P8 panel — no external indication exists"],
+ d:"Two colour-coded blow-out discs are visible on the aft starboard fuselage: red disc missing = bottle discharged via thermal overpressure (the relief port ruptured from heat). Yellow disc missing = commanded discharge (squib fired). A pressure sight glass is also fitted on some aircraft. These external checks are the first step in post-event APU bottle assessment."},
+
+// ── CARGO FIRE ────────────────────────────────────────────────────────────────
+{c:"📦 Cargo Fire",
+ q:"How does cargo fire detection differ from engine fire detection?",
+ correct:"Cargo uses dual-loop SMOKE detection (optical/ionisation) rather than thermal sensing — smoke triggers the same full fire warning package",
+ o:["Cargo uses dual-loop SMOKE detection (optical/ionisation) rather than thermal sensing — smoke triggers the same full fire warning package",
+    "Cargo uses single-loop thermal detection — no redundancy because cargo fires develop slowly",
+    "Cargo uses overheat sensors only — the threshold is set much higher than the engine overheat threshold",
+    "Cargo detection is visual only — camera systems in the hold alert the crew to visible smoke"],
+ d:"Cargo compartments use smoke detectors (Loop A and Loop B) rather than thermal sensing elements. Despite using smoke detection, a cargo fire warning triggers the same full alert as an engine fire: fire warning lights, bell, and cargo FIRE warning light. The cargo system is powered by DC Bus 1 and DC Bus 2."},
+
+{c:"📦 Cargo Fire",
+ q:"Cargo extinguisher bottles are connected to which electrical bus, and why is this significant?",
+ correct:"The Hot Battery Bus — so cargo fire extinguishing remains available even if normal power is lost",
+ o:["The Hot Battery Bus — so cargo fire extinguishing remains available even if normal power is lost",
+    "DC Bus 1 — the same bus that powers cargo smoke detection for system integration",
+    "AC Transfer Bus 1 — higher voltage is required to reliably fire the squibs",
+    "The cargo bottles have their own dedicated battery that is completely independent of the aircraft electrical system"],
+ d:"Engine, APU, and cargo fire extinguishing all connect to the Hot Battery Bus — the bus that remains powered regardless of battery switch position or electrical system state. This ensures that fire suppression capability is never compromised by an electrical failure. Knowing the power source is essential when troubleshooting bottle circuit continuity."},
+
+{c:"📦 Cargo Fire",
+ q:"The cargo fire system has two bottles and a specific discharge sequence. Describe how the second bottle is designed to work.",
+ correct:"The first bottle fully discharges for initial knockdown. The second bottle meters its release over time — providing approximately 60–75 minutes of sustained suppression to allow landing",
+ o:["The first bottle fully discharges for initial knockdown. The second bottle meters its release over time — providing approximately 60–75 minutes of sustained suppression to allow landing",
+    "Both bottles discharge simultaneously for maximum initial suppression — there is no metered second discharge",
+    "The second bottle discharges automatically 5 minutes after the first — crew has no control over the timing",
+    "The second bottle is a reserve only dischargeable on the ground — it cannot be activated in flight"],
+ d:"The cargo fire suppression system is designed for time-to-land scenarios. The first bottle discharges fully into the selected compartment for rapid initial knockdown. The second bottle is metered through a filter/dryer to release at a controlled rate, maintaining a Halon concentration above 3% for approximately 60–75 minutes (up to 195 minutes with a larger bottle). This buys time to land safely."},
+
+{c:"📦 Cargo Fire",
+ q:"TRIBAL TRAP: The aircraft diverts and lands early — 20 minutes into the 60-minute cargo fire timer. What must maintenance do?",
+ correct:"Reset the cargo fire system circuit breakers before the next takeoff — if not reset, the second bottle may discharge unexpectedly on the next flight",
+ o:["Reset the cargo fire system circuit breakers before the next takeoff — if not reset, the second bottle may discharge unexpectedly on the next flight",
+    "Nothing — the timer resets automatically when the aircraft lands and engines are shut down",
+    "Replace both cargo bottles immediately — a used first bottle cannot be returned to service",
+    "Verify the cargo hold visually and close the ARMED switch — the timer stops automatically on ground"],
+ d:"This is the classic ATA 26 cargo trap: if the aircraft lands before the 60-minute discharge timer completes AND the system remains armed, the second bottle will continue its metered discharge sequence on the NEXT takeoff. Maintenance must reset the cargo fire system circuit breakers to stop the timer. Failure to do this can result in a surprise second-bottle discharge on the subsequent flight."},
+
+// ── WHEEL WELL / LAVATORY ─────────────────────────────────────────────────────
+{c:"🚻 Wheel/Lav",
+ q:"What type of sensing element does the wheel well fire detection system use?",
+ correct:"Thermistor-type sensing element — resistance decreases as temperature rises, mounted in the ceiling of each main wheel well",
+ o:["Thermistor-type sensing element — resistance decreases as temperature rises, mounted in the ceiling of each main wheel well",
+    "Gas-filled tube elements identical to the engine fire loops — the same LRU is used throughout",
+    "Photoelectric smoke detectors — they detect smoke from brake fires and overheated tyre rubber",
+    "Bimetallic disc switches — they physically snap at a set temperature to close the alarm circuit"],
+ d:"The wheel well uses thermistor-type sensing — a nickel wire embedded in insulation whose resistance drops inversely with temperature. This is a different technology from the engine gas-filled tubes. The elements are in the ceiling of the left and right main wheel wells. Importantly, there is NO fire extinguishing system for the wheel well — detection only."},
+
+{c:"🚻 Wheel/Lav",
+ q:"The main gear wheel well has fire detection. Does it have a fire extinguishing system?",
+ correct:"No — the wheel well has detection only. There is no extinguishing system for a wheel well fire",
+ o:["No — the wheel well has detection only. There is no extinguishing system for a wheel well fire",
+    "Yes — the engine fire bottles can be cross-connected to the wheel well via the P8 panel",
+    "Yes — a dedicated CO₂ bottle in the nose gear bay covers the main wheel well area",
+    "Yes — the cargo fire bottle has a secondary discharge port directed at the wheel well"],
+ d:"The main gear wheel well has detection but NO extinguishing capability. A wheel well fire warning illuminates the same red FIRE WARN lights and bell as an engine or cargo fire. The crew's only option is to lower the gear (if retracted) to ventilate the wheel well and then land as soon as practical — there is nothing to discharge."},
+
+{c:"🚻 Wheel/Lav",
+ q:"Wing/body overheat detection monitors for what type of hazard?",
+ correct:"Pneumatic duct leaks — hot bleed air escaping where it should not be, detected by thermistor loops in the wing and body areas",
+ o:["Pneumatic duct leaks — hot bleed air escaping where it should not be, detected by thermistor loops in the wing and body areas",
+    "Engine fire propagation into the wing fuel tanks — it is an extension of the engine fire detection system",
+    "Hydraulic fluid overheating in the wing actuator areas — triggered by hydraulic system faults",
+    "Cargo hold temperature exceeding normal limits — a secondary indicator for cargo fire events"],
+ d:"Wing/body overheat detection is about pneumatic leaks, not direct fire. Hot bleed air escaping from a failed duct heats the surrounding structure. Thermistor loops detect this temperature rise and alert the crew to isolate the bleed air source before structural damage or fire can develop. Different temperature thresholds apply to different zones."},
+
+{c:"🚻 Wheel/Lav",
+ q:"A lavatory smoke detector activates. What alerts does this produce?",
+ correct:"A chime sounds, the lav smoke detector alarm light illuminates, and Master CAUTION with OVERHEAD annunciator illuminate",
+ o:["A chime sounds, the lav smoke detector alarm light illuminates, and Master CAUTION with OVERHEAD annunciator illuminate",
+    "A full fire warning with red FIRE WARN lights, fire bell, and automatic Halon discharge into the lavatory",
+    "Only a chime at the nearest attendant station — no flight deck indication for lavatory smoke",
+    "The red FIRE WARN lights illuminate and the crew must manually arm the lav extinguisher"],
+ d:"Lavatory smoke is treated as a serious event but generates Master CAUTION (amber), not a full fire warning (red). Indications include: detector alarm light on the detector itself, a horn sound locally, optional P5 SMOKE light, MASTER CAUTION lights, and OVERHEAD system annunciator. The lav extinguisher then operates automatically — no crew action is needed for extinguishing."},
+
+{c:"🚻 Wheel/Lav",
+ q:"The lavatory fire extinguisher is activated by what mechanism, and how can maintenance verify it has discharged?",
+ correct:"Eutectic (fusible) plugs melt at high temperature, releasing the agent automatically — discharged nozzle tips change from coloured to aluminium, and temperature indicator strips turn black",
+ o:["Eutectic (fusible) plugs melt at high temperature, releasing the agent automatically — discharged nozzle tips change from coloured to aluminium, and temperature indicator strips turn black",
+    "A smoke detector signal fires an electric squib that ruptures the bottle — identical to the engine system",
+    "The crew must manually push a button in the lav to activate the extinguisher after a smoke alert",
+    "The extinguisher is triggered by cabin pressure loss in the lav — it is part of the depressurisation system"],
+ d:"The lavatory extinguisher uses eutectic (heat-melting) plugs at the nozzle. When fire temperature melts the plug, pressure releases the agent automatically. There is no squib or electrical activation. Maintenance checks: nozzle tip colour changes from its original colour to aluminium when discharged, and the temperature indicator placard (white dots turn black) shows heat exposure. No flight deck indication of extinguisher discharge exists."},
+
+// ── TRIBAL RULES ─────────────────────────────────────────────────────────────
+{c:"🏆 Tribal Rules",
+ q:"TRIBAL RULE: 'Most ATA 26 faults are loop issues.' What should always be checked first before condemning any fire detection LRU?",
+ correct:"Verify which loop is faulted (A or B) using the OVHT DET switch and BITE — most faults are in the sensing elements or wiring, not the detection control module",
+ o:["Verify which loop is faulted (A or B) using the OVHT DET switch and BITE — most faults are in the sensing elements or wiring, not the detection control module",
+    "Replace the Fire Detection Control Module first — it is the most common failure point in the system",
+    "Check the squib continuity first — squib failures often masquerade as detection loop faults",
+    "Clear all BITE history and retest — transient loop faults always self-clear on the next test"],
+ d:"The vast majority of ATA 26 write-ups trace to loop issues: a damaged sensing element, connector corrosion, chafed wiring, or a cracked tube. The OVHT DET switch lets you isolate which loop has the fault (select A — if fault clears, B has the problem, and vice versa). BITE then narrows down the specific location. The Fire Detection Control Module is rarely at fault."},
+
+{c:"🏆 Tribal Rules",
+ q:"TRIBAL RULE: 'A loop pressure loss is NOT a fire.' Why must line mechanics understand this distinction?",
+ correct:"Loss of loop pressure gives a FAULT indication, not a fire warning — mechanics who misread this may incorrectly treat it as a fire event or replace the wrong component",
+ o:["Loss of loop pressure gives a FAULT indication, not a fire warning — mechanics who misread this may incorrectly treat it as a fire event or replace the wrong component",
+    "Loop pressure loss and fire have identical indications — only time and location can separate them",
+    "Loop pressure loss always indicates a real fire because the heat destroyed the sensing element",
+    "A broken loop automatically reroutes through the opposite loop — no fault indication is generated"],
+ d:"A cracked or disconnected detection element loses its nitrogen/helium gas fill, causing a pressure drop. The control module interprets this as a FAULT (amber) — not a fire (red). This is by design: the system is smart enough to know that a pressure-less tube is a broken sensor, not combustion. Confusing a fault light for a fire indication leads to incorrect maintenance actions and unnecessary panic."},
+
+{c:"🏆 Tribal Rules",
+ q:"TRIBAL RULE: 'The cargo timer can bite you.' An aircraft makes an emergency landing 25 minutes into a cargo fire event. What specific action must be completed before the next departure?",
+ correct:"Reset the cargo fire system circuit breakers — the 60-minute second-bottle discharge timer is still running and will continue on the next flight if not reset",
+ o:["Reset the cargo fire system circuit breakers — the 60-minute second-bottle discharge timer is still running and will continue on the next flight if not reset",
+    "Replace both cargo fire bottles — a bottle that has been armed cannot be returned to service",
+    "Visually inspect the cargo hold and close the fire ARMED switch — the timer resets on landing",
+    "No action needed — the second bottle discharge timer only runs when the aircraft is airborne"],
+ d:"The cargo fire second-bottle discharge timer runs from the moment the system is armed and the first bottle fires — it does not stop on landing. If the aircraft lands early (before the timer expires), the remaining discharge sequence will continue when power is next applied or on the next takeoff. Circuit breaker reset is mandatory. This is one of the highest-frequency testable items in ATA 26 and a genuine operational trap."},
+
+{c:"🏆 Tribal Rules",
+ q:"TRIBAL RULE: 'Check A and B loops first.' A fire warning illuminates briefly during cruise then extinguishes. What is the correct approach?",
+ correct:"Use the OVHT DET switches to isolate which loop is involved, check BITE history for the flight leg, inspect loop elements and wiring before any LRU replacement",
+ o:["Use the OVHT DET switches to isolate which loop is involved, check BITE history for the flight leg, inspect loop elements and wiring before any LRU replacement",
+    "Replace the Fire Detection Control Module — intermittent warnings always indicate module instability",
+    "Clear the BITE history and return to service — a warning that self-clears is always a false alarm",
+    "Replace both sensing loops simultaneously — intermittent faults cannot be isolated to a single loop"],
+ d:"An intermittent fire warning is a serious write-up that demands methodical investigation, not a parts swap. The OVHT DET switch lets you isolate A vs B. BITE history for the specific flight leg shows exactly when and which loop activated. Physical inspection of the sensing elements for cracks, corrosion, or chafed wiring resolves most intermittent loop events without replacing the control module."}
+];
+
+// ═══ ANSWER RANDOMISATION ═══
+function shuffleOptions(q){
+  const opts=[...q.o];
+  for(let i=opts.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[opts[i],opts[j]]=[opts[j],opts[i]];}
+  return{shuffled:opts,correctIdx:opts.indexOf(q.correct)};
+}
+
+// ═══ STATE ═══
+const G={qs:[],idx:0,hearts:3,xp:0,streak:0,bestStreak:0,correct:0,done:false,correctIdx:0};
+function shuffle(a){return a.sort(()=>Math.random()-.5)}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on')}
+function goHome(){show('home')}
+function confirmQuit(){if(confirm('Quit this quiz?'))goHome();}
+
+function startGame(){
+  G.qs=shuffle([...BANK]);
+  G.idx=0;G.hearts=3;G.xp=0;G.streak=0;G.bestStreak=0;G.correct=0;
+  updateHearts();
+  document.getElementById('xpdis').textContent='0';
+  document.getElementById('streak-n').textContent='0';
+  document.getElementById('qtot').textContent=G.qs.length;
+  show('quiz');renderQ();
+}
+
+function renderQ(){
+  G.done=false;
+  document.getElementById('fb').className='fb';document.getElementById('fb').style.display='none';
+  const q=G.qs[G.idx];
+  document.getElementById('cat-lbl').textContent=q.c;
+  document.getElementById('q-cat').textContent=q.c;
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('qn').textContent=G.idx+1;
+  document.getElementById('bar').style.width=Math.round((G.idx/G.qs.length)*100)+'%';
+  const {shuffled,correctIdx}=shuffleOptions(q);
+  G.correctIdx=correctIdx;
+  const cont=document.getElementById('opts');cont.innerHTML='';
+  const keys=['A','B','C','D'];
+  shuffled.forEach((txt,i)=>{
+    const b=document.createElement('button');b.className='opt';
+    b.innerHTML=`<span class="opt-l">${keys[i]}</span><span>${txt}</span>`;
+    b.onclick=()=>pick(i);cont.appendChild(b);
+    b.style.opacity='0';b.style.transform='translateX(-16px)';
+    setTimeout(()=>{b.style.transition='opacity .22s ease,transform .22s ease';b.style.opacity='1';b.style.transform='translateX(0)';},70+i*50);
+  });
+  document.getElementById('q-body').scrollTop=0;
+}
+
+function pick(idx){
+  if(G.done)return;G.done=true;
+  const correct=idx===G.correctIdx;
+  const btns=[...document.querySelectorAll('.opt')];
+  btns.forEach(b=>b.disabled=true);
+  btns[G.correctIdx].classList.add('reveal-right');
+  if(correct){
+    btns[idx].classList.remove('reveal-right');btns[idx].classList.add('picked-right');
+    btns.forEach((b,i)=>{if(i!==idx)b.classList.add('faded');});
+    G.correct++;G.streak++;if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+    const xpGain=G.streak>=5?20:G.streak>=3?15:10;G.xp+=xpGain;
+    document.getElementById('xpdis').textContent=G.xp;
+    document.getElementById('streak-n').textContent=G.streak;
+    showFeedback(true,G.qs[G.idx].d,xpGain);spawnSparks(btns[idx]);playCorrect();
+    if(G.streak===3){showPopBadge('🔥 3 Streak!');playCombo();}
+    if(G.streak===5){showPopBadge('⚡ 5 in a row!');playCombo();}
+    if(G.streak===10){showPopBadge('🌟 10 Streak!');playCombo();}
+  } else {
+    btns[idx].classList.add('picked-wrong');
+    btns.forEach((b,i)=>{if(i!==idx&&i!==G.correctIdx)b.classList.add('faded');});
+    G.streak=0;G.hearts--;
+    document.getElementById('streak-n').textContent=0;
+    updateHearts();showFeedback(false,G.qs[G.idx].d,0);playWrong();
+  }
+}
+
+function showFeedback(ok,detail,xp){
+  const fb=document.getElementById('fb');
+  fb.className='fb on '+(ok?'ok':'no');fb.style.display='flex';
+  const icons=ok?['✅','🎉','🌟','⭐','🔥','💡','🎯','🏅']:['❌'];
+  const heads=ok?['Correct!','Great!','Well done!','Spot on!','Nailed it!','Right on!','Excellent!']:['Not quite!'];
+  document.getElementById('fb-icon').textContent=icons[Math.floor(Math.random()*icons.length)];
+  document.getElementById('fb-head').textContent=heads[Math.floor(Math.random()*heads.length)];
+  document.getElementById('fb-det').textContent=detail;
+  const cont=document.getElementById('btn-cont');
+  cont.textContent=(G.idx>=G.qs.length-1||G.hearts<=0)?'See Results →':'Continue →';
+  if(ok&&xp)floatXP('+'+xp+' XP',cont);
+}
+
+function advance(){
+  playClick();G.idx++;
+  if(G.idx>=G.qs.length||G.hearts<=0)showResult();else renderQ();
+}
+
+function updateHearts(){
+  [0,1,2].forEach(i=>document.getElementById('h'+i).classList.toggle('gone',i>=G.hearts));
+}
+
+function showResult(){
+  const acc=G.idx?Math.round((G.correct/G.idx)*100):0;
+  const stars=acc>=90?3:acc>=70?2:acc>=50?1:0;
+  const trophies=['😅','🥉','🥈','🏆'];
+  const titles=['Keep Practicing!','Nice Try!','Well Done!','Outstanding! 🎯'];
+  const subs=['Review the ATA 26 manual and try again.','Good effort — study the explanations!','Strong Fire Protection knowledge!','You are an ATA 26 expert! ✈️'];
+  document.getElementById('trophy').textContent=trophies[stars];
+  document.getElementById('res-title').textContent=titles[stars];
+  document.getElementById('res-sub').textContent=subs[stars];
+  document.getElementById('r-xp').textContent=G.xp;
+  document.getElementById('r-acc').textContent=acc+'%';
+  document.getElementById('r-str').textContent=G.bestStreak;
+  ['rs0','rs1','rs2'].forEach((id,i)=>{
+    const el=document.getElementById(id);
+    el.classList.remove('lit');el.style.animationDelay='0s';
+    if(i<stars)setTimeout(()=>{el.style.animationDelay=(i*.2)+'s';el.classList.add('lit');},500+i*120);
+  });
+  show('result');
+  if(acc>=60)setTimeout(()=>{launchConfetti(acc);playVictory();},300);
+}
+
+function launchConfetti(acc){
+  const cols=['#ff4422','#ff8866','#ffc800','#58cc02','#1cb0f6','#ff4b4b','#fff'];
+  const shapes=['●','■','▲','◆','★','✦','✧'];
+  const count=Math.min(35+Math.floor(acc/4),70);
+  for(let i=0;i<count;i++){
+    setTimeout(()=>{
+      const el=document.createElement('div');el.className='confetti';
+      el.textContent=shapes[Math.floor(Math.random()*shapes.length)];
+      el.style.cssText=`left:${Math.random()*100}vw;top:-20px;color:${cols[Math.floor(Math.random()*cols.length)]};font-size:${9+Math.random()*13}px;animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.4}s`;
+      document.body.appendChild(el);setTimeout(()=>el.remove(),4000);
+    },i*22);
+  }
+}
+
+function spawnSparks(btn){
+  const rect=btn.getBoundingClientRect();
+  const cx=rect.left+rect.width/2,cy=rect.top+rect.height/2;
+  const cols=['#ff4422','#ff8866','#ffc800','#fff','#58cc02'];
+  for(let i=0;i<10;i++){
+    const el=document.createElement('div');el.className='spark';
+    const a=(i/10)*Math.PI*2,d=28+Math.random()*44;
+    el.style.cssText=`left:${cx}px;top:${cy}px;width:${4+Math.random()*5}px;height:${4+Math.random()*5}px;background:${cols[i%cols.length]};--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;animation-duration:${.4+Math.random()*.25}s`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),800);
+  }
+}
+
+function floatXP(txt,refEl){
+  const rect=refEl.getBoundingClientRect();
+  const el=document.createElement('div');el.className='floatxp';el.textContent=txt;
+  el.style.cssText=`left:${rect.left+rect.width*.5}px;top:${rect.top-10}px`;
+  document.body.appendChild(el);setTimeout(()=>el.remove(),1000);
+}
+
+function showPopBadge(txt){
+  const el=document.createElement('div');el.className='popbadge';el.textContent=txt;
+  document.body.appendChild(el);setTimeout(()=>el.remove(),1100);
+}
+
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('quiz').classList.contains('on'))return;
+  const map={'1':0,'2':1,'3':2,'4':3,'a':0,'b':1,'c':2,'d':3};
+  const k=e.key.toLowerCase();
+  if(!G.done&&map[k]!==undefined)pick(map[k]);
+  if(G.done&&(e.key==='Enter'||e.key===' ')){e.preventDefault();advance();}
+});
+</script>
+</body>
+</html>

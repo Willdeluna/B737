@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>B737 ATA 26 Main Points</title>
+  <style>
+    :root {
+      --bg: #050505;
+      --panel: #101010;
+      --panel2: #17110a;
+      --orange: #ff9f1c;
+      --amber: #ffd27f;
+      --soft: rgba(255, 159, 28, 0.18);
+      --line: rgba(255, 159, 28, 0.55);
+      --white: #f7efe4;
+      --muted: #bda777;
+      --red: #ff5f56;
+      --blue: #62d8ff;
+      --green: #8cffb1;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--white);
+      background:
+        radial-gradient(circle at 18% 0%, rgba(255,95,86,0.25), transparent 30%),
+        radial-gradient(circle at 85% 18%, rgba(255,159,28,0.20), transparent 28%),
+        linear-gradient(135deg, #000, #080808 45%, #160604);
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,159,28,0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,159,28,0.045) 1px, transparent 1px);
+      background-size: 46px 46px;
+      mask-image: radial-gradient(circle at center, black, transparent 82%);
+    }
+    header {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 36px 18px 18px;
+      text-align: center;
+      position: relative;
+    }
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--amber);
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.55);
+      border-radius: 999px;
+      padding: 8px 14px;
+      box-shadow: 0 0 22px var(--soft);
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      font-size: .8rem;
+    }
+    h1 {
+      margin: 18px 0 8px;
+      color: var(--orange);
+      font-size: clamp(2rem, 6vw, 4.9rem);
+      line-height: .96;
+      text-shadow: 0 0 18px rgba(255,159,28,.38), 0 0 42px rgba(255,95,86,.18);
+    }
+    .subtitle {
+      max-width: 860px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.55;
+    }
+    .hero-strip {
+      max-width: 1180px;
+      margin: 24px auto 8px;
+      padding: 0 18px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .hero-card {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,95,86,.13), rgba(0,0,0,.74));
+      border-radius: 22px;
+      padding: 20px;
+      min-height: 140px;
+      position: relative;
+      overflow: hidden;
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    }
+    .hero-card:hover {
+      transform: translateY(-8px) scale(1.015);
+      box-shadow: 0 0 34px rgba(255,95,86,.24);
+      border-color: var(--orange);
+    }
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      right: -58px;
+      bottom: -58px;
+      border: 1px solid rgba(255,159,28,.28);
+      border-radius: 50%;
+    }
+    .hero-icon { font-size: 2.2rem; margin-bottom: 8px; }
+    .hero-title { color: var(--amber); font-size: 1.25rem; font-weight: 900; }
+    .hero-text { color: var(--muted); margin-top: 8px; line-height: 1.42; }
+    main { max-width: 1240px; margin: 0 auto; padding: 22px 18px 48px; }
+    .section-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .system-section {
+      border: 1px solid var(--line);
+      background: rgba(9,9,9,.88);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: 0 0 30px rgba(0,0,0,.35);
+      position: relative;
+      overflow: hidden;
+    }
+    .system-section::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--red), var(--orange), transparent);
+      opacity: .8;
+    }
+    .section-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; position: relative; z-index: 1; }
+    .section-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: radial-gradient(circle at top, rgba(255,95,86,.28), rgba(0,0,0,.75));
+      font-size: 1.65rem;
+      box-shadow: inset 0 0 18px rgba(255,159,28,.12);
+    }
+    h2 { margin: 0; color: var(--orange); font-size: 1.2rem; letter-spacing: .01em; }
+    .cards { display: grid; gap: 10px; position: relative; z-index: 1; }
+    .idea-card {
+      border: 1px solid rgba(255,159,28,.28);
+      background: linear-gradient(135deg, rgba(255,159,28,.06), rgba(255,255,255,.02));
+      border-radius: 16px;
+      padding: 13px 14px;
+      transition: transform .22s ease, box-shadow .22s ease, background .22s ease, border-color .22s ease;
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+    }
+    .idea-card:hover {
+      transform: translateX(8px) scale(1.025);
+      border-color: var(--orange);
+      background: linear-gradient(135deg, rgba(255,95,86,.16), rgba(255,159,28,.10));
+      box-shadow: 0 0 26px rgba(255,95,86,.20);
+    }
+    .idea-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,.08), transparent);
+      transform: translateX(-120%);
+      transition: transform .55s ease;
+    }
+    .idea-card:hover::after { transform: translateX(120%); }
+    .main-idea { display: block; color: var(--amber); font-weight: 900; font-size: 1rem; margin-bottom: 5px; }
+    .arrow { color: var(--orange); font-weight: 900; margin-right: 4px; }
+    .real-world { display: block; color: #ead9b8; line-height: 1.42; font-size: .96rem; }
+    .tag {
+      display: inline-block;
+      margin-top: 8px;
+      color: #111;
+      background: var(--orange);
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: .72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .memory-map {
+      margin-top: 20px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 22px;
+      background: linear-gradient(135deg, rgba(255,95,86,.10), rgba(0,0,0,.72));
+      position: relative;
+      overflow: hidden;
+    }
+    .memory-map h2 { font-size: 1.45rem; margin-bottom: 14px; }
+    .map-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .map-card {
+      border: 1px solid rgba(255,159,28,.38);
+      border-radius: 20px;
+      padding: 18px;
+      background: rgba(0,0,0,.55);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .map-card:hover { transform: translateY(-7px) rotate(-.5deg); box-shadow: 0 0 28px rgba(255,95,86,.18), 0 0 34px rgba(255,159,28,.12); }
+    .map-number { color: var(--red); font-size: 2rem; font-weight: 900; }
+    .map-title { color: var(--amber); font-weight: 900; font-size: 1.2rem; margin: 4px 0 8px; }
+    .map-card ul { margin: 0; padding-left: 18px; color: #ead9b8; line-height: 1.65; }
+    .fail-list { margin-top: 20px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+    .fail-chip {
+      border: 1px solid rgba(255,95,86,.55);
+      background: rgba(255,95,86,.08);
+      color: #ffd6d3;
+      padding: 14px;
+      border-radius: 16px;
+      font-weight: 800;
+      text-align: center;
+      transition: transform .2s ease, background .2s ease;
+    }
+    .fail-chip:hover { transform: scale(1.06); background: rgba(255,95,86,.18); }
+    footer { text-align: center; color: var(--muted); padding: 26px 18px 38px; }
+    @media (max-width: 1000px) { .fail-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 900px) { .hero-strip, .map-grid { grid-template-columns: 1fr; } .section-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 520px) { main { padding: 18px 10px 34px; } header { padding-top: 24px; } .system-section, .memory-map { border-radius: 18px; padding: 14px; } .fail-list { grid-template-columns: 1fr; } .idea-card:hover { transform: scale(1.015); } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">✅ B737 ATA 26 • Fire Protection</div>
+    <h1>Detect, Alert, Extinguish</h1>
+    <p class="subtitle">A quick-study Fire Protection page for line maintenance: what detects fire, what alerts the crew, what gets isolated, and what traps bite you later.</p>
+  </header>
+
+  <section class="hero-strip">
+    <div class="hero-card"><div class="hero-icon">🔥</div><div class="hero-title">Detect</div><div class="hero-text">Fire loops, smoke detectors, overheat sensors, and pneumatic leak detection watch the airplane.</div></div>
+    <div class="hero-card"><div class="hero-icon">🚨</div><div class="hero-title">Alert</div><div class="hero-text">Master warning, master caution, bells, lights, handles, and BITE clues tell you where to look.</div></div>
+    <div class="hero-card"><div class="hero-icon">🧯</div><div class="hero-title">Extinguish</div><div class="hero-text">Engine, APU, cargo, and lav systems use bottles or automatic discharge to suppress fire.</div></div>
+  </section>
+
+  <main>
+    <section class="section-grid">
+      <div class="system-section"><div class="section-head"><div class="section-icon">🧠</div><h2>Big Picture — What ATA 26 Does</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">System monitors fire, smoke, overheat, and pneumatic leaks</span><span class="real-world"><span class="arrow">→</span>Different areas use different detection methods.</span></div>
+        <div class="idea-card"><span class="main-idea">Two main functions: detect and extinguish</span><span class="real-world"><span class="arrow">→</span>First find the problem, then isolate or suppress it.</span></div>
+        <div class="idea-card"><span class="main-idea">Engine/APU use fire loops</span><span class="real-world"><span class="arrow">→</span>Cargo/lav use smoke detection; wheel well and wing-body use overheat detection.</span></div>
+      </div></div>
+
+      <div class="system-section"><div class="section-head"><div class="section-icon">🔥</div><h2>Engine Fire Detection</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">Each engine has two loops: A and B</span><span class="real-world"><span class="arrow">→</span>Redundancy keeps one failed loop from taking the system down.</span><span class="tag">redundancy</span></div>
+        <div class="idea-card"><span class="main-idea">Normal mode uses AND logic</span><span class="real-world"><span class="arrow">→</span>Both loops must agree to prevent false fire warnings.</span></div>
+        <div class="idea-card"><span class="main-idea">If one loop fails, single-loop logic can be used</span><span class="real-world"><span class="arrow">→</span>The remaining loop can still protect the engine.</span></div>
+        <div class="idea-card"><span class="main-idea">Each engine has eight detectors</span><span class="real-world"><span class="arrow">→</span>Four per loop spread around fan and core areas.</span></div>
+      </div></div>
+
+      <div class="system-section"><div class="section-head"><div class="section-icon">🌡️</div><h2>How Detection Works</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">Detector is a gas-filled tube</span><span class="real-world"><span class="arrow">→</span>Heat expands the gas, pressure rises, and switches trigger.</span></div>
+        <div class="idea-card"><span class="main-idea">Three possible signals: overheat, fire, fault</span><span class="real-world"><span class="arrow">→</span>Know which one you have before chasing parts.</span></div>
+        <div class="idea-card"><span class="main-idea">Loss of pressure means loop fault, not fire</span><span class="real-world"><span class="arrow">→</span>Huge troubleshooting point when the indication looks scary.</span><span class="tag">MX trap</span></div>
+      </div></div>
+
+      <div class="system-section"><div class="section-head"><div class="section-icon">⚙️</div><h2>Fire Detection Control Module</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">Control module reads loops and sends warnings</span><span class="real-world"><span class="arrow">→</span>It is the logic brain between sensors and cockpit indications.</span></div>
+        <div class="idea-card"><span class="main-idea">Overheat gives master caution</span><span class="real-world"><span class="arrow">→</span>Important, but not the same as full fire warning.</span></div>
+        <div class="idea-card"><span class="main-idea">Fire gives master warning, bell, and handle light</span><span class="real-world"><span class="arrow">→</span>That is the full fire-warning package.</span></div>
+        <div class="idea-card"><span class="main-idea">BITE lights help show failed area</span><span class="real-world"><span class="arrow">→</span>Use BITE before throwing a loop or module at it.</span></div>
+      </div></div>
+
+      <div class="system-section"><div class="section-head"><div class="section-icon">⚠️</div><h2>Fire Handles — Critical Operation</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">Pull handle = isolate the engine</span><span class="real-world"><span class="arrow">→</span>Fuel, bleed air, hydraulics, generator, and thrust reverser are cut off or disabled.</span><span class="tag">big clue</span></div>
+        <div class="idea-card"><span class="main-idea">Fuel shutoff valve closes</span><span class="real-world"><span class="arrow">→</span>Removes fuel source from the fire area.</span></div>
+        <div class="idea-card"><span class="main-idea">Generator removed from system</span><span class="real-world"><span class="arrow">→</span>Electrical load/source logic changes after handle pull.</span></div>
+        <div class="idea-card"><span class="main-idea">Thrust reverser disabled</span><span class="real-world"><span class="arrow">→</span>Prevents unsafe operation after engine isolation.</span></div>
+      </div></div>
+
+      <div class="system-section"><div class="section-head"><div class="section-icon">🧯</div><h2>Engine Fire Extinguishing</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">Two bottles total, shared by both engines</span><span class="real-world"><span class="arrow">→</span>Either bottle can be routed to either engine.</span></div>
+        <div class="idea-card"><span class="main-idea">Handle turn selects bottle direction</span><span class="real-world"><span class="arrow">→</span>CW fires one bottle, CCW fires the other.</span></div>
+        <div class="idea-card"><span class="main-idea">Squib breaks the seal</span><span class="real-world"><span class="arrow">→</span>Halon is released into the selected engine zone.</span></div>
+      </div></div>
+
+      <div class="system-section"><div class="section-head"><div class="section-icon">🧪</div><h2>Bottle System Maintenance</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">Bottle pressure is about 800 psi at 70°F</span><span class="real-world"><span class="arrow">→</span>Temperature matters when judging pressure.</span></div>
+        <div class="idea-card"><span class="main-idea">Overheat can auto-vent the bottle</span><span class="real-world"><span class="arrow">→</span>Safety relief protects the bottle from rupture.</span></div>
+        <div class="idea-card"><span class="main-idea">DISCH light means used bottle or pressure lost</span><span class="real-world"><span class="arrow">→</span>Do not assume it only means a commanded discharge.</span><span class="tag">line clue</span></div>
+      </div></div>
+
+      <div class="system-section"><div class="section-head"><div class="section-icon">🔥</div><h2>APU Fire System</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">APU has fire detection, no overheat loop</span><span class="real-world"><span class="arrow">→</span>Do not troubleshoot it like the engine system.</span></div>
+        <div class="idea-card"><span class="main-idea">Three sensing elements</span><span class="real-world"><span class="arrow">→</span>They protect compartment and tailpipe areas.</span></div>
+        <div class="idea-card"><span class="main-idea">APU fire causes automatic shutdown</span><span class="real-world"><span class="arrow">→</span>Normal protective behavior, not a separate failure.</span></div>
+        <div class="idea-card"><span class="main-idea">One extinguisher bottle only</span><span class="real-world"><span class="arrow">→</span>No backup bottle for APU fire extinguishing.</span></div>
+      </div></div>
+
+      <div class="system-section"><div class="section-head"><div class="section-icon">🎛️</div><h2>P8 Fire Protection Panel</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">P8 controls loop selection, tests, handles, and discharge</span><span class="real-world"><span class="arrow">→</span>It is the cockpit command center for fire protection.</span></div>
+        <div class="idea-card"><span class="main-idea">FIRE is red</span><span class="real-world"><span class="arrow">→</span>Fire warning condition.</span></div>
+        <div class="idea-card"><span class="main-idea">OVERHEAT and FAULT are amber</span><span class="real-world"><span class="arrow">→</span>Differentiate caution/fault from actual fire warning.</span></div>
+      </div></div>
+
+      <div class="system-section"><div class="section-head"><div class="section-icon">📦</div><h2>Cargo Fire System</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">Cargo smoke detection uses dual loops</span><span class="real-world"><span class="arrow">→</span>A and B loops protect forward and aft compartments.</span></div>
+        <div class="idea-card"><span class="main-idea">Smoke gives fire warning, bell, and lights</span><span class="real-world"><span class="arrow">→</span>Cargo smoke is treated like a major fire event.</span></div>
+        <div class="idea-card"><span class="main-idea">First bottle gives initial knockdown</span><span class="real-world"><span class="arrow">→</span>About 60 minutes of suppression protection.</span></div>
+        <div class="idea-card"><span class="main-idea">Second bottle meters release</span><span class="real-world"><span class="arrow">→</span>Designed to keep fire suppressed long enough to land.</span></div>
+      </div></div>
+
+      <div class="system-section"><div class="section-head"><div class="section-icon">⚠️</div><h2>Cargo System Trap</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">If aircraft lands before timer ends, reset CBs</span><span class="real-world"><span class="arrow">→</span>If not reset, second bottle may discharge on next takeoff.</span><span class="tag">classic test item</span></div>
+        <div class="idea-card"><span class="main-idea">Timers can create surprise bottle discharge</span><span class="real-world"><span class="arrow">→</span>Always check the cargo fire sequence after diversion or early landing.</span></div>
+      </div></div>
+
+      <div class="system-section"><div class="section-head"><div class="section-icon">🔥</div><h2>Wheel Well / Wing Body Overheat</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">Wheel well detects fire or overheat</span><span class="real-world"><span class="arrow">→</span>Uses thermistor-type sensing; resistance drops when hot.</span></div>
+        <div class="idea-card"><span class="main-idea">CODC controls wheel well overheat detection</span><span class="real-world"><span class="arrow">→</span>BITE stores faults and displays codes.</span></div>
+        <div class="idea-card"><span class="main-idea">Wing/body overheat detects bleed air leaks</span><span class="real-world"><span class="arrow">→</span>Think hot pneumatic air where it should not be.</span></div>
+        <div class="idea-card"><span class="main-idea">Typical trips: 255°F and 310°F zones</span><span class="real-world"><span class="arrow">→</span>Different areas have different temperature thresholds.</span></div>
+      </div></div>
+
+      <div class="system-section"><div class="section-head"><div class="section-icon">🚻</div><h2>Lavatory Smoke & Fire</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">Each lav has its own smoke detector</span><span class="real-world"><span class="arrow">→</span>Smoke triggers chime, lights, and master caution.</span></div>
+        <div class="idea-card"><span class="main-idea">Lav extinguisher is fully automatic</span><span class="real-world"><span class="arrow">→</span>No crew action needed once heat melts the plug.</span></div>
+        <div class="idea-card"><span class="main-idea">Temperature strip changes color</span><span class="real-world"><span class="arrow">→</span>Simple maintenance clue that heat/fire occurred.</span><span class="tag">inspection clue</span></div>
+      </div></div>
+    </section>
+
+    <section class="memory-map">
+      <h2>🧠 Easy Way to Remember ATA 26</h2>
+      <div class="map-grid">
+        <div class="map-card"><div class="map-number">1</div><div class="map-title">Detect</div><ul><li>Engine/APU fire loops</li><li>Cargo/lav smoke detectors</li><li>Wheel well and wing overheat loops</li></ul></div>
+        <div class="map-card"><div class="map-number">2</div><div class="map-title">Alert</div><ul><li>Lights</li><li>Bell</li><li>Master warning/caution</li></ul></div>
+        <div class="map-card"><div class="map-number">3</div><div class="map-title">Extinguish</div><ul><li>Engine/APU/cargo bottles</li><li>Squibs and Halon</li><li>Automatic lav extinguisher</li></ul></div>
+      </div>
+
+      <h2 style="margin-top:24px;">🔥 Real Line MX Takeaways</h2>
+      <div class="fail-list">
+        <div class="fail-chip">Most faults = loop issues</div>
+        <div class="fail-chip">Check A & B loops first</div>
+        <div class="fail-chip">DISCH = low pressure or used bottle</div>
+        <div class="fail-chip">Fire handle isolates many systems</div>
+        <div class="fail-chip">Cargo timers can bite you</div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    B737 ATA 26 quick-study page • Fire protection made line-mechanic simple.
+  </footer>
+</body>
+</html>

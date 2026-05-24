@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>B737 ATA 47 Main Points</title>
+  <style>
+    :root {
+      --bg: #050505;
+      --panel: #101010;
+      --panel2: #17110a;
+      --orange: #ff9f1c;
+      --amber: #ffd27f;
+      --soft: rgba(255, 159, 28, 0.18);
+      --line: rgba(255, 159, 28, 0.55);
+      --white: #f7efe4;
+      --muted: #bda777;
+      --red: #ff5f56;
+      --blue: #62d8ff;
+      --green: #8cffb1;
+      --purple: #b794ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--white);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(255,159,28,0.22), transparent 28%),
+        radial-gradient(circle at 85% 20%, rgba(98,216,255,0.13), transparent 26%),
+        radial-gradient(circle at 50% 90%, rgba(183,148,255,0.12), transparent 25%),
+        linear-gradient(135deg, #000, #080808 45%, #130b02);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,159,28,0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,159,28,0.045) 1px, transparent 1px);
+      background-size: 46px 46px;
+      mask-image: radial-gradient(circle at center, black, transparent 82%);
+    }
+
+    header {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 36px 18px 18px;
+      text-align: center;
+      position: relative;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--amber);
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.55);
+      border-radius: 999px;
+      padding: 8px 14px;
+      box-shadow: 0 0 22px var(--soft);
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      font-size: .8rem;
+    }
+
+    h1 {
+      margin: 18px 0 8px;
+      color: var(--orange);
+      font-size: clamp(2rem, 6vw, 4.9rem);
+      line-height: .96;
+      text-shadow: 0 0 18px rgba(255,159,28,.38), 0 0 42px rgba(255,159,28,.16);
+    }
+
+    .subtitle {
+      max-width: 900px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.55;
+    }
+
+    .hero-strip {
+      max-width: 1180px;
+      margin: 24px auto 8px;
+      padding: 0 18px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .hero-card {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,159,28,.1), rgba(0,0,0,.72));
+      border-radius: 22px;
+      padding: 20px;
+      min-height: 140px;
+      position: relative;
+      overflow: hidden;
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    }
+
+    .hero-card:hover {
+      transform: translateY(-8px) scale(1.015);
+      box-shadow: 0 0 34px rgba(255,159,28,.24);
+      border-color: var(--orange);
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      right: -58px;
+      bottom: -58px;
+      border: 1px solid rgba(255,159,28,.28);
+      border-radius: 50%;
+    }
+
+    .hero-icon { font-size: 2.2rem; margin-bottom: 8px; }
+    .hero-title { color: var(--amber); font-size: 1.25rem; font-weight: 900; }
+    .hero-text { color: var(--muted); margin-top: 8px; line-height: 1.42; }
+
+    main {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 22px 18px 48px;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .system-section {
+      border: 1px solid var(--line);
+      background: rgba(9,9,9,.88);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: 0 0 30px rgba(0,0,0,.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .system-section::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--orange), var(--blue), transparent);
+      opacity: .75;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: radial-gradient(circle at top, rgba(255,159,28,.28), rgba(0,0,0,.75));
+      font-size: 1.65rem;
+      box-shadow: inset 0 0 18px rgba(255,159,28,.12);
+    }
+
+    h2 {
+      margin: 0;
+      color: var(--orange);
+      font-size: 1.2rem;
+      letter-spacing: .01em;
+    }
+
+    .cards {
+      display: grid;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .idea-card {
+      border: 1px solid rgba(255,159,28,.28);
+      background: linear-gradient(135deg, rgba(255,159,28,.06), rgba(255,255,255,.02));
+      border-radius: 16px;
+      padding: 13px 14px;
+      transition: transform .22s ease, box-shadow .22s ease, background .22s ease, border-color .22s ease;
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .idea-card:hover {
+      transform: translateX(8px) scale(1.025);
+      border-color: var(--orange);
+      background: linear-gradient(135deg, rgba(255,159,28,.18), rgba(98,216,255,.06));
+      box-shadow: 0 0 26px rgba(255,159,28,.21);
+    }
+
+    .idea-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,.08), transparent);
+      transform: translateX(-120%);
+      transition: transform .55s ease;
+    }
+
+    .idea-card:hover::after { transform: translateX(120%); }
+
+    .main-idea {
+      display: block;
+      color: var(--amber);
+      font-weight: 900;
+      font-size: 1rem;
+      margin-bottom: 5px;
+    }
+
+    .arrow {
+      color: var(--orange);
+      font-weight: 900;
+      margin-right: 4px;
+    }
+
+    .real-world {
+      display: block;
+      color: #ead9b8;
+      line-height: 1.42;
+      font-size: .96rem;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-top: 8px;
+      color: #111;
+      background: var(--orange);
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: .72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .tag.blue { background: var(--blue); }
+    .tag.green { background: var(--green); }
+    .tag.purple { background: var(--purple); }
+
+    .wide { grid-column: 1 / -1; }
+
+    .memory-map {
+      margin-top: 20px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 22px;
+      background: linear-gradient(135deg, rgba(255,159,28,.1), rgba(0,0,0,.72));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .memory-map h2 { font-size: 1.45rem; margin-bottom: 14px; }
+
+    .map-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .map-card {
+      border: 1px solid rgba(255,159,28,.38);
+      border-radius: 20px;
+      padding: 18px;
+      background: rgba(0,0,0,.55);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+
+    .map-card:hover {
+      transform: translateY(-7px) rotate(-.5deg);
+      box-shadow: 0 0 28px rgba(98,216,255,.16), 0 0 34px rgba(255,159,28,.12);
+    }
+
+    .map-number {
+      color: var(--blue);
+      font-size: 2rem;
+      font-weight: 900;
+    }
+
+    .map-title {
+      color: var(--amber);
+      font-weight: 900;
+      font-size: 1.2rem;
+      margin: 4px 0 8px;
+    }
+
+    .map-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #ead9b8;
+      line-height: 1.65;
+    }
+
+    .fail-list {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .fail-chip {
+      border: 1px solid rgba(255,95,86,.55);
+      background: rgba(255,95,86,.08);
+      color: #ffd6d3;
+      padding: 14px;
+      border-radius: 16px;
+      font-weight: 800;
+      text-align: center;
+      transition: transform .2s ease, background .2s ease;
+    }
+
+    .fail-chip:hover {
+      transform: scale(1.06);
+      background: rgba(255,95,86,.18);
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 26px 18px 38px;
+    }
+
+    @media (max-width: 900px) {
+      .hero-strip, .map-grid { grid-template-columns: 1fr; }
+      .section-grid { grid-template-columns: 1fr; }
+      .fail-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 520px) {
+      body { padding: 0; }
+      main { padding: 18px 10px 34px; }
+      header { padding-top: 24px; }
+      .system-section, .memory-map { border-radius: 18px; padding: 14px; }
+      .fail-list { grid-template-columns: 1fr; }
+      .idea-card:hover { transform: scale(1.015); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">✅ B737 ATA 47 • Nitrogen Generation System</div>
+    <h1>Nitrogen Generation Made Line-Mechanic Simple</h1>
+    <p class="subtitle">Hover over each idea. ATA 47 isn't a performance system — it's part of the aircraft's fuel tank explosion prevention strategy. Think airflow quality (temp, pressure, cleanliness), not just components.</p>
+  </header>
+
+  <section class="hero-strip">
+    <div class="hero-card">
+      <div class="hero-icon">🌬️</div>
+      <div class="hero-title">Take &amp; Cool Air</div>
+      <div class="hero-text">Bleed air from the left manifold is cooled by a heat exchanger to ~190°F before entering the ASM.</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-icon">⚙️</div>
+      <div class="hero-title">Separate &amp; Filter</div>
+      <div class="hero-text">ASM membranes remove oxygen. Three-stage filter protects the membranes from contamination.</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-icon">🛢️</div>
+      <div class="hero-title">Protect the Tank</div>
+      <div class="hero-text">Nitrogen-enriched air flows into the center fuel tank, displacing oxygen and preventing ignition.</div>
+    </div>
+  </section>
+
+  <main>
+    <section class="section-grid">
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🧠</div><h2>Big Picture — Fuel Tank Safety</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Purpose = prevent fuel tank explosion</span><span class="real-world"><span class="arrow">→</span>Reduces oxygen in the center tank by replacing it with nitrogen.</span><span class="tag">big picture</span></div>
+          <div class="idea-card"><span class="main-idea">Protects the center tank only</span><span class="real-world"><span class="arrow">→</span>Highest ignition risk area — wing tanks not protected.</span><span class="tag blue">scope</span></div>
+          <div class="idea-card"><span class="main-idea">Fire needs oxygen — remove oxygen, no fire</span><span class="real-world"><span class="arrow">→</span>That's the entire safety strategy in one sentence.</span><span class="tag purple">core concept</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🌬️</div><h2>How It Works — Air Flow</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Bleed air → cool → filter → separate → tank</span><span class="real-world"><span class="arrow">→</span>Five-step flow that converts hot bleed air to safe nitrogen.</span><span class="tag">process map</span></div>
+          <div class="idea-card"><span class="main-idea">Air comes from left pneumatic manifold</span><span class="real-world"><span class="arrow">→</span>Bleed air problems in ATA 36 affect NGS directly.</span><span class="tag">cross-system</span></div>
+          <div class="idea-card"><span class="main-idea">Shutoff valve controls flow into NGS</span><span class="real-world"><span class="arrow">→</span>Closes if pressure exceeds 67 psi.</span><span class="tag">protection</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔥</div><h2>Thermal Control — Critical</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Heat exchanger + ram air valve cool the bleed</span><span class="real-world"><span class="arrow">→</span>Target ~190°F entering the air separation module.</span><span class="tag">core function</span></div>
+          <div class="idea-card"><span class="main-idea">Overtemp switch closes at ~270°F</span><span class="real-world"><span class="arrow">→</span>Backup protection from the overtemperature shutoff valve.</span><span class="tag purple">safety</span></div>
+          <div class="idea-card"><span class="main-idea">Heat is the biggest threat to the system</span><span class="real-world"><span class="arrow">→</span>ASM membranes degrade fast at high temps.</span><span class="tag">real concept</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">⚙️</div><h2>Air Separation Module — The Heart</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Membranes separate oxygen from air</span><span class="real-world"><span class="arrow">→</span>Removes O2, CO2, and moisture — outputs nitrogen-enriched air.</span><span class="tag">core function</span></div>
+          <div class="idea-card"><span class="main-idea">ASM performance = system safety</span><span class="real-world"><span class="arrow">→</span>Too much oxygen output means ignition risk in tank.</span><span class="tag purple">critical</span></div>
+          <div class="idea-card"><span class="main-idea">Performance degrades over time</span><span class="real-world"><span class="arrow">→</span>ASM is a wear item — replaced based on condition.</span><span class="tag">wear item</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔀</div><h2>Flow Control — Two Modes</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Low flow during takeoff and cruise</span><span class="real-world"><span class="arrow">→</span>Tank volume is stable — less nitrogen needed.</span><span class="tag">operating mode</span></div>
+          <div class="idea-card"><span class="main-idea">High flow during descent</span><span class="real-world"><span class="arrow">→</span>Tank volume changes fast — more nitrogen required.</span><span class="tag blue">operating mode</span></div>
+          <div class="idea-card"><span class="main-idea">System reacts to flight phase automatically</span><span class="real-world"><span class="arrow">→</span>No pilot action needed for mode switching.</span><span class="tag green">auto logic</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">⚠️</div><h2>Filter System</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">3-stage filter protects the ASM</span><span class="real-world"><span class="arrow">→</span>Demister, coalescer, HEPA — removes droplets and particles.</span><span class="tag">protection</span></div>
+          <div class="idea-card"><span class="main-idea">ΔP > ~1.2 psid = filter clogged</span><span class="real-world"><span class="arrow">→</span>Triggers a fault and reduces system performance.</span><span class="tag">fault clue</span></div>
+          <div class="idea-card"><span class="main-idea">Filter clogging is a common write-up</span><span class="real-world"><span class="arrow">→</span>Plan replacements during scheduled maintenance.</span><span class="tag purple">real mx reality</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🛢️</div><h2>Fuel Tank Interface</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">NEA enters the tank via the vent system</span><span class="real-world"><span class="arrow">→</span>Flame arrestor blocks any external ignition source.</span><span class="tag">safety design</span></div>
+          <div class="idea-card"><span class="main-idea">Dielectric hose prevents static discharge</span><span class="real-world"><span class="arrow">→</span>Multiple layers of explosion protection.</span><span class="tag">redundancy</span></div>
+          <div class="idea-card"><span class="main-idea">Check valves keep outside air out of tank</span><span class="real-world"><span class="arrow">→</span>Stops dilution of the nitrogen-rich atmosphere.</span><span class="tag">protection</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🧠</div><h2>Controller — System Brain</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Controls temperature, pressure, valves, flow</span><span class="real-world"><span class="arrow">→</span>ECU equivalent — runs all major functions.</span><span class="tag">central control</span></div>
+          <div class="idea-card"><span class="main-idea">Runs only when conditions are safe</span><span class="real-world"><span class="arrow">→</span>Airborne, both engines running, no cargo smoke, packs on.</span><span class="tag blue">operating logic</span></div>
+          <div class="idea-card"><span class="main-idea">Shuts off for ground ops, engine fail, refueling</span><span class="real-world"><span class="arrow">→</span>Safety overrides operation in every case.</span><span class="tag">safety logic</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🚦</div><h2>Operability Indicator</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Located in the right wheel well</span><span class="real-world"><span class="arrow">→</span>Green = normal, blue = degraded, amber = inop.</span><span class="tag">walkaround check</span></div>
+          <div class="idea-card"><span class="main-idea">Amber = manually lock valve closed</span><span class="real-world"><span class="arrow">→</span>Required maintenance action when system is inop.</span><span class="tag purple">required action</span></div>
+          <div class="idea-card"><span class="main-idea">Quick visual status during pre-flight</span><span class="real-world"><span class="arrow">→</span>Easy line MX check before each flight.</span><span class="tag green">best practice</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔧</div><h2>Maintenance / Troubleshooting Gold</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Most issues = filters, temperature, sensors</span><span class="real-world"><span class="arrow">→</span>Hardware failures are rare — sensor faults are common.</span><span class="tag purple">real mx reality</span></div>
+          <div class="idea-card"><span class="main-idea">Always check BITE first</span><span class="real-world"><span class="arrow">→</span>Stores up to 10 flight legs of fault history.</span><span class="tag">best practice</span></div>
+          <div class="idea-card"><span class="main-idea">Drain valve check for fuel/fluid contamination</span><span class="real-world"><span class="arrow">→</span>Fluid present = leak in air lines somewhere.</span><span class="tag">trouble clue</span></div>
+          <div class="idea-card"><span class="main-idea">Ground tests available via BITE</span><span class="real-world"><span class="arrow">→</span>Electrical test, system test, ASM flow tests.</span><span class="tag">diagnostic</span></div>
+          <div class="idea-card"><span class="main-idea">NGS is a SAFETY system, not performance</span><span class="real-world"><span class="arrow">→</span>Don't dispatch with it inop without correct MEL action.</span><span class="tag">ops impact</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="memory-map">
+      <h2>🧠 Simple Way to Remember ATA 47</h2>
+      <div class="map-grid">
+        <div class="map-card"><div class="map-number">1</div><div class="map-title">Take Air</div><ul><li>Bleed source</li><li>Shutoff valve</li><li>Pressure protection</li></ul></div>
+        <div class="map-card"><div class="map-number">2</div><div class="map-title">Condition</div><ul><li>Heat exchanger</li><li>Ram air valve</li><li>Filter stack</li></ul></div>
+        <div class="map-card"><div class="map-number">3</div><div class="map-title">Separate &amp; Deliver</div><ul><li>ASM</li><li>High/low flow valve</li><li>Tank vent</li></ul></div>
+      </div>
+
+      <h2 style="margin-top:24px;">🔥 Real Line MX Takeaways</h2>
+      <div class="fail-list">
+        <div class="fail-chip">NGS is a safety system<br><small>not performance</small></div>
+        <div class="fail-chip">Filters &amp; sensors<br><small>cause most faults</small></div>
+        <div class="fail-chip">Bleed problems<br><small>= NGS problems</small></div>
+        <div class="fail-chip">BITE first<br><small>before touching hardware</small></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    B737 ATA 47 Nitrogen Generation quick-study page • Built for line-maintenance brain speed.
+  </footer>
+</body>
+</html>

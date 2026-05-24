@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATA 34 Navigation Tribal Knowledge</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --bg: #050505;
+      --panel: #101010;
+      --orange: #ff9f1c;
+      --orange2: #ffd28a;
+      --green: #48d17a;
+      --red: #ff5c5c;
+      --blue: #77c8ff;
+      --muted: #b99461;
+      --line: rgba(255,159,28,.55);
+    }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(255,159,28,.15), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(119,200,255,.10), transparent 30%),
+        var(--bg);
+      color: var(--orange);
+      line-height: 1.5;
+    }
+    .page { max-width: 1180px; margin: 0 auto; padding: 22px; }
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 28px;
+      background: linear-gradient(135deg, rgba(255,159,28,.12), rgba(0,0,0,.65));
+      box-shadow: 0 0 40px rgba(255,159,28,.12);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "ATA 34";
+      position: absolute;
+      right: -12px;
+      bottom: -32px;
+      font-size: clamp(56px, 12vw, 150px);
+      font-weight: 900;
+      color: rgba(255,159,28,.06);
+      pointer-events: none;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 4.2rem);
+      letter-spacing: .04em;
+      color: var(--orange2);
+    }
+    .subtitle {
+      margin: 8px 0 16px;
+      color: #fff0d6;
+      font-size: 1.12rem;
+      max-width: 820px;
+    }
+    .tagline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: rgba(0,0,0,.45);
+      color: var(--orange2);
+      font-weight: 700;
+    }
+    .rule-box {
+      margin-top: 18px;
+      border-left: 4px solid var(--orange);
+      background: rgba(255,159,28,.09);
+      padding: 12px 14px;
+      border-radius: 10px;
+      color: #ffe5b8;
+      font-weight: 700;
+      max-width: 920px;
+    }
+    .nav {
+      margin: 18px 0;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+    a.nav-btn, button {
+      border: 1px solid var(--orange);
+      color: var(--orange);
+      background: #111;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: none;
+      transition: .18s ease;
+    }
+    a.nav-btn:hover, button:hover {
+      background: var(--orange);
+      color: #000;
+      transform: translateY(-1px);
+    }
+    .progress {
+      min-width: 220px;
+      color: var(--orange2);
+      font-weight: 800;
+      text-align: right;
+    }
+    .progress-bar {
+      height: 9px;
+      margin-top: 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+      background: #090909;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--orange), var(--green));
+      transition: width .25s ease;
+    }
+    .section-title {
+      margin: 30px 0 12px;
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .section-title h2 {
+      margin: 0;
+      color: var(--orange2);
+      font-size: clamp(1.45rem, 3vw, 2.2rem);
+    }
+    .section-note { color: var(--muted); font-weight: 700; }
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .scenario-card {
+      border: 1px solid rgba(255,159,28,.45);
+      background: linear-gradient(180deg, rgba(255,159,28,.07), rgba(0,0,0,.42));
+      border-radius: 18px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .scenario-card.done {
+      border-color: rgba(72,209,122,.85);
+      box-shadow: 0 0 22px rgba(72,209,122,.10);
+    }
+    .scenario-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .scenario-num {
+      color: #000;
+      background: var(--orange);
+      font-weight: 900;
+      border-radius: 999px;
+      padding: 5px 10px;
+      white-space: nowrap;
+    }
+    .writeup {
+      color: #fff4df;
+      font-size: 1.06rem;
+      font-weight: 800;
+      margin: 10px 0 12px;
+    }
+    .think-list {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(0,0,0,.42);
+      border: 1px solid rgba(255,159,28,.3);
+    }
+    .think-list.open { display: block; animation: rise .22s ease; }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .check { color: var(--green); font-weight: 900; }
+    .nope { color: var(--red); font-weight: 900; }
+    .trap {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(255,92,92,.08);
+      border-left: 3px solid var(--red);
+      color: #ffb8b8;
+      font-weight: 700;
+    }
+    .lesson {
+      margin-top: 10px;
+      color: var(--orange2);
+      font-weight: 800;
+      border-top: 1px dashed rgba(255,159,28,.35);
+      padding-top: 8px;
+    }
+    .quiz-card {
+      border: 1px solid rgba(255,159,28,.45);
+      border-radius: 18px;
+      background: rgba(255,159,28,.04);
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+    .quiz-question {
+      color: #fff4df;
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin: 0 0 14px;
+    }
+    .answers { display: flex; gap: 10px; flex-wrap: wrap; }
+    .answer-result {
+      display: none;
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(0,0,0,.45);
+      border: 1px solid rgba(255,159,28,.3);
+      color: #f4d9ad;
+    }
+    .answer-result.show { display: block; animation: rise .22s ease; }
+    .rules {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      counter-reset: rules;
+    }
+    .rule {
+      counter-increment: rules;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      border: 1px solid rgba(255,159,28,.36);
+      border-radius: 16px;
+      padding: 13px;
+      background: rgba(255,159,28,.055);
+      color: #f4d9ad;
+    }
+    .rule::before {
+      content: counter(rules);
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      width: 31px;
+      height: 31px;
+      border-radius: 50%;
+      background: var(--orange);
+      color: #000;
+      font-weight: 900;
+    }
+    .rule strong { color: var(--orange2); }
+    .bottom-line {
+      margin: 28px 0 10px;
+      padding: 18px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(255,159,28,.10), rgba(0,0,0,.55));
+      color: #ffe5b8;
+      font-weight: 700;
+    }
+    .bottom-line h3 {
+      margin: 0 0 8px;
+      color: var(--orange2);
+    }
+    .footer {
+      margin: 28px 0 10px;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    @media (max-width: 820px) {
+      .page { padding: 14px; }
+      .hero { padding: 20px; }
+      .scenario-grid, .rules { grid-template-columns: 1fr; }
+      .progress { text-align: left; width: 100%; }
+      .nav { align-items: stretch; }
+      .nav-links { width: 100%; }
+      a.nav-btn, button { width: 100%; }
+      .scenario-head { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="tagline">🧠 B737NG ATA 34 • Navigation Tribal Knowledge</div>
+      <h1>ATA 34 Tribal Knowledge</h1>
+      <p class="subtitle">ATA 34 is not about sensors — it’s about TRUSTED DATA. Failures are rarely hardware alone: sensor mismatch, bad data path, or alignment.</p>
+      <div class="rule-box">Core Rule: Always ask 'who disagrees with who?' AND 'what is fooling me?' Standby agreeing with crew may mean standby is the only correct source.</div>
+    </section>
+
+    <div class="nav">
+      <div class="nav-links">
+        <a class="nav-btn" href="#game">Scenarios</a>
+        <a class="nav-btn" href="#quiz">LRU Quiz</a>
+        <a class="nav-btn" href="#rules">Top 10 Rules</a>
+        <a class="nav-btn" href="#bottom">Bottom Line</a>
+      </div>
+      <div class="progress">
+        <div id="progressText">0 of 19 interactions complete</div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+    </div>
+
+    <section id="game">
+      <div class="section-title">
+        <h2>🎮 "Find the Lie" — Scenarios</h2>
+        <span class="section-note">Read first. Guess. Then reveal.</span>
+      </div>
+      <div class="scenario-grid" id="scenarioGrid"></div>
+    </section>
+
+    <section id="quiz">
+      <div class="section-title">
+        <h2>🎯 Change the LRU or Pass?</h2>
+        <span class="section-note">Answer YES or NO before revealing why.</span>
+      </div>
+            <div class="quiz-card">
+        <p class="quiz-question">ALIGN won’t complete. Replace IRU?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(0, false)">YES — Replace IRU</button>
+          <button onclick="answerQuiz(0, true)">NO — Re-enter POS</button>
+        </div>
+        <div class="answer-result" id="quiz0"><strong>❌ NO.</strong> Often just needs position entered twice or aircraft to stop moving.</div>
+      </div>
+      <div class="quiz-card">
+        <p class="quiz-question">Multiple NAV symptoms. Replace ADIRU?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(1, false)">YES — Replace ADIRU</button>
+          <button onclick="answerQuiz(1, true)">NO — Check pitot/static</button>
+        </div>
+        <div class="answer-result" id="quiz1"><strong>❌ NO.</strong> Pitot/static feeds many systems — check ports first.</div>
+      </div>
+      <div class="quiz-card">
+        <p class="quiz-question">Standby disagrees with primaries. Replace standby?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(2, false)">YES — Replace standby</button>
+          <button onclick="answerQuiz(2, true)">NO — Standby may be right</button>
+        </div>
+        <div class="answer-result" id="quiz2"><strong>❌ NO.</strong> Standby is often the only correct source.</div>
+      </div>
+      <div class="quiz-card">
+        <p class="quiz-question">Autoland INOP, everything else OK. Replace autopilot?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(3, false)">YES — Replace AP</button>
+          <button onclick="answerQuiz(3, true)">NO — Check RA</button>
+        </div>
+        <div class="answer-result" id="quiz3"><strong>❌ NO.</strong> Radio altimeter mismatch is the usual cause.</div>
+      </div>
+    </section>
+
+    <section id="rules">
+      <div class="section-title">
+        <h2>🛠 Top 10 ATA 34 Tribal Knowledge Rules</h2>
+        <span class="section-note">The stuff that saves time and parts.</span>
+      </div>
+      <div class="rules">
+                <div class="rule"><span><strong>ADIRS failure = split problem</strong> — ADR vs IR.</span></div>
+        <div class="rule"><span><strong>Pitot/static = root cause of many systems</strong>.</span></div>
+        <div class="rule"><span><strong>GPS issues often = antenna or ADIRU input</strong>.</span></div>
+        <div class="rule"><span><strong>RA is critical</strong> — for autoland and GPWS.</span></div>
+        <div class="rule"><span><strong>ILS failures = usually signal, not hardware</strong>.</span></div>
+        <div class="rule"><span><strong>ISFD = last reliable reference</strong>.</span></div>
+        <div class="rule"><span><strong>Alignment problems = position or movement</strong>.</span></div>
+        <div class="rule"><span><strong>ARINC 429 issues = hidden killers</strong>.</span></div>
+        <div class="rule"><span><strong>Always check BITE before replacing parts</strong>.</span></div>
+        <div class="rule"><span><strong>Ask: is the data wrong, missing, or disagreed?</strong></span></div>
+      </div>
+    </section>
+
+    <section id="bottom" class="bottom-line">
+      <h3>🔚 Bottom Line</h3>
+      <div>ATA 34 troubleshooting is NOT about replacing boxes. It's about data validity, source comparison, and finding the lie. Pitot/static feeds everything — a tiny contamination can cause many symptoms.</div>
+    </section>
+
+    <div class="footer">ATA 34 Navigation Tribal Knowledge • Built for line maintenance learning</div>
+  </main>
+
+  <script>
+    const scenarios = [{"title": "Scenario 1", "writeup": "“ALIGN light flashing / won’t align.”", "checks": ["Check if aircraft moved during alignment", "Check position entry"], "trap": "POS entered once, still flashing → IRU swapped. Reality: must re-enter position to confirm.", "lesson": "Enter position twice if mismatch."}, {"title": "Scenario 2", "writeup": "“IRS takes forever to align.”", "checks": ["No GPS assist?", "Cold start / bad last position?"], "trap": "IRU replaced. Reality: without GPS assist, ~15–17 min is normal.", "lesson": "GPS-aided alignment is fast; cold is slow."}, {"title": "Scenario 3", "writeup": "“ATT FAIL but altitude/airspeed OK.”", "checks": ["IR side failed", "ADR still good"], "trap": "Whole ADIRU replaced. Reality: only the IR half failed.", "lesson": "ADR and IR are independent halves."}, {"title": "Scenario 4", "writeup": "“Multiple NAV issues at once.”", "checks": ["Suspect pitot/static contamination first", "Feeds ADIRS, autopilot, FMC, TCAS, GPWS"], "trap": "ADIRU replaced. Reality: one blocked port can cause many symptoms.", "lesson": "Pitot/static is the root cause hub."}, {"title": "Scenario 5", "writeup": "“Captain / FO disagree.”", "checks": ["Separate pitot/static sides"], "trap": "ADIRU replaced. Reality: each side has independent sensing.", "lesson": "Side-specific = pitot/static side."}, {"title": "Scenario 6", "writeup": "“Standby works but main doesn’t.”", "checks": ["Alternate static / pitot still good"], "trap": "ISFD replaced. Reality: ISFD is the ONLY correct reference.", "lesson": "Standby agreement = primary is wrong."}, {"title": "Scenario 7", "writeup": "“GPS FAIL light.”", "checks": ["Could be dual failure", "Or single until recall"], "trap": "Both MMRs replaced. Reality: could be antenna or coax.", "lesson": "Check RF path before swapping MMRs."}, {"title": "Scenario 8", "writeup": "“GPS slow acquisition.”", "checks": ["Normal: 75 sec with IRS, 4–10 min without"], "trap": "GPS condemned. Reality: ADIRU input missing extends acquisition.", "lesson": "GPS speed depends on IRS input."}, {"title": "Scenario 9", "writeup": "“GPS intermittent.”", "checks": ["Check antenna / coax", "Check satellite geometry"], "trap": "MMR repeatedly swapped. Reality: broken coax causes same failure.", "lesson": "Intermittent GPS = RF path."}, {"title": "Scenario 10", "writeup": "“Autoland INOP + everything else OK.”", "checks": ["Check radio altimeter mismatch", "RA feeds autoland, GPWS, TCAS"], "trap": "Autopilot chased. Reality: RA killed autoland.", "lesson": "RA is the silent killer for autoland."}, {"title": "Scenario 11", "writeup": "“LOC/GS flags.”", "checks": ["Invalid signal indication"], "trap": "MMR replaced. Reality: could be external signal issue at the airport.", "lesson": "Flags don’t always mean MMR."}, {"title": "Scenario 12", "writeup": "“Glideslope missing only.”", "checks": ["Check GS antenna / receiver"], "trap": "Localizer works so system assumed OK. Reality: separate antenna path.", "lesson": "GS and LOC have separate paths."}, {"title": "Scenario 13", "writeup": "“ISFD shows OUT OF ORDER.”", "checks": ["Internal failure — replace unit"], "trap": "Reset multiple times. Reality: hard failure — won't reset.", "lesson": "ISFD OOO = hard failure."}, {"title": "Scenario 14", "writeup": "“ON DC light on IRS.”", "checks": ["Running on battery"], "trap": "Ignored. Reality: system is degraded and on backup power.", "lesson": "ON DC = degraded operation."}, {"title": "Scenario 15", "writeup": "“BITE shows no fault but pilot complains.”", "checks": ["Intermittent or wiring issue", "Check ARINC 429 path"], "trap": "Write-up closed. Reality: BITE doesn't always catch transient or data-path issues.", "lesson": "No BITE fault ≠ no problem."}];
+    const TOTAL = 19;
+    const completed = new Set();
+
+    function updateProgress() {
+      const count = completed.size;
+      document.getElementById("progressText").textContent = count + " of " + TOTAL + " interactions complete";
+      document.getElementById("progressFill").style.width = Math.min((count / TOTAL) * 100, 100) + "%";
+    }
+
+    function revealScenario(index) {
+      const card = document.getElementById("scenario-card-" + index);
+      const body = document.getElementById("scenario-body-" + index);
+      body.classList.toggle("open");
+      card.classList.add("done");
+      completed.add("s" + index);
+      updateProgress();
+    }
+
+    function answerQuiz(index, correct) {
+      const box = document.getElementById("quiz" + index);
+      box.classList.add("show");
+      box.style.borderColor = correct ? "rgba(72,209,122,.85)" : "rgba(255,92,92,.85)";
+      completed.add("q" + index);
+      updateProgress();
+    }
+
+    function buildScenarios() {
+      const grid = document.getElementById("scenarioGrid");
+      grid.innerHTML = scenarios.map(function(s, i) {
+        const checksHtml = s.checks.map(function(c) {
+          return '<li><span class="check">&#9989;</span> ' + c + '</li>';
+        }).join("");
+        const dontHtml = s.dont ? '<li><span class="nope">&#10060;</span> ' + s.dont + '</li>' : "";
+        const trapHtml = s.trap ? '<div class="trap">&#9888;&#65039; <strong>TRAP:</strong> ' + s.trap + '</div>' : "";
+        return ''
+          + '<article class="scenario-card" id="scenario-card-' + i + '">'
+          + '  <div class="scenario-head">'
+          + '    <span class="scenario-num">&#9992;&#65039; ' + s.title + '</span>'
+          + '    <button onclick="revealScenario(' + i + ')">Reveal Checks</button>'
+          + '  </div>'
+          + '  <div class="writeup">' + s.writeup + '</div>'
+          + '  <div class="think-list" id="scenario-body-' + i + '">'
+          + '    <strong>Think first:</strong>'
+          + '    <ul>' + checksHtml + dontHtml + '</ul>'
+          + trapHtml
+          + '    <div class="lesson">Tribal Lesson: ' + s.lesson + '</div>'
+          + '  </div>'
+          + '</article>';
+      }).join("");
+    }
+
+    buildScenarios();
+    updateProgress();
+  </script>
+</body>
+</html>

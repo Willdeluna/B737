@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B737NG ATA 22 – DFCS Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1a0f00;
+  --card:#1e1200;
+  --card2:#251800;
+  --orange:#f5a623;
+  --orange2:#c47b0e;
+  --green:#58cc02;
+  --green2:#46a302;
+  --green-bg:#071a0a;
+  --green-bdr:#1a4d1a;
+  --red:#ff4b4b;
+  --red2:#cc2a2a;
+  --red-bg:#1f0a0a;
+  --red-bdr:#5c1212;
+  --blue:#1cb0f6;
+  --gold:#ffc800;
+  --gold2:#c89800;
+  --text:#f0e8d8;
+  --muted:#8a7050;
+  --border:#3a2508;
+  --r:14px;
+}
+html,body{min-height:100vh;background:var(--bg);font-family:'Nunito',sans-serif;color:var(--text)}
+body{
+  display:flex;align-items:center;justify-content:center;padding:16px;
+  background:
+    radial-gradient(ellipse at 15% 0%,rgba(245,166,35,0.09) 0%,transparent 55%),
+    radial-gradient(ellipse at 85% 100%,rgba(245,166,35,0.04) 0%,transparent 50%),
+    var(--bg);
+}
+.wrap{width:100%;max-width:520px}
+.screen{display:none}
+.screen.on{display:block}
+
+/* ── HOME ── */
+.home-card{background:var(--card);border-radius:22px;padding:28px 24px;border:1px solid var(--border);box-shadow:0 0 0 1px #120a00,0 24px 60px rgba(0,0,0,.9);text-align:center;position:relative;overflow:hidden}
+.home-card::before{content:'';position:absolute;top:-80px;left:-80px;width:280px;height:280px;background:radial-gradient(circle,rgba(245,166,35,.1) 0%,transparent 70%);pointer-events:none;border-radius:50%}
+.home-card::after{content:'';position:absolute;bottom:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(245,166,35,.06) 0%,transparent 70%);pointer-events:none;border-radius:50%}
+.plane{font-size:58px;display:block;animation:bob 3s ease-in-out infinite;margin-bottom:2px;filter:drop-shadow(0 0 18px rgba(245,166,35,.55))}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-11px) rotate(4deg)}}
+.home-badge{display:inline-block;color:var(--orange);font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:4px 14px;border-radius:99px;margin-bottom:8px;border:1.5px solid var(--orange2);position:relative;z-index:1}
+.home-h1{font-size:clamp(20px,5vw,28px);font-weight:900;line-height:1.15;margin-bottom:6px;color:#fff;position:relative;z-index:1}
+.home-h1 span{color:var(--orange)}
+.home-sub{font-size:12px;color:var(--muted);font-weight:600;line-height:1.55;max-width:340px;margin:0 auto 16px;position:relative;z-index:1}
+.home-pills{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-bottom:16px;position:relative;z-index:1}
+.pill{background:#120a00;border:1.5px solid #2e1800;border-radius:99px;padding:4px 11px;font-size:11px;font-weight:700;color:var(--orange2)}
+.home-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px;position:relative;z-index:1}
+.meta-box{background:#120a00;border:1.5px solid var(--border);border-radius:12px;padding:11px 6px}
+.meta-n{font-size:26px;font-weight:900;color:var(--orange)}
+.meta-l{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.btn-go{width:100%;padding:14px;background:var(--orange);color:#000;border:none;border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 5px 0 var(--orange2),0 8px 24px rgba(245,166,35,.3);transition:transform .12s,box-shadow .12s;letter-spacing:.3px;position:relative;z-index:1}
+.btn-go:hover{transform:translateY(-3px);box-shadow:0 8px 0 var(--orange2),0 12px 28px rgba(245,166,35,.35)}
+.btn-go:active{transform:translateY(3px);box-shadow:0 2px 0 var(--orange2)}
+
+/* ── QUIZ SHELL ── */
+.q-shell{background:var(--card);border-radius:20px;border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.9);overflow:hidden;max-height:490px;display:flex;flex-direction:column}
+.topbar{padding:10px 14px 9px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;flex-shrink:0;background:var(--card2)}
+.xbtn{width:27px;height:27px;border:1.5px solid var(--border);border-radius:7px;background:none;cursor:pointer;font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.xbtn:hover{background:#1f0709;border-color:var(--red);color:var(--red)}
+.prog-col{flex:1}
+.prog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.prog-cat{font-size:11px;font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px}
+.prog-n{font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap}
+.bar-bg{height:7px;background:#120a00;border-radius:99px;overflow:hidden;border:1px solid #2a1400}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--orange2),var(--orange),#ffd27f);border-radius:99px;transition:width .5s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 8px rgba(245,166,35,.45)}
+.topbar-r{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.hearts{display:flex;gap:1px;font-size:14px}
+.heart{transition:all .3s}
+.heart.gone{opacity:.15;filter:grayscale(1);transform:scale(.65)}
+.xp-tag{background:#120a00;border:1.5px solid #2a1a00;border-radius:99px;padding:3px 9px;font-size:12px;font-weight:800;color:var(--gold);white-space:nowrap}
+.streak-tag{background:#120a00;border:1.5px solid #2a1a00;border-radius:99px;padding:3px 9px;font-size:11px;font-weight:800;color:#ff9600;white-space:nowrap}
+
+/* ── QUESTION BODY ── */
+.q-body{flex:1;overflow-y:auto;padding:13px 15px 0;scrollbar-width:thin;scrollbar-color:#2a1400 transparent}
+.q-body::-webkit-scrollbar{width:4px}
+.q-body::-webkit-scrollbar-thumb{background:#2a1400;border-radius:4px}
+.q-cat{font-size:11px;font-weight:800;color:var(--orange2);text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.q-dot{width:6px;height:6px;background:var(--orange);border-radius:50%;box-shadow:0 0 6px rgba(245,166,35,.8)}
+.q-text{font-size:clamp(13px,2.6vw,14.5px);font-weight:700;line-height:1.52;margin-bottom:12px;color:#f5e8d0}
+.opts{display:flex;flex-direction:column;gap:6px;padding-bottom:12px}
+.opt{width:100%;padding:10px 12px;background:#120a00;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:9px;font-family:'Nunito',sans-serif;font-size:12.5px;font-weight:700;color:#c8a878;transition:all .13s;line-height:1.32;position:relative;overflow:hidden}
+.opt:hover:not(:disabled){border-color:var(--orange2);background:#1e1000;color:var(--orange);transform:translateX(3px)}
+.opt-l{width:24px;height:24px;border-radius:6px;background:#1e1000;border:1.5px solid #3a2000;font-size:11px;font-weight:900;color:#6a5030;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.opt.picked-right{border-color:var(--green);background:var(--green-bg);color:#a0ffe0;animation:bumpR .4s cubic-bezier(.34,1.56,.64,1)}
+.opt.picked-right .opt-l{background:var(--green);border-color:var(--green);color:#000}
+.opt.picked-wrong{border-color:var(--red);background:var(--red-bg);color:#ffaaaa;animation:shakeW .35s}
+.opt.picked-wrong .opt-l{background:var(--red);border-color:var(--red);color:#fff}
+.opt.reveal-right{border-color:var(--green);background:var(--green-bg);color:#a0ffe0}
+.opt.reveal-right .opt-l{background:var(--green);border-color:var(--green);color:#000}
+.opt.faded{opacity:.22}
+.opt:disabled{cursor:default;transform:none!important}
+@keyframes bumpR{0%{transform:scale(1)}40%{transform:scale(1.025)}100%{transform:scale(1)}}
+@keyframes shakeW{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+
+/* ── FEEDBACK ── */
+.fb{flex-shrink:0;display:none;align-items:center;gap:9px;padding:10px 15px;border-top:1.5px solid transparent}
+.fb.on{display:flex}
+.fb.ok{background:#071a0a;border-color:var(--green-bdr)}
+.fb.no{background:#190408;border-color:var(--red-bdr)}
+.fb-icon{font-size:24px;flex-shrink:0}
+.fb-txt{flex:1;min-width:0}
+.fb-head{font-size:13px;font-weight:900}
+.fb.ok .fb-head{color:var(--green)}
+.fb.no .fb-head{color:var(--red)}
+.fb-detail{font-size:11px;font-weight:600;color:#7a6040;line-height:1.4;margin-top:2px}
+.btn-cont{padding:8px 14px;border:none;border-radius:9px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .12s}
+.fb.ok .btn-cont{background:var(--green);color:#000;box-shadow:0 3px 0 var(--green2)}
+.fb.ok .btn-cont:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--green2)}
+.fb.no .btn-cont{background:var(--red);color:#fff;box-shadow:0 3px 0 var(--red2)}
+.fb.no .btn-cont:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--red2)}
+
+/* ── RESULTS ── */
+.res-card{background:var(--card);border-radius:22px;padding:28px 22px;border:1px solid var(--border);box-shadow:0 24px 60px rgba(0,0,0,.9);text-align:center;position:relative;overflow:hidden}
+.res-card::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:300px;height:300px;background:radial-gradient(circle,rgba(245,166,35,.08) 0%,transparent 65%);border-radius:50%;pointer-events:none}
+.trophy{font-size:66px;display:block;animation:dropIn .7s cubic-bezier(.34,1.56,.64,1);position:relative;z-index:1;filter:drop-shadow(0 0 20px rgba(245,166,35,.5))}
+@keyframes dropIn{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.stars-row{display:flex;justify-content:center;gap:8px;margin:5px 0 12px;position:relative;z-index:1}
+.rstar{font-size:32px;opacity:0;filter:drop-shadow(0 0 8px rgba(245,166,35,.6))}
+.rstar.lit{animation:starIn .5s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes starIn{to{opacity:1;transform:scale(1) rotate(0)}from{opacity:0;transform:scale(0) rotate(-20deg)}}
+.res-title{font-size:clamp(20px,5vw,26px);font-weight:900;margin-bottom:3px;color:#fff;position:relative;z-index:1}
+.res-sub{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:18px;position:relative;z-index:1}
+.res-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px;position:relative;z-index:1}
+.res-box{background:#120a00;border:1.5px solid var(--border);border-radius:12px;padding:12px 6px}
+.res-n{font-size:24px;font-weight:900;color:var(--orange)}
+.res-l{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.res-btns{display:flex;flex-direction:column;gap:8px;position:relative;z-index:1}
+.btn-again{width:100%;padding:14px;background:var(--orange);color:#000;border:none;border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 5px 0 var(--orange2),0 7px 20px rgba(245,166,35,.25);transition:all .12s;letter-spacing:.3px}
+.btn-again:hover{transform:translateY(-2px);box-shadow:0 7px 0 var(--orange2),0 10px 24px rgba(245,166,35,.3)}
+.btn-again:active{transform:translateY(3px);box-shadow:0 2px 0 var(--orange2)}
+.btn-home-sm{width:100%;padding:11px;border:1.5px solid var(--border);border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:none;color:var(--muted);transition:all .15s}
+.btn-home-sm:hover{border-color:var(--orange2);color:var(--orange)}
+
+/* ── EFFECTS ── */
+.confetti{position:fixed;pointer-events:none;z-index:9999;animation:cfall linear forwards}
+@keyframes cfall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(110vh) rotate(700deg)}}
+.spark{position:fixed;pointer-events:none;z-index:9999;border-radius:50%;animation:spark ease-out forwards}
+@keyframes spark{to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0)}}
+.floatxp{position:fixed;pointer-events:none;z-index:9999;font-size:16px;font-weight:900;color:var(--gold);text-shadow:0 0 12px rgba(255,200,0,.5);animation:fxp .9s ease-out forwards}
+@keyframes fxp{0%{opacity:1;transform:translateY(0) scale(.7)}20%{transform:translateY(-8px) scale(1.1)}100%{opacity:0;transform:translateY(-60px) scale(.9)}}
+.popbadge{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:9999;font-size:34px;font-weight:900;animation:pbadge 1s ease forwards;white-space:nowrap;text-shadow:0 0 30px rgba(245,166,35,.8),0 4px 20px rgba(0,0,0,.5)}
+@keyframes pbadge{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}70%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-55%) scale(.9)}}
+
+@media(max-width:400px){.topbar{padding:9px 11px}.q-body{padding:11px 11px 0}.opts{gap:5px}.opt{padding:9px 10px;font-size:12px}.fb{padding:9px 12px}.home-card,.res-card{padding:22px 14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ═══ HOME ═══ -->
+<div id="home" class="screen on">
+<div class="home-card">
+  <span class="plane">🧠</span>
+  <div class="home-badge">ATA Chapter 22</div>
+  <h1 class="home-h1">B737NG DFCS<br><span>Comprehension Quiz</span></h1>
+  <p class="home-sub">30 questions on FCC logic, autopilot modes, autothrottle, flight director, trim systems, autoland, BITE &amp; tribal knowledge.</p>
+  <div class="home-pills">
+    <span class="pill">🧠 FCC Logic</span>
+    <span class="pill">🎛️ MCP / Modes</span>
+    <span class="pill">🚀 Autothrottle</span>
+    <span class="pill">🧭 Flight Director</span>
+    <span class="pill">⚙️ Trim Systems</span>
+    <span class="pill">🛬 Autoland</span>
+    <span class="pill">🔧 BITE / MX</span>
+    <span class="pill">🏆 Tribal Rules</span>
+  </div>
+  <div class="home-meta">
+    <div class="meta-box"><div class="meta-n">30</div><div class="meta-l">Questions</div></div>
+    <div class="meta-box"><div class="meta-n">3</div><div class="meta-l">Lives</div></div>
+    <div class="meta-box"><div class="meta-n">8</div><div class="meta-l">Topics</div></div>
+  </div>
+  <button class="btn-go" onclick="startGame()">✈️ Start Quiz</button>
+</div>
+</div>
+
+<!-- ═══ QUIZ ═══ -->
+<div id="quiz" class="screen">
+<div class="q-shell">
+  <div class="topbar">
+    <button class="xbtn" onclick="confirmQuit()">✕</button>
+    <div class="prog-col">
+      <div class="prog-top">
+        <span class="prog-cat" id="cat-lbl">FCC Logic</span>
+        <span class="prog-n"><span id="qn">1</span>/<span id="qtot">30</span></span>
+      </div>
+      <div class="bar-bg"><div class="bar-fill" id="bar" style="width:0%"></div></div>
+    </div>
+    <div class="topbar-r">
+      <div class="streak-tag">🔥<span id="streak-n">0</span></div>
+      <div class="hearts" id="hearts">
+        <span class="heart" id="h0">❤️</span><span class="heart" id="h1">❤️</span><span class="heart" id="h2">❤️</span>
+      </div>
+      <div class="xp-tag">⚡<span id="xpdis">0</span></div>
+    </div>
+  </div>
+  <div class="q-body" id="q-body">
+    <div class="q-cat"><div class="q-dot"></div><span id="q-cat">FCC Logic</span></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="opts" id="opts"></div>
+  </div>
+  <div class="fb" id="fb">
+    <span class="fb-icon" id="fb-icon">✅</span>
+    <div class="fb-txt">
+      <div class="fb-head" id="fb-head">Correct!</div>
+      <div class="fb-detail" id="fb-det"></div>
+    </div>
+    <button class="btn-cont" id="btn-cont" onclick="advance()">Next →</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══ RESULT ═══ -->
+<div id="result" class="screen">
+<div class="res-card">
+  <span class="trophy" id="trophy">🏆</span>
+  <div class="stars-row">
+    <span class="rstar" id="rs0">⭐</span>
+    <span class="rstar" id="rs1">⭐</span>
+    <span class="rstar" id="rs2">⭐</span>
+  </div>
+  <div class="res-title" id="res-title">Session Complete!</div>
+  <div class="res-sub" id="res-sub">Great work!</div>
+  <div class="res-grid">
+    <div class="res-box"><div class="res-n" id="r-xp">0</div><div class="res-l">XP</div></div>
+    <div class="res-box"><div class="res-n" id="r-acc">0%</div><div class="res-l">Accuracy</div></div>
+    <div class="res-box"><div class="res-n" id="r-str">0</div><div class="res-l">Best Streak</div></div>
+  </div>
+  <div class="res-btns">
+    <button class="btn-again" onclick="startGame()">🔁 Play Again</button>
+    <button class="btn-home-sm" onclick="goHome()">← Back to Home</button>
+  </div>
+</div>
+</div>
+
+</div>
+<script>
+// ═══════════════ AUDIO ═══════════════
+const AC=window.AudioContext||window.webkitAudioContext;
+let actx=null;
+function ctx(){if(!actx)actx=new AC();return actx;}
+function playCorrect(){try{const c=ctx();[523,659,784,1047].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;const t=c.currentTime+i*.07;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.16,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.22);o.start(t);o.stop(t+.25);});}catch(e){}}
+function playWrong(){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sawtooth';o.frequency.setValueAtTime(280,c.currentTime);o.frequency.exponentialRampToValueAtTime(80,c.currentTime+.35);g.gain.setValueAtTime(.13,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.4);o.start();o.stop(c.currentTime+.45);}catch(e){}}
+function playCombo(){try{const c=ctx();[880,1108,1320,1760].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='triangle';o.frequency.value=f;const t=c.currentTime+i*.05;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.2,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.28);o.start(t);o.stop(t+.3);});}catch(e){}}
+function playVictory(){try{const c=ctx();[523,659,784,1047,1319,1568,2093].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;const t=c.currentTime+i*.09;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.18,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+.32);o.start(t);o.stop(t+.35);});}catch(e){}}
+function playClick(){try{const c=ctx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=440;g.gain.setValueAtTime(.06,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.07);o.start();o.stop(c.currentTime+.08);}catch(e){}}
+
+// ═══════════════ QUESTION BANK ═══════════════
+// Each question stores the CORRECT ANSWER TEXT in `correct` — not an index.
+// Options are shuffled at render time so position is always random.
+const BANK=[
+// ── FCC LOGIC ──────────────────────────────────────────────────────────────────
+{c:"🧠 FCC Logic",
+ q:"The B737NG DFCS has two Flight Control Computers (FCCs). What is the PRIMARY role of each FCC?",
+ correct:"Process autopilot, flight director, autothrottle, and trim logic — each running independently for redundancy",
+ o:["Process autopilot, flight director, autothrottle, and trim logic — each running independently for redundancy",
+    "FCC A controls lateral modes only; FCC B controls vertical modes only",
+    "One FCC is active at all times; the other stays in standby and only takes over on a manual switch",
+    "FCCs process engine data and send N1 commands directly to the autothrottle servo"],
+ d:"Each FCC independently processes the full AFDS logic — autopilot, flight director, autothrottle arm, and trim. Their redundancy means one failing does not cause total loss of auto flight capability."},
+
+{c:"🧠 FCC Logic",
+ q:"Which is the CORRECT power-up sequence concern for the FCC?",
+ correct:"The AFCS/FCC DC circuit breakers should be closed LAST during power-up — sequence matters for initialisation",
+ o:["The AFCS/FCC DC circuit breakers should be closed LAST during power-up — sequence matters for initialisation",
+    "FCCs must be powered before hydraulic pressure is established or they will not initialise",
+    "Power-up sequence does not matter — FCCs self-initialise regardless of breaker order",
+    "FCC B must always be powered before FCC A or the master FCC assignment fails"],
+ d:"FCC power-up sequence matters. Closing AFCS/FCC DC breakers last allows the FCC to initialise correctly. Incorrect sequence can result in mode confusion or unexpected BITE faults on first use."},
+
+{c:"🧠 FCC Logic",
+ q:"A single FCC failure in flight typically causes which combination of effects?",
+ correct:"Loss of autopilot, flight director, and autoland on the failed side — but the other side remains functional",
+ o:["Loss of autopilot, flight director, and autoland on the failed side — but the other side remains functional",
+    "Both autopilots disengage immediately and cannot be re-engaged",
+    "Only the Speed Trim and Mach Trim FAIL lights illuminate — no operational impact",
+    "The remaining FCC automatically assumes full dual-channel control with no crew action needed"],
+ d:"A single FCC failure removes that side's autopilot, flight director, and autoland capability. Speed Trim and Mach Trim FAIL lights may also show on recall. The other FCC continues normal operation."},
+
+{c:"🧠 FCC Logic",
+ q:"The FMA (Flight Mode Annunciator) is described as 'system truth' in ATA 22. Why?",
+ correct:"It shows exactly what mode the DFCS thinks it is in — always verify FMA before troubleshooting autopilot behaviour",
+ o:["It shows exactly what mode the DFCS thinks it is in — always verify FMA before troubleshooting autopilot behaviour",
+    "It shows the commanded mode, which may differ from the actual engaged mode during transitions",
+    "It is advisory only — the EFIS primary display is the authoritative source for mode status",
+    "FMA data comes from the FMC, not the FCC, so it may lag actual DFCS state by one cycle"],
+ d:"The FMA never lies about what mode the system is in. Before any troubleshooting of autopilot or autothrottle behaviour, read the FMA first. Many 'faults' are actually expected mode transitions misread by the crew."},
+
+// ── MCP / MODES ────────────────────────────────────────────────────────────────
+{c:"🎛️ MCP / Modes",
+ q:"The MCP (Mode Control Panel) is the main control interface for the DFCS. Which of the following does it NOT directly provide?",
+ correct:"FMC route data and waypoint sequencing for LNAV",
+ o:["FMC route data and waypoint sequencing for LNAV",
+    "Speed, heading, altitude, and vertical speed targets",
+    "Mode selections such as HDG SEL, V/S, LVL CHG, APP",
+    "Course information to the related VHF NAV receiver and FCC"],
+ d:"The MCP provides mode selections, speed/heading/altitude/V/S targets, and course data. LNAV route data and waypoint sequencing come from the FMC — the MCP simply arms or engages the LNAV mode."},
+
+{c:"🎛️ MCP / Modes",
+ q:"LNAV and VNAV fail to engage on departure. The FMC looks normal. What is the MOST likely cause?",
+ correct:"A data validity problem — LNAV/VNAV are FMC-driven and fail when FMC data inputs (IRS, GPS, constraints) are invalid",
+ o:["A data validity problem — LNAV/VNAV are FMC-driven and fail when FMC data inputs (IRS, GPS, constraints) are invalid",
+    "Both FCCs have failed — LNAV/VNAV require dual FCC operation",
+    "The MCP LNAV/VNAV switches are faulty — replace the MCP",
+    "Hydraulic System A is not providing sufficient pressure for FCC engagement"],
+ d:"LNAV and VNAV are FMC-driven modes. Even with a healthy-looking FMC, invalid inputs (IRS alignment, GPS signal, route constraints, altitude window) can prevent engagement. This is a data problem, not a DFCS hardware problem."},
+
+{c:"🎛️ MCP / Modes",
+ q:"In LVL CHG mode, which statement correctly describes the energy management logic?",
+ correct:"Pitch controls airspeed while the autothrottle controls thrust — the opposite of V/S mode",
+ o:["Pitch controls airspeed while the autothrottle controls thrust — the opposite of V/S mode",
+    "The autopilot holds a fixed pitch attitude while the pilot manually manages thrust",
+    "Both pitch and thrust are frozen — only speed brakes modulate the descent rate",
+    "The FMC selects both the target pitch and thrust automatically based on VNAV profile"],
+ d:"LVL CHG is energy management: pitch controls speed while autothrottle manages thrust. This is the reverse of V/S, where vertical speed is held by pitch and the A/T maintains speed. Understanding which axis controls what prevents mode confusion."},
+
+{c:"🎛️ MCP / Modes",
+ q:"HDG SEL and V/S are described as 'pilot-driven' modes. What does this mean?",
+ correct:"They follow values set on the MCP by the pilot — not FMC-calculated targets",
+ o:["They follow values set on the MCP by the pilot — not FMC-calculated targets",
+    "They require the pilot to manually move the controls — the autopilot only provides guidance",
+    "They are only available when the FMC is in manual mode and LNAV is deselected",
+    "They are inhibited above FL200 and must be replaced by FMC-driven modes"],
+ d:"HDG SEL follows the heading dialled into the MCP; V/S follows the selected vertical speed on the MCP. Neither takes commands from the FMC. This makes them fully pilot-directed, unlike LNAV/VNAV which are FMC-driven."},
+
+// ── AUTOPILOT ──────────────────────────────────────────────────────────────────
+{c:"🎛️ MCP / Modes",
+ q:"The autopilot has two engagement modes: CMD and CWS. What is the key difference?",
+ correct:"CMD is fully automatic — the FCC commands surfaces. CWS (Control Wheel Steering) is pilot-assisted, holding whatever attitude the pilot establishes",
+ o:["CMD is fully automatic — the FCC commands surfaces. CWS (Control Wheel Steering) is pilot-assisted, holding whatever attitude the pilot establishes",
+    "CMD requires both FCCs; CWS works with a single FCC only",
+    "CWS is the normal cruise mode; CMD is only used for autoland approaches",
+    "Both modes are identical in function — CWS is simply the legacy name for CMD"],
+ d:"CMD gives full FCC authority over pitch and roll. CWS lets the pilot manually move the controls and the autopilot captures and holds the resulting attitude — useful for manual flying while keeping some automation active."},
+
+{c:"🎛️ MCP / Modes",
+ q:"A pilot can override the autopilot by applying force to the controls. Approximately how much force is needed, and why is this important?",
+ correct:"Roughly 25–50 lb — this threshold prevents dangerous runaway conditions while allowing pilot override",
+ o:["Roughly 25–50 lb — this threshold prevents dangerous runaway conditions while allowing pilot override",
+    "Any pressure is sufficient — the autopilot disengages the moment the pilot touches the controls",
+    "More than 100 lb is required — the autopilot is designed to resist pilot input in all modes",
+    "Force override is not possible in CMD mode — the disconnect button must be used"],
+ d:"The ~25–50 lb override threshold is a deliberate safety design. Too low and turbulence bumps could disengage the autopilot; too high and a runaway could not be overcome. The cam-out mechanism protects against surface runaway while allowing pilot takeover."},
+
+{c:"🎛️ MCP / Modes",
+ q:"Autopilot CMD A engages on the ground but drops offline passing 1,000 ft during climb. Before changing any LRU, what should be checked FIRST?",
+ correct:"Hydraulic system pressure stability during gear and flap retraction — transient hydraulic drops can kick the autopilot offline",
+ o:["Hydraulic system pressure stability during gear and flap retraction — transient hydraulic drops can kick the autopilot offline",
+    "The FCC A circuit breaker — it likely tripped during the configuration change",
+    "ADIRU data continuity — an IRS mode fault during climb is the most common cause",
+    "The autopilot servo — cam-out at 1,000 ft always indicates a mechanical actuator fault"],
+ d:"The autopilot requires correct hydraulic pressure to stay engaged. During gear and flap retraction, transient hydraulic demand can cause momentary pressure drops. Check hydraulic system health and yaw damper/stab trim operation before condemning any electronic LRU."},
+
+// ── AUTOTHROTTLE ───────────────────────────────────────────────────────────────
+{c:"🚀 Autothrottle",
+ q:"What are the two CORE jobs of the B737NG autothrottle system?",
+ correct:"SPD mode — holds target airspeed; N1 mode — holds target engine thrust",
+ o:["SPD mode — holds target airspeed; N1 mode — holds target engine thrust",
+    "RETARD mode — reduces thrust to idle; ARM mode — waits for FMC command to engage",
+    "THR HOLD — prevents throttle movement below 400 ft; GA — commands go-around thrust",
+    "MCP SPD — follows MCP-dialled speed; FMC SPD — follows FMC-computed speed"],
+ d:"SPD mode commands throttle movement to hold the target speed. N1 mode drives the throttles to a specific N1 value. All other annunciations (RETARD, ARM, THR HLD) describe the autothrottle's relationship to those two core modes during phase transitions."},
+
+{c:"🚀 Autothrottle",
+ q:"THR HOLD appears on the FMA around 84 knots on takeoff. What does this mean operationally?",
+ correct:"The autothrottle freezes lever position to prevent unwanted movement during the critical takeoff roll — it exits when above 800 ft AGL AND 10 sec after lift-off",
+ o:["The autothrottle freezes lever position to prevent unwanted movement during the critical takeoff roll — it exits when above 800 ft AGL AND 10 sec after lift-off",
+    "The autothrottle has disconnected — the pilot must manually advance the throttles to maintain N1",
+    "The autothrottle is holding thrust at the THR REF value until V2 is reached",
+    "THR HOLD means the system is holding for an FMC command before advancing to climb thrust"],
+ d:"THR HOLD freezes the thrust levers during the takeoff roll so bumps and inputs don't cause unwanted throttle movement. It exits when BOTH conditions are true: baro altitude ≥800 ft above airport AND >10 sec since lift-off. Missing either condition keeps THR HOLD active."},
+
+{c:"🚀 Autothrottle",
+ q:"RETARD mode appears on the FMA during descent. A new mechanic calls it a fault. What is the correct explanation?",
+ correct:"RETARD is normal — it commands the throttles to idle during descent or flare; it is not a fault condition",
+ o:["RETARD mode appears on the FMA during descent. A new mechanic calls it a fault. What is the correct explanation?",
+    "RETARD mode is only normal during autoland flare — in normal descent it always indicates an A/T fault",
+    "RETARD is an intermediate state before the A/T disconnects — the crew should take manual control",
+    "RETARD indicates the thrust reverser system is pre-armed and ready for touchdown"],
+ d:"RETARD is expected during VNAV descent (throttles move to idle at TOD) and during autoland flare. New technicians and pilots sometimes chase RETARD as a fault. The FMA always shows the actual state — read it carefully before troubleshooting."},
+
+{c:"🚀 Autothrottle",
+ q:"During a go-around, pushing the TO/GA switch a SECOND time changes the autothrottle from:",
+ correct:"Reduced GA thrust (GA on FMA) to maximum safe rated GA thrust (N1 on FMA)",
+ o:["Reduced GA thrust (GA on FMA) to maximum safe rated GA thrust (N1 on FMA)",
+    "ARM mode back to SPD mode — the second push re-engages speed hold",
+    "N1 mode to MCP SPD mode — the FMC hands off speed control to the pilot",
+    "Full rated GA thrust back to approach idle — it acts as a go-around cancel switch"],
+ d:"First TO/GA push commands reduced GA thrust — GA appears on FMA. Second TO/GA push commands full-rated GA N1 from the FMC — FMA changes to N1. The autopilot controls rate of climb; A/T reverts to SPD mode at the go-around altitude."},
+
+{c:"🚀 Autothrottle",
+ q:"The autothrottle ARM switch is magnetically held at ARM. Which AFDS mode does NOT automatically engage the A/T when selected?",
+ correct:"HDG SEL — this is a roll mode only and does not trigger autothrottle engagement",
+ o:["HDG SEL — this is a roll mode only and does not trigger autothrottle engagement",
+    "LVL CHG — this mode relies on manual thrust management",
+    "VNAV — the FMC manages the vertical profile without A/T involvement",
+    "ALT HOLD — the autopilot holds altitude without requiring thrust changes"],
+ d:"HDG SEL is a lateral/roll mode — it points the aircraft but does not command a speed or thrust profile, so it does not automatically engage the A/T. Modes that auto-engage A/T include LVL CHG, ALT ACQ, V/S, VNAV, ALT HOLD, G/S capture, and TO/GA."},
+
+// ── FLIGHT DIRECTOR ────────────────────────────────────────────────────────────
+{c:"🧭 Flight Director",
+ q:"The Flight Director (F/D) magenta bars appear on the PFD. What do they actually do?",
+ correct:"Provide visual guidance only — they show the pilot where to fly but do NOT command any control surface movement",
+ o:["Provide visual guidance only — they show the pilot where to fly but do NOT command any control surface movement",
+    "Drive the autopilot actuators directly — removing the F/D disables the autopilot",
+    "Send pitch and roll commands to the FCC which drives the control surfaces",
+    "Display the FMC's computed optimum path — if ignored, the FMC overrides the autopilot"],
+ d:"The F/D is guidance only. The magenta bars show where to fly — but they move nothing. The autopilot actuators are commanded by the FCC. You can have F/D on with autopilot off (manual flight following bars) or autopilot on with F/D off."},
+
+{c:"🧭 Flight Director",
+ q:"The F/D bars disappear from the PFD during approach. This is called 'BOV' (Bars Out of View). What does this indicate for troubleshooting?",
+ correct:"The FCC's computed guidance has exceeded the display limits — a clue that input data (ILS, IRS, FMC) may be invalid",
+ o:["The FCC's computed guidance has exceeded the display limits — a clue that input data (ILS, IRS, FMC) may be invalid",
+    "The autopilot has automatically disconnected and the F/D turns off with it",
+    "BOV is normal at 100 ft RA — the F/D always removes bars during the flare",
+    "The F/D switch was inadvertently pushed to OFF — always check switch position first"],
+ d:"BOV (bars out of view) happens when the FCC's computed command exceeds the ±45° display range. It's a troubleshooting clue — the F/D is trying to command extreme pitch or roll, usually because sensor data (ILS deviation, IRS, FMC) feeding the FCC is invalid."},
+
+{c:"🧭 Flight Director",
+ q:"The first F/D switch turned ON becomes the 'Master' FCC. What does master status control?",
+ correct:"The master FCC controls F/D modes for both pilots — the MA indicator lights on both MA Flight Director Indicators",
+ o:["The master FCC controls F/D modes for both pilots — the MA indicator lights on both MA Flight Director Indicators",
+    "The master FCC takes sole control of autopilot — the other FCC only monitors",
+    "Master status only affects autoland — in normal flight both FCCs share mode control equally",
+    "The master FCC is always FCC A, regardless of which F/D switch is turned on first"],
+ d:"Whichever F/D switch goes on first sets that FCC as master. The MA (Master) indicator illuminates on both Flight Director Indicators to show which FCC is controlling the F/D modes. In dual-channel autoland, the first A/P engaged becomes the master."},
+
+// ── TRIM SYSTEMS ───────────────────────────────────────────────────────────────
+{c:"⚙️ Trim Systems",
+ q:"Speed Trim and Mach Trim serve different purposes. Which statement is CORRECT?",
+ correct:"Speed Trim operates at low speed/high thrust with autopilot OFF; Mach Trim prevents mach tuck at high speed",
+ o:["Speed Trim operates at low speed/high thrust with autopilot OFF; Mach Trim prevents mach tuck at high speed",
+    "Speed Trim operates continuously in all phases; Mach Trim only operates during autoland",
+    "Both systems operate simultaneously — Speed Trim for pitch, Mach Trim for roll",
+    "Speed Trim replaces Mach Trim above FL280; they do not operate at the same time"],
+ d:"Speed Trim helps stability during low-speed, high-thrust operations (takeoff departure) when the autopilot is OFF. Mach Trim counters the nose-down pitch tendency (mach tuck) at high Mach numbers. Only one FCC controls trim at a time to prevent conflicting commands."},
+
+{c:"⚙️ Trim Systems",
+ q:"A Speed Trim FAIL light illuminates on recall. What is the correct interpretation?",
+ correct:"A single FCC failure can cause this — both FCCs must fail before the flight deck light illuminates in flight; check fault history first",
+ o:["A single FCC failure can cause this — both FCCs must fail before the flight deck light illuminates in flight; check fault history first",
+    "The stabilizer trim motor has failed — a mechanical inspection is required before next flight",
+    "Speed Trim FAIL always means both FCCs have failed — immediately switch to manual stabilizer",
+    "This light only appears after a hydraulic System B failure — check hydraulics first"],
+ d:"Speed Trim FAIL on recall (not a steady light) often indicates a single FCC failure. The flight deck FAIL light typically requires BOTH FCCs to fail before illuminating in flight. Review fault history before condemning parts — this is a classic 'ghost' fault situation."},
+
+{c:"⚙️ Trim Systems",
+ q:"A write-up states 'Mach Trim FAIL on recall, no lights on the forward panel.' What should maintenance do FIRST?",
+ correct:"Check fault history before clearing — saved faults are gold. Also verify ADIRU Mach input validity",
+ o:["Check fault history before clearing — saved faults are gold. Also verify ADIRU Mach input validity",
+    "Replace FCC A immediately — Mach Trim FAIL always traces to the primary FCC",
+    "Clear the fault and return to service — recall faults with no panel light are not dispatch items",
+    "Check the stabilizer trim actuator — Mach Trim FAIL always indicates a mechanical issue"],
+ d:"Some DFCS failures only appear in fault history, not as steady panel lights. Clearing fault history early destroys valuable diagnostic data. Always review the full fault log and verify upstream inputs (ADIRU Mach data) before condemning any LRU."},
+
+// ── AUTOLAND ───────────────────────────────────────────────────────────────────
+{c:"🛬 Autoland",
+ q:"Dual-channel autoland requires both CMD A and CMD B to be engaged. When must both autopilots be engaged for LAND 3 capability?",
+ correct:"Both must be engaged before 800 ft Radio Altitude — engaging after this point prevents dual-channel status",
+ o:["Both must be engaged before 800 ft Radio Altitude — engaging after this point prevents dual-channel status",
+    "Both must be engaged before glideslope capture — late engagement after G/S is not permitted",
+    "Engagement timing does not matter — the system detects dual-channel automatically at any altitude",
+    "Both autopilots must be engaged before the FAF (Final Approach Fix) — typically 5 NM out"],
+ d:"Dual-channel autoland is timing-sensitive. Both CMD A and CMD B must be engaged before 800 ft RA. Engaging after this threshold prevents the system from establishing the dual-channel LAND 3 status required for CAT IIIb operations."},
+
+{c:"🛬 Autoland",
+ q:"During a dual-channel approach, FLARE does not annunciate as expected. Before touching any ILS component, what should be checked?",
+ correct:"Engagement timing of both A/Ps, DC bus isolation (bus tie must be open), and any single-channel fault history",
+ o:["Engagement timing of both A/Ps, DC bus isolation (bus tie must be open), and any single-channel fault history",
+    "The glideslope receiver — FLARE failure always traces to ILS signal quality",
+    "The radio altimeter — FLARE always triggers on a specific RA value and RA failure prevents it",
+    "The FMC VNAV path — FLARE cannot trigger if VNAV is armed but not captured"],
+ d:"Autoland failures most commonly trace to engagement timing, power configuration (DC bus tie must be open for bus isolation), or hidden single-channel faults — not ILS hardware. Check the logic conditions before touching ILS components."},
+
+{c:"🛬 Autoland",
+ q:"Radio Altimeter 1 fails in flight. What is the effect on the autopilot system on a B737NG WITHOUT the latest FCC OPS software?",
+ correct:"The FCC associated with the failed RA should be reset — an invalid RA generates a PSEU fault and limits autopilot capability",
+ o:["The FCC associated with the failed RA should be reset — an invalid RA generates a PSEU fault and limits autopilot capability",
+    "No effect — the system automatically switches to Radio Altimeter 2 with no action required",
+    "Both autopilots immediately disengage and cannot be re-engaged for the remainder of the flight",
+    "Only the autoland capability is lost — all other autopilot modes continue normally without any action"],
+ d:"Without the updated FCC OPS software, the FCC associated with the failed RA must be briefly reset by cycling its circuit breaker. An invalid RA signal generates a dispatchable PSEU fault and can affect dual-channel operations and bank angle limiting."},
+
+// ── BITE / MX ──────────────────────────────────────────────────────────────────
+{c:"🔧 BITE / MX",
+ q:"BITE (Built-In Test Equipment) is called the '#1 troubleshooting tool' for ATA 22. Why?",
+ correct:"BITE stores faults by flight leg, allowing intermittent issues to be traced without guessing — use it before condemning any LRU",
+ o:["BITE stores faults by flight leg, allowing intermittent issues to be traced without guessing — use it before condemning any LRU",
+    "BITE can command actuators to move in ground test, allowing full system verification without power-on",
+    "BITE automatically orders replacement parts and generates an MEL deferral if a fault is found",
+    "BITE data overrides pilot write-ups — if BITE shows no fault, the write-up can be disregarded"],
+ d:"BITE's flight-leg fault history is invaluable for intermittent DFCS faults that don't show on the forward panel. CDU maintenance pages let you pinpoint the failed LRU before guessing. Using BITE early prevents parts cannon troubleshooting."},
+
+{c:"🔧 BITE / MX",
+ q:"An autopilot disconnect write-up says 'A/P drops offline intermittently in cruise.' What is the CORRECT approach?",
+ correct:"Pull BITE fault history for the relevant flight leg, check FMA mode at time of disconnect, verify hydraulic system pressure trends",
+ o:["Pull BITE fault history for the relevant flight leg, check FMA mode at time of disconnect, verify hydraulic system pressure trends",
+    "Replace both FCCs simultaneously — intermittent faults always indicate dual FCC degradation",
+    "Perform a ground operational test — if no fault found, return to service without further investigation",
+    "Check the autopilot servo first — intermittent disconnect in cruise is always mechanical"],
+ d:"Intermittent autopilot disconnects require methodical investigation: BITE history first, then FMA context (what mode was active?), then hydraulic/electrical inputs. Replacing FCCs without fault evidence is the classic parts cannon scenario that wastes time and money."},
+
+{c:"🔧 BITE / MX",
+ q:"An autopilot actuator is suspected faulty. What TWO things must be verified before condemning it?",
+ correct:"Hydraulic pressure availability AND electrical power to the actuator — it needs both to function correctly",
+ o:["Hydraulic pressure availability AND electrical power to the actuator — it needs both to function correctly",
+    "FCC software version AND autopilot servo loop gain setting — actuator faults are always software-related",
+    "MCP switch continuity AND course selector calibration — most actuator faults trace back to MCP inputs",
+    "Radio altimeter signal AND ILS deviation inputs — actuators only fault when approach guidance is invalid"],
+ d:"Autopilot actuators require both hydraulic pressure (to physically move the surface) and electrical power (to receive and execute FCC commands). Missing either one mimics an actuator fault. Always verify both before condemning the actuator itself."},
+
+{c:"🔧 BITE / MX",
+ q:"'Rigging errors mimic DFCS faults.' What does this tribal knowledge rule mean in practice?",
+ correct:"Out-of-rig control surfaces (flaps, stabilizer, elevators, ailerons) create trim and autopilot faults that look like DFCS hardware failures",
+ o:["Out-of-rig control surfaces (flaps, stabilizer, elevators, ailerons) create trim and autopilot faults that look like DFCS hardware failures",
+    "The FCC uses control surface position to calculate rigging — any FCC fault triggers a rigging check",
+    "DFCS fault codes include rigging status — if rigging is out, BITE displays a specific RIG FAULT code",
+    "Rigging checks are only required after major structural work — routine autopilot faults are never caused by rigging"],
+ d:"Control surface rigging errors produce asymmetric trim requirements, autopilot oscillations, and cam-out events that look exactly like FCC or actuator faults. Always consider recent maintenance work on flight controls before replacing DFCS components."},
+
+// ── TRIBAL KNOWLEDGE ──────────────────────────────────────────────────────────
+{c:"🏆 Tribal Rules",
+ q:"TRIBAL RULE: 'Don't erase fault history early.' Why is this critical in ATA 22 troubleshooting?",
+ correct:"Fault history captures intermittent DFCS faults that may not repeat — erasing it destroys the only evidence available",
+ o:["Fault history captures intermittent DFCS faults that may not repeat — erasing it destroys the only evidence available",
+    "FAA regulations prohibit fault history erasure within 24 hours of a write-up",
+    "Erasing fault history resets the FCC software to factory defaults, requiring a ground test",
+    "Fault history controls FCC mode memory — clearing it causes all autopilot modes to revert to basic"],
+ d:"DFCS fault history is stored by flight leg. Intermittent faults — the hardest to troubleshoot — often leave traces only in BITE history. Erasing before review is irreversible and eliminates the diagnostic trail. Always capture and analyse fault history first."},
+
+{c:"🏆 Tribal Rules",
+ q:"TRIBAL RULE: 'Cam-out is not automatically an actuator failure.' What is cam-out and why does this matter?",
+ correct:"Cam-out is protective logic that disconnects the actuator when opposing force is detected — it prevents damage, not a sign the actuator has failed",
+ o:["Cam-out is protective logic that disconnects the actuator when opposing force is detected — it prevents damage, not a sign the actuator has failed",
+    "Cam-out is a mechanical failure where the actuator clutch strips — always requires actuator replacement",
+    "Cam-out occurs when the FCC loses power and the actuator reverts to the neutral position",
+    "Cam-out is an IRS-driven protective mode that disengages the autopilot above 30° bank angle"],
+ d:"Cam-out protection disconnects the servo when it detects opposing control force — protecting the mechanical linkage. Small rigging errors, control surface friction, or turbulence inputs can trigger cam-out without any actuator fault. Investigate the cause before replacing the actuator."},
+
+{c:"🏆 Tribal Rules",
+ q:"SCENARIO: 'Aircraft rolls slowly after CMD engagement; pilots disengage.' What should be checked BEFORE condemning the actuator?",
+ correct:"Review the FMA roll mode, verify cam-out logic wasn't triggered by a control input, check aileron/spoiler rigging if repeatable",
+ o:["Review the FMA roll mode, verify cam-out logic wasn't triggered by a control input, check aileron/spoiler rigging if repeatable",
+    "Replace the roll actuator immediately — slow roll after CMD engagement always indicates actuator drift",
+    "Check the yaw damper — slow roll after autopilot engagement is always a yaw-to-roll coupling fault",
+    "Clear BITE faults and re-engage the autopilot — single-event roll excursions are always transient"],
+ d:"Slow roll after CMD engagement is often cam-out from a minor control surface mismatch or rigging discrepancy — not a runaway actuator. The FMA will show which roll mode was active. If repeatable, aileron/spoiler rigging is the primary suspect before any LRU change."},
+
+{c:"🏆 Tribal Rules",
+ q:"TRIBAL RULE: 'The FMA never lies — read it before troubleshooting.' A flight crew writes: Autopilot not holding altitude. What does this rule tell you to do first?",
+ correct:"Establish exactly what mode the FMA was showing — if ALT HOLD was not annunciated, the autopilot was not trying to hold altitude",
+ o:["Establish exactly what mode the FMA was showing — if ALT HOLD was not annunciated, the autopilot was not trying to hold altitude",
+    "Replace the altitude alerter — altitude hold failure always traces to the alerter module",
+    "Check the static system — incorrect altitude data always causes ALT HOLD failures",
+    "Verify MCP altitude window setting — crew likely set the wrong altitude and the A/P captured it correctly"],
+ d:"The most common 'altitude hold failure' is a mode misidentification. If the FMA wasn't showing ALT HOLD, the system never tried to hold altitude — it was in another mode (V/S, VNAV, LVL CHG) doing exactly what was commanded. Read the FMA before touching anything."}
+];
+
+// ═══════════════ ANSWER RANDOMISATION ═══════════════
+// Shuffles options at render time; tracks correct answer by TEXT, not index.
+// This means every play-through has fully random answer positions.
+function shuffleOptions(q){
+  const opts=[...q.o];
+  for(let i=opts.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [opts[i],opts[j]]=[opts[j],opts[i]];
+  }
+  const correctIdx=opts.indexOf(q.correct);
+  return{shuffled:opts,correctIdx};
+}
+
+// ═══════════════ STATE ═══════════════
+const G={qs:[],idx:0,hearts:3,xp:0,streak:0,bestStreak:0,correct:0,done:false,correctIdx:0};
+function shuffle(a){return a.sort(()=>Math.random()-.5)}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on')}
+function goHome(){show('home')}
+function confirmQuit(){if(confirm('Quit this quiz?'))goHome();}
+
+function startGame(){
+  G.qs=shuffle([...BANK]);
+  G.idx=0;G.hearts=3;G.xp=0;G.streak=0;G.bestStreak=0;G.correct=0;
+  updateHearts();
+  document.getElementById('xpdis').textContent='0';
+  document.getElementById('streak-n').textContent='0';
+  document.getElementById('qtot').textContent=G.qs.length;
+  show('quiz');
+  renderQ();
+}
+
+function renderQ(){
+  G.done=false;
+  const fb=document.getElementById('fb');
+  fb.className='fb';fb.style.display='none';
+  const q=G.qs[G.idx];
+  document.getElementById('cat-lbl').textContent=q.c;
+  document.getElementById('q-cat').textContent=q.c;
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('qn').textContent=G.idx+1;
+  document.getElementById('bar').style.width=Math.round((G.idx/G.qs.length)*100)+'%';
+
+  // Shuffle options fresh for every render — answer position is always random
+  const {shuffled,correctIdx}=shuffleOptions(q);
+  G.correctIdx=correctIdx;
+
+  const cont=document.getElementById('opts');
+  cont.innerHTML='';
+  const keys=['A','B','C','D'];
+  shuffled.forEach((txt,i)=>{
+    const b=document.createElement('button');
+    b.className='opt';
+    b.innerHTML=`<span class="opt-l">${keys[i]}</span><span>${txt}</span>`;
+    b.onclick=()=>pick(i,shuffled);
+    cont.appendChild(b);
+    b.style.opacity='0';b.style.transform='translateX(-16px)';
+    setTimeout(()=>{b.style.transition='opacity .22s ease,transform .22s ease';b.style.opacity='1';b.style.transform='translateX(0)';},70+i*50);
+  });
+
+  document.getElementById('q-body').scrollTop=0;
+}
+
+function pick(idx,shuffled){
+  if(G.done)return;
+  G.done=true;
+  const correct=idx===G.correctIdx;
+  const btns=[...document.querySelectorAll('.opt')];
+  btns.forEach(b=>b.disabled=true);
+  btns[G.correctIdx].classList.add('reveal-right');
+  if(correct){
+    btns[idx].classList.remove('reveal-right');
+    btns[idx].classList.add('picked-right');
+    btns.forEach((b,i)=>{if(i!==idx)b.classList.add('faded');});
+    G.correct++;G.streak++;
+    if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+    const xpGain=G.streak>=5?20:G.streak>=3?15:10;
+    G.xp+=xpGain;
+    document.getElementById('xpdis').textContent=G.xp;
+    document.getElementById('streak-n').textContent=G.streak;
+    showFeedback(true,G.qs[G.idx].d,xpGain);
+    spawnSparks(btns[idx]);
+    playCorrect();
+    if(G.streak===3){showPopBadge('🔥 3 Streak!');playCombo();}
+    if(G.streak===5){showPopBadge('⚡ 5 in a row!');playCombo();}
+    if(G.streak===10){showPopBadge('🌟 10 Streak!');playCombo();}
+  } else {
+    btns[idx].classList.add('picked-wrong');
+    btns.forEach((b,i)=>{if(i!==idx&&i!==G.correctIdx)b.classList.add('faded');});
+    G.streak=0;G.hearts--;
+    document.getElementById('streak-n').textContent=0;
+    updateHearts();
+    showFeedback(false,G.qs[G.idx].d,0);
+    playWrong();
+  }
+}
+
+function showFeedback(ok,detail,xp){
+  const fb=document.getElementById('fb');
+  fb.className='fb on '+(ok?'ok':'no');
+  fb.style.display='flex';
+  const icons=ok?['✅','🎉','🌟','⭐','🔥','💡','🎯','🏅']:['❌'];
+  const heads=ok?['Correct!','Great!','Well done!','Spot on!','Nailed it!','Right on!','Excellent!']:['Not quite!'];
+  document.getElementById('fb-icon').textContent=icons[Math.floor(Math.random()*icons.length)];
+  document.getElementById('fb-head').textContent=heads[Math.floor(Math.random()*heads.length)];
+  document.getElementById('fb-det').textContent=detail;
+  const cont=document.getElementById('btn-cont');
+  cont.textContent=(G.idx>=G.qs.length-1||G.hearts<=0)?'See Results →':'Continue →';
+  if(ok&&xp)floatXP('+'+xp+' XP',cont);
+}
+
+function advance(){
+  playClick();
+  G.idx++;
+  if(G.idx>=G.qs.length||G.hearts<=0)showResult();
+  else renderQ();
+}
+
+function updateHearts(){
+  [0,1,2].forEach(i=>{
+    document.getElementById('h'+i).classList.toggle('gone',i>=G.hearts);
+  });
+}
+
+function showResult(){
+  const acc=G.idx?Math.round((G.correct/G.idx)*100):0;
+  const stars=acc>=90?3:acc>=70?2:acc>=50?1:0;
+  const trophies=['😅','🥉','🥈','🏆'];
+  const titles=['Keep Practicing!','Nice Try!','Well Done!','Outstanding! 🎯'];
+  const subs=['Review the ATA 22 DFCS manual and try again.','Good effort — study the explanations!','Strong DFCS knowledge!','You are an ATA 22 expert! ✈️'];
+  document.getElementById('trophy').textContent=trophies[stars];
+  document.getElementById('res-title').textContent=titles[stars];
+  document.getElementById('res-sub').textContent=subs[stars];
+  document.getElementById('r-xp').textContent=G.xp;
+  document.getElementById('r-acc').textContent=acc+'%';
+  document.getElementById('r-str').textContent=G.bestStreak;
+  ['rs0','rs1','rs2'].forEach((id,i)=>{
+    const el=document.getElementById(id);
+    el.classList.remove('lit');el.style.animationDelay='0s';
+    if(i<stars)setTimeout(()=>{el.style.animationDelay=(i*.2)+'s';el.classList.add('lit');},500+i*120);
+  });
+  show('result');
+  if(acc>=60)setTimeout(()=>{launchConfetti(acc);playVictory();},300);
+}
+
+function launchConfetti(acc){
+  const cols=['#f5a623','#ffd27f','#58cc02','#ffc800','#1cb0f6','#ff4b4b','#fff'];
+  const shapes=['●','■','▲','◆','★','✦','✧'];
+  const count=Math.min(35+Math.floor(acc/4),70);
+  for(let i=0;i<count;i++){
+    setTimeout(()=>{
+      const el=document.createElement('div');
+      el.className='confetti';
+      el.textContent=shapes[Math.floor(Math.random()*shapes.length)];
+      el.style.cssText=`left:${Math.random()*100}vw;top:-20px;color:${cols[Math.floor(Math.random()*cols.length)]};font-size:${9+Math.random()*13}px;animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.4}s`;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),4000);
+    },i*22);
+  }
+}
+
+function spawnSparks(btn){
+  const rect=btn.getBoundingClientRect();
+  const cx=rect.left+rect.width/2,cy=rect.top+rect.height/2;
+  const cols=['#f5a623','#ffd27f','#ffc800','#fff','#58cc02'];
+  for(let i=0;i<10;i++){
+    const el=document.createElement('div');
+    el.className='spark';
+    const a=(i/10)*Math.PI*2,d=28+Math.random()*44;
+    el.style.cssText=`left:${cx}px;top:${cy}px;width:${4+Math.random()*5}px;height:${4+Math.random()*5}px;background:${cols[i%cols.length]};--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;animation-duration:${.4+Math.random()*.25}s`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),800);
+  }
+}
+
+function floatXP(txt,refEl){
+  const rect=refEl.getBoundingClientRect();
+  const el=document.createElement('div');
+  el.className='floatxp';el.textContent=txt;
+  el.style.cssText=`left:${rect.left+rect.width*.5}px;top:${rect.top-10}px`;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1000);
+}
+
+function showPopBadge(txt){
+  const el=document.createElement('div');
+  el.className='popbadge';el.textContent=txt;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1100);
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('quiz').classList.contains('on'))return;
+  const map={'1':0,'2':1,'3':2,'4':3,'a':0,'b':1,'c':2,'d':3};
+  const k=e.key.toLowerCase();
+  if(!G.done&&map[k]!==undefined)pick(map[k],[]);
+  if(G.done&&(e.key==='Enter'||e.key===' ')){e.preventDefault();advance();}
+});
+</script>
+</body>
+</html>

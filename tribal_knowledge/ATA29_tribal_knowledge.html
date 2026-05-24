@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATA 29 Hydraulic System Tribal Knowledge</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --bg: #050505;
+      --panel: #101010;
+      --orange: #ff9f1c;
+      --orange2: #ffd28a;
+      --green: #48d17a;
+      --red: #ff5c5c;
+      --blue: #77c8ff;
+      --muted: #b99461;
+      --line: rgba(255,159,28,.55);
+    }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(255,159,28,.15), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(119,200,255,.10), transparent 30%),
+        var(--bg);
+      color: var(--orange);
+      line-height: 1.5;
+    }
+    .page { max-width: 1180px; margin: 0 auto; padding: 22px; }
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 28px;
+      background: linear-gradient(135deg, rgba(255,159,28,.12), rgba(0,0,0,.65));
+      box-shadow: 0 0 40px rgba(255,159,28,.12);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "ATA 29";
+      position: absolute;
+      right: -12px;
+      bottom: -32px;
+      font-size: clamp(56px, 12vw, 150px);
+      font-weight: 900;
+      color: rgba(255,159,28,.06);
+      pointer-events: none;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 4.2rem);
+      letter-spacing: .04em;
+      color: var(--orange2);
+    }
+    .subtitle {
+      margin: 8px 0 16px;
+      color: #fff0d6;
+      font-size: 1.12rem;
+      max-width: 820px;
+    }
+    .tagline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: rgba(0,0,0,.45);
+      color: var(--orange2);
+      font-weight: 700;
+    }
+    .rule-box {
+      margin-top: 18px;
+      border-left: 4px solid var(--orange);
+      background: rgba(255,159,28,.09);
+      padding: 12px 14px;
+      border-radius: 10px;
+      color: #ffe5b8;
+      font-weight: 700;
+      max-width: 920px;
+    }
+    .nav {
+      margin: 18px 0;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+    a.nav-btn, button {
+      border: 1px solid var(--orange);
+      color: var(--orange);
+      background: #111;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: none;
+      transition: .18s ease;
+    }
+    a.nav-btn:hover, button:hover {
+      background: var(--orange);
+      color: #000;
+      transform: translateY(-1px);
+    }
+    .progress {
+      min-width: 220px;
+      color: var(--orange2);
+      font-weight: 800;
+      text-align: right;
+    }
+    .progress-bar {
+      height: 9px;
+      margin-top: 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+      background: #090909;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--orange), var(--green));
+      transition: width .25s ease;
+    }
+    .section-title {
+      margin: 30px 0 12px;
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .section-title h2 {
+      margin: 0;
+      color: var(--orange2);
+      font-size: clamp(1.45rem, 3vw, 2.2rem);
+    }
+    .section-note { color: var(--muted); font-weight: 700; }
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .scenario-card {
+      border: 1px solid rgba(255,159,28,.45);
+      background: linear-gradient(180deg, rgba(255,159,28,.07), rgba(0,0,0,.42));
+      border-radius: 18px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .scenario-card.done {
+      border-color: rgba(72,209,122,.85);
+      box-shadow: 0 0 22px rgba(72,209,122,.10);
+    }
+    .scenario-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .scenario-num {
+      color: #000;
+      background: var(--orange);
+      font-weight: 900;
+      border-radius: 999px;
+      padding: 5px 10px;
+      white-space: nowrap;
+    }
+    .writeup {
+      color: #fff4df;
+      font-size: 1.06rem;
+      font-weight: 800;
+      margin: 10px 0 12px;
+    }
+    .think-list {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(0,0,0,.42);
+      border: 1px solid rgba(255,159,28,.3);
+    }
+    .think-list.open { display: block; animation: rise .22s ease; }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .check { color: var(--green); font-weight: 900; }
+    .nope { color: var(--red); font-weight: 900; }
+    .trap {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(255,92,92,.08);
+      border-left: 3px solid var(--red);
+      color: #ffb8b8;
+      font-weight: 700;
+    }
+    .lesson {
+      margin-top: 10px;
+      color: var(--orange2);
+      font-weight: 800;
+      border-top: 1px dashed rgba(255,159,28,.35);
+      padding-top: 8px;
+    }
+    .quiz-card {
+      border: 1px solid rgba(255,159,28,.45);
+      border-radius: 18px;
+      background: rgba(255,159,28,.04);
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+    .quiz-question {
+      color: #fff4df;
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin: 0 0 14px;
+    }
+    .answers { display: flex; gap: 10px; flex-wrap: wrap; }
+    .answer-result {
+      display: none;
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(0,0,0,.45);
+      border: 1px solid rgba(255,159,28,.3);
+      color: #f4d9ad;
+    }
+    .answer-result.show { display: block; animation: rise .22s ease; }
+    .rules {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      counter-reset: rules;
+    }
+    .rule {
+      counter-increment: rules;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      border: 1px solid rgba(255,159,28,.36);
+      border-radius: 16px;
+      padding: 13px;
+      background: rgba(255,159,28,.055);
+      color: #f4d9ad;
+    }
+    .rule::before {
+      content: counter(rules);
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      width: 31px;
+      height: 31px;
+      border-radius: 50%;
+      background: var(--orange);
+      color: #000;
+      font-weight: 900;
+    }
+    .rule strong { color: var(--orange2); }
+    .bottom-line {
+      margin: 28px 0 10px;
+      padding: 18px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(255,159,28,.10), rgba(0,0,0,.55));
+      color: #ffe5b8;
+      font-weight: 700;
+    }
+    .bottom-line h3 {
+      margin: 0 0 8px;
+      color: var(--orange2);
+    }
+    .footer {
+      margin: 28px 0 10px;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    @media (max-width: 820px) {
+      .page { padding: 14px; }
+      .hero { padding: 20px; }
+      .scenario-grid, .rules { grid-template-columns: 1fr; }
+      .progress { text-align: left; width: 100%; }
+      .nav { align-items: stretch; }
+      .nav-links { width: 100%; }
+      a.nav-btn, button { width: 100%; }
+      .scenario-head { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="tagline">🧠 B737NG ATA 29 • Hydraulic System Tribal Knowledge</div>
+      <h1>ATA 29 Tribal Knowledge</h1>
+      <p class="subtitle">Hydraulics = pressure source → distribution → protection. EDP/EMDP/Standby feed it, valves route it, logic protects it.</p>
+      <div class="rule-box">Core Rule: Always ask 'where did the pressure stop?' EDP OFF stops output, NOT rotation. Fire switch kills hydraulic supply.</div>
+    </section>
+
+    <div class="nav">
+      <div class="nav-links">
+        <a class="nav-btn" href="#game">Scenarios</a>
+        <a class="nav-btn" href="#quiz">LRU Quiz</a>
+        <a class="nav-btn" href="#rules">Top 10 Rules</a>
+        <a class="nav-btn" href="#bottom">Bottom Line</a>
+      </div>
+      <div class="progress">
+        <div id="progressText">0 of 17 interactions complete</div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+    </div>
+
+    <section id="game">
+      <div class="section-title">
+        <h2>🎮 "Where Did the Pressure Go?" — Scenarios</h2>
+        <span class="section-note">Read first. Guess. Then reveal.</span>
+      </div>
+      <div class="scenario-grid" id="scenarioGrid"></div>
+    </section>
+
+    <section id="quiz">
+      <div class="section-title">
+        <h2>🎯 Change the LRU or Pass?</h2>
+        <span class="section-note">Answer YES or NO before revealing why.</span>
+      </div>
+            <div class="quiz-card">
+        <p class="quiz-question">EDP LOW PRESS light. Replace EDP?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(0, false)">YES — Replace EDP</button>
+          <button onclick="answerQuiz(0, true)">NO — Check switch/valve</button>
+        </div>
+        <div class="answer-result" id="quiz0"><strong>❌ NO.</strong> EDP OFF stops output, not rotation. Check switch and supply valve.</div>
+      </div>
+      <div class="quiz-card">
+        <p class="quiz-question">EMDP keeps tripping. Replace pump?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(1, false)">YES — Replace pump</button>
+          <button onclick="answerQuiz(1, true)">NO — Check GFI</button>
+        </div>
+        <div class="answer-result" id="quiz1"><strong>❌ NO.</strong> GFI is protecting against a fault. Find the fault first.</div>
+      </div>
+      <div class="quiz-card">
+        <p class="quiz-question">Both systems low pressure. Two pump failures?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(2, false)">YES — Two failures</button>
+          <button onclick="answerQuiz(2, true)">NO — Check reservoir</button>
+        </div>
+        <div class="answer-result" id="quiz2"><strong>❌ NO.</strong> Reservoir pressurization is shared — pneumatic supply could affect both.</div>
+      </div>
+      <div class="quiz-card">
+        <p class="quiz-question">PTU growling in flight. Malfunction?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(3, false)">YES — Replace PTU</button>
+          <button onclick="answerQuiz(3, true)">NO — Normal</button>
+        </div>
+        <div class="answer-result" id="quiz3"><strong>❌ NO.</strong> Normal when System B EDP fails or flaps not up. It's working.</div>
+      </div>
+    </section>
+
+    <section id="rules">
+      <div class="section-title">
+        <h2>🛠 Top 10 ATA 29 Tribal Knowledge Rules</h2>
+        <span class="section-note">The stuff that saves time and parts.</span>
+      </div>
+      <div class="rules">
+                <div class="rule"><span><strong>Hydraulics = pressure</strong> — not flow confusion.</span></div>
+        <div class="rule"><span><strong>EDP OFF stops output, NOT rotation</strong>.</span></div>
+        <div class="rule"><span><strong>Fire switch kills hydraulic supply instantly</strong>.</span></div>
+        <div class="rule"><span><strong>EMDP failures are often electrical protection</strong> — not hyd.</span></div>
+        <div class="rule"><span><strong>Reservoir pressurization is critical</strong> — from pneumatics.</span></div>
+        <div class="rule"><span><strong>PTU = backup ONLY for System B high lift</strong>.</span></div>
+        <div class="rule"><span><strong>Standby system is a logic-triggered safety net</strong>.</span></div>
+        <div class="rule"><span><strong>Filters cause more problems than pumps sometimes</strong>.</span></div>
+        <div class="rule"><span><strong>LOW PRESS lights are threshold-based</strong> — not always failures.</span></div>
+        <div class="rule"><span><strong>Always ask: where did the pressure stop?</strong></span></div>
+      </div>
+    </section>
+
+    <section id="bottom" class="bottom-line">
+      <h3>🔚 Bottom Line</h3>
+      <div>ATA 29 is a pressure management system. Pumps create it, valves route it, and logic protects it. System A handles gear/steering/alt brakes; System B handles flaps/brakes; Standby is the safety net.</div>
+    </section>
+
+    <div class="footer">ATA 29 Hydraulic System Tribal Knowledge • Built for line maintenance learning</div>
+  </main>
+
+  <script>
+    const scenarios = [{"title": "Scenario 1", "writeup": "“Loss of hydraulic system A.”", "checks": ["Expect loss of: landing gear, nose wheel steering, alternate brakes", "Left TR also affected"], "dont": "Do not chase flight controls first", "trap": "Flight controls troubleshot. Reality: system A feeds gear and steering, not primary flight controls.", "lesson": "Know what each system feeds."}, {"title": "Scenario 2", "writeup": "“Loss of hydraulic system B.”", "checks": ["Expect loss of: flaps/slats, normal brakes", "Right TR also affected"], "trap": "Flap motor blamed. Reality: system B powers high-lift devices.", "lesson": "System B = flaps and brakes."}, {"title": "Scenario 3", "writeup": "“EDP LOW PRESS light ON.”", "checks": ["Check pump switch position", "Verify engine running", "Check supply shutoff valve"], "trap": "EDP replaced. Reality: OFF switch stops output, not rotation. Could be just the switch.", "lesson": "EDP OFF ≠ EDP failure."}, {"title": "Scenario 4", "writeup": "“Fire handle pulled → no hydraulics.”", "checks": ["Supply shutoff valve closed", "Understand fire switch action"], "trap": "Pump replaced. Reality: fire switch cuts hydraulic supply to EDP — not a pump failure.", "lesson": "Fire switch kills hyd supply."}, {"title": "Scenario 5", "writeup": "“EMDP LOW PRESS light ON.”", "checks": ["Check pump OFF", "Check overheat shutdown", "Check ground fault trip"], "trap": "EMDP replaced. Reality: pump auto shuts off at ~255°F. Could be electrical, not hydraulic.", "lesson": "EMDP failures often electrical."}, {"title": "Scenario 6", "writeup": "“EMDP keeps tripping.”", "checks": ["Check ground fault detector", "Check overcurrent condition"], "dont": "Do not replace pump first", "trap": "Multiple pumps installed. Reality: GFI protects the system from electrical faults — find the fault.", "lesson": "GFI trip = electrical fault."}, {"title": "Scenario 7", "writeup": "“Hydraulic system cavitating / noisy.”", "checks": ["Check reservoir pressurization (~42 psi)"], "dont": "Do not blame pump immediately", "trap": "Pump replaced. Reality: reservoir must be pressurized for proper supply.", "lesson": "Reservoir pressure feeds the pump."}, {"title": "Scenario 8", "writeup": "“Loss of reservoir pressure.”", "checks": ["Check pneumatic supply", "Check air charging valve"], "trap": "One system blamed. Reality: affects BOTH hydraulic systems — pneumatics pressurize reservoirs.", "lesson": "Pneumatics feed hyd reservoirs."}, {"title": "Scenario 9", "writeup": "“PTU running (growling noise).”", "checks": ["Check System B low pressure", "Check flaps not up", "Check airborne"], "trap": "Treated as malfunction. Reality: PTU uses A pressure to power B — normal operation in some configs.", "lesson": "PTU growl is normal."}, {"title": "Scenario 10", "writeup": "“Standby system activates automatically.”", "checks": ["Low A or B pressure", "Flaps not up", "Airborne"], "trap": "Standby system replaced. Reality: automatic protection logic — it's working.", "lesson": "Standby auto-activation is normal."}, {"title": "Scenario 11", "writeup": "“Standby LOW PRESS light.”", "checks": ["Check pump pressure <1300 psi", "Light only active when system commanded"], "trap": "Treated as constant failure. Reality: not monitored unless system is ON.", "lesson": "Standby LP only when commanded."}, {"title": "Scenario 12", "writeup": "“Return filter popped (indicator visible).”", "checks": ["Replace filter", "System may bypass filter at ~100 psi differential"], "trap": "Filter ignored. Reality: bypass means contaminated fluid is circulating — change it.", "lesson": "Popped filter = bypass active."}, {"title": "Scenario 13", "writeup": "“Hydraulic overheating.”", "checks": ["Check heat exchanger", "Check case drain flow"], "trap": "Electrical chased. Reality: heat exchanger or case drain blockage causes overheating.", "lesson": "Hyd overheat = cooling path."}];
+    const TOTAL = 17;
+    const completed = new Set();
+
+    function updateProgress() {
+      const count = completed.size;
+      document.getElementById("progressText").textContent = count + " of " + TOTAL + " interactions complete";
+      document.getElementById("progressFill").style.width = Math.min((count / TOTAL) * 100, 100) + "%";
+    }
+
+    function revealScenario(index) {
+      const card = document.getElementById("scenario-card-" + index);
+      const body = document.getElementById("scenario-body-" + index);
+      body.classList.toggle("open");
+      card.classList.add("done");
+      completed.add("s" + index);
+      updateProgress();
+    }
+
+    function answerQuiz(index, correct) {
+      const box = document.getElementById("quiz" + index);
+      box.classList.add("show");
+      box.style.borderColor = correct ? "rgba(72,209,122,.85)" : "rgba(255,92,92,.85)";
+      completed.add("q" + index);
+      updateProgress();
+    }
+
+    function buildScenarios() {
+      const grid = document.getElementById("scenarioGrid");
+      grid.innerHTML = scenarios.map(function(s, i) {
+        const checksHtml = s.checks.map(function(c) {
+          return '<li><span class="check">&#9989;</span> ' + c + '</li>';
+        }).join("");
+        const dontHtml = s.dont ? '<li><span class="nope">&#10060;</span> ' + s.dont + '</li>' : "";
+        const trapHtml = s.trap ? '<div class="trap">&#9888;&#65039; <strong>TRAP:</strong> ' + s.trap + '</div>' : "";
+        return ''
+          + '<article class="scenario-card" id="scenario-card-' + i + '">'
+          + '  <div class="scenario-head">'
+          + '    <span class="scenario-num">&#9992;&#65039; ' + s.title + '</span>'
+          + '    <button onclick="revealScenario(' + i + ')">Reveal Checks</button>'
+          + '  </div>'
+          + '  <div class="writeup">' + s.writeup + '</div>'
+          + '  <div class="think-list" id="scenario-body-' + i + '">'
+          + '    <strong>Think first:</strong>'
+          + '    <ul>' + checksHtml + dontHtml + '</ul>'
+          + trapHtml
+          + '    <div class="lesson">Tribal Lesson: ' + s.lesson + '</div>'
+          + '  </div>'
+          + '</article>';
+      }).join("");
+    }
+
+    buildScenarios();
+    updateProgress();
+  </script>
+</body>
+</html>

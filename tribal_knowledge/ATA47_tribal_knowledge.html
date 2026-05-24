@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATA 47 Nitrogen Generation System (NGS) Tribal Knowledge</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --bg: #050505;
+      --panel: #101010;
+      --orange: #ff9f1c;
+      --orange2: #ffd28a;
+      --green: #48d17a;
+      --red: #ff5c5c;
+      --blue: #77c8ff;
+      --muted: #b99461;
+      --line: rgba(255,159,28,.55);
+    }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(255,159,28,.15), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(119,200,255,.10), transparent 30%),
+        var(--bg);
+      color: var(--orange);
+      line-height: 1.5;
+    }
+    .page { max-width: 1180px; margin: 0 auto; padding: 22px; }
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 28px;
+      background: linear-gradient(135deg, rgba(255,159,28,.12), rgba(0,0,0,.65));
+      box-shadow: 0 0 40px rgba(255,159,28,.12);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "ATA 47";
+      position: absolute;
+      right: -12px;
+      bottom: -32px;
+      font-size: clamp(56px, 12vw, 150px);
+      font-weight: 900;
+      color: rgba(255,159,28,.06);
+      pointer-events: none;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 4.2rem);
+      letter-spacing: .04em;
+      color: var(--orange2);
+    }
+    .subtitle {
+      margin: 8px 0 16px;
+      color: #fff0d6;
+      font-size: 1.12rem;
+      max-width: 820px;
+    }
+    .tagline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: rgba(0,0,0,.45);
+      color: var(--orange2);
+      font-weight: 700;
+    }
+    .rule-box {
+      margin-top: 18px;
+      border-left: 4px solid var(--orange);
+      background: rgba(255,159,28,.09);
+      padding: 12px 14px;
+      border-radius: 10px;
+      color: #ffe5b8;
+      font-weight: 700;
+      max-width: 920px;
+    }
+    .nav {
+      margin: 18px 0;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+    a.nav-btn, button {
+      border: 1px solid var(--orange);
+      color: var(--orange);
+      background: #111;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: none;
+      transition: .18s ease;
+    }
+    a.nav-btn:hover, button:hover {
+      background: var(--orange);
+      color: #000;
+      transform: translateY(-1px);
+    }
+    .progress {
+      min-width: 220px;
+      color: var(--orange2);
+      font-weight: 800;
+      text-align: right;
+    }
+    .progress-bar {
+      height: 9px;
+      margin-top: 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+      background: #090909;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--orange), var(--green));
+      transition: width .25s ease;
+    }
+    .section-title {
+      margin: 30px 0 12px;
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .section-title h2 {
+      margin: 0;
+      color: var(--orange2);
+      font-size: clamp(1.45rem, 3vw, 2.2rem);
+    }
+    .section-note { color: var(--muted); font-weight: 700; }
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .scenario-card {
+      border: 1px solid rgba(255,159,28,.45);
+      background: linear-gradient(180deg, rgba(255,159,28,.07), rgba(0,0,0,.42));
+      border-radius: 18px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .scenario-card.done {
+      border-color: rgba(72,209,122,.85);
+      box-shadow: 0 0 22px rgba(72,209,122,.10);
+    }
+    .scenario-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .scenario-num {
+      color: #000;
+      background: var(--orange);
+      font-weight: 900;
+      border-radius: 999px;
+      padding: 5px 10px;
+      white-space: nowrap;
+    }
+    .writeup {
+      color: #fff4df;
+      font-size: 1.06rem;
+      font-weight: 800;
+      margin: 10px 0 12px;
+    }
+    .think-list {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(0,0,0,.42);
+      border: 1px solid rgba(255,159,28,.3);
+    }
+    .think-list.open { display: block; animation: rise .22s ease; }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .check { color: var(--green); font-weight: 900; }
+    .nope { color: var(--red); font-weight: 900; }
+    .trap {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(255,92,92,.08);
+      border-left: 3px solid var(--red);
+      color: #ffb8b8;
+      font-weight: 700;
+    }
+    .lesson {
+      margin-top: 10px;
+      color: var(--orange2);
+      font-weight: 800;
+      border-top: 1px dashed rgba(255,159,28,.35);
+      padding-top: 8px;
+    }
+    .quiz-card {
+      border: 1px solid rgba(255,159,28,.45);
+      border-radius: 18px;
+      background: rgba(255,159,28,.04);
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+    .quiz-question {
+      color: #fff4df;
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin: 0 0 14px;
+    }
+    .answers { display: flex; gap: 10px; flex-wrap: wrap; }
+    .answer-result {
+      display: none;
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(0,0,0,.45);
+      border: 1px solid rgba(255,159,28,.3);
+      color: #f4d9ad;
+    }
+    .answer-result.show { display: block; animation: rise .22s ease; }
+    .rules {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      counter-reset: rules;
+    }
+    .rule {
+      counter-increment: rules;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      border: 1px solid rgba(255,159,28,.36);
+      border-radius: 16px;
+      padding: 13px;
+      background: rgba(255,159,28,.055);
+      color: #f4d9ad;
+    }
+    .rule::before {
+      content: counter(rules);
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      width: 31px;
+      height: 31px;
+      border-radius: 50%;
+      background: var(--orange);
+      color: #000;
+      font-weight: 900;
+    }
+    .rule strong { color: var(--orange2); }
+    .bottom-line {
+      margin: 28px 0 10px;
+      padding: 18px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(255,159,28,.10), rgba(0,0,0,.55));
+      color: #ffe5b8;
+      font-weight: 700;
+    }
+    .bottom-line h3 {
+      margin: 0 0 8px;
+      color: var(--orange2);
+    }
+    .footer {
+      margin: 28px 0 10px;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    @media (max-width: 820px) {
+      .page { padding: 14px; }
+      .hero { padding: 20px; }
+      .scenario-grid, .rules { grid-template-columns: 1fr; }
+      .progress { text-align: left; width: 100%; }
+      .nav { align-items: stretch; }
+      .nav-links { width: 100%; }
+      a.nav-btn, button { width: 100%; }
+      .scenario-head { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="tagline">🧠 B737NG ATA 47 • Nitrogen Generation System (NGS) Tribal Knowledge</div>
+      <h1>ATA 47 Tribal Knowledge</h1>
+      <p class="subtitle">ATA 47 is a safety system (fuel tank inerting), not performance. It can be degraded and still fly. Shuts down quietly when conditions aren't right.</p>
+      <div class="rule-box">Core Rule: Most 'failures' are the system protecting itself or not allowed to run. Chase conditions, cooling, and contamination — not components.</div>
+    </section>
+
+    <div class="nav">
+      <div class="nav-links">
+        <a class="nav-btn" href="#game">Scenarios</a>
+        <a class="nav-btn" href="#quiz">LRU Quiz</a>
+        <a class="nav-btn" href="#rules">Top 10 Rules</a>
+        <a class="nav-btn" href="#bottom">Bottom Line</a>
+      </div>
+      <div class="progress">
+        <div id="progressText">0 of 19 interactions complete</div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+    </div>
+
+    <section id="game">
+      <div class="section-title">
+        <h2>🎮 "Inhibited or Failed?" — Scenarios</h2>
+        <span class="section-note">Read first. Guess. Then reveal.</span>
+      </div>
+      <div class="scenario-grid" id="scenarioGrid"></div>
+    </section>
+
+    <section id="quiz">
+      <div class="section-title">
+        <h2>🎯 Change the LRU or Pass?</h2>
+        <span class="section-note">Answer YES or NO before revealing why.</span>
+      </div>
+            <div class="quiz-card">
+        <p class="quiz-question">NGS not running on ground. Failed?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(0, false)">YES — Failed</button>
+          <button onclick="answerQuiz(0, true)">NO — Normal inhibit</button>
+        </div>
+        <div class="answer-result" id="quiz0"><strong>❌ NO.</strong> Ground = normally inhibited.</div>
+      </div>
+      <div class="quiz-card">
+        <p class="quiz-question">ASM poor output. Replace ASM?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(1, false)">YES — Replace ASM</button>
+          <button onclick="answerQuiz(1, true)">NO — Check upstream</button>
+        </div>
+        <div class="answer-result" id="quiz1"><strong>❌ NO.</strong> Upstream contamination typically causes ASM degradation.</div>
+      </div>
+      <div class="quiz-card">
+        <p class="quiz-question">BLUE light. Repair required immediately?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(2, false)">YES — Immediate</button>
+          <button onclick="answerQuiz(2, true)">NO — Can defer</button>
+        </div>
+        <div class="answer-result" id="quiz2"><strong>❌ NO.</strong> Degraded but operational — trackable defer.</div>
+      </div>
+      <div class="quiz-card">
+        <p class="quiz-question">Overtemp shutdown. Replace controller?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(3, false)">YES — Replace controller</button>
+          <button onclick="answerQuiz(3, true)">NO — Check cooling</button>
+        </div>
+        <div class="answer-result" id="quiz3"><strong>❌ NO.</strong> Cooling side problem — ram air valve or heat exchanger.</div>
+      </div>
+    </section>
+
+    <section id="rules">
+      <div class="section-title">
+        <h2>🛠 Top 10 ATA 47 Tribal Knowledge Rules</h2>
+        <span class="section-note">The stuff that saves time and parts.</span>
+      </div>
+      <div class="rules">
+                <div class="rule"><span><strong>NGS works mostly in-flight, not ground</strong>.</span></div>
+        <div class="rule"><span><strong>SOV is main control valve</strong> — check it first.</span></div>
+        <div class="rule"><span><strong>Most shutdowns = protection, not failure</strong>.</span></div>
+        <div class="rule"><span><strong>Temperature control is critical</strong> — via ram air.</span></div>
+        <div class="rule"><span><strong>Filter condition directly affects performance</strong>.</span></div>
+        <div class="rule"><span><strong>ASM failures are usually secondary damage</strong>.</span></div>
+        <div class="rule"><span><strong>O2 sensor = monitor only</strong>.</span></div>
+        <div class="rule"><span><strong>Controller logic controls everything</strong>.</span></div>
+        <div class="rule"><span><strong>High/low flow depends on flight phase</strong>.</span></div>
+        <div class="rule"><span><strong>Operability indicator is maintenance gold</strong>.</span></div>
+      </div>
+    </section>
+
+    <section id="bottom" class="bottom-line">
+      <h3>🔚 Bottom Line</h3>
+      <div>ATA 47 doesn't fail loudly — it silently protects the aircraft. The biggest mistake is chasing components instead of conditions, cooling, and contamination.</div>
+    </section>
+
+    <div class="footer">ATA 47 Nitrogen Generation System (NGS) Tribal Knowledge • Built for line maintenance learning</div>
+  </main>
+
+  <script>
+    const scenarios = [{"title": "Scenario 1", "writeup": "“System not running.”", "checks": ["Check airborne", "Check both engines running", "Check pack/flow conditions", "Check no smoke detected"], "trap": "System assumed failed. Reality: system is inhibited by logic — on ground = OFF normally.", "lesson": "NGS is flight-dependent."}, {"title": "Scenario 2", "writeup": "“NEA flow low.”", "checks": ["Check high/low flow valve mode", "Low flow during takeoff/cruise is normal"], "trap": "System called restricted. Reality: aircraft in LOW FLOW mode.", "lesson": "Flow varies by flight phase."}, {"title": "Scenario 3", "writeup": "“No NEA to tank.”", "checks": ["Check SOV closed", "Check controller command"], "trap": "ASM replaced. Reality: air never reached the ASM.", "lesson": "Check upstream before ASM."}, {"title": "Scenario 4", "writeup": "“System shuts off — overpressure.”", "checks": ["67 psi detected → SOV closes"], "trap": "NGS blamed. Reality: source (pneumatics ATA 36) caused it.", "lesson": "Source pressure issues shut NGS."}, {"title": "Scenario 5", "writeup": "“System stops unexpectedly — overtemp.”", "checks": ["Check temp sensor / thermal switch", "Thermal switch ~270°F"], "trap": "Controller replaced. Reality: backup protection doing its job.", "lesson": "Overtemp = protective shutdown."}, {"title": "Scenario 6", "writeup": "“Repeated overheating.”", "checks": ["Check cooling airflow", "Check ram air valve"], "trap": "Sensor replaced. Reality: cooling side problem.", "lesson": "Cooling side, not sensor side."}, {"title": "Scenario 7", "writeup": "“System degraded (BLUE light).”", "checks": ["Check filter differential pressure", "Switch trips at ~1.2 psid"], "trap": "Degraded ignored. Reality: ASM damage risk if filter clogged.", "lesson": "Filter health protects the ASM."}, {"title": "Scenario 8", "writeup": "“Low performance over time.”", "checks": ["Check filter condition"], "trap": "ASM replaced. Reality: dirty filter starves the system.", "lesson": "Slow decline = filter."}, {"title": "Scenario 9", "writeup": "“Poor nitrogen output.”", "checks": ["ASM separates oxygen via membrane"], "trap": "ASM replaced too early. Reality: upstream contamination killed efficiency.", "lesson": "Check upstream contamination first."}, {"title": "Scenario 10", "writeup": "“ASM failure.”", "checks": ["Typical causes: contamination, overtemp"], "trap": "Treated as random. Reality: usually secondary damage from upstream issue.", "lesson": "ASM failures are usually secondary."}, {"title": "Scenario 11", "writeup": "“Oxygen high reading.”", "checks": ["Sensor used for monitoring only"], "trap": "Sensor replaced. Reality: could be real low NGS performance.", "lesson": "O2 sensor is monitor-only."}, {"title": "Scenario 12", "writeup": "“No high flow during descent.”", "checks": ["Should open in descent"], "trap": "Valve called stuck. Reality: altitude sensor / controller logic.", "lesson": "Flow valves are altitude-driven."}, {"title": "Scenario 13", "writeup": "“BLUE operability light.”", "checks": ["Degraded, still working"], "trap": "Immediate repair assumed required. Reality: can be deferred (but track it).", "lesson": "BLUE = degraded, not INOP."}, {"title": "Scenario 14", "writeup": "“AMBER operability light.”", "checks": ["INOP — must log", "Lock valve closed manually"], "trap": "Ignored or reset. Reality: safety system is INOP.", "lesson": "AMBER = log and isolate."}, {"title": "Scenario 15", "writeup": "“Fluid found in drain valve check.”", "checks": ["Means fuel leak into NGS lines"], "trap": "Small amount ignored. Reality: serious contamination issue.", "lesson": "Any fluid in drain = serious."}];
+    const TOTAL = 19;
+    const completed = new Set();
+
+    function updateProgress() {
+      const count = completed.size;
+      document.getElementById("progressText").textContent = count + " of " + TOTAL + " interactions complete";
+      document.getElementById("progressFill").style.width = Math.min((count / TOTAL) * 100, 100) + "%";
+    }
+
+    function revealScenario(index) {
+      const card = document.getElementById("scenario-card-" + index);
+      const body = document.getElementById("scenario-body-" + index);
+      body.classList.toggle("open");
+      card.classList.add("done");
+      completed.add("s" + index);
+      updateProgress();
+    }
+
+    function answerQuiz(index, correct) {
+      const box = document.getElementById("quiz" + index);
+      box.classList.add("show");
+      box.style.borderColor = correct ? "rgba(72,209,122,.85)" : "rgba(255,92,92,.85)";
+      completed.add("q" + index);
+      updateProgress();
+    }
+
+    function buildScenarios() {
+      const grid = document.getElementById("scenarioGrid");
+      grid.innerHTML = scenarios.map(function(s, i) {
+        const checksHtml = s.checks.map(function(c) {
+          return '<li><span class="check">&#9989;</span> ' + c + '</li>';
+        }).join("");
+        const dontHtml = s.dont ? '<li><span class="nope">&#10060;</span> ' + s.dont + '</li>' : "";
+        const trapHtml = s.trap ? '<div class="trap">&#9888;&#65039; <strong>TRAP:</strong> ' + s.trap + '</div>' : "";
+        return ''
+          + '<article class="scenario-card" id="scenario-card-' + i + '">'
+          + '  <div class="scenario-head">'
+          + '    <span class="scenario-num">&#9992;&#65039; ' + s.title + '</span>'
+          + '    <button onclick="revealScenario(' + i + ')">Reveal Checks</button>'
+          + '  </div>'
+          + '  <div class="writeup">' + s.writeup + '</div>'
+          + '  <div class="think-list" id="scenario-body-' + i + '">'
+          + '    <strong>Think first:</strong>'
+          + '    <ul>' + checksHtml + dontHtml + '</ul>'
+          + trapHtml
+          + '    <div class="lesson">Tribal Lesson: ' + s.lesson + '</div>'
+          + '  </div>'
+          + '</article>';
+      }).join("");
+    }
+
+    buildScenarios();
+    updateProgress();
+  </script>
+</body>
+</html>

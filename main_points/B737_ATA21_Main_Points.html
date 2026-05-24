@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>B737 ATA 21 Main Points</title>
+  <style>
+    :root {
+      --bg: #050505;
+      --panel: #101010;
+      --panel2: #17110a;
+      --orange: #ff9f1c;
+      --amber: #ffd27f;
+      --soft: rgba(255, 159, 28, 0.18);
+      --line: rgba(255, 159, 28, 0.55);
+      --white: #f7efe4;
+      --muted: #bda777;
+      --red: #ff5f56;
+      --blue: #62d8ff;
+      --green: #8cffb1;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--white);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(255,159,28,0.22), transparent 28%),
+        radial-gradient(circle at 85% 20%, rgba(98,216,255,0.13), transparent 26%),
+        linear-gradient(135deg, #000, #080808 45%, #130b02);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,159,28,0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,159,28,0.045) 1px, transparent 1px);
+      background-size: 46px 46px;
+      mask-image: radial-gradient(circle at center, black, transparent 82%);
+    }
+
+    header {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 36px 18px 18px;
+      text-align: center;
+      position: relative;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--amber);
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.55);
+      border-radius: 999px;
+      padding: 8px 14px;
+      box-shadow: 0 0 22px var(--soft);
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      font-size: .8rem;
+    }
+
+    h1 {
+      margin: 18px 0 8px;
+      color: var(--orange);
+      font-size: clamp(2rem, 6vw, 4.9rem);
+      line-height: .96;
+      text-shadow: 0 0 18px rgba(255,159,28,.38), 0 0 42px rgba(255,159,28,.16);
+    }
+
+    .subtitle {
+      max-width: 850px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.55;
+    }
+
+    .hero-strip {
+      max-width: 1180px;
+      margin: 24px auto 8px;
+      padding: 0 18px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .hero-card {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,159,28,.1), rgba(0,0,0,.72));
+      border-radius: 22px;
+      padding: 20px;
+      min-height: 140px;
+      position: relative;
+      overflow: hidden;
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    }
+
+    .hero-card:hover {
+      transform: translateY(-8px) scale(1.015);
+      box-shadow: 0 0 34px rgba(255,159,28,.24);
+      border-color: var(--orange);
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      right: -58px;
+      bottom: -58px;
+      border: 1px solid rgba(255,159,28,.28);
+      border-radius: 50%;
+    }
+
+    .hero-icon { font-size: 2.2rem; margin-bottom: 8px; }
+    .hero-title { color: var(--amber); font-size: 1.25rem; font-weight: 900; }
+    .hero-text { color: var(--muted); margin-top: 8px; line-height: 1.42; }
+
+    main {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 22px 18px 48px;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .system-section {
+      border: 1px solid var(--line);
+      background: rgba(9,9,9,.88);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: 0 0 30px rgba(0,0,0,.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .system-section::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--orange), var(--blue), transparent);
+      opacity: .75;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: radial-gradient(circle at top, rgba(255,159,28,.28), rgba(0,0,0,.75));
+      font-size: 1.65rem;
+      box-shadow: inset 0 0 18px rgba(255,159,28,.12);
+    }
+
+    h2 {
+      margin: 0;
+      color: var(--orange);
+      font-size: 1.2rem;
+      letter-spacing: .01em;
+    }
+
+    .cards {
+      display: grid;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .idea-card {
+      border: 1px solid rgba(255,159,28,.28);
+      background: linear-gradient(135deg, rgba(255,159,28,.06), rgba(255,255,255,.02));
+      border-radius: 16px;
+      padding: 13px 14px;
+      transition: transform .22s ease, box-shadow .22s ease, background .22s ease, border-color .22s ease;
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .idea-card:hover {
+      transform: translateX(8px) scale(1.025);
+      border-color: var(--orange);
+      background: linear-gradient(135deg, rgba(255,159,28,.18), rgba(98,216,255,.06));
+      box-shadow: 0 0 26px rgba(255,159,28,.21);
+    }
+
+    .idea-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,.08), transparent);
+      transform: translateX(-120%);
+      transition: transform .55s ease;
+    }
+
+    .idea-card:hover::after { transform: translateX(120%); }
+
+    .main-idea {
+      display: block;
+      color: var(--amber);
+      font-weight: 900;
+      font-size: 1rem;
+      margin-bottom: 5px;
+    }
+
+    .arrow {
+      color: var(--orange);
+      font-weight: 900;
+      margin-right: 4px;
+    }
+
+    .real-world {
+      display: block;
+      color: #ead9b8;
+      line-height: 1.42;
+      font-size: .96rem;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-top: 8px;
+      color: #111;
+      background: var(--orange);
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: .72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .wide {
+      grid-column: 1 / -1;
+    }
+
+    .memory-map {
+      margin-top: 20px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 22px;
+      background: linear-gradient(135deg, rgba(255,159,28,.1), rgba(0,0,0,.72));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .memory-map h2 { font-size: 1.45rem; margin-bottom: 14px; }
+
+    .map-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .map-card {
+      border: 1px solid rgba(255,159,28,.38);
+      border-radius: 20px;
+      padding: 18px;
+      background: rgba(0,0,0,.55);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+
+    .map-card:hover {
+      transform: translateY(-7px) rotate(-.5deg);
+      box-shadow: 0 0 28px rgba(98,216,255,.16), 0 0 34px rgba(255,159,28,.12);
+    }
+
+    .map-number {
+      color: var(--blue);
+      font-size: 2rem;
+      font-weight: 900;
+    }
+
+    .map-title {
+      color: var(--amber);
+      font-weight: 900;
+      font-size: 1.2rem;
+      margin: 4px 0 8px;
+    }
+
+    .map-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #ead9b8;
+      line-height: 1.65;
+    }
+
+    .fail-list {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .fail-chip {
+      border: 1px solid rgba(255,95,86,.55);
+      background: rgba(255,95,86,.08);
+      color: #ffd6d3;
+      padding: 14px;
+      border-radius: 16px;
+      font-weight: 800;
+      text-align: center;
+      transition: transform .2s ease, background .2s ease;
+    }
+
+    .fail-chip:hover {
+      transform: scale(1.06);
+      background: rgba(255,95,86,.18);
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 26px 18px 38px;
+    }
+
+    @media (max-width: 900px) {
+      .hero-strip, .map-grid { grid-template-columns: 1fr; }
+      .section-grid { grid-template-columns: 1fr; }
+      .fail-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 520px) {
+      body { padding: 0; }
+      main { padding: 18px 10px 34px; }
+      header { padding-top: 24px; }
+      .system-section, .memory-map { border-radius: 18px; padding: 14px; }
+      .fail-list { grid-template-columns: 1fr; }
+      .idea-card:hover { transform: scale(1.015); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">✅ B737 ATA 21 • Real-World Key Points</div>
+    <h1>Air Conditioning Made Line-Mechanic Simple</h1>
+    <p class="subtitle">Hover over each idea. The page is built like a quick mental model: what moves air, what cools it, what controls it, and what usually bites you on the line.</p>
+  </header>
+
+  <section class="hero-strip">
+    <div class="hero-card">
+      <div class="hero-icon">🌬️</div>
+      <div class="hero-title">Move Air</div>
+      <div class="hero-text">Bleed air, FCSOVs, pack flow, and recirc fans keep the cabin supplied.</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-icon">❄️</div>
+      <div class="hero-title">Cool Air</div>
+      <div class="hero-text">ACM, heat exchangers, water spray, and ram air pull heat out of the flow.</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-icon">🌡️</div>
+      <div class="hero-title">Control Temperature</div>
+      <div class="hero-text">Controllers, TCVs, sensors, and trim air fine-tune comfort and protection.</div>
+    </div>
+  </section>
+
+  <main>
+    <section class="section-grid">
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">⚙️</div><h2>Pack Flow — Airflow Control</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">FCSOV fails CLOSED</span><span class="real-world"><span class="arrow">→</span>If it loses power, airflow to the pack stops.</span><span class="tag">fail-safe clue</span></div>
+          <div class="idea-card"><span class="main-idea">Cabin pressure helps regulate airflow automatically</span><span class="real-world"><span class="arrow">→</span>The system adjusts itself without pilot input.</span></div>
+          <div class="idea-card"><span class="main-idea">If one pack is off, the other ramps up</span><span class="real-world"><span class="arrow">→</span>HIGH flow helps keep enough air moving in the cabin.</span></div>
+          <div class="idea-card"><span class="main-idea">Valve position indication matters</span><span class="real-world"><span class="arrow">→</span>Always verify the valve is actually open when troubleshooting.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">❄️</div><h2>Cooling System — How Packs Cool Air</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Reheater makes the system more efficient</span><span class="real-world"><span class="arrow">→</span>Prevents extreme temperature swings inside the pack.</span></div>
+          <div class="idea-card"><span class="main-idea">Water spray boosts cooling</span><span class="real-world"><span class="arrow">→</span>Especially important on hot days.</span><span class="tag">hot day helper</span></div>
+          <div class="idea-card"><span class="main-idea">System reuses heat to prevent icing</span><span class="real-world"><span class="arrow">→</span>Keeps pack components from freezing.</span></div>
+          <div class="idea-card"><span class="main-idea">ACM fan pulls air on the ground</span><span class="real-world"><span class="arrow">→</span>No airflow means no real cooling without it.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">💧</div><h2>Water & Moisture Control</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Water separator spins air to remove water</span><span class="real-world"><span class="arrow">→</span>Think mini centrifuge.</span></div>
+          <div class="idea-card"><span class="main-idea">Separator bypass opens if clogged</span><span class="real-world"><span class="arrow">→</span>Airflow keeps going even when dirty.</span></div>
+          <div class="idea-card"><span class="main-idea">Filter indicator turns red when blocked</span><span class="real-world"><span class="arrow">→</span>Easy visual check for maintenance.</span><span class="tag">quick inspection</span></div>
+          <div class="idea-card"><span class="main-idea">Temps stay above freezing, about 35°F</span><span class="real-world"><span class="arrow">→</span>Prevents ice buildup in ducts.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🌬️</div><h2>Ram Air System — Outside Cooling Air</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Target temp after compressor ≈ 230°F</span><span class="real-world"><span class="arrow">→</span>The system tries to maintain this for efficiency.</span></div>
+          <div class="idea-card"><span class="main-idea">Different modes by flight phase</span><span class="real-world"><span class="arrow">→</span>Ground, takeoff/low speed, and cruise all behave differently.</span></div>
+          <div class="idea-card"><span class="main-idea">If control fails, doors go full open</span><span class="real-world"><span class="arrow">→</span>More air gives safer cooling.</span><span class="tag">fail-safe</span></div>
+          <div class="idea-card"><span class="main-idea">Ram door full open in cruise</span><span class="real-world"><span class="arrow">→</span>Possible dirty heat exchanger. Big troubleshooting clue.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🌡️</div><h2>Temperature Control Logic</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Coldest zone controls everything</span><span class="real-world"><span class="arrow">→</span>The system cools to the coldest demand, then warms other zones.</span></div>
+          <div class="idea-card"><span class="main-idea">System prevents air getting too cold</span><span class="real-world"><span class="arrow">→</span>About 35°F protection helps avoid frozen ducts.</span></div>
+          <div class="idea-card"><span class="main-idea">Temp knob OFF defaults to about 75°F</span><span class="real-world"><span class="arrow">→</span>It is not truly off. It is neutral/default logic.</span></div>
+          <div class="idea-card"><span class="main-idea">Backup controller takes over</span><span class="real-world"><span class="arrow">→</span>Redundancy is built into the system.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔥</div><h2>Trim Air — Fine Temperature Adjustment</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Trim air is hot bleed air added to zones</span><span class="real-world"><span class="arrow">→</span>It warms specific areas after pack cooling.</span></div>
+          <div class="idea-card"><span class="main-idea">Max pressure limited to about 4 PSI above cabin</span><span class="real-world"><span class="arrow">→</span>Prevents damage or overheat.</span></div>
+          <div class="idea-card"><span class="main-idea">Master trim valve closes</span><span class="real-world"><span class="arrow">→</span>No trim air anywhere. Cabin may feel cold overall.</span><span class="tag">system-wide effect</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">⚠️</div><h2>Overheat & Protection</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Multiple sensors monitor the pack</span><span class="real-world"><span class="arrow">→</span>Compressor, turbine, and outlet are watched.</span></div>
+          <div class="idea-card"><span class="main-idea">Overheat shuts the pack OFF</span><span class="real-world"><span class="arrow">→</span>FCSOV closes and PACK light comes on.</span><span class="tag">protective shutdown</span></div>
+          <div class="idea-card"><span class="main-idea">Trip stays latched until reset</span><span class="real-world"><span class="arrow">→</span>Even if the problem goes away.</span></div>
+          <div class="idea-card"><span class="main-idea">Duct overheat around 190°F</span><span class="real-world"><span class="arrow">→</span>Trim air shuts down to protect cabin ducts.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔄</div><h2>Recirc System</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Recirc fans move about 830 CFM each</span><span class="real-world"><span class="arrow">→</span>Reduces engine bleed demand.</span></div>
+          <div class="idea-card"><span class="main-idea">Fans shut off in HIGH pack flow</span><span class="real-world"><span class="arrow">→</span>Keeps airflow balanced.</span></div>
+          <div class="idea-card"><span class="main-idea">HEPA filters clean the air</span><span class="real-world"><span class="arrow">→</span>Important for cabin air quality.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🧠</div><h2>Controllers & Troubleshooting</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Controllers run temp, flow, and valves</span><span class="real-world"><span class="arrow">→</span>If the system acts weird, think controller.</span></div>
+          <div class="idea-card"><span class="main-idea">Controllers are interchangeable, but position matters</span><span class="real-world"><span class="arrow">→</span>Do not mix them up.</span></div>
+          <div class="idea-card"><span class="main-idea">BITE helps isolate faults quickly</span><span class="real-world"><span class="arrow">→</span>Use it before guessing. Parts cannon stays holstered.</span><span class="tag">best practice</span></div>
+          <div class="idea-card"><span class="main-idea">Fault history is stored</span><span class="real-world"><span class="arrow">→</span>Very useful for intermittent problems.</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔧</div><h2>Real Line Maintenance Takeaways</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Dirty heat exchangers are a top suspect</span><span class="real-world"><span class="arrow">→</span>Always consider airflow restriction first.</span><span class="tag">real mx reality</span></div>
+          <div class="idea-card"><span class="main-idea">Dual sensors give backup protection</span><span class="real-world"><span class="arrow">→</span>The system rarely fails completely blind.</span></div>
+          <div class="idea-card"><span class="main-idea">Manual overrides exist on key valves</span><span class="real-world"><span class="arrow">→</span>Useful for troubleshooting and isolation.</span></div>
+          <div class="idea-card"><span class="main-idea">Controllers are ESD sensitive</span><span class="real-world"><span class="arrow">→</span>Handle carefully. Easy to damage.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="memory-map">
+      <h2>🧠 Easy Way to Remember the Whole System</h2>
+      <div class="map-grid">
+        <div class="map-card"><div class="map-number">1</div><div class="map-title">Move Air</div><ul><li>FCSOV</li><li>Bleed air</li><li>Recirc fans</li></ul></div>
+        <div class="map-card"><div class="map-number">2</div><div class="map-title">Cool Air</div><ul><li>ACM</li><li>Heat exchangers</li><li>Ram air</li></ul></div>
+        <div class="map-card"><div class="map-number">3</div><div class="map-title">Control Temperature</div><ul><li>TCV</li><li>Trim air</li><li>Controllers</li></ul></div>
+      </div>
+
+      <h2 style="margin-top:24px;">🔥 What Actually Fails Most</h2>
+      <div class="fail-list">
+        <div class="fail-chip">Dirty heat exchangers</div>
+        <div class="fail-chip">Faulty sensors</div>
+        <div class="fail-chip">Bleed air issues<br><small>ATA 36 crossover</small></div>
+        <div class="fail-chip">Stuck valves<br><small>FCSOV / TCV</small></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    B737 ATA 21 quick-study page • Built for line-maintenance brain speed, not PowerPoint pain.
+  </footer>
+</body>
+</html>

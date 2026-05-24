@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATA 26 Fire Protection Tribal Knowledge</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --bg: #050505;
+      --panel: #101010;
+      --orange: #ff9f1c;
+      --orange2: #ffd28a;
+      --green: #48d17a;
+      --red: #ff5c5c;
+      --blue: #77c8ff;
+      --muted: #b99461;
+      --line: rgba(255,159,28,.55);
+    }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(255,159,28,.15), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(119,200,255,.10), transparent 30%),
+        var(--bg);
+      color: var(--orange);
+      line-height: 1.5;
+    }
+    .page { max-width: 1180px; margin: 0 auto; padding: 22px; }
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 28px;
+      background: linear-gradient(135deg, rgba(255,159,28,.12), rgba(0,0,0,.65));
+      box-shadow: 0 0 40px rgba(255,159,28,.12);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "ATA 26";
+      position: absolute;
+      right: -12px;
+      bottom: -32px;
+      font-size: clamp(56px, 12vw, 150px);
+      font-weight: 900;
+      color: rgba(255,159,28,.06);
+      pointer-events: none;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 4.2rem);
+      letter-spacing: .04em;
+      color: var(--orange2);
+    }
+    .subtitle {
+      margin: 8px 0 16px;
+      color: #fff0d6;
+      font-size: 1.12rem;
+      max-width: 820px;
+    }
+    .tagline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: rgba(0,0,0,.45);
+      color: var(--orange2);
+      font-weight: 700;
+    }
+    .rule-box {
+      margin-top: 18px;
+      border-left: 4px solid var(--orange);
+      background: rgba(255,159,28,.09);
+      padding: 12px 14px;
+      border-radius: 10px;
+      color: #ffe5b8;
+      font-weight: 700;
+      max-width: 920px;
+    }
+    .nav {
+      margin: 18px 0;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+    a.nav-btn, button {
+      border: 1px solid var(--orange);
+      color: var(--orange);
+      background: #111;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: none;
+      transition: .18s ease;
+    }
+    a.nav-btn:hover, button:hover {
+      background: var(--orange);
+      color: #000;
+      transform: translateY(-1px);
+    }
+    .progress {
+      min-width: 220px;
+      color: var(--orange2);
+      font-weight: 800;
+      text-align: right;
+    }
+    .progress-bar {
+      height: 9px;
+      margin-top: 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+      background: #090909;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--orange), var(--green));
+      transition: width .25s ease;
+    }
+    .section-title {
+      margin: 30px 0 12px;
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .section-title h2 {
+      margin: 0;
+      color: var(--orange2);
+      font-size: clamp(1.45rem, 3vw, 2.2rem);
+    }
+    .section-note { color: var(--muted); font-weight: 700; }
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .scenario-card {
+      border: 1px solid rgba(255,159,28,.45);
+      background: linear-gradient(180deg, rgba(255,159,28,.07), rgba(0,0,0,.42));
+      border-radius: 18px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .scenario-card.done {
+      border-color: rgba(72,209,122,.85);
+      box-shadow: 0 0 22px rgba(72,209,122,.10);
+    }
+    .scenario-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .scenario-num {
+      color: #000;
+      background: var(--orange);
+      font-weight: 900;
+      border-radius: 999px;
+      padding: 5px 10px;
+      white-space: nowrap;
+    }
+    .writeup {
+      color: #fff4df;
+      font-size: 1.06rem;
+      font-weight: 800;
+      margin: 10px 0 12px;
+    }
+    .think-list {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(0,0,0,.42);
+      border: 1px solid rgba(255,159,28,.3);
+    }
+    .think-list.open { display: block; animation: rise .22s ease; }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .check { color: var(--green); font-weight: 900; }
+    .nope { color: var(--red); font-weight: 900; }
+    .trap {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(255,92,92,.08);
+      border-left: 3px solid var(--red);
+      color: #ffb8b8;
+      font-weight: 700;
+    }
+    .lesson {
+      margin-top: 10px;
+      color: var(--orange2);
+      font-weight: 800;
+      border-top: 1px dashed rgba(255,159,28,.35);
+      padding-top: 8px;
+    }
+    .quiz-card {
+      border: 1px solid rgba(255,159,28,.45);
+      border-radius: 18px;
+      background: rgba(255,159,28,.04);
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+    .quiz-question {
+      color: #fff4df;
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin: 0 0 14px;
+    }
+    .answers { display: flex; gap: 10px; flex-wrap: wrap; }
+    .answer-result {
+      display: none;
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(0,0,0,.45);
+      border: 1px solid rgba(255,159,28,.3);
+      color: #f4d9ad;
+    }
+    .answer-result.show { display: block; animation: rise .22s ease; }
+    .rules {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      counter-reset: rules;
+    }
+    .rule {
+      counter-increment: rules;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      border: 1px solid rgba(255,159,28,.36);
+      border-radius: 16px;
+      padding: 13px;
+      background: rgba(255,159,28,.055);
+      color: #f4d9ad;
+    }
+    .rule::before {
+      content: counter(rules);
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      width: 31px;
+      height: 31px;
+      border-radius: 50%;
+      background: var(--orange);
+      color: #000;
+      font-weight: 900;
+    }
+    .rule strong { color: var(--orange2); }
+    .bottom-line {
+      margin: 28px 0 10px;
+      padding: 18px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(255,159,28,.10), rgba(0,0,0,.55));
+      color: #ffe5b8;
+      font-weight: 700;
+    }
+    .bottom-line h3 {
+      margin: 0 0 8px;
+      color: var(--orange2);
+    }
+    .footer {
+      margin: 28px 0 10px;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    @media (max-width: 820px) {
+      .page { padding: 14px; }
+      .hero { padding: 20px; }
+      .scenario-grid, .rules { grid-template-columns: 1fr; }
+      .progress { text-align: left; width: 100%; }
+      .nav { align-items: stretch; }
+      .nav-links { width: 100%; }
+      a.nav-btn, button { width: 100%; }
+      .scenario-head { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="tagline">🧠 B737NG ATA 26 • Fire Protection Tribal Knowledge</div>
+      <h1>ATA 26 Tribal Knowledge</h1>
+      <p class="subtitle">ATA 26 is NOT a fire system — it’s a detection + decision system. Sensors detect, modules decide, pilots act.</p>
+      <div class="rule-box">Core Rule: Most ATA 26 faults are NOT fires. Don't swap loops, bottles, or modules without checking dual-loop logic and contamination first.</div>
+    </section>
+
+    <div class="nav">
+      <div class="nav-links">
+        <a class="nav-btn" href="#game">Scenarios</a>
+        <a class="nav-btn" href="#quiz">LRU Quiz</a>
+        <a class="nav-btn" href="#rules">Top 10 Rules</a>
+        <a class="nav-btn" href="#bottom">Bottom Line</a>
+      </div>
+      <div class="progress">
+        <div id="progressText">0 of 21 interactions complete</div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+    </div>
+
+    <section id="game">
+      <div class="section-title">
+        <h2>🎮 "Detection or Decision?" — Scenarios</h2>
+        <span class="section-note">Read first. Guess. Then reveal.</span>
+      </div>
+      <div class="scenario-grid" id="scenarioGrid"></div>
+    </section>
+
+    <section id="quiz">
+      <div class="section-title">
+        <h2>🎯 Change the LRU or Pass?</h2>
+        <span class="section-note">Answer YES or NO before revealing why.</span>
+      </div>
+            <div class="quiz-card">
+        <p class="quiz-question">OVHT but no FIRE. Replace detector loop?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(0, false)">YES — Replace loop</button>
+          <button onclick="answerQuiz(0, true)">NO — Check logic</button>
+        </div>
+        <div class="answer-result" id="quiz0"><strong>❌ NOT YET.</strong> Check dual loop agreement and look for a local heat source.</div>
+      </div>
+      <div class="quiz-card">
+        <p class="quiz-question">Detector FAULT light. Replace engine?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(1, false)">YES — Replace engine</button>
+          <button onclick="answerQuiz(1, true)">NO — Loop/wiring</button>
+        </div>
+        <div class="answer-result" id="quiz1"><strong>❌ NO.</strong> Loop or wiring integrity issue — not an engine problem.</div>
+      </div>
+      <div class="quiz-card">
+        <p class="quiz-question">Cargo smoke detected. Replace smoke detector immediately?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(2, false)">YES — Replace detector</button>
+          <button onclick="answerQuiz(2, true)">NO — Verify first</button>
+        </div>
+        <div class="answer-result" id="quiz2"><strong>❌ NO.</strong> Verify contamination vs real event first.</div>
+      </div>
+      <div class="quiz-card">
+        <p class="quiz-question">Bottle DISCH light. Replace bottle?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(3, false)">YES — Replace bottle</button>
+          <button onclick="answerQuiz(3, true)">Check pressure first</button>
+        </div>
+        <div class="answer-result" id="quiz3"><strong>⚠️ CHECK PRESSURE FIRST.</strong> DISCH light triggers on low pressure too — don’t assume the bottle is empty.</div>
+      </div>
+      <div class="quiz-card">
+        <p class="quiz-question">Dual loop fire warning. Replace both loops?</p>
+        <div class="answers">
+          <button onclick="answerQuiz(4, false)">YES — Replace both</button>
+          <button onclick="answerQuiz(4, true)">NO — Check module</button>
+        </div>
+        <div class="answer-result" id="quiz4"><strong>❌ NO.</strong> Check control module and common wiring — dual false typically means upstream.</div>
+      </div>
+    </section>
+
+    <section id="rules">
+      <div class="section-title">
+        <h2>🛠 Top 10 ATA 26 Tribal Knowledge Rules</h2>
+        <span class="section-note">The stuff that saves time and parts.</span>
+      </div>
+      <div class="rules">
+                <div class="rule"><span><strong>Detection ≠ Fire</strong> — most alerts are NOT real fires.</span></div>
+        <div class="rule"><span><strong>Dual-loop logic is everything</strong> — NORMAL = AND, single loop = OR.</span></div>
+        <div class="rule"><span><strong>FAULT light = system integrity</strong> — not temperature.</span></div>
+        <div class="rule"><span><strong>Intermittent = wiring or vibration</strong> — not component failure.</span></div>
+        <div class="rule"><span><strong>Control module interprets everything</strong> — sensors aren't dumb, they report.</span></div>
+        <div class="rule"><span><strong>Fire handles isolate systems</strong> — fuel, hydraulics, bleed all shut off.</span></div>
+        <div class="rule"><span><strong>Extinguishing runs on hot battery</strong> — always available.</span></div>
+        <div class="rule"><span><strong>Cargo system is time-based survival</strong> — not instant extinguishing.</span></div>
+        <div class="rule"><span><strong>Contamination causes false alarms</strong> — especially cargo and lavatory.</span></div>
+        <div class="rule"><span><strong>Follow the path</strong> — Detector → Loop → Control Module → Cockpit → Squib.</span></div>
+      </div>
+    </section>
+
+    <section id="bottom" class="bottom-line">
+      <h3>🔚 Bottom Line</h3>
+      <div>Detection systems use dual-loop AND logic. Fire handles isolate entire systems (fuel/hydraulics/bleed), not just fire fighting. Extinguishing runs on hot battery so it works even with a dead aircraft. Most alerts are contamination, wiring, or interpretation — not real fires.</div>
+    </section>
+
+    <div class="footer">ATA 26 Fire Protection Tribal Knowledge • Built for line maintenance learning</div>
+  </main>
+
+  <script>
+    const scenarios = [{"title": "Scenario 1", "writeup": "“ENG 1 OVERHEAT light only, no FIRE.”", "checks": ["Suspect single-loop issue", "Look for local hot spot", "Check for bleed duct leak"], "dont": "Do not change the fire bottle", "trap": "Bottle blown unnecessarily. Reality: overheat ≠ fire. Often a bleed duct leak heating one loop.", "lesson": "Overheat ≠ fire."}, {"title": "Scenario 2", "writeup": "“FIRE light, bell, full warning.”", "checks": ["Verify both loops triggered", "Check control module logic", "Identify area of detection"], "trap": "Reset attempted in NORMAL with only one loop hot. Reality: true fire in NORMAL requires BOTH loops to agree.", "lesson": "True fire requires BOTH loops in NORMAL."}, {"title": "Scenario 3", "writeup": "“FAULT light only, no overheat/fire.”", "checks": ["Check loop continuity", "Inspect for broken sensor tube", "Look for wiring open"], "trap": "Loop replaced based on FAULT alone. Reality: FAULT = loop integrity, not temperature.", "lesson": "Fault = loop integrity problem."}, {"title": "Scenario 4", "writeup": "“Intermittent OVHT on taxi.”", "checks": ["Inspect for wiring rub", "Check connectors for looseness", "Look for vibration-induced loop issue"], "trap": "Loop changed but problem returns. Reality: intermittent = wiring or mechanical, not component.", "lesson": "Intermittent = wiring or mechanical."}, {"title": "Scenario 5", "writeup": "“Loop A selected → warning. NORMAL → no warning.”", "checks": ["Loop A is faulty", "Loop B is OK", "Use loop select to isolate"], "trap": "Both loops replaced. Reality: loop select test isolates the bad loop — only one needs replacement.", "lesson": "Use loop select to isolate the failure."}, {"title": "Scenario 6", "writeup": "“Both loops show OVHT, but engine cold.”", "checks": ["Suspect control module issue", "Look for common wiring fault"], "dont": "Do not replace both loops", "trap": "Two loops swapped, still triggers. Reality: dual false = upstream control module or shared wiring.", "lesson": "Dual false = upstream problem."}, {"title": "Scenario 7", "writeup": "“After maintenance, engine fire warning immediately.”", "checks": ["Check detector routing", "Inspect for connector swap", "Look for loop pinch"], "trap": "Detector replaced. Reality: installation error — routing, connector, or pinch from the recent task.", "lesson": "Installation error common after maintenance."}, {"title": "Scenario 8", "writeup": "“No fire indication during test.”", "checks": ["Check test switch", "Check control module", "Check power supply"], "trap": "Detectors replaced. Reality: test failure can be the test circuit itself, not the detectors.", "lesson": "Test failure ≠ detector problem."}, {"title": "Scenario 9", "writeup": "“Bottle DISCH light on.”", "checks": ["Could be discharged OR low pressure", "Check pressure switch", "Verify actual bottle status"], "trap": "Bottle replaced without checking pressure. Reality: low pressure triggers DISCH light too.", "lesson": "DISCH light = discharged OR low pressure."}, {"title": "Scenario 10", "writeup": "“Fire handle pulled, no discharge.”", "checks": ["Check squib circuit", "Verify hot battery bus", "Check wiring"], "trap": "Bottle replaced. Reality: electrical trigger failure — squib or circuit.", "lesson": "Electrical trigger failure."}, {"title": "Scenario 11", "writeup": "“Cargo fire warning.”", "checks": ["Check dual loop detectors", "Check cargo electronic unit (CEU)"], "trap": "Loops chased. Reality: CEU interprets detector signals — it's the decision maker.", "lesson": "CEU decides, sensors just detect."}, {"title": "Scenario 12", "writeup": "“Smoke warning but no smell.”", "checks": ["Look for detector contamination", "Check for dust or moisture"], "trap": "Detector replaced. Reality: contamination causes most false smoke alerts.", "lesson": "Contamination causes false alarms."}, {"title": "Scenario 13", "writeup": "“Second cargo bottle discharged on next flight unexpectedly.”", "checks": ["Check if timer was reset after landing", "Verify discharge logic state"], "trap": "Bottle failure suspected. Reality: timer not reset after landing — one of the BIGGEST real-world mistakes.", "lesson": "ALWAYS reset cargo timer after landing."}, {"title": "Scenario 14", "writeup": "“APU fire on ground, horn outside.”", "checks": ["External horn + light is normal", "Check ground panel", "Inspect detector"], "trap": "Treated as malfunction. Reality: external horn is normal ground annunciation.", "lesson": "External horn is normal APU fire annunciation."}, {"title": "Scenario 15", "writeup": "“Lav smoke alert, horn, but no smoke.”", "checks": ["Likely sensor contamination", "Check cleaning chemicals"], "trap": "Detector replaced. Reality: cleaning chemicals and dust trigger lav smoke detectors constantly.", "lesson": "Lav false alarms = cleaning chemicals."}, {"title": "Scenario 16", "writeup": "“Wing-body overheat warning.”", "checks": ["Likely bleed duct leak", "Inspect for hot air leak path"], "trap": "Sensor swapped. Reality: usually a real bleed duct leak — the sensor is doing its job.", "lesson": "Wing-body overheat = usually real leak."}];
+    const TOTAL = 21;
+    const completed = new Set();
+
+    function updateProgress() {
+      const count = completed.size;
+      document.getElementById("progressText").textContent = count + " of " + TOTAL + " interactions complete";
+      document.getElementById("progressFill").style.width = Math.min((count / TOTAL) * 100, 100) + "%";
+    }
+
+    function revealScenario(index) {
+      const card = document.getElementById("scenario-card-" + index);
+      const body = document.getElementById("scenario-body-" + index);
+      body.classList.toggle("open");
+      card.classList.add("done");
+      completed.add("s" + index);
+      updateProgress();
+    }
+
+    function answerQuiz(index, correct) {
+      const box = document.getElementById("quiz" + index);
+      box.classList.add("show");
+      box.style.borderColor = correct ? "rgba(72,209,122,.85)" : "rgba(255,92,92,.85)";
+      completed.add("q" + index);
+      updateProgress();
+    }
+
+    function buildScenarios() {
+      const grid = document.getElementById("scenarioGrid");
+      grid.innerHTML = scenarios.map(function(s, i) {
+        const checksHtml = s.checks.map(function(c) {
+          return '<li><span class="check">&#9989;</span> ' + c + '</li>';
+        }).join("");
+        const dontHtml = s.dont ? '<li><span class="nope">&#10060;</span> ' + s.dont + '</li>' : "";
+        const trapHtml = s.trap ? '<div class="trap">&#9888;&#65039; <strong>TRAP:</strong> ' + s.trap + '</div>' : "";
+        return ''
+          + '<article class="scenario-card" id="scenario-card-' + i + '">'
+          + '  <div class="scenario-head">'
+          + '    <span class="scenario-num">&#9992;&#65039; ' + s.title + '</span>'
+          + '    <button onclick="revealScenario(' + i + ')">Reveal Checks</button>'
+          + '  </div>'
+          + '  <div class="writeup">' + s.writeup + '</div>'
+          + '  <div class="think-list" id="scenario-body-' + i + '">'
+          + '    <strong>Think first:</strong>'
+          + '    <ul>' + checksHtml + dontHtml + '</ul>'
+          + trapHtml
+          + '    <div class="lesson">Tribal Lesson: ' + s.lesson + '</div>'
+          + '  </div>'
+          + '</article>';
+      }).join("");
+    }
+
+    buildScenarios();
+    updateProgress();
+  </script>
+</body>
+</html>

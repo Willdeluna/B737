@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>B737 ATA 31 Main Points</title>
+  <style>
+    :root {
+      --bg: #050505;
+      --panel: #101010;
+      --panel2: #17110a;
+      --orange: #ff9f1c;
+      --amber: #ffd27f;
+      --soft: rgba(255, 159, 28, 0.18);
+      --line: rgba(255, 159, 28, 0.55);
+      --white: #f7efe4;
+      --muted: #bda777;
+      --red: #ff5f56;
+      --blue: #62d8ff;
+      --green: #8cffb1;
+      --purple: #b794ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--white);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(255,159,28,0.22), transparent 28%),
+        radial-gradient(circle at 85% 20%, rgba(98,216,255,0.13), transparent 26%),
+        radial-gradient(circle at 50% 90%, rgba(183,148,255,0.12), transparent 25%),
+        linear-gradient(135deg, #000, #080808 45%, #130b02);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,159,28,0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,159,28,0.045) 1px, transparent 1px);
+      background-size: 46px 46px;
+      mask-image: radial-gradient(circle at center, black, transparent 82%);
+    }
+
+    header {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 36px 18px 18px;
+      text-align: center;
+      position: relative;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--amber);
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.55);
+      border-radius: 999px;
+      padding: 8px 14px;
+      box-shadow: 0 0 22px var(--soft);
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      font-size: .8rem;
+    }
+
+    h1 {
+      margin: 18px 0 8px;
+      color: var(--orange);
+      font-size: clamp(2rem, 6vw, 4.9rem);
+      line-height: .96;
+      text-shadow: 0 0 18px rgba(255,159,28,.38), 0 0 42px rgba(255,159,28,.16);
+    }
+
+    .subtitle {
+      max-width: 900px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.55;
+    }
+
+    .hero-strip {
+      max-width: 1180px;
+      margin: 24px auto 8px;
+      padding: 0 18px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .hero-card {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,159,28,.1), rgba(0,0,0,.72));
+      border-radius: 22px;
+      padding: 20px;
+      min-height: 140px;
+      position: relative;
+      overflow: hidden;
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    }
+
+    .hero-card:hover {
+      transform: translateY(-8px) scale(1.015);
+      box-shadow: 0 0 34px rgba(255,159,28,.24);
+      border-color: var(--orange);
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      right: -58px;
+      bottom: -58px;
+      border: 1px solid rgba(255,159,28,.28);
+      border-radius: 50%;
+    }
+
+    .hero-icon { font-size: 2.2rem; margin-bottom: 8px; }
+    .hero-title { color: var(--amber); font-size: 1.25rem; font-weight: 900; }
+    .hero-text { color: var(--muted); margin-top: 8px; line-height: 1.42; }
+
+    main {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 22px 18px 48px;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .system-section {
+      border: 1px solid var(--line);
+      background: rgba(9,9,9,.88);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: 0 0 30px rgba(0,0,0,.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .system-section::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--orange), var(--blue), transparent);
+      opacity: .75;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: radial-gradient(circle at top, rgba(255,159,28,.28), rgba(0,0,0,.75));
+      font-size: 1.65rem;
+      box-shadow: inset 0 0 18px rgba(255,159,28,.12);
+    }
+
+    h2 {
+      margin: 0;
+      color: var(--orange);
+      font-size: 1.2rem;
+      letter-spacing: .01em;
+    }
+
+    .cards {
+      display: grid;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .idea-card {
+      border: 1px solid rgba(255,159,28,.28);
+      background: linear-gradient(135deg, rgba(255,159,28,.06), rgba(255,255,255,.02));
+      border-radius: 16px;
+      padding: 13px 14px;
+      transition: transform .22s ease, box-shadow .22s ease, background .22s ease, border-color .22s ease;
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .idea-card:hover {
+      transform: translateX(8px) scale(1.025);
+      border-color: var(--orange);
+      background: linear-gradient(135deg, rgba(255,159,28,.18), rgba(98,216,255,.06));
+      box-shadow: 0 0 26px rgba(255,159,28,.21);
+    }
+
+    .idea-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,.08), transparent);
+      transform: translateX(-120%);
+      transition: transform .55s ease;
+    }
+
+    .idea-card:hover::after { transform: translateX(120%); }
+
+    .main-idea {
+      display: block;
+      color: var(--amber);
+      font-weight: 900;
+      font-size: 1rem;
+      margin-bottom: 5px;
+    }
+
+    .arrow {
+      color: var(--orange);
+      font-weight: 900;
+      margin-right: 4px;
+    }
+
+    .real-world {
+      display: block;
+      color: #ead9b8;
+      line-height: 1.42;
+      font-size: .96rem;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-top: 8px;
+      color: #111;
+      background: var(--orange);
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: .72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .tag.blue { background: var(--blue); }
+    .tag.green { background: var(--green); }
+    .tag.purple { background: var(--purple); }
+
+    .wide { grid-column: 1 / -1; }
+
+    .memory-map {
+      margin-top: 20px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 22px;
+      background: linear-gradient(135deg, rgba(255,159,28,.1), rgba(0,0,0,.72));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .memory-map h2 { font-size: 1.45rem; margin-bottom: 14px; }
+
+    .map-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .map-card {
+      border: 1px solid rgba(255,159,28,.38);
+      border-radius: 20px;
+      padding: 18px;
+      background: rgba(0,0,0,.55);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+
+    .map-card:hover {
+      transform: translateY(-7px) rotate(-.5deg);
+      box-shadow: 0 0 28px rgba(98,216,255,.16), 0 0 34px rgba(255,159,28,.12);
+    }
+
+    .map-number {
+      color: var(--blue);
+      font-size: 2rem;
+      font-weight: 900;
+    }
+
+    .map-title {
+      color: var(--amber);
+      font-weight: 900;
+      font-size: 1.2rem;
+      margin: 4px 0 8px;
+    }
+
+    .map-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #ead9b8;
+      line-height: 1.65;
+    }
+
+    .fail-list {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .fail-chip {
+      border: 1px solid rgba(255,95,86,.55);
+      background: rgba(255,95,86,.08);
+      color: #ffd6d3;
+      padding: 14px;
+      border-radius: 16px;
+      font-weight: 800;
+      text-align: center;
+      transition: transform .2s ease, background .2s ease;
+    }
+
+    .fail-chip:hover {
+      transform: scale(1.06);
+      background: rgba(255,95,86,.18);
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 26px 18px 38px;
+    }
+
+    @media (max-width: 900px) {
+      .hero-strip, .map-grid { grid-template-columns: 1fr; }
+      .section-grid { grid-template-columns: 1fr; }
+      .fail-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 520px) {
+      body { padding: 0; }
+      main { padding: 18px 10px 34px; }
+      header { padding-top: 24px; }
+      .system-section, .memory-map { border-radius: 18px; padding: 14px; }
+      .fail-list { grid-template-columns: 1fr; }
+      .idea-card:hover { transform: scale(1.015); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">✅ B737 ATA 31 • Indicating & Recording</div>
+    <h1>Indicating &amp; Recording Made Line-Mechanic Simple</h1>
+    <p class="subtitle">Hover over each idea. Think of ATA 31 as three jobs: <strong>display</strong> what the pilots need to see, <strong>alert</strong> them when something is wrong, and <strong>record</strong> what happened for later.</p>
+  </header>
+
+  <section class="hero-strip">
+    <div class="hero-card">
+      <div class="hero-icon">🖥️</div>
+      <div class="hero-title">Display Layer</div>
+      <div class="hero-text">CDS shows the pilots PFD, ND, engine, and systems data through 6 identical DUs driven by 2 DEUs.</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-icon">🔔</div>
+      <div class="hero-title">Alert Layer</div>
+      <div class="hero-text">Master caution and aural warnings tell the crew when a system needs attention right now.</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-icon">📊</div>
+      <div class="hero-title">Record Layer</div>
+      <div class="hero-text">FDR captures the last 25 hours of flight data through the FDAU for accident analysis.</div>
+    </div>
+  </section>
+
+  <main>
+    <section class="section-grid">
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🧠</div><h2>Big Picture — What ATA 31 Really Does</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Primary job = display + record aircraft data</span><span class="real-world"><span class="arrow">→</span>What pilots see plus what gets recorded for analysis later.</span><span class="tag">big picture</span></div>
+          <div class="idea-card"><span class="main-idea">Four main parts work together</span><span class="real-world"><span class="arrow">→</span>CDS displays, master caution, aural warnings, and flight data recorder.</span><span class="tag blue">system map</span></div>
+          <div class="idea-card"><span class="main-idea">Display issues are usually NOT the display</span><span class="real-world"><span class="arrow">→</span>Trace back to DEU, power, or data input first.</span><span class="tag purple">real mx reality</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🖥️</div><h2>CDS — Common Display System</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">6 identical Display Units run the cockpit</span><span class="real-world"><span class="arrow">→</span>PFD, ND, engine, and systems displays — all interchangeable.</span><span class="tag">core layout</span></div>
+          <div class="idea-card"><span class="main-idea">Two DEUs are the brains</span><span class="real-world"><span class="arrow">→</span>Both DEUs feed all 6 displays for full redundancy.</span><span class="tag green">redundancy</span></div>
+          <div class="idea-card"><span class="main-idea">Data flow: System → DEU → video → DU</span><span class="real-world"><span class="arrow">→</span>Coax couplers split the signal to all six screens.</span><span class="tag blue">data path</span></div>
+          <div class="idea-card"><span class="main-idea">Position pins tell each DU where it lives</span><span class="real-world"><span class="arrow">→</span>If position not detected, the display goes blank.</span><span class="tag">trouble clue</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔄</div><h2>Automatic Reversion Logic</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">If a display fails, another takes over automatically</span><span class="real-world"><span class="arrow">→</span>System reconfigures itself — don't assume multiple failures.</span><span class="tag green">auto recover</span></div>
+          <div class="idea-card"><span class="main-idea">Outboard PFD fail → shows on inboard DU</span><span class="real-world"><span class="arrow">→</span>Common reversion you'll see on the flight deck.</span><span class="tag">example</span></div>
+          <div class="idea-card"><span class="main-idea">Display Source Selector forces all to one DEU</span><span class="real-world"><span class="arrow">→</span>ALL ON 1 or ALL ON 2 — great for isolating DEU faults.</span><span class="tag">troubleshoot tool</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">⚠️</div><h2>CDS Fault Messages — Know These</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">CDS FAULT = major problem</span><span class="real-world"><span class="arrow">→</span>DEU failure or DEU mismatch. Big clue.</span><span class="tag">high priority</span></div>
+          <div class="idea-card"><span class="main-idea">CDS MAINT = partial failure</span><span class="real-world"><span class="arrow">→</span>One circuit card failed. System still works.</span><span class="tag">minor fault</span></div>
+          <div class="idea-card"><span class="main-idea">DSPLY SOURCE 1/2 = all displays on one DEU</span><span class="real-world"><span class="arrow">→</span>Configuration message, not always a fault.</span><span class="tag blue">config info</span></div>
+          <div class="idea-card"><span class="main-idea">INSTR SWITCH = both sides on same IR</span><span class="real-world"><span class="arrow">→</span>Not a fault — just a configuration notice.</span><span class="tag green">not a fault</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔔</div><h2>Master Caution System</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Takes inputs from many systems</span><span class="real-world"><span class="arrow">→</span>Turns on MASTER CAUTION plus the system annunciator.</span><span class="tag">alert path</span></div>
+          <div class="idea-card"><span class="main-idea">Ground signal = light ON</span><span class="real-world"><span class="arrow">→</span>Most systems trigger master caution with a ground signal.</span><span class="tag">logic basics</span></div>
+          <div class="idea-card"><span class="main-idea">Recall button shows all active faults</span><span class="real-world"><span class="arrow">→</span>Use it after a master caution reset to review everything.</span><span class="tag">useful tool</span></div>
+          <div class="idea-card"><span class="main-idea">Start at the system annunciator</span><span class="real-world"><span class="arrow">→</span>It tells you which ATA chapter to look at first.</span><span class="tag purple">troubleshoot start</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔊</div><h2>Aural Warning System</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Single module produces ALL sounds</span><span class="real-world"><span class="arrow">→</span>Warnings, chimes, horns — one box does it all.</span><span class="tag">central source</span></div>
+          <div class="idea-card"><span class="main-idea">Triggered by discrete inputs</span><span class="real-world"><span class="arrow">→</span>Various systems send ground signals to the module.</span><span class="tag">input logic</span></div>
+          <div class="idea-card"><span class="main-idea">Takeoff warning if config is wrong</span><span class="real-world"><span class="arrow">→</span>Flaps, trim, or spoilers in wrong position triggers it.</span><span class="tag">TO config</span></div>
+          <div class="idea-card"><span class="main-idea">Some warnings cannot be silenced</span><span class="real-world"><span class="arrow">→</span>Safety-critical sounds always play through.</span><span class="tag">safety</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">📊</div><h2>Flight Data Recorder System</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Records last ~25 hours of aircraft data</span><span class="real-world"><span class="arrow">→</span>Crash and fire resistant unit.</span><span class="tag">core function</span></div>
+          <div class="idea-card"><span class="main-idea">FDAU collects, FDR stores</span><span class="real-world"><span class="arrow">→</span>QAR is optional for maintenance data collection.</span><span class="tag blue">components</span></div>
+          <div class="idea-card"><span class="main-idea">Runs automatically when engine running or in air</span><span class="real-world"><span class="arrow">→</span>No pilot action needed — fully automatic.</span><span class="tag">auto operation</span></div>
+          <div class="idea-card"><span class="main-idea">Most FDR issues are FDAU related</span><span class="real-world"><span class="arrow">→</span>The data acquisition unit fails more often than the recorder.</span><span class="tag purple">real mx reality</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🕒</div><h2>Clock & Printer</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Captain clock feeds time to many systems</span><span class="real-world"><span class="arrow">→</span>FMC, FDR, and others use clock time.</span><span class="tag">time master</span></div>
+          <div class="idea-card"><span class="main-idea">Uses GPS time (UTC) or manual setting</span><span class="real-world"><span class="arrow">→</span>GPS is the default — manual is the fallback.</span><span class="tag blue">time source</span></div>
+          <div class="idea-card"><span class="main-idea">Printer FLT light = paper or cover issue</span><span class="real-world"><span class="arrow">→</span>Low paper or cover open are the usual suspects.</span><span class="tag">common faults</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔧</div><h2>Maintenance / Troubleshooting Gold</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Most CDS issues = DEU or input, not screen</span><span class="real-world"><span class="arrow">→</span>Don't swap displays first — check the data source.</span><span class="tag">best practice</span></div>
+          <div class="idea-card"><span class="main-idea">Check power before replacing LRUs</span><span class="real-world"><span class="arrow">→</span>28VDC bus issues can mimic system faults.</span><span class="tag">check first</span></div>
+          <div class="idea-card"><span class="main-idea">PFD flags = bad data, not bad display</span><span class="real-world"><span class="arrow">→</span>ATT, SPD, ALT flags point to the sensor.</span><span class="tag purple">real mx reality</span></div>
+          <div class="idea-card"><span class="main-idea">Holdup power loss triggers CDS FAULT</span><span class="real-world"><span class="arrow">→</span>A power glitch will show as a CDS fault message.</span><span class="tag">hidden cause</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="memory-map">
+      <h2>🧠 Simple Way to Remember ATA 31</h2>
+      <div class="map-grid">
+        <div class="map-card"><div class="map-number">1</div><div class="map-title">Display</div><ul><li>CDS</li><li>DUs + DEUs</li><li>EFIS control</li></ul></div>
+        <div class="map-card"><div class="map-number">2</div><div class="map-title">Alert</div><ul><li>Master caution</li><li>Aural warning</li><li>Annunciators</li></ul></div>
+        <div class="map-card"><div class="map-number">3</div><div class="map-title">Record</div><ul><li>FDR</li><li>FDAU</li><li>QAR</li></ul></div>
+      </div>
+
+      <h2 style="margin-top:24px;">🔥 Real Line MX Takeaways</h2>
+      <div class="fail-list">
+        <div class="fail-chip">CDS issues = DEU or input<br><small>rarely the screen itself</small></div>
+        <div class="fail-chip">PFD flags = bad sensor data<br><small>not display fault</small></div>
+        <div class="fail-chip">Auto reversion happens<br><small>don't assume multi-failure</small></div>
+        <div class="fail-chip">FDR issues = FDAU<br><small>data source, not recorder</small></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    B737 ATA 31 Indicating &amp; Recording quick-study page • Built for line-maintenance brain speed.
+  </footer>
+</body>
+</html>

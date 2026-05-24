@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>B737 ATA 23 Main Points</title>
+  <style>
+    :root {
+      --bg: #050505;
+      --panel: #101010;
+      --panel2: #17110a;
+      --orange: #ff9f1c;
+      --amber: #ffd27f;
+      --soft: rgba(255, 159, 28, 0.18);
+      --line: rgba(255, 159, 28, 0.55);
+      --white: #f7efe4;
+      --muted: #bda777;
+      --red: #ff5f56;
+      --blue: #62d8ff;
+      --green: #8cffb1;
+      --purple: #b58cff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--white);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(255,159,28,0.22), transparent 28%),
+        radial-gradient(circle at 85% 20%, rgba(98,216,255,0.13), transparent 26%),
+        radial-gradient(circle at 50% 100%, rgba(181,140,255,0.12), transparent 28%),
+        linear-gradient(135deg, #000, #080808 45%, #130b02);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,159,28,0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,159,28,0.045) 1px, transparent 1px);
+      background-size: 46px 46px;
+      mask-image: radial-gradient(circle at center, black, transparent 82%);
+    }
+
+    header {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 36px 18px 18px;
+      text-align: center;
+      position: relative;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--amber);
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.55);
+      border-radius: 999px;
+      padding: 8px 14px;
+      box-shadow: 0 0 22px var(--soft);
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      font-size: .8rem;
+    }
+
+    h1 {
+      margin: 18px 0 8px;
+      color: var(--orange);
+      font-size: clamp(2rem, 6vw, 4.9rem);
+      line-height: .96;
+      text-shadow: 0 0 18px rgba(255,159,28,.38), 0 0 42px rgba(255,159,28,.16);
+    }
+
+    .subtitle {
+      max-width: 850px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.55;
+    }
+
+    .hero-strip {
+      max-width: 1180px;
+      margin: 24px auto 8px;
+      padding: 0 18px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .hero-card {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,159,28,.1), rgba(0,0,0,.72));
+      border-radius: 22px;
+      padding: 20px;
+      min-height: 140px;
+      position: relative;
+      overflow: hidden;
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    }
+
+    .hero-card:hover {
+      transform: translateY(-8px) scale(1.015);
+      box-shadow: 0 0 34px rgba(255,159,28,.24);
+      border-color: var(--orange);
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      right: -58px;
+      bottom: -58px;
+      border: 1px solid rgba(255,159,28,.28);
+      border-radius: 50%;
+    }
+
+    .hero-icon { font-size: 2.2rem; margin-bottom: 8px; }
+    .hero-title { color: var(--amber); font-size: 1.25rem; font-weight: 900; }
+    .hero-text { color: var(--muted); margin-top: 8px; line-height: 1.42; }
+
+    main {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 22px 18px 48px;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .system-section {
+      border: 1px solid var(--line);
+      background: rgba(9,9,9,.88);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: 0 0 30px rgba(0,0,0,.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .system-section::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--orange), var(--blue), transparent);
+      opacity: .75;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: radial-gradient(circle at top, rgba(255,159,28,.28), rgba(0,0,0,.75));
+      font-size: 1.65rem;
+      box-shadow: inset 0 0 18px rgba(255,159,28,.12);
+    }
+
+    h2 {
+      margin: 0;
+      color: var(--orange);
+      font-size: 1.2rem;
+      letter-spacing: .01em;
+    }
+
+    .cards { display: grid; gap: 10px; position: relative; z-index: 1; }
+
+    .idea-card {
+      border: 1px solid rgba(255,159,28,.28);
+      background: linear-gradient(135deg, rgba(255,159,28,.06), rgba(255,255,255,.02));
+      border-radius: 16px;
+      padding: 13px 14px;
+      transition: transform .22s ease, box-shadow .22s ease, background .22s ease, border-color .22s ease;
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .idea-card:hover {
+      transform: translateX(8px) scale(1.025);
+      border-color: var(--orange);
+      background: linear-gradient(135deg, rgba(255,159,28,.18), rgba(98,216,255,.06));
+      box-shadow: 0 0 26px rgba(255,159,28,.21);
+    }
+
+    .idea-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,.08), transparent);
+      transform: translateX(-120%);
+      transition: transform .55s ease;
+    }
+
+    .idea-card:hover::after { transform: translateX(120%); }
+
+    .main-idea { display: block; color: var(--amber); font-weight: 900; font-size: 1rem; margin-bottom: 5px; }
+    .arrow { color: var(--orange); font-weight: 900; margin-right: 4px; }
+    .real-world { display: block; color: #ead9b8; line-height: 1.42; font-size: .96rem; }
+
+    .tag {
+      display: inline-block;
+      margin-top: 8px;
+      color: #111;
+      background: var(--orange);
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: .72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .memory-map {
+      margin-top: 20px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 22px;
+      background: linear-gradient(135deg, rgba(255,159,28,.1), rgba(0,0,0,.72));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .memory-map h2 { font-size: 1.45rem; margin-bottom: 14px; }
+
+    .map-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .map-card {
+      border: 1px solid rgba(255,159,28,.38);
+      border-radius: 20px;
+      padding: 18px;
+      background: rgba(0,0,0,.55);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+
+    .map-card:hover {
+      transform: translateY(-7px) rotate(-.5deg);
+      box-shadow: 0 0 28px rgba(98,216,255,.16), 0 0 34px rgba(255,159,28,.12);
+    }
+
+    .map-number { color: var(--blue); font-size: 2rem; font-weight: 900; }
+    .map-title { color: var(--amber); font-weight: 900; font-size: 1.2rem; margin: 4px 0 8px; }
+    .map-card ul { margin: 0; padding-left: 18px; color: #ead9b8; line-height: 1.65; }
+
+    .fail-list {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .fail-chip {
+      border: 1px solid rgba(255,95,86,.55);
+      background: rgba(255,95,86,.08);
+      color: #ffd6d3;
+      padding: 14px;
+      border-radius: 16px;
+      font-weight: 800;
+      text-align: center;
+      transition: transform .2s ease, background .2s ease;
+    }
+
+    .fail-chip:hover { transform: scale(1.06); background: rgba(255,95,86,.18); }
+
+    footer { text-align: center; color: var(--muted); padding: 26px 18px 38px; }
+
+    @media (max-width: 1050px) {
+      .hero-strip, .map-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .fail-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 900px) { .section-grid { grid-template-columns: 1fr; } }
+
+    @media (max-width: 520px) {
+      main { padding: 18px 10px 34px; }
+      header { padding-top: 24px; }
+      .hero-strip, .map-grid, .fail-list { grid-template-columns: 1fr; }
+      .system-section, .memory-map { border-radius: 18px; padding: 14px; }
+      .idea-card:hover { transform: scale(1.015); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">✅ B737 ATA 23 • Simplified Main Points</div>
+    <h1>Communications Made Line-Mechanic Simple</h1>
+    <p class="subtitle">Hover over each idea. Think of ATA 23 as the airplane’s talk, hear, notify, record, and emergency communication network.</p>
+  </header>
+
+  <section class="hero-strip">
+    <div class="hero-card"><div class="hero-icon">🎙️</div><div class="hero-title">Talk</div><div class="hero-text">VHF, HF, and SATCOM move voice and data outside the airplane.</div></div>
+    <div class="hero-card"><div class="hero-icon">🎧</div><div class="hero-title">Hear</div><div class="hero-text">ACP and REU route audio, mic inputs, monitoring, and interphone.</div></div>
+    <div class="hero-card"><div class="hero-icon">🔔</div><div class="hero-title">Notify</div><div class="hero-text">SELCAL, PA, calls, and chimes alert the crew and cabin.</div></div>
+    <div class="hero-card"><div class="hero-icon">🚨</div><div class="hero-title">Emergency</div><div class="hero-text">CVR, ELT, and emergency audio keep critical functions alive.</div></div>
+  </section>
+
+  <main>
+    <section class="section-grid">
+      <div class="system-section"><div class="section-head"><div class="section-icon">🧠</div><h2>Big Picture — How ATA 23 Works</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">REU = the audio brain of the airplane</span><span class="real-world"><span class="arrow">→</span>Routes mic audio, radio audio, interphone, and alerts.</span><span class="tag">core box</span></div>
+        <div class="idea-card"><span class="main-idea">ACP = where crew controls everything</span><span class="real-world"><span class="arrow">→</span>Select radios, volume, transmit, and monitor from here.</span></div>
+        <div class="idea-card"><span class="main-idea">Everything audio passes through REU first</span><span class="real-world"><span class="arrow">→</span>If audio gets weird across systems, suspect REU early.</span><span class="tag">quick clue</span></div>
+      </div></div>
+
+      <div class="system-section"><div class="section-head"><div class="section-icon">🎧</div><h2>Audio Control — ACP</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">Transmit on only one system at a time</span><span class="real-world"><span class="arrow">→</span>The transmitter selector decides where your mic goes.</span></div>
+        <div class="idea-card"><span class="main-idea">Listen to multiple systems at once</span><span class="real-world"><span class="arrow">→</span>Receiver switches let the crew monitor several sources.</span></div>
+        <div class="idea-card"><span class="main-idea">PTT sends audio to the selected system</span><span class="real-world"><span class="arrow">→</span>Wrong selector = talking on the wrong radio.</span><span class="tag">common write-up</span></div>
+        <div class="idea-card"><span class="main-idea">ALT mode = emergency bypass mode</span><span class="real-world"><span class="arrow">→</span>Direct mic to VHF radios with less system dependency.</span></div>
+      </div></div>
+
+      <div class="system-section"><div class="section-head"><div class="section-icon">⚠️</div><h2>Emergency Audio Logic</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">Emergency mode bypasses REU logic</span><span class="real-world"><span class="arrow">→</span>Keeps basic communication alive even with failures.</span><span class="tag">highly testable</span></div>
+        <div class="idea-card"><span class="main-idea">Captain / Observer → VHF 1</span><span class="real-world"><span class="arrow">→</span>Hard-wired backup routing.</span></div>
+        <div class="idea-card"><span class="main-idea">First Officer → VHF 2</span><span class="real-world"><span class="arrow">→</span>Separate hard-wired backup path.</span></div>
+      </div></div>
+
+      <div class="system-section"><div class="section-head"><div class="section-icon">📡</div><h2>Radio Systems — VHF / HF</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">VHF = primary communication system</span><span class="real-world"><span class="arrow">→</span>Line-of-sight radio, used constantly in normal operations.</span></div>
+        <div class="idea-card"><span class="main-idea">HF = long-range communication</span><span class="real-world"><span class="arrow">→</span>Uses antenna coupler tuning to match the antenna.</span></div>
+        <div class="idea-card"><span class="main-idea">HF tuning tone for a few seconds is normal</span><span class="real-world"><span class="arrow">→</span>That 1 kHz tone means the system is matching the antenna.</span></div>
+        <div class="idea-card"><span class="main-idea">HF tone over 15 seconds = likely fault</span><span class="real-world"><span class="arrow">→</span>Big troubleshooting clue. Don’t ignore it.</span><span class="tag">line mx clue</span></div>
+      </div></div>
+
+      <div class="system-section"><div class="section-head"><div class="section-icon">📟</div><h2>Radio Control Panel — RCP</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">Any RCP can control any radio</span><span class="real-world"><span class="arrow">→</span>Flexible control if a panel or radio path has problems.</span></div>
+        <div class="idea-card"><span class="main-idea">PANEL FAIL = bad RCP</span><span class="real-world"><span class="arrow">→</span>The control panel itself is the suspect.</span></div>
+        <div class="idea-card"><span class="main-idea">FAIL FAIL = bad transceiver</span><span class="real-world"><span class="arrow">→</span>The radio box is likely the problem.</span></div>
+        <div class="idea-card"><span class="main-idea">---- ---- = no comm/data connection</span><span class="real-world"><span class="arrow">→</span>Huge quick-isolation clue during troubleshooting.</span><span class="tag">huge</span></div>
+      </div></div>
+
+      <div class="system-section"><div class="section-head"><div class="section-icon">🔔</div><h2>SELCAL — Selective Calling</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">SELCAL = radio call without listening</span><span class="real-world"><span class="arrow">→</span>Ground sends a coded tone to alert the crew.</span></div>
+        <div class="idea-card"><span class="main-idea">Triggers chime + light on ACP</span><span class="real-world"><span class="arrow">→</span>Crew then answers manually on the proper radio.</span></div>
+      </div></div>
+
+      <div class="system-section"><div class="section-head"><div class="section-icon">🧑‍✈️</div><h2>Interphone Systems</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">Flight interphone = cockpit communication</span><span class="real-world"><span class="arrow">→</span>Used between flight deck crew positions.</span></div>
+        <div class="idea-card"><span class="main-idea">Service interphone = crew + ground communication</span><span class="real-world"><span class="arrow">→</span>Connects cabin/crew/ground service points.</span></div>
+        <div class="idea-card"><span class="main-idea">Ground interphone requires switch ON</span><span class="real-world"><span class="arrow">→</span>Aft overhead switch OFF is a classic no-ground-comm trap.</span><span class="tag">common mistake</span></div>
+      </div></div>
+
+      <div class="system-section"><div class="section-head"><div class="section-icon">📣</div><h2>Passenger Address — PA</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">PA system uses priority logic</span><span class="real-world"><span class="arrow">→</span>Cockpit beats attendant, attendant beats music.</span></div>
+        <div class="idea-card"><span class="main-idea">Only one audio source at a time</span><span class="real-world"><span class="arrow">→</span>No mixing. Highest priority wins.</span></div>
+        <div class="idea-card"><span class="main-idea">Chimes tell you the event type</span><span class="real-world"><span class="arrow">→</span>High = call, low = signs, high/low = crew call.</span><span class="tag">listen clue</span></div>
+      </div></div>
+
+      <div class="system-section"><div class="section-head"><div class="section-icon">📡</div><h2>ACARS — Data System</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">ACARS = text/data messaging system</span><span class="real-world"><span class="arrow">→</span>Sends information to and from the airline.</span></div>
+        <div class="idea-card"><span class="main-idea">Uses VHF radio for data link</span><span class="real-world"><span class="arrow">→</span>It shares the communication radio system.</span></div>
+        <div class="idea-card"><span class="main-idea">MSG light = incoming message</span><span class="real-world"><span class="arrow">→</span>Always check the CDU.</span></div>
+      </div></div>
+
+      <div class="system-section"><div class="section-head"><div class="section-icon">🛰️</div><h2>SATCOM — Long-Range Voice/Data</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">SATCOM = global voice + data via satellite</span><span class="real-world"><span class="arrow">→</span>Works where VHF/HF may not, including polar areas.</span></div>
+        <div class="idea-card"><span class="main-idea">Controlled through CDU + ACP</span><span class="real-world"><span class="arrow">→</span>Not a fully standalone control setup.</span></div>
+        <div class="idea-card"><span class="main-idea">Signal delays or drops can be normal</span><span class="real-world"><span class="arrow">→</span>Don’t call everything a fault too fast.</span><span class="tag">don’t chase ghosts</span></div>
+      </div></div>
+
+      <div class="system-section"><div class="section-head"><div class="section-icon">🎙️</div><h2>Voice Recorder — CVR</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">Records the last 120 minutes of audio</span><span class="real-world"><span class="arrow">→</span>Captures recent flight deck audio.</span></div>
+        <div class="idea-card"><span class="main-idea">Records 4 channels</span><span class="real-world"><span class="arrow">→</span>Captain mic, FO mic, observer mic, and cockpit area mic.</span></div>
+        <div class="idea-card"><span class="main-idea">Erase only on ground with parking brake set</span><span class="real-world"><span class="arrow">→</span>Safety logic prevents accidental erase.</span></div>
+        <div class="idea-card"><span class="main-idea">RIPS backup power ≈ 10 minutes</span><span class="real-world"><span class="arrow">→</span>Keeps recording after power loss.</span></div>
+      </div></div>
+
+      <div class="system-section"><div class="section-head"><div class="section-icon">🚨</div><h2>ELT — Emergency Locator</h2></div><div class="cards">
+        <div class="idea-card"><span class="main-idea">Auto-activates on impact</span><span class="real-world"><span class="arrow">→</span>G-switch triggers the transmitter.</span></div>
+        <div class="idea-card"><span class="main-idea">Can also be manually activated</span><span class="real-world"><span class="arrow">→</span>Cockpit panel gives crew control.</span></div>
+        <div class="idea-card"><span class="main-idea">121.5 / 243 MHz = homing</span><span class="real-world"><span class="arrow">→</span>Used to help locate the aircraft locally.</span></div>
+        <div class="idea-card"><span class="main-idea">406 MHz = satellite tracking</span><span class="real-world"><span class="arrow">→</span>Gives more accurate location, about 3 km.</span><span class="tag">rescue signal</span></div>
+      </div></div>
+    </section>
+
+    <section class="memory-map">
+      <h2>🧠 Easy Way to Remember ATA 23</h2>
+      <div class="map-grid">
+        <div class="map-card"><div class="map-number">1</div><div class="map-title">Talk</div><ul><li>VHF</li><li>HF</li><li>SATCOM</li></ul></div>
+        <div class="map-card"><div class="map-number">2</div><div class="map-title">Hear</div><ul><li>ACP</li><li>REU</li><li>Interphone</li></ul></div>
+        <div class="map-card"><div class="map-number">3</div><div class="map-title">Notify</div><ul><li>SELCAL</li><li>PA</li><li>Chimes</li></ul></div>
+        <div class="map-card"><div class="map-number">4</div><div class="map-title">Record & Emergency</div><ul><li>CVR</li><li>ELT</li><li>Emergency audio</li></ul></div>
+      </div>
+
+      <h2 style="margin-top:24px;">🔥 Real Line MX Takeaways</h2>
+      <div class="fail-list">
+        <div class="fail-chip">REU issues = weird audio everywhere</div>
+        <div class="fail-chip">RCP FAIL messages isolate fast</div>
+        <div class="fail-chip">Wrong ACP selection = no comm</div>
+        <div class="fail-chip">Service interphone switch OFF</div>
+        <div class="fail-chip">SATCOM drops may be normal</div>
+      </div>
+    </section>
+  </main>
+
+  <footer>B737 ATA 23 quick-study page • Built for line-maintenance brain speed, not PowerPoint pain.</footer>
+</body>
+</html>

@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>B737 ATA 71-80 Main Points</title>
+  <style>
+    :root {
+      --bg: #050505;
+      --panel: #101010;
+      --panel2: #17110a;
+      --orange: #ff9f1c;
+      --amber: #ffd27f;
+      --soft: rgba(255, 159, 28, 0.18);
+      --line: rgba(255, 159, 28, 0.55);
+      --white: #f7efe4;
+      --muted: #bda777;
+      --red: #ff5f56;
+      --blue: #62d8ff;
+      --green: #8cffb1;
+      --purple: #b794ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--white);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(255,159,28,0.22), transparent 28%),
+        radial-gradient(circle at 85% 20%, rgba(98,216,255,0.13), transparent 26%),
+        radial-gradient(circle at 50% 90%, rgba(183,148,255,0.12), transparent 25%),
+        linear-gradient(135deg, #000, #080808 45%, #130b02);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,159,28,0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,159,28,0.045) 1px, transparent 1px);
+      background-size: 46px 46px;
+      mask-image: radial-gradient(circle at center, black, transparent 82%);
+    }
+
+    header {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 36px 18px 18px;
+      text-align: center;
+      position: relative;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--amber);
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.55);
+      border-radius: 999px;
+      padding: 8px 14px;
+      box-shadow: 0 0 22px var(--soft);
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      font-size: .8rem;
+    }
+
+    h1 {
+      margin: 18px 0 8px;
+      color: var(--orange);
+      font-size: clamp(2rem, 6vw, 4.9rem);
+      line-height: .96;
+      text-shadow: 0 0 18px rgba(255,159,28,.38), 0 0 42px rgba(255,159,28,.16);
+    }
+
+    .subtitle {
+      max-width: 900px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.55;
+    }
+
+    .hero-strip {
+      max-width: 1180px;
+      margin: 24px auto 8px;
+      padding: 0 18px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .hero-card {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,159,28,.1), rgba(0,0,0,.72));
+      border-radius: 22px;
+      padding: 20px;
+      min-height: 140px;
+      position: relative;
+      overflow: hidden;
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    }
+
+    .hero-card:hover {
+      transform: translateY(-8px) scale(1.015);
+      box-shadow: 0 0 34px rgba(255,159,28,.24);
+      border-color: var(--orange);
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      right: -58px;
+      bottom: -58px;
+      border: 1px solid rgba(255,159,28,.28);
+      border-radius: 50%;
+    }
+
+    .hero-icon { font-size: 2.2rem; margin-bottom: 8px; }
+    .hero-title { color: var(--amber); font-size: 1.25rem; font-weight: 900; }
+    .hero-text { color: var(--muted); margin-top: 8px; line-height: 1.42; }
+
+    main {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 22px 18px 48px;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .system-section {
+      border: 1px solid var(--line);
+      background: rgba(9,9,9,.88);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: 0 0 30px rgba(0,0,0,.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .system-section::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--orange), var(--blue), transparent);
+      opacity: .75;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: radial-gradient(circle at top, rgba(255,159,28,.28), rgba(0,0,0,.75));
+      font-size: 1.65rem;
+      box-shadow: inset 0 0 18px rgba(255,159,28,.12);
+    }
+
+    h2 {
+      margin: 0;
+      color: var(--orange);
+      font-size: 1.2rem;
+      letter-spacing: .01em;
+    }
+
+    .cards {
+      display: grid;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .idea-card {
+      border: 1px solid rgba(255,159,28,.28);
+      background: linear-gradient(135deg, rgba(255,159,28,.06), rgba(255,255,255,.02));
+      border-radius: 16px;
+      padding: 13px 14px;
+      transition: transform .22s ease, box-shadow .22s ease, background .22s ease, border-color .22s ease;
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .idea-card:hover {
+      transform: translateX(8px) scale(1.025);
+      border-color: var(--orange);
+      background: linear-gradient(135deg, rgba(255,159,28,.18), rgba(98,216,255,.06));
+      box-shadow: 0 0 26px rgba(255,159,28,.21);
+    }
+
+    .idea-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,.08), transparent);
+      transform: translateX(-120%);
+      transition: transform .55s ease;
+    }
+
+    .idea-card:hover::after { transform: translateX(120%); }
+
+    .main-idea {
+      display: block;
+      color: var(--amber);
+      font-weight: 900;
+      font-size: 1rem;
+      margin-bottom: 5px;
+    }
+
+    .arrow {
+      color: var(--orange);
+      font-weight: 900;
+      margin-right: 4px;
+    }
+
+    .real-world {
+      display: block;
+      color: #ead9b8;
+      line-height: 1.42;
+      font-size: .96rem;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-top: 8px;
+      color: #111;
+      background: var(--orange);
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: .72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .tag.blue { background: var(--blue); }
+    .tag.green { background: var(--green); }
+    .tag.purple { background: var(--purple); }
+
+    .wide { grid-column: 1 / -1; }
+
+    .memory-map {
+      margin-top: 20px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 22px;
+      background: linear-gradient(135deg, rgba(255,159,28,.1), rgba(0,0,0,.72));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .memory-map h2 { font-size: 1.45rem; margin-bottom: 14px; }
+
+    .map-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .map-card {
+      border: 1px solid rgba(255,159,28,.38);
+      border-radius: 20px;
+      padding: 18px;
+      background: rgba(0,0,0,.55);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+
+    .map-card:hover {
+      transform: translateY(-7px) rotate(-.5deg);
+      box-shadow: 0 0 28px rgba(98,216,255,.16), 0 0 34px rgba(255,159,28,.12);
+    }
+
+    .map-number {
+      color: var(--blue);
+      font-size: 2rem;
+      font-weight: 900;
+    }
+
+    .map-title {
+      color: var(--amber);
+      font-weight: 900;
+      font-size: 1.2rem;
+      margin: 4px 0 8px;
+    }
+
+    .map-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #ead9b8;
+      line-height: 1.65;
+    }
+
+    .fail-list {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .fail-chip {
+      border: 1px solid rgba(255,95,86,.55);
+      background: rgba(255,95,86,.08);
+      color: #ffd6d3;
+      padding: 14px;
+      border-radius: 16px;
+      font-weight: 800;
+      text-align: center;
+      transition: transform .2s ease, background .2s ease;
+    }
+
+    .fail-chip:hover {
+      transform: scale(1.06);
+      background: rgba(255,95,86,.18);
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 26px 18px 38px;
+    }
+
+    @media (max-width: 900px) {
+      .hero-strip, .map-grid { grid-template-columns: 1fr; }
+      .section-grid { grid-template-columns: 1fr; }
+      .fail-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 520px) {
+      body { padding: 0; }
+      main { padding: 18px 10px 34px; }
+      header { padding-top: 24px; }
+      .system-section, .memory-map { border-radius: 18px; padding: 14px; }
+      .fail-list { grid-template-columns: 1fr; }
+      .idea-card:hover { transform: scale(1.015); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">✅ B737 ATA 71-80 • Powerplant</div>
+    <h1>Powerplant Made Line-Mechanic Simple</h1>
+    <p class="subtitle">Hover over each idea. ATA 71-80 isn't just "the engine" — it's a fully integrated system controlled electronically by the EEC. Follow this flow: <strong>Input (sensors) → EEC → Output (fuel/air/actuators)</strong>.</p>
+  </header>
+
+  <section class="hero-strip">
+    <div class="hero-card">
+      <div class="hero-icon">✈️</div>
+      <div class="hero-title">Make Thrust</div>
+      <div class="hero-text">CFM56-7 high-bypass turbofan. ~80% thrust from fan, ~20% from core. N1 is the main thrust indicator.</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-icon">🧠</div>
+      <div class="hero-title">Control the Engine</div>
+      <div class="hero-text">EEC runs everything — fuel, air, protection. Dual channel for redundancy. HMU is the fuel control muscle.</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-icon">🔁</div>
+      <div class="hero-title">Stop &amp; Protect</div>
+      <div class="hero-text">Thrust reverser slows the aircraft. Oil, vibration, EGT monitoring catch problems before they grow.</div>
+    </div>
+  </section>
+
+  <main>
+    <section class="section-grid">
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🧠</div><h2>Big Picture — The Engine System</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">ATA 71-80 covers the engine + everything that runs it</span><span class="real-world"><span class="arrow">→</span>Airflow, fuel, oil, indications, thrust reversers.</span><span class="tag">big picture</span></div>
+          <div class="idea-card"><span class="main-idea">Engine is electronically controlled by the EEC</span><span class="real-world"><span class="arrow">→</span>Self-contained system — EEC is everything.</span><span class="tag purple">core concept</span></div>
+          <div class="idea-card"><span class="main-idea">Engine problems often show up in other systems first</span><span class="real-world"><span class="arrow">→</span>Cross-system thinking is essential.</span><span class="tag">real mx reality</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">✈️</div><h2>Engine Core Design</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">CFM56-7 is a high-bypass turbofan</span><span class="real-world"><span class="arrow">→</span>~80% thrust from fan (bypass), ~20% from core.</span><span class="tag">design</span></div>
+          <div class="idea-card"><span class="main-idea">Two shafts: N1 and N2</span><span class="real-world"><span class="arrow">→</span>N1 = fan and LP turbine, N2 = compressor and HP turbine.</span><span class="tag blue">rotation paths</span></div>
+          <div class="idea-card"><span class="main-idea">Accessory Gear Box drives aircraft systems</span><span class="real-world"><span class="arrow">→</span>Fuel pump, IDG, hydraulic pump, oil system.</span><span class="tag">AGB role</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">⚙️</div><h2>Airflow Path</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Fan → LPC → HPC → Combustor → HPT → LPT</span><span class="real-world"><span class="arrow">→</span>Standard turbofan flow path.</span><span class="tag">flow map</span></div>
+          <div class="idea-card"><span class="main-idea">N1 = airflow = big thrust</span><span class="real-world"><span class="arrow">→</span>Fan speed is the primary thrust indicator.</span><span class="tag">key concept</span></div>
+          <div class="idea-card"><span class="main-idea">N2 = core power</span><span class="real-world"><span class="arrow">→</span>Drives accessories and the compressor.</span><span class="tag">key concept</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🧠</div><h2>EEC — Electronic Engine Control</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">EEC controls fuel, air, protection — everything</span><span class="real-world"><span class="arrow">→</span>Dual channel (A + B) for redundancy.</span><span class="tag purple">core function</span></div>
+          <div class="idea-card"><span class="main-idea">Normal, Soft Alternate, Hard Alternate modes</span><span class="real-world"><span class="arrow">→</span>Mode depends on data quality available to the EEC.</span><span class="tag">modes</span></div>
+          <div class="idea-card"><span class="main-idea">Hard Alternate = NO N1 overspeed protection</span><span class="real-world"><span class="arrow">→</span>Critical to know during dispatch decisions.</span><span class="tag">limitation</span></div>
+          <div class="idea-card"><span class="main-idea">Auto-swaps channels on failure</span><span class="real-world"><span class="arrow">→</span>Pilot rarely notices the swap happens.</span><span class="tag green">redundancy</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔥</div><h2>Engine Start & Ignition</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Bleed air spins starter at engine start</span><span class="real-world"><span class="arrow">→</span>Same air source as ATA 36 — cross-system link.</span><span class="tag">start logic</span></div>
+          <div class="idea-card"><span class="main-idea">Fuel and ignition at ~7% N2</span><span class="real-world"><span class="arrow">→</span>Starter cuts out around 55% N2.</span><span class="tag">sequence</span></div>
+          <div class="idea-card"><span class="main-idea">Hot start = high EGT — EEC cuts fuel</span><span class="real-world"><span class="arrow">→</span>Protection prevents engine damage.</span><span class="tag purple">fault clue</span></div>
+          <div class="idea-card"><span class="main-idea">Igniters create ~15-20 kV spark</span><span class="real-world"><span class="arrow">→</span>EEC decides when ignition is on.</span><span class="tag">ignition system</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">⛽</div><h2>Fuel System (Engine Side)</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">LP pump supplies, HP pump pressurizes</span><span class="real-world"><span class="arrow">→</span>Two-stage fuel pump design.</span><span class="tag">pump design</span></div>
+          <div class="idea-card"><span class="main-idea">HMU controls fuel flow per EEC commands</span><span class="real-world"><span class="arrow">→</span>Hydromechanical unit is the muscle.</span><span class="tag">control element</span></div>
+          <div class="idea-card"><span class="main-idea">HPSOV shuts off fuel for shutdown/fire</span><span class="real-world"><span class="arrow">→</span>Fire handle activates HPSOV — primary shutdown.</span><span class="tag">safety</span></div>
+          <div class="idea-card"><span class="main-idea">No fuel = no engine</span><span class="real-world"><span class="arrow">→</span>Most reliable way to shut the engine down.</span><span class="tag">key concept</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🛢️</div><h2>Oil System</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Three circuits: supply, scavenge, vent</span><span class="real-world"><span class="arrow">→</span>Standard turbine oil system layout.</span><span class="tag">design</span></div>
+          <div class="idea-card"><span class="main-idea">Oil is fuel-cooled via heat exchanger</span><span class="real-world"><span class="arrow">→</span>Crosses oil and fuel temperatures.</span><span class="tag">cooling path</span></div>
+          <div class="idea-card"><span class="main-idea">Low oil pressure = shutdown risk</span><span class="real-world"><span class="arrow">→</span>Major write-up category for in-flight events.</span><span class="tag purple">fault clue</span></div>
+          <div class="idea-card"><span class="main-idea">Debris Monitoring System finds metal early</span><span class="real-world"><span class="arrow">→</span>Tells you WHERE the failure is happening internally.</span><span class="tag green">diagnostic gold</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🌡️</div><h2>Engine Indicating</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Primary: N1, EGT, fuel flow</span><span class="real-world"><span class="arrow">→</span>Pilots watch these on every flight phase.</span><span class="tag">primary display</span></div>
+          <div class="idea-card"><span class="main-idea">Secondary: N2, oil, vibration</span><span class="real-world"><span class="arrow">→</span>Secondary indications for health monitoring.</span><span class="tag blue">secondary display</span></div>
+          <div class="idea-card"><span class="main-idea">White/amber/red color logic</span><span class="real-world"><span class="arrow">→</span>Tells you immediately if a parameter is in limit.</span><span class="tag">display logic</span></div>
+          <div class="idea-card"><span class="main-idea">8 thermocouples average EGT</span><span class="real-world"><span class="arrow">→</span>EEC uses the averaged value for control.</span><span class="tag">sensor design</span></div>
+          <div class="idea-card"><span class="main-idea">AVM tracks vibration over 32 flights</span><span class="real-world"><span class="arrow">→</span>High vibration = imbalance or internal damage.</span><span class="tag">trend monitoring</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔄</div><h2>Engine Air System</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">VSV controls compressor inlet air</span><span class="real-world"><span class="arrow">→</span>Adjusts based on engine speed and conditions.</span><span class="tag">compressor control</span></div>
+          <div class="idea-card"><span class="main-idea">VBV dumps excess air to prevent stall</span><span class="real-world"><span class="arrow">→</span>Critical during acceleration and transients.</span><span class="tag">stall protection</span></div>
+          <div class="idea-card"><span class="main-idea">TBV assists during start and acceleration</span><span class="real-world"><span class="arrow">→</span>Smooths airflow during difficult operating points.</span><span class="tag">transient aid</span></div>
+          <div class="idea-card"><span class="main-idea">Clearance control adjusts turbine gaps</span><span class="real-world"><span class="arrow">→</span>HPTACC and LPTACC keep efficiency high.</span><span class="tag">efficiency</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔁</div><h2>Thrust Reverser</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Redirects fan air forward to slow the aircraft</span><span class="real-world"><span class="arrow">→</span>Translating sleeve plus blocker doors.</span><span class="tag">mechanism</span></div>
+          <div class="idea-card"><span class="main-idea">Deploys only with proper air/ground signals</span><span class="real-world"><span class="arrow">→</span>On ground and below 10 ft — interlock protected.</span><span class="tag purple">safety logic</span></div>
+          <div class="idea-card"><span class="main-idea">Auto-restow forces stowage if unsafe</span><span class="real-world"><span class="arrow">→</span>Big safety feature — prevents in-flight deploy.</span><span class="tag">protection</span></div>
+          <div class="idea-card"><span class="main-idea">REV light = green = fully deployed</span><span class="real-world"><span class="arrow">→</span>Amber = in transit. Fault light = system problem.</span><span class="tag">indications</span></div>
+          <div class="idea-card"><span class="main-idea">REVERSER faults = often sensor or sync lock</span><span class="real-world"><span class="arrow">→</span>Mechanical sleeve failures are less common.</span><span class="tag">real mx reality</span></div>
+        </div>
+      </div>
+
+      <div class="system-section">
+        <div class="section-head"><div class="section-icon">🔧</div><h2>Maintenance / Troubleshooting Gold</h2></div>
+        <div class="cards">
+          <div class="idea-card"><span class="main-idea">Most engine issues = sensors or EEC logic</span><span class="real-world"><span class="arrow">→</span>Not mechanical failures most of the time.</span><span class="tag purple">real mx reality</span></div>
+          <div class="idea-card"><span class="main-idea">EEC is everything — check modes and data first</span><span class="real-world"><span class="arrow">→</span>BITE pages tell you what the EEC sees.</span><span class="tag">best practice</span></div>
+          <div class="idea-card"><span class="main-idea">Hot starts and EGT exceedances are high priority</span><span class="real-world"><span class="arrow">→</span>Always investigate — don't just reset.</span><span class="tag">critical events</span></div>
+          <div class="idea-card"><span class="main-idea">Many "engine" write-ups are ATA 36 problems</span><span class="real-world"><span class="arrow">→</span>Bleed issues cascade into engine performance.</span><span class="tag">cross-system</span></div>
+          <div class="idea-card"><span class="main-idea">ENGINE CONTROL light = no dispatch</span><span class="real-world"><span class="arrow">→</span>Serious fault that grounds the aircraft.</span><span class="tag">dispatch impact</span></div>
+          <div class="idea-card"><span class="main-idea">Follow: input (sensors) → EEC → output (fuel/air)</span><span class="real-world"><span class="arrow">→</span>Logical diagnostic order for any engine fault.</span><span class="tag blue">diagnostic flow</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="memory-map">
+      <h2>🧠 Simple Way to Remember ATA 71-80</h2>
+      <div class="map-grid">
+        <div class="map-card"><div class="map-number">1</div><div class="map-title">Make Thrust</div><ul><li>Fan + core</li><li>N1 / N2 shafts</li><li>Accessory drive</li></ul></div>
+        <div class="map-card"><div class="map-number">2</div><div class="map-title">Control</div><ul><li>EEC</li><li>HMU</li><li>Air system valves</li></ul></div>
+        <div class="map-card"><div class="map-number">3</div><div class="map-title">Protect &amp; Stop</div><ul><li>Oil + sensors</li><li>Indications</li><li>Thrust reverser</li></ul></div>
+      </div>
+
+      <h2 style="margin-top:24px;">🔥 Real Line MX Takeaways</h2>
+      <div class="fail-list">
+        <div class="fail-chip">Most engine issues<br><small>= sensors or EEC</small></div>
+        <div class="fail-chip">Hot starts<br><small>high priority events</small></div>
+        <div class="fail-chip">ATA 36 problems<br><small>look like engine faults</small></div>
+        <div class="fail-chip">BITE / CDU first<br><small>before parts cannon</small></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    B737 ATA 71-80 Powerplant quick-study page • Built for line-maintenance brain speed.
+  </footer>
+</body>
+</html>
