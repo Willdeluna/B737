@@ -1249,7 +1249,7 @@
         <option value="">— Custom (fill in below) —</option>
         <option value="3dlocator">3D Location Finder</option>
         <option value="partnumbers">Common Part Numbers</option>
-        <option value="cbfinder">CB Finder</option>
+        <option value="cbfinder">Circuit Breakers</option>
         <option value="damagelimits">Damage Limits</option>
         <option value="mainpoints">Main Points (current chapter)</option>
         <option value="tribal">Tribal Knowledge (current chapter)</option>
@@ -1301,7 +1301,7 @@
 
       <label for="upPassword">GitHub token</label>
       <input type="password" id="upPassword" placeholder="ghp_… or github_pat_…" autocomplete="off" spellcheck="false">
-      <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Stored in this browser session only — gone when you close the tab. <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Create one →</a></div>
+      <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Stored in this browser session only — gone when you close the tab. <a href="https://urldefense.com/v3/__https://github.com/settings/personal-access-tokens/new__;!!O8JL6HM!nJwOIRcRIyMy5Vo2fkuyH_LZoXFW3AmNJsTXlmPqeI5t8BVikN20i20ET5fHlZDzMdO3XSKBqxI2vjV6JMGwuHsePw$" target="_blank" rel="noopener">Create one →</a></div>
 
       <div id="upStatus" class="lm-hint" style="min-height:18px;margin-top:8px;"></div>
 
@@ -1694,6 +1694,32 @@ let filterToCurrentImageDots = false;
         originalUrl: "Common_Part_Numbers.html",
         previewUrl: "Common_Part_Numbers.html",
         sortOrder: 7.5,
+        afterItemKey: null
+      },
+      {
+        type: "quiz",
+        key: "link-thumb-cbfinder-default",
+        label: "Circuit Breakers",
+        chapter: "00",
+        imageLabel: "Circuit Breakers",
+        imageName: "cb_finder.png",
+        imageUrl: "images/00/cb_finder.png",
+        originalUrl: "cb_finder.html",
+        previewUrl: "cb_finder.html",
+        sortOrder: 6.5,
+        afterItemKey: null
+      },
+      {
+        type: "quiz",
+        key: "link-thumb-damagelimits-default",
+        label: "Damage Limits",
+        chapter: "00",
+        imageLabel: "Damage Limits",
+        imageName: "damage_srm.png",
+        imageUrl: "images/00/damage_srm.png",
+        originalUrl: "damage_srm.html",
+        previewUrl: "damage_srm.html",
+        sortOrder: 5.5,
         afterItemKey: null
       },
       {
@@ -3316,7 +3342,7 @@ let filterToCurrentImageDots = false;
           document.getElementById("lmChapter").value = "00";
           break;
         case "cbfinder":
-          labelEl.value = "CB Finder";
+          labelEl.value = "Circuit Breakers";
           urlEl.value   = "cb_finder.html";
           thumbEl.value = "images/00/cb_finder.png";
           document.getElementById("lmChapter").value = "00";
