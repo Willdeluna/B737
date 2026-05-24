@@ -3719,48 +3719,54 @@ let filterToCurrentImageDots = false;
           mediaItems = buildMediaItems(allImages);
           attachImageRowsToMediaItems();
 
-          // Reposition the uploaded image into its chapter group.
-          // The old anchor-based logic depended on whatever thumb the user had
-          // selected, which meant a saved thumbnail order in localStorage could
-          // park the new image at the end of the strip. Instead, place the new
-          // image right after the last existing item belonging to the same
-          // chapter (or right after the chapter cover if it's the first one).
-          console.log('[upload] uploadedKey=', uploadedKey, 'json.imageNumber=', json.imageNumber, 'chapter=', chapter);
+          // Reposition the uploaded image. Prefer placement right after the
+          // thumbnail the user had selected when they clicked Upload (the
+          // anchor) — that's the most intuitive behavior: "drop the new
+          // image where I was looking." Only fall back to "end of chapter"
+          // when the selection isn't in this chapter (e.g. user uploaded
+          // from chapter 24 while a chapter-25 thumb was selected).
+          console.log('[upload] uploadedKey=', uploadedKey, 'json.imageNumber=', json.imageNumber, 'chapter=', chapter, 'anchorKey=', anchorKey);
           if (uploadedKey) {
             const uploadedIdx = mediaItems.findIndex(it => it && it.key === uploadedKey);
             if (uploadedIdx >= 0) {
-              // Pull the uploaded item out of wherever applySavedThumbnailOrder
-              // put it, so we can re-insert it in the right spot.
               const [picked] = mediaItems.splice(uploadedIdx, 1);
 
-              // Find the latest index that still belongs to this chapter.
-              // We prefer landing right after the last existing chapter image
-              // (so the strip stays "cover, img1, img2, … , NEW"); failing that,
-              // we land right after the chapter cover itself.
-              // NOTE: match on chapter, not type — attachImageRowsToMediaItems()
-              // may have already promoted some "chapter" items to "image" type
-              // if they have a matching Supabase row, but their chapter field
-              // is preserved.
+              // First try: place right after the anchor (currently selected
+              // thumb), but only if the anchor is in the same chapter as
+              // the upload. Otherwise it's confusing to scatter chapter-24
+              // images into a chapter-25 group.
               let insertAfterIdx = -1;
-              for (let i = 0; i < mediaItems.length; i++) {
-                const it = mediaItems[i];
-                if (!it || it.key === uploadedKey) continue;
-                if (String(it.chapter || "") === String(chapter)) {
-                  insertAfterIdx = i;
+              if (anchorKey) {
+                const anchorIdx = mediaItems.findIndex(it => it && it.key === anchorKey);
+                if (anchorIdx >= 0) {
+                  const anchorItem = mediaItems[anchorIdx];
+                  if (String(anchorItem?.chapter || "") === String(chapter)) {
+                    insertAfterIdx = anchorIdx;
+                    console.log('[upload] using anchor placement at idx', anchorIdx);
+                  }
                 }
               }
-              console.log('[upload] insertAfterIdx=', insertAfterIdx, 'for chapter', chapter);
+
+              // Fallback: end of this chapter's group.
+              if (insertAfterIdx < 0) {
+                for (let i = 0; i < mediaItems.length; i++) {
+                  const it = mediaItems[i];
+                  if (!it || it.key === uploadedKey) continue;
+                  if (String(it.chapter || "") === String(chapter)) {
+                    insertAfterIdx = i;
+                  }
+                }
+                console.log('[upload] anchor not usable, falling back to end-of-chapter at', insertAfterIdx);
+              }
 
               if (insertAfterIdx >= 0) {
                 mediaItems.splice(insertAfterIdx + 1, 0, picked);
                 console.log('[upload] repositioned', uploadedKey, 'to index', insertAfterIdx + 1);
               } else {
-                // No chapter items in the strip at all? Put it back where it was.
                 mediaItems.splice(uploadedIdx, 0, picked);
                 console.warn('[upload] chapter', chapter, 'not found in mediaItems, kept natural slot');
               }
 
-              // Persist so the placement survives reloads (and future rebuilds).
               try { saveThumbnailOrder(); console.log('[upload] saved order'); } catch (e) { console.warn('[upload] save failed', e); }
             } else {
               console.warn('[upload] uploadedKey not found in rebuilt mediaItems');
