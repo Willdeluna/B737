@@ -1301,7 +1301,7 @@
 
       <label for="upPassword">GitHub token</label>
       <input type="password" id="upPassword" placeholder="ghp_… or github_pat_…" autocomplete="off" spellcheck="false">
-      <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Stored in this browser session only — gone when you close the tab. <a href="https://urldefense.com/v3/__https://github.com/settings/personal-access-tokens/new__;!!O8JL6HM!m0JH36lcb9nMLZs2e2FRItdwWop-9-2SRVQkghPth3FKNNGKYLoX8FGZr1CwJjTVAig6G4H1alnOO_mksPc4Vkjo5A$" target="_blank" rel="noopener">Create one →</a></div>
+      <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Stored in this browser session only — gone when you close the tab. <a href="https://urldefense.com/v3/__https://github.com/settings/personal-access-tokens/new__;!!O8JL6HM!gQru8SGdUdxfr4JOBFrxQp0wYsJjXnuIOTtDkI6tSBe4hKQ2iqGUE0T5Bcs0ia4QAroA4UPqIFOkGH08srdAaVMxLw$" target="_blank" rel="noopener">Create one →</a></div>
 
       <div id="upStatus" class="lm-hint" style="min-height:18px;margin-top:8px;"></div>
 
@@ -3618,6 +3618,204 @@ let filterToCurrentImageDots = false;
       return json;
     }
 
+    // ── Cross-device state sync ──────────────────────────────────────
+    // Syncs the editor's localStorage state to a state.json file on GitHub
+    // so changes made on the PC appear on iPad/iPhone (and vice versa).
+    //
+    // - On page load: fetches state.json and applies it to localStorage
+    //   BEFORE the rest of the editor reads from localStorage.
+    // - On any change: schedules a debounced 10-second push that commits
+    //   the current state to GitHub in a single commit.
+    // - Read-only mode: if no GitHub token is present (iPad/iPhone), the
+    //   device fetches state on load but never pushes.
+    const STATE_JSON_PATH = "state.json";
+    const STATE_SYNC_KEYS = [
+      "b737EditorCustomVideos",
+      "b737EditorHiddenImageThumbs",
+      "b737EditorThumbnailOrder",
+      "b737EditorQuizThumbs",
+      "b737EditorTribalThumbs",
+      "b737EditorMainPointsThumbs",
+      "b737EditorDeletedDefaultQuizKeys",
+      // Image-dot annotations live under per-image keys like
+      // b737EditorDots:images/21/21_5.png. Those are handled by the
+      // prefix scan below; no need to list them individually.
+    ];
+    const STATE_SYNC_KEY_PREFIXES = [
+      "b737EditorDots:",
+      "b737EditorDeletedDefault",
+    ];
+
+    let _stateSyncTimer = null;
+    let _stateSyncRemoteSha = null;  // sha of last fetched state.json (for safe update)
+    let _stateSyncLoaded = false;
+    let _stateSyncInFlight = false;
+
+    function collectLocalState() {
+      const state = { keys: {} };
+      // Named keys
+      STATE_SYNC_KEYS.forEach(k => {
+        const v = localStorage.getItem(k);
+        if (v != null) state.keys[k] = v;
+      });
+      // Prefix keys (dots, deleted-default lists, etc.)
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (!k) continue;
+        if (STATE_SYNC_KEY_PREFIXES.some(p => k.startsWith(p))) {
+          if (state.keys[k] == null) {
+            state.keys[k] = localStorage.getItem(k);
+          }
+        }
+      }
+      return state;
+    }
+
+    function applyRemoteState(remoteState) {
+      if (!remoteState || !remoteState.keys) return;
+      Object.keys(remoteState.keys).forEach(k => {
+        try {
+          localStorage.setItem(k, remoteState.keys[k]);
+        } catch (err) {
+          console.warn("Could not write synced key", k, err);
+        }
+      });
+    }
+
+    async function loadRemoteState() {
+      try {
+        // Use raw.githubusercontent.com for fast, cache-busted reads.
+        // GitHub Pages can lag 30-60s; raw is immediate.
+        const { owner, repo } = detectGithubRepo();
+        const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${GITHUB_BRANCH}/${STATE_JSON_PATH}?t=${Date.now()}`;
+        const res = await fetch(rawUrl, { cache: "no-store" });
+        if (!res.ok) {
+          if (res.status !== 404) {
+            console.warn("state.json fetch returned", res.status);
+          }
+          _stateSyncLoaded = true;
+          return null;
+        }
+        const remoteState = await res.json();
+        applyRemoteState(remoteState);
+        _stateSyncLoaded = true;
+        return remoteState;
+      } catch (err) {
+        console.warn("Could not load state.json:", err);
+        _stateSyncLoaded = true;
+        return null;
+      }
+    }
+
+    async function fetchStateSha() {
+      // Get the current sha of state.json so we can update (vs create).
+      try {
+        const token = sessionStorage.getItem(UPLOAD_PW_KEY);
+        if (!token) return null;
+        const { owner, repo } = detectGithubRepo();
+        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURI(STATE_JSON_PATH)}?ref=${encodeURIComponent(GITHUB_BRANCH)}`;
+        const res = await fetch(apiUrl, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28"
+          }
+        });
+        if (res.status === 404) return null;
+        if (!res.ok) return null;
+        const json = await res.json();
+        return json.sha || null;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    async function pushStateToGitHub() {
+      if (_stateSyncInFlight) {
+        // Already pushing; schedule another push when this one finishes.
+        scheduleStateSync(2000);
+        return;
+      }
+      const token = sessionStorage.getItem(UPLOAD_PW_KEY);
+      if (!token) {
+        // Read-only device (iPad/iPhone) — silently skip.
+        return;
+      }
+      _stateSyncInFlight = true;
+      try {
+        const state = collectLocalState();
+        const stateText = JSON.stringify(state);
+        // Skip if nothing meaningful to sync (empty state)
+        if (!Object.keys(state.keys).length) {
+          _stateSyncInFlight = false;
+          return;
+        }
+        const base64 = btoa(unescape(encodeURIComponent(stateText)));
+        const { owner, repo } = detectGithubRepo();
+        const sha = _stateSyncRemoteSha || await fetchStateSha();
+        const result = await githubPutFile({
+          owner, repo,
+          path: STATE_JSON_PATH,
+          base64,
+          message: "Auto-sync editor state",
+          sha,
+          token
+        });
+        // Save the new sha for the next update
+        if (result && result.content && result.content.sha) {
+          _stateSyncRemoteSha = result.content.sha;
+        }
+        setStatus && setStatus("Synced changes to all devices");
+      } catch (err) {
+        console.warn("State sync failed:", err);
+        // On a sha mismatch (someone else updated state.json), refetch
+        // the sha and try once more on the next scheduled sync.
+        _stateSyncRemoteSha = null;
+      } finally {
+        _stateSyncInFlight = false;
+      }
+    }
+
+    function scheduleStateSync(delayMs) {
+      const delay = typeof delayMs === "number" ? delayMs : 10000;
+      if (_stateSyncTimer) clearTimeout(_stateSyncTimer);
+      _stateSyncTimer = setTimeout(() => {
+        _stateSyncTimer = null;
+        pushStateToGitHub();
+      }, delay);
+    }
+
+    // Wrap localStorage.setItem so writes to synced keys auto-schedule a push.
+    // This avoids having to find and modify every save call site in the
+    // editor — anything that writes to a synced key triggers a debounced
+    // commit automatically.
+    (function installStateSyncHook() {
+      const originalSetItem = Storage.prototype.setItem;
+      Storage.prototype.setItem = function(k, v) {
+        const result = originalSetItem.apply(this, arguments);
+        try {
+          if (this === window.localStorage) {
+            const isSyncedKey =
+              STATE_SYNC_KEYS.includes(k) ||
+              STATE_SYNC_KEY_PREFIXES.some(p => typeof k === "string" && k.startsWith(p));
+            if (isSyncedKey && _stateSyncLoaded) {
+              scheduleStateSync();
+            }
+          }
+        } catch (_) { /* noop */ }
+        return result;
+      };
+    })();
+
+    // Devtools helper: force an immediate sync push (skips the 10s debounce).
+    window.syncNow = function syncNow() {
+      if (_stateSyncTimer) {
+        clearTimeout(_stateSyncTimer);
+        _stateSyncTimer = null;
+      }
+      return pushStateToGitHub();
+    };
+
     // ── Manifest auto-update after upload ─────────────────────────────
     // After committing a new chapter image, also update images/manifest.json
     // so other devices see the new image on next page load without having
@@ -4582,6 +4780,16 @@ let filterToCurrentImageDots = false;
         // Pull cached chapter-image lists first so the initial render
         // skips the missing-image slots.
         loadChapterImageCache();
+
+        // Fetch synced state from GitHub before reading any localStorage —
+        // this is what makes iPad/iPhone show changes made on the PC.
+        await loadRemoteState();
+        // Refresh the module-level state vars from the (now-updated) localStorage
+        customVideos = loadEditorVideos();
+        customQuizThumbs = loadQuizThumbs();
+        customTribalThumbs = loadTribalThumbs();
+        customMainPointsThumbs = loadMainPointsThumbs();
+        hiddenImageThumbs = loadHiddenImageThumbs();
 
         const { data, error } = await supabaseClient
           .from("aircraft_images737")
