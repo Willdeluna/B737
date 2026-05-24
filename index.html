@@ -3439,7 +3439,7 @@ let filterToCurrentImageDots = false;
     // Override either by setting window.GITHUB_OWNER / window.GITHUB_REPO
     // in a small <script> before this one (handy when you move to a
     // custom domain later).
-    const GITHUB_REPO_FALLBACK = { owner: "willdeluna", repo: "B737" };
+    const GITHUB_REPO_FALLBACK = { owner: "Willdeluna", repo: "B737" };
     const GITHUB_BRANCH = "main";  // change to "gh-pages" if your Pages source is that branch
     const UPLOAD_PW_KEY = "b737EditorGithubToken";
 
@@ -3455,6 +3455,14 @@ let filterToCurrentImageDots = false;
         // For user/org root pages (no path prefix), repo === "<user>.github.io".
         const seg = location.pathname.split("/").filter(Boolean)[0];
         const repo = seg ? seg : `${owner}.github.io`;
+        // Hostnames are lowercase, but GitHub repo paths preserve casing
+        // and fine-grained tokens are scoped to the exact-cased path.
+        // If the URL-derived owner/repo (case-insensitively) matches the
+        // hardcoded fallback, prefer the fallback's casing — it's known good.
+        if (owner.toLowerCase() === GITHUB_REPO_FALLBACK.owner.toLowerCase() &&
+            repo.toLowerCase() === GITHUB_REPO_FALLBACK.repo.toLowerCase()) {
+          return { owner: GITHUB_REPO_FALLBACK.owner, repo: GITHUB_REPO_FALLBACK.repo };
+        }
         return { owner, repo };
       }
       return GITHUB_REPO_FALLBACK;
