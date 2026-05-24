@@ -1301,7 +1301,7 @@
 
       <label for="upPassword">GitHub token</label>
       <input type="password" id="upPassword" placeholder="ghp_… or github_pat_…" autocomplete="off" spellcheck="false">
-      <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Stored in this browser session only — gone when you close the tab. <a href="https://urldefense.com/v3/__https://github.com/settings/personal-access-tokens/new__;!!O8JL6HM!nJwOIRcRIyMy5Vo2fkuyH_LZoXFW3AmNJsTXlmPqeI5t8BVikN20i20ET5fHlZDzMdO3XSKBqxI2vjV6JMGwuHsePw$" target="_blank" rel="noopener">Create one →</a></div>
+      <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Stored in this browser session only — gone when you close the tab. <a href="https://urldefense.com/v3/__https://github.com/settings/personal-access-tokens/new__;!!O8JL6HM!gefcsdd0ko2fIzuVx1wi9uUJDzzj7RUdXrzBYBp5y9jeFWSADMR8BMLxLO-hoYmAeP1ShceKe35WwunSkUoIsfkuPg$" target="_blank" rel="noopener">Create one →</a></div>
 
       <div id="upStatus" class="lm-hint" style="min-height:18px;margin-top:8px;"></div>
 
@@ -1449,6 +1449,47 @@
       }
     }
 
+    // ── Manifest fast path ───────────────────────────────────────────
+    // If images/manifest.json exists, use it instead of probing every
+    // numbered image URL. One request replaces up to ~1,950 HEAD-like
+    // image loads on a cold cache. Generate with the python script in
+    // the repo. Falls back to probing if the manifest is missing.
+    //
+    // Expected shape:
+    //   { "21": [1,2,3,4,5], "22": [1,2,3], ... }
+    let _manifestLoadPromise = null;
+    let _manifestLoaded = false;
+    let _manifestData = null;
+
+    function loadManifest() {
+      if (_manifestLoadPromise) return _manifestLoadPromise;
+      _manifestLoadPromise = (async () => {
+        try {
+          const res = await fetch("images/manifest.json", { cache: "no-cache" });
+          if (!res.ok) return null;
+          const data = await res.json();
+          if (data && typeof data === "object") {
+            _manifestData = data;
+            _manifestLoaded = true;
+            // Seed the in-memory cache so probeChapterImages short-circuits
+            Object.keys(data).forEach(ch => {
+              if (Array.isArray(data[ch])) {
+                chapterImageCache.set(String(ch), data[ch].map(Number));
+              }
+            });
+            // Persist so future loads on this device skip the network
+            // round trip entirely.
+            saveChapterImageCache();
+            return data;
+          }
+        } catch (err) {
+          console.warn("No images/manifest.json found — falling back to probing", err);
+        }
+        return null;
+      })();
+      return _manifestLoadPromise;
+    }
+
     // Probe one chapter for which numbered images actually exist.
     // Loads every candidate image (1..configCount) and resolves to the
     // array of imageNumbers that loaded successfully. Cached for next time.
@@ -1543,6 +1584,14 @@
     // after each chapter completes so the strip fills in progressively
     // without flicker. Boot path fires this without awaiting.
     async function probeAllChaptersInBackground() {
+      // Try the manifest fast path first. If it loads, every chapter
+      // listed in it is now in chapterImageCache and probeChapterImages
+      // will resolve from cache instantly.
+      await loadManifest();
+      if (_manifestLoaded) {
+        scheduleProbeRerender();
+      }
+
       const chapters = Object.keys(CHAPTER_FOLDER_CONFIG);
       for (const ch of chapters) {
         if (chapterImageCache.has(ch)) continue;
@@ -1558,6 +1607,9 @@
     window.rescanChapterImages = function rescanChapterImages() {
       chapterImageCache.clear();
       try { localStorage.removeItem(CHAPTER_IMAGE_CACHE_KEY); } catch (_) { /* noop */ }
+      _manifestLoadPromise = null;
+      _manifestLoaded = false;
+      _manifestData = null;
       probeAllChaptersInBackground();
     };
 
