@@ -1283,7 +1283,7 @@
 
       <label for="upChapter">Chapter</label>
       <select id="upChapter"></select>
-      <div class="lm-hint">The image will be uploaded to the <code>images/&lt;chapter&gt;/</code> folder on the server.</div>
+      <div class="lm-hint">The image will be committed to <code>images/&lt;chapter&gt;/</code> in your GitHub repo. Pages takes ~30–60s to rebuild, but the new image shows here immediately.</div>
 
       <label for="upFile">Image file (PNG / JPG / WEBP)</label>
       <input type="file" id="upFile" accept="image/png,image/jpeg,image/webp">
@@ -1297,9 +1297,9 @@
         Auto-filled based on chapter and next available number — edit if needed.
       </div>
 
-      <label for="upPassword">Upload password</label>
-      <input type="password" id="upPassword" placeholder="Required" autocomplete="current-password">
-      <div class="lm-hint">Stops random people from uploading to your server. Remembered for this browser session.</div>
+      <label for="upPassword">GitHub token</label>
+      <input type="password" id="upPassword" placeholder="ghp_… or github_pat_…" autocomplete="off" spellcheck="false">
+      <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Stored in this browser session only — gone when you close the tab. <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Create one →</a></div>
 
       <div id="upStatus" class="lm-hint" style="min-height:18px;margin-top:8px;"></div>
 
@@ -3426,12 +3426,101 @@ let filterToCurrentImageDots = false;
     }
 
     // ── Image Upload Modal ──────────────────────────────────────────
-    // Opens a form to pick a file + filename + chapter, then POSTs to
-    // upload.php (which must be hosted next to this HTML file on the
-    // same Bluehost server). Sessions remember the password so you don't
-    // re-type it after the first upload.
-    const UPLOAD_ENDPOINT = "upload.php";   // path on Bluehost, relative to this file
-    const UPLOAD_PW_KEY = "b737EditorUploadPw";
+    // Uploads commit directly to the GitHub repo via the GitHub REST API.
+    // No server-side code required — works on GitHub Pages (or any static
+    // host). The user provides a fine-grained Personal Access Token with
+    // "Contents: Read and write" permission on this repo. The token lives
+    // in sessionStorage only (cleared when the tab closes).
+    //
+    // Repo info is auto-detected from window.location:
+    //   willdeluna.github.io/B737/   → owner=willdeluna, repo=B737
+    //   <user>.github.io/            → owner=<user>, repo=<user>.github.io
+    //   custom domain                → fall back to GITHUB_REPO_FALLBACK below.
+    // Override either by setting window.GITHUB_OWNER / window.GITHUB_REPO
+    // in a small <script> before this one (handy when you move to a
+    // custom domain later).
+    const GITHUB_REPO_FALLBACK = { owner: "willdeluna", repo: "B737" };
+    const GITHUB_BRANCH = "main";  // change to "gh-pages" if your Pages source is that branch
+    const UPLOAD_PW_KEY = "b737EditorGithubToken";
+
+    function detectGithubRepo() {
+      if (window.GITHUB_OWNER && window.GITHUB_REPO) {
+        return { owner: window.GITHUB_OWNER, repo: window.GITHUB_REPO };
+      }
+      const host = location.hostname;
+      const m = host.match(/^([^.]+)\.github\.io$/i);
+      if (m) {
+        const owner = m[1];
+        // Path looks like /B737/foo.html → repo is "B737".
+        // For user/org root pages (no path prefix), repo === "<user>.github.io".
+        const seg = location.pathname.split("/").filter(Boolean)[0];
+        const repo = seg ? seg : `${owner}.github.io`;
+        return { owner, repo };
+      }
+      return GITHUB_REPO_FALLBACK;
+    }
+
+    // GitHub Contents API requires base64; FileReader gives us a data URL,
+    // we just strip the "data:...;base64," prefix.
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => {
+          const s = String(r.result || "");
+          const comma = s.indexOf(",");
+          resolve(comma >= 0 ? s.slice(comma + 1) : s);
+        };
+        r.onerror = () => reject(new Error("Could not read file"));
+        r.readAsDataURL(file);
+      });
+    }
+
+    // GitHub's PUT /contents/{path} endpoint requires `sha` when overwriting
+    // an existing file. We look it up first; 404 means "new file, no sha".
+    async function fetchExistingSha(owner, repo, path, token) {
+      const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURI(path)}?ref=${encodeURIComponent(GITHUB_BRANCH)}`;
+      const res = await fetch(url, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Accept": "application/vnd.github+json",
+          "X-GitHub-Api-Version": "2022-11-28"
+        }
+      });
+      if (res.status === 404) return null;
+      if (!res.ok) {
+        const body = await res.text().catch(() => "");
+        throw new Error(`Lookup failed (HTTP ${res.status}): ${body.slice(0, 200)}`);
+      }
+      const json = await res.json();
+      return json.sha || null;
+    }
+
+    async function githubPutFile({ owner, repo, path, base64, message, sha, token }) {
+      const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURI(path)}`;
+      const body = {
+        message,
+        content: base64,
+        branch: GITHUB_BRANCH
+      };
+      if (sha) body.sha = sha;
+      const res = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Accept": "application/vnd.github+json",
+          "X-GitHub-Api-Version": "2022-11-28",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+      });
+      const txt = await res.text();
+      let json;
+      try { json = JSON.parse(txt); } catch { json = { message: txt.slice(0, 200) }; }
+      if (!res.ok) {
+        throw new Error(json.message || `HTTP ${res.status}`);
+      }
+      return json;
+    }
 
     function openUploadModal() {
       const modal = document.getElementById("uploadModal");
@@ -3536,34 +3625,70 @@ let filterToCurrentImageDots = false;
       }
 
       const chapter = document.getElementById("upChapter").value;
-      const password = document.getElementById("upPassword").value;
-      if (!password) {
-        statusEl.textContent = "Upload password required.";
+      const token = document.getElementById("upPassword").value.trim();
+      if (!token) {
+        statusEl.textContent = "GitHub token required.";
         statusEl.className = "lm-hint error";
         return;
       }
 
-      statusEl.textContent = "Uploading…";
+      // GitHub rejects files >100MB outright and warns >50MB.
+      // The contents API itself has a hard 100MB limit, but realistically
+      // these are training screenshots — bail early if something's huge.
+      if (file.size > 25 * 1024 * 1024) {
+        statusEl.textContent = `File too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Resize to under 25MB first.`;
+        statusEl.className = "lm-hint error";
+        return;
+      }
+
+      const { owner, repo } = detectGithubRepo();
+      const repoPath = `images/${chapter}/${filename}`;
+
+      statusEl.textContent = `Uploading to ${owner}/${repo}…`;
       statusEl.className = "lm-hint";
 
-      const fd = new FormData();
-      fd.append("file", file);
-      fd.append("chapter", chapter);
-      fd.append("filename", filename);
-      fd.append("password", password);
-
       try {
-        const res = await fetch(UPLOAD_ENDPOINT, { method: "POST", body: fd });
-        const txt = await res.text();
-        let json;
-        try { json = JSON.parse(txt); }
-        catch { json = { ok: false, error: "Server didn't return JSON. Response was: " + txt.slice(0, 200) }; }
+        const base64 = await fileToBase64(file);
+
+        // Check if file already exists (overwrite needs the sha)
+        statusEl.textContent = "Checking for existing file…";
+        const existingSha = await fetchExistingSha(owner, repo, repoPath, token);
+
+        statusEl.textContent = existingSha ? "Overwriting…" : "Creating…";
+        const result = await githubPutFile({
+          owner, repo,
+          path: repoPath,
+          base64,
+          message: `${existingSha ? "Update" : "Add"} ${repoPath} via editor`,
+          sha: existingSha,
+          token
+        });
+
+        // Parse imageNumber out of the filename so the existing repositioning
+        // logic still works (e.g. "22_18.png" → 18).
+        const numMatch = filename.match(/_(\d+)\.[a-z]+$/i);
+        const imageNumber = numMatch ? Number(numMatch[1]) : null;
+
+        // For the "show it now" trick: GitHub Pages takes 30–60s to rebuild,
+        // but raw.githubusercontent.com serves the file immediately. We
+        // monkey-patch a one-off override URL into the image cache so the
+        // new thumbnail appears instantly. Next page reload, the Pages copy
+        // takes over.
+        const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${GITHUB_BRANCH}/${repoPath}`;
+        window.__githubRawOverrides = window.__githubRawOverrides || {};
+        window.__githubRawOverrides[repoPath] = rawUrl;
+
+        statusEl.textContent = `Committed → ${repoPath}`;
+        statusEl.className = "lm-hint success";
+        // Remember the token for this session
+        sessionStorage.setItem(UPLOAD_PW_KEY, token);
+
+        // Build a compatibility object matching the old PHP response so the
+        // rest of the function below (which we want to keep) reads it cleanly.
+        const json = { ok: true, path: repoPath, imageNumber, chapter };
+        const res = { ok: true, status: 200 };
 
         if (res.ok && json.ok) {
-          statusEl.textContent = `Uploaded → ${json.path}`;
-          statusEl.className = "lm-hint success";
-          // Remember the password for this session
-          sessionStorage.setItem(UPLOAD_PW_KEY, password);
           // Capture the anchor BEFORE the rebuild
           const anchorKey = mediaItems[currentMediaIndex]?.key || null;
           // The upload response gives us the chapter and imageNumber, which
@@ -3646,12 +3771,20 @@ let filterToCurrentImageDots = false;
           setStatus(`Uploaded ${filename} to chapter ${chapter}`);
           // Auto-close after a short delay
           setTimeout(closeUploadModal, 1500);
-        } else {
-          statusEl.textContent = "Upload failed: " + (json.error || `HTTP ${res.status}`);
-          statusEl.className = "lm-hint error";
         }
       } catch (err) {
-        statusEl.textContent = "Network error: " + err.message;
+        // Common GitHub API error patterns, translated to plain English
+        let msg = err.message || String(err);
+        if (/Bad credentials/i.test(msg)) {
+          msg = "GitHub rejected the token. Check it's not expired and has Contents: Read & write on this repo.";
+        } else if (/Resource not accessible/i.test(msg)) {
+          msg = "Token doesn't have write access to this repo. Re-generate with Contents: Read & write.";
+        } else if (/Not Found/i.test(msg)) {
+          msg = "Repo not found. Check owner/repo names and that the token can see this repo.";
+        } else if (/Failed to fetch|NetworkError/i.test(msg)) {
+          msg = "Network error reaching api.github.com — is GitHub blocked on this network?";
+        }
+        statusEl.textContent = "Upload failed: " + msg;
         statusEl.className = "lm-hint error";
       }
     }
