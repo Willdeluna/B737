@@ -3703,6 +3703,30 @@ let filterToCurrentImageDots = false;
     const GITHUB_BRANCH = "main";  // change to "gh-pages" if your Pages source is that branch
     const UPLOAD_PW_KEY = "b737EditorGithubToken";
 
+    // Token storage. Originally session-only to avoid persisting credentials,
+    // but that meant the token was lost on every tab close → loadRemoteState
+    // had no way to call the authoritative GitHub Contents API on cold load
+    // and fell back to the stale raw.githubusercontent.com CDN — which is
+    // exactly what made "deletes return after refresh".
+    //
+    // Now: we MIRROR the token into localStorage when set, and read from
+    // EITHER store on get (session preferred for currentness). User can wipe
+    // by clearing site data or with `forgetGithubToken()` from console.
+    function getStoredToken() {
+      try {
+        return sessionStorage.getItem(UPLOAD_PW_KEY) || localStorage.getItem(UPLOAD_PW_KEY) || "";
+      } catch (_) { return ""; }
+    }
+    function setStoredToken(token) {
+      try { sessionStorage.setItem(UPLOAD_PW_KEY, token); } catch (_) {}
+      try { localStorage.setItem(UPLOAD_PW_KEY, token); } catch (_) {}
+    }
+    window.forgetGithubToken = function forgetGithubToken() {
+      try { sessionStorage.removeItem(UPLOAD_PW_KEY); } catch (_) {}
+      try { localStorage.removeItem(UPLOAD_PW_KEY); } catch (_) {}
+      console.log("GitHub token cleared from this browser.");
+    };
+
     function detectGithubRepo() {
       if (window.GITHUB_OWNER && window.GITHUB_REPO) {
         return { owner: window.GITHUB_OWNER, repo: window.GITHUB_REPO };
@@ -3857,16 +3881,62 @@ let filterToCurrentImageDots = false;
     }
 
     async function loadRemoteState() {
-      // Try raw.githubusercontent.com first (fast, bypasses Pages cache),
-      // then fall back to the Pages URL if raw is blocked or unavailable
-      // (some corporate networks block raw.githubusercontent.com).
+      // CRITICAL: order matters here. raw.githubusercontent.com has a CDN
+      // cache that can serve a stale state.json for several minutes after
+      // a write, even with cache-buster query strings. That stale read
+      // would silently overwrite our just-saved local state on reload —
+      // exactly the "delete returned after refresh" bug.
+      //
+      // The GitHub Contents API is always authoritative; it returns the
+      // current sha and content with no CDN lag. Try it FIRST when we have
+      // a token. Fall back to raw, then Pages, when the API isn't usable
+      // (no token, rate-limited, network blocked, etc.).
       const { owner, repo } = detectGithubRepo();
       const t = Date.now();
+      const token = getStoredToken();
+
+      // Strategy 1: GitHub Contents API (authoritative, no CDN cache).
+      // Try with token if available (5000/hour rate limit). Falls back to
+      // anonymous (60/hour) if no token — anonymous is still authoritative
+      // and good enough for the once-per-page-load read.
+      try {
+        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURI(STATE_JSON_PATH)}?ref=${encodeURIComponent(GITHUB_BRANCH)}&_=${t}`;
+        const headers = {
+          "Accept": "application/vnd.github+json",
+          "X-GitHub-Api-Version": "2022-11-28"
+        };
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+        const res = await fetch(apiUrl, { cache: "no-store", headers });
+        if (res.ok) {
+          const json = await res.json();
+          if (json && json.content) {
+            const decoded = decodeURIComponent(escape(atob(json.content.replace(/\s/g, ""))));
+            const remoteState = JSON.parse(decoded);
+            applyRemoteState(remoteState);
+            if (json.sha) _stateSyncRemoteSha = json.sha;
+            _stateSyncLoaded = true;
+            console.log(`[stateSync] loaded state.json via Contents API (${token ? 'authenticated' : 'anonymous'}, authoritative)`);
+            return remoteState;
+          }
+        } else if (res.status === 404) {
+          _stateSyncLoaded = true;
+          return null;
+        } else if (res.status === 403) {
+          // Rate limited — fall through to raw/Pages
+          console.warn(`[stateSync] Contents API rate-limited (403), falling back to raw — DELETES MAY APPEAR TO RETURN until raw CDN catches up. Add a token to fix.`);
+        } else {
+          console.warn(`[stateSync] Contents API returned ${res.status}, falling back to raw`);
+        }
+      } catch (err) {
+        console.warn(`[stateSync] Contents API fetch failed, falling back to raw:`, err);
+      }
+
+      // Strategy 2/3: raw.githubusercontent.com (fast, but may be stale by
+      // a few minutes), then same-origin Pages URL.
       const urls = [
         `https://raw.githubusercontent.com/${owner}/${repo}/${GITHUB_BRANCH}/${STATE_JSON_PATH}?t=${t}`,
-        `${STATE_JSON_PATH}?t=${t}`,  // Relative URL → same origin as the page (GitHub Pages)
+        `${STATE_JSON_PATH}?t=${t}`,
       ];
-
       for (const rawUrl of urls) {
         try {
           const res = await fetch(rawUrl, { cache: "no-store" });
@@ -3874,15 +3944,15 @@ let filterToCurrentImageDots = false;
             if (res.status !== 404) {
               console.warn(`state.json fetch from ${rawUrl} returned`, res.status);
             }
-            continue;  // Try next URL
+            continue;
           }
           const remoteState = await res.json();
           applyRemoteState(remoteState);
           _stateSyncLoaded = true;
+          console.log('[stateSync] loaded state.json via fallback (' + (rawUrl.includes('raw.github') ? 'raw CDN — may be stale' : 'Pages') + ')');
           return remoteState;
         } catch (err) {
           console.warn(`state.json fetch from ${rawUrl} failed:`, err);
-          // Try next URL
         }
       }
       _stateSyncLoaded = true;
@@ -3892,7 +3962,7 @@ let filterToCurrentImageDots = false;
     async function fetchStateSha() {
       // Get the current sha of state.json so we can update (vs create).
       try {
-        const token = sessionStorage.getItem(UPLOAD_PW_KEY);
+        const token = getStoredToken();
         if (!token) return null;
         const { owner, repo } = detectGithubRepo();
         const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURI(STATE_JSON_PATH)}?ref=${encodeURIComponent(GITHUB_BRANCH)}`;
@@ -3918,7 +3988,7 @@ let filterToCurrentImageDots = false;
         scheduleStateSync(2000);
         return;
       }
-      const token = sessionStorage.getItem(UPLOAD_PW_KEY);
+      const token = getStoredToken();
       if (!token) {
         // Read-only device (iPad/iPhone) — silently skip.
         return;
@@ -4023,6 +4093,26 @@ let filterToCurrentImageDots = false;
     async function loadRemoteStateOnly() {
       const { owner, repo } = detectGithubRepo();
       const t = Date.now();
+      const token = getStoredToken();
+      // Prefer authoritative Contents API (auth or anon) for retry-merge to
+      // ensure we have the freshest possible state to merge into. Raw CDN
+      // can lag minutes.
+      try {
+        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURI(STATE_JSON_PATH)}?ref=${encodeURIComponent(GITHUB_BRANCH)}&_=${t}`;
+        const headers = {
+          "Accept": "application/vnd.github+json",
+          "X-GitHub-Api-Version": "2022-11-28"
+        };
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+        const res = await fetch(apiUrl, { cache: "no-store", headers });
+        if (res.ok) {
+          const json = await res.json();
+          if (json && json.content) {
+            const decoded = decodeURIComponent(escape(atob(json.content.replace(/\s/g, ""))));
+            return JSON.parse(decoded);
+          }
+        }
+      } catch (_) { /* fall through to raw */ }
       const urls = [
         `https://raw.githubusercontent.com/${owner}/${repo}/${GITHUB_BRANCH}/${STATE_JSON_PATH}?t=${t}`,
         `${STATE_JSON_PATH}?t=${t}`,
@@ -4195,7 +4285,7 @@ let filterToCurrentImageDots = false;
       });
 
       // Pre-fill password from session storage if available
-      const savedPw = sessionStorage.getItem(UPLOAD_PW_KEY) || "";
+      const savedPw = getStoredToken() || "";
       document.getElementById("upPassword").value = savedPw;
 
       document.getElementById("upFile").value = "";
@@ -4336,7 +4426,7 @@ let filterToCurrentImageDots = false;
         statusEl.textContent = `Committed → ${repoPath}`;
         statusEl.className = "lm-hint success";
         // Remember the token for this session
-        sessionStorage.setItem(UPLOAD_PW_KEY, token);
+        setStoredToken(token);
 
         // Build a compatibility object matching the old PHP response so the
         // rest of the function below (which we want to keep) reads it cleanly.
@@ -4551,7 +4641,7 @@ let filterToCurrentImageDots = false;
         pwField.addEventListener("input", () => {
           const tok = pwField.value.trim();
           if (tok) {
-            sessionStorage.setItem(UPLOAD_PW_KEY, tok);
+            setStoredToken(tok);
           }
         });
       }
