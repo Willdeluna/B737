@@ -1653,6 +1653,66 @@
       return `images/${chapterText}/chapter${chapterText}.png`;
     }
 
+    // ── GitHub Pages fallback for freshly-uploaded images ────────────────
+    // When you upload a new image, GitHub Pages can take 30s–several minutes
+    // to propagate it through its CDN. During that window, the Pages URL
+    // (willdeluna.github.io/.../images/22/22_58.png) 404s — but the same
+    // file is immediately available at raw.githubusercontent.com. This
+    // helper returns the raw URL for any same-origin "images/..." path so
+    // we can swap to it whenever the Pages URL fails to load.
+    //
+    // Returns null when no fallback is appropriate (e.g. the URL isn't an
+    // images/... path, we couldn't figure out the repo, or we've already
+    // tried the raw URL and it also failed).
+    function resolveRawFallbackUrl(srcOrPath) {
+      try {
+        if (!srcOrPath) return null;
+        let s = String(srcOrPath);
+        // Strip the page origin if present so we only look at the path.
+        try {
+          const u = new URL(s, window.location.href);
+          // Only do fallback for same-origin URLs (i.e. GitHub Pages serves it).
+          if (u.origin !== window.location.origin) return null;
+          s = u.pathname;
+        } catch (_) {}
+        // Find the "images/..." part of the path.
+        const idx = s.indexOf("images/");
+        if (idx < 0) return null;
+        const relPath = s.slice(idx);
+        if (typeof detectGithubRepo !== "function") return null;
+        const { owner, repo } = detectGithubRepo();
+        if (!owner || !repo) return null;
+        const branch = typeof GITHUB_BRANCH === "string" ? GITHUB_BRANCH : "main";
+        // Cache-buster so we don't get the cached 404 from earlier in the session.
+        return `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${relPath}?t=${Date.now()}`;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    // Attach a one-shot onerror handler that swaps the <img> to the raw
+    // GitHub URL when the Pages URL 404s. Calls onFinalFail if even the raw
+    // URL fails (so callers can hide-the-thumbnail / show-fallback-tile).
+    // Marks the element with a data-attribute so the swap only happens once
+    // — no infinite error loops.
+    function withRawFallback(imgEl, onFinalFail) {
+      if (!imgEl) return;
+      imgEl.addEventListener("error", function handler() {
+        // Already tried the raw URL? Stop and let the caller handle it.
+        if (imgEl.dataset.rawFallbackTried === "1") {
+          if (typeof onFinalFail === "function") onFinalFail();
+          return;
+        }
+        const fallback = resolveRawFallbackUrl(imgEl.src);
+        if (!fallback) {
+          if (typeof onFinalFail === "function") onFinalFail();
+          return;
+        }
+        imgEl.dataset.rawFallbackTried = "1";
+        imgEl.src = fallback;
+      });
+    }
+
     const searchBox = document.getElementById("searchBox");
     const resultsDiv = document.getElementById("results");
     const melCount = document.getElementById("melCount");
@@ -1666,6 +1726,11 @@
     const viewerImage = document.getElementById("viewerImage");
     const viewerOverlay = document.getElementById("viewerOverlay");
     const hoverTooltip = document.getElementById("hoverTooltip");
+    // Install the GitHub raw-URL fallback on the main viewer image once.
+    // The fallback is a one-shot — clearing data-raw-fallback-tried before
+    // each new src assignment in showImageMedia() lets each image get its
+    // own retry chance.
+    if (viewerImage) { try { withRawFallback(viewerImage); } catch (_) {} }
 
     const viewerPopup = document.getElementById("viewerPopup");
     const viewerPopupTitle = document.getElementById("viewerPopupTitle");
@@ -5128,11 +5193,15 @@ let filterToCurrentImageDots = false;
         if (item.type === "image" || item.type === "chapter") {
           image.src = item.imageUrl;
           image.alt = item.imageLabel || `Image ${item.imageIndex + 1}`;
-          image.onerror = () => {
+          // Try the raw.githubusercontent.com URL before giving up.
+          // GitHub Pages can take minutes to propagate a freshly-uploaded
+          // image, but raw serves it immediately. Without this fallback,
+          // newly-uploaded thumbnails just disappear from the strip.
+          withRawFallback(image, () => {
             if (item.type === "chapter") {
               btn.style.display = "none";
             }
-          };
+          });
           btn.title = item.chapter
             ? `Chapter ${item.chapter} - ${item.imageLabel}`
             : item.imageLabel;
@@ -5145,13 +5214,13 @@ let filterToCurrentImageDots = false;
           if (thumb) {
             image.src = thumb;
             image.alt = item.label || `${appLabel} Thumbnail`;
-            image.onerror = () => {
+            withRawFallback(image, () => {
               image.remove();
               const fallback = document.createElement("div");
               fallback.className = "quiz-fallback-tile";
               fallback.innerHTML = `<div class="quiz-title">${escapeHtml(item.label || "LINK")}</div>`;
               btn.insertBefore(fallback, btn.firstChild);
-            };
+            });
             btn.appendChild(image);
           } else {
             const fallback = document.createElement("div");
@@ -5306,6 +5375,9 @@ let filterToCurrentImageDots = false;
       viewerOverlay.style.display = "block";
       isVideoShowing = false;
 
+      // Reset the raw-fallback flag so this image gets its own retry chance
+      // (it's a one-shot per element, so we clear it on each new src).
+      delete viewerImage.dataset.rawFallbackTried;
       viewerImage.src = item.imageUrl;
       viewerImage.alt = item.imageLabel || `Image ${item.imageIndex + 1}`;
 
