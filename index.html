@@ -2928,14 +2928,23 @@ let filterToCurrentImageDots = false;
       return result;
     }
 
-    function resetThumbnailOrder() {
+    async function resetThumbnailOrder() {
       const confirmed = window.confirm("Reset the saved thumbnail order back to the default chapter order?");
       if (!confirmed) return;
 
       savedThumbnailOrder = [];
       localStorage.removeItem(THUMB_ORDER_STORAGE_KEY);
+      // removeItem doesn't fire the setItem hook, so explicitly schedule sync.
+      // Then await it so the reset can't be lost by a quick refresh.
       refreshMediaAfterThumbnailChange(currentMediaIndex);
-      setStatus("Thumbnail order reset");
+      setStatus("Thumbnail order reset — syncing…");
+      try {
+        if (typeof window.syncNow === 'function') await window.syncNow();
+        setStatus("Thumbnail order reset & synced");
+      } catch (e) {
+        console.warn('[resetOrder] syncNow failed', e);
+        setStatus("Reset locally — sync to GitHub failed, will retry", true);
+      }
     }
 
     function isImageThumbHidden(item) {
@@ -2959,7 +2968,7 @@ let filterToCurrentImageDots = false;
       }
     }
 
-    function deleteSelectedImageThumbnail() {
+    async function deleteSelectedImageThumbnail() {
       const item = mediaItems[currentMediaIndex];
 
       if (!item || item.type === "video" || item.type === "quiz") {
@@ -2988,13 +2997,20 @@ let filterToCurrentImageDots = false;
 
       const nextIndex = Math.max(0, currentMediaIndex - 1);
       refreshMediaAfterThumbnailChange(nextIndex);
-      setStatus(`Thumbnail hidden: ${label}`);
-      // Force immediate sync — otherwise refreshing before the 10s debounce
-      // fires loses the hide-entry and the thumbnail reappears on next load.
-      try { if (typeof window.syncNow === 'function') window.syncNow(); } catch (e) { console.warn('[delImg] syncNow failed', e); }
+      setStatus(`Hiding "${label}" — syncing to all devices…`);
+      // AWAIT the sync. Without this, the function returns immediately and
+      // if the user refreshes in the next ~500ms the PUT never lands and the
+      // thumbnail comes back on next load.
+      try {
+        if (typeof window.syncNow === 'function') await window.syncNow();
+        setStatus(`Thumbnail hidden & synced: ${label}`);
+      } catch (e) {
+        console.warn('[delImg] syncNow failed', e);
+        setStatus(`Hidden locally — sync to GitHub failed, will retry`, true);
+      }
     }
 
-    function restoreHiddenImageThumbnails() {
+    async function restoreHiddenImageThumbnails() {
       if (!hiddenImageThumbs.length) {
         setStatus("No hidden image thumbnails to restore");
         return;
@@ -3006,8 +3022,14 @@ let filterToCurrentImageDots = false;
       hiddenImageThumbs = [];
       saveHiddenImageThumbs();
       refreshMediaAfterThumbnailChange(currentMediaIndex);
-      setStatus("Hidden image thumbnails restored");
-      try { if (typeof window.syncNow === 'function') window.syncNow(); } catch (e) { console.warn('[restore] syncNow failed', e); }
+      setStatus("Restoring hidden thumbnails — syncing…");
+      try {
+        if (typeof window.syncNow === 'function') await window.syncNow();
+        setStatus("Hidden image thumbnails restored & synced");
+      } catch (e) {
+        console.warn('[restore] syncNow failed', e);
+        setStatus("Restored locally — sync to GitHub failed, will retry", true);
+      }
     }
 
 
@@ -3076,7 +3098,7 @@ let filterToCurrentImageDots = false;
       }
     }
 
-    function addQuizThumbnail() {
+    async function addQuizThumbnail() {
       const quizUrl = window.prompt("Quiz link:", "https://willdeluna.github.io/chapter21quiz_1/");
       if (!quizUrl || !quizUrl.trim()) return;
 
@@ -3132,13 +3154,17 @@ let filterToCurrentImageDots = false;
         });
       }
 
-      setStatus("Quiz thumbnail added after selected thumbnail");
-      // Push to GitHub immediately so a quick refresh doesn't lose this
-      // (the localStorage hook only schedules a 10s debounced sync).
-      try { if (typeof window.syncNow === 'function') window.syncNow(); } catch (e) { console.warn('[quiz] syncNow failed', e); }
+      setStatus("Quiz thumbnail added — syncing…");
+      try {
+        if (typeof window.syncNow === 'function') await window.syncNow();
+        setStatus("Quiz thumbnail added & synced");
+      } catch (e) {
+        console.warn('[quiz] syncNow failed', e);
+        setStatus("Added locally — sync to GitHub failed, will retry", true);
+      }
     }
 
-    function deleteSelectedQuizThumbnail() {
+    async function deleteSelectedQuizThumbnail() {
       const currentItem = mediaItems[currentMediaIndex];
 
       if (!currentItem || currentItem.type !== "quiz") {
@@ -3163,8 +3189,14 @@ let filterToCurrentImageDots = false;
       attachImageRowsToMediaItems();
       renderThumbnails(mediaItems);
       showMediaByIndex(Math.max(0, currentMediaIndex - 1));
-      setStatus("Quiz thumbnail deleted");
-      try { if (typeof window.syncNow === 'function') window.syncNow(); } catch (e) { console.warn('[delQuiz] syncNow failed', e); }
+      setStatus("Quiz thumbnail deleted — syncing…");
+      try {
+        if (typeof window.syncNow === 'function') await window.syncNow();
+        setStatus("Quiz thumbnail deleted & synced");
+      } catch (e) {
+        console.warn('[delQuiz] syncNow failed', e);
+        setStatus("Deleted locally — sync to GitHub failed, will retry", true);
+      }
     }
 
 
@@ -3208,7 +3240,7 @@ let filterToCurrentImageDots = false;
       }
     }
 
-    function addTribalThumbnail() {
+    async function addTribalThumbnail() {
       const pageUrl = window.prompt("Tribal knowledge HTML page link/path:", "ATA22_DFCS_Clean_Version.html");
       if (!pageUrl || !pageUrl.trim()) return;
 
@@ -3260,11 +3292,17 @@ let filterToCurrentImageDots = false;
         });
       }
 
-      setStatus("Tribal knowledge thumbnail added after selected thumbnail");
-      try { if (typeof window.syncNow === 'function') window.syncNow(); } catch (e) { console.warn('[tribal] syncNow failed', e); }
+      setStatus("Tribal knowledge thumbnail added — syncing…");
+      try {
+        if (typeof window.syncNow === 'function') await window.syncNow();
+        setStatus("Tribal knowledge thumbnail added & synced");
+      } catch (e) {
+        console.warn('[tribal] syncNow failed', e);
+        setStatus("Added locally — sync to GitHub failed, will retry", true);
+      }
     }
 
-    function deleteSelectedTribalThumbnail() {
+    async function deleteSelectedTribalThumbnail() {
       const currentItem = mediaItems[currentMediaIndex];
       if (!currentItem || currentItem.type !== "tribal") {
         alert("Select a tribal knowledge thumbnail first, then click Del Tribal.");
@@ -3288,8 +3326,14 @@ let filterToCurrentImageDots = false;
       attachImageRowsToMediaItems();
       renderThumbnails(mediaItems);
       showMediaByIndex(Math.max(0, currentMediaIndex - 1));
-      setStatus("Tribal knowledge thumbnail deleted");
-      try { if (typeof window.syncNow === 'function') window.syncNow(); } catch (e) { console.warn('[delTribal] syncNow failed', e); }
+      setStatus("Tribal knowledge thumbnail deleted — syncing…");
+      try {
+        if (typeof window.syncNow === 'function') await window.syncNow();
+        setStatus("Tribal knowledge thumbnail deleted & synced");
+      } catch (e) {
+        console.warn('[delTribal] syncNow failed', e);
+        setStatus("Deleted locally — sync to GitHub failed, will retry", true);
+      }
     }
 
 
@@ -3330,7 +3374,7 @@ let filterToCurrentImageDots = false;
       }
     }
 
-    function addMainPointsThumbnail() {
+    async function addMainPointsThumbnail() {
       const pageUrl = window.prompt("MAIN POINTS HTML page link/path:", "MAIN_POINTS.html");
       if (!pageUrl || !pageUrl.trim()) return;
 
@@ -3382,11 +3426,17 @@ let filterToCurrentImageDots = false;
         });
       }
 
-      setStatus("MAIN POINTS thumbnail added after selected thumbnail");
-      try { if (typeof window.syncNow === 'function') window.syncNow(); } catch (e) { console.warn('[mainpoints] syncNow failed', e); }
+      setStatus("MAIN POINTS thumbnail added — syncing…");
+      try {
+        if (typeof window.syncNow === 'function') await window.syncNow();
+        setStatus("MAIN POINTS thumbnail added & synced");
+      } catch (e) {
+        console.warn('[mainpoints] syncNow failed', e);
+        setStatus("Added locally — sync to GitHub failed, will retry", true);
+      }
     }
 
-    function deleteSelectedMainPointsThumbnail() {
+    async function deleteSelectedMainPointsThumbnail() {
       const currentItem = mediaItems[currentMediaIndex];
       if (!currentItem || currentItem.type !== "mainpoints") {
         alert("Select a MAIN POINTS thumbnail first, then click Del Main Points.");
@@ -3410,8 +3460,14 @@ let filterToCurrentImageDots = false;
       attachImageRowsToMediaItems();
       renderThumbnails(mediaItems);
       showMediaByIndex(Math.max(0, currentMediaIndex - 1));
-      setStatus("MAIN POINTS thumbnail deleted");
-      try { if (typeof window.syncNow === 'function') window.syncNow(); } catch (e) { console.warn('[delMainPoints] syncNow failed', e); }
+      setStatus("MAIN POINTS thumbnail deleted — syncing…");
+      try {
+        if (typeof window.syncNow === 'function') await window.syncNow();
+        setStatus("MAIN POINTS thumbnail deleted & synced");
+      } catch (e) {
+        console.warn('[delMainPoints] syncNow failed', e);
+        setStatus("Deleted locally — sync to GitHub failed, will retry", true);
+      }
     }
 
 
@@ -3541,7 +3597,7 @@ let filterToCurrentImageDots = false;
       }
     }
 
-    function saveLinkFromModal() {
+    async function saveLinkFromModal() {
       const label    = document.getElementById("lmLabel").value.trim() || "Link";
       const pageUrl  = document.getElementById("lmUrl").value.trim();
       const thumbUrl = document.getElementById("lmThumb").value.trim();
@@ -3590,8 +3646,14 @@ let filterToCurrentImageDots = false;
       });
 
       closeLinkModal();
-      setStatus(`Added "${label}" link to Chapter ${chapter}`);
-      try { if (typeof window.syncNow === 'function') window.syncNow(); } catch (e) { console.warn('[+Link] syncNow failed', e); }
+      setStatus(`Added "${label}" link — syncing…`);
+      try {
+        if (typeof window.syncNow === 'function') await window.syncNow();
+        setStatus(`Added "${label}" link to Chapter ${chapter} & synced`);
+      } catch (e) {
+        console.warn('[+Link] syncNow failed', e);
+        setStatus(`Added locally — sync to GitHub failed, will retry`, true);
+      }
     }
 
     // Wire up modal interactions (deferred until DOM is ready)
@@ -4014,6 +4076,35 @@ let filterToCurrentImageDots = false;
       }
       return pushStateToGitHub();
     };
+
+    // Refresh-safety guard: if the user tries to close/refresh the tab while
+    // a sync is in flight (or there's a pending debounced sync that hasn't
+    // run yet), warn them. The browser will show a "Leave site?" dialog —
+    // confirming proceeds, cancelling gives the sync time to land.
+    //
+    // This is the difference between "delete persisted" and "thumb came back
+    // after refresh" — without the warning, refreshing 200ms after a delete
+    // unloads the page mid-PUT and GitHub never receives the commit.
+    window.addEventListener("beforeunload", (e) => {
+      const hasPendingDebounce = _stateSyncTimer !== null;
+      const hasInFlightSync = _stateSyncInFlight === true;
+      if (hasPendingDebounce || hasInFlightSync) {
+        // Try one last fire-and-forget push so even if they confirm leaving,
+        // we at least kick off the request before the page unloads.
+        try {
+          if (_stateSyncTimer) {
+            clearTimeout(_stateSyncTimer);
+            _stateSyncTimer = null;
+          }
+          if (!hasInFlightSync) pushStateToGitHub();
+        } catch (_) {}
+        // Modern browsers ignore the custom message but show their own dialog.
+        const msg = "Changes are still saving to GitHub. Leave anyway?";
+        e.preventDefault();
+        e.returnValue = msg;
+        return msg;
+      }
+    });
 
     // ── Manifest auto-update after upload ─────────────────────────────
     // After committing a new chapter image, also update images/manifest.json
@@ -4475,7 +4566,7 @@ let filterToCurrentImageDots = false;
       initUploadModal();
     }
 
-    function deleteSelectedLinkThumbnail() {
+    async function deleteSelectedLinkThumbnail() {
       const currentItem = mediaItems[currentMediaIndex];
 
       if (!currentItem || !["quiz", "app", "tribal", "mainpoints"].includes(currentItem.type)) {
@@ -4530,8 +4621,14 @@ let filterToCurrentImageDots = false;
       attachImageRowsToMediaItems();
       renderThumbnails(mediaItems);
       showMediaByIndex(Math.max(0, currentMediaIndex - 1));
-      setStatus("Link thumbnail deleted");
-      try { if (typeof window.syncNow === 'function') window.syncNow(); } catch (e) { console.warn('[delLink] syncNow failed', e); }
+      setStatus("Link thumbnail deleted — syncing…");
+      try {
+        if (typeof window.syncNow === 'function') await window.syncNow();
+        setStatus("Link thumbnail deleted & synced");
+      } catch (e) {
+        console.warn('[delLink] syncNow failed', e);
+        setStatus("Deleted locally — sync to GitHub failed, will retry", true);
+      }
     }
 
 
@@ -4637,7 +4734,7 @@ let filterToCurrentImageDots = false;
       setStatus(placement === null ? `Video added at end: ${label}` : `Video added after selected thumbnail: ${label}`);
     }
 
-    function deleteSelectedVideo() {
+    async function deleteSelectedVideo() {
       const currentItem = mediaItems[currentMediaIndex];
 
       if (!currentItem || currentItem.type !== "video") {
@@ -4662,8 +4759,14 @@ let filterToCurrentImageDots = false;
       attachImageRowsToMediaItems();
       renderThumbnails(mediaItems);
       showMediaByIndex(Math.max(0, currentMediaIndex - 1));
-      setStatus("Video deleted");
-      try { if (typeof window.syncNow === 'function') window.syncNow(); } catch (e) { console.warn('[delVideo] syncNow failed', e); }
+      setStatus("Video deleted — syncing…");
+      try {
+        if (typeof window.syncNow === 'function') await window.syncNow();
+        setStatus("Video deleted & synced");
+      } catch (e) {
+        console.warn('[delVideo] syncNow failed', e);
+        setStatus("Deleted locally — sync to GitHub failed, will retry", true);
+      }
     }
 
 
