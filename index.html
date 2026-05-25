@@ -3651,7 +3651,9 @@ let filterToCurrentImageDots = false;
       let json;
       try { json = JSON.parse(txt); } catch { json = { message: txt.slice(0, 200) }; }
       if (!res.ok) {
-        throw new Error(json.message || `HTTP ${res.status}`);
+        const err = new Error(`HTTP ${res.status}: ${json.message || res.statusText || "request failed"}`);
+        err.status = res.status;
+        throw err;
       }
       return json;
     }
@@ -3789,37 +3791,116 @@ let filterToCurrentImageDots = false;
       }
       _stateSyncInFlight = true;
       try {
-        const state = collectLocalState();
-        const stateText = JSON.stringify(state);
-        // Skip if nothing meaningful to sync (empty state)
-        if (!Object.keys(state.keys).length) {
-          _stateSyncInFlight = false;
-          return;
-        }
-        const base64 = btoa(unescape(encodeURIComponent(stateText)));
+        // Retry up to 3 times on SHA conflict (409). The most common cause:
+        // the "Generate images manifest" Action commits manifest.json between
+        // when we fetched the SHA and when we PUT — that bumps state.json's
+        // tree SHA, GitHub rejects our stale-SHA PUT, and we'd silently lose
+        // the upload without this retry.
+        //
+        // Each retry refetches the remote state.json and MERGES our local
+        // additions on top of it (last-writer-wins per key), so a concurrent
+        // edit from another device or the Action doesn't wipe whatever the
+        // user just did locally.
         const { owner, repo } = detectGithubRepo();
-        const sha = _stateSyncRemoteSha || await fetchStateSha();
-        const result = await githubPutFile({
-          owner, repo,
-          path: STATE_JSON_PATH,
-          base64,
-          message: "Auto-sync editor state",
-          sha,
-          token
-        });
-        // Save the new sha for the next update
-        if (result && result.content && result.content.sha) {
-          _stateSyncRemoteSha = result.content.sha;
+        let lastErr = null;
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          try {
+            const localState = collectLocalState();
+            if (!Object.keys(localState.keys).length) {
+              _stateSyncInFlight = false;
+              return;
+            }
+            // On retries, pull the remote state fresh and merge — never blindly
+            // overwrite, that's how multi-device edits get lost.
+            let mergedState = localState;
+            if (attempt > 1) {
+              try {
+                const remote = await loadRemoteStateOnly();
+                if (remote && remote.keys) {
+                  // Local wins for every key we currently hold; remote fills
+                  // in anything we don't have. Then we write the merged blob.
+                  mergedState = { keys: { ...remote.keys, ...localState.keys } };
+                  // Also push the merged remote keys back into localStorage so
+                  // future collectLocalState() calls include them.
+                  Object.keys(remote.keys).forEach(k => {
+                    if (localState.keys[k] == null) {
+                      try { localStorage.setItem(k, remote.keys[k]); } catch (_) {}
+                    }
+                  });
+                }
+              } catch (mergeErr) {
+                console.warn("[stateSync] merge fetch failed, pushing local only:", mergeErr);
+              }
+            }
+            const stateText = JSON.stringify(mergedState);
+            const base64 = btoa(unescape(encodeURIComponent(stateText)));
+            // Always refetch the current SHA on retry — the cached one is stale.
+            const sha = (attempt === 1)
+              ? (_stateSyncRemoteSha || await fetchStateSha())
+              : await fetchStateSha();
+            const result = await githubPutFile({
+              owner, repo,
+              path: STATE_JSON_PATH,
+              base64,
+              message: attempt === 1 ? "Auto-sync editor state" : `Auto-sync editor state (retry ${attempt})`,
+              sha,
+              token
+            });
+            if (result && result.content && result.content.sha) {
+              _stateSyncRemoteSha = result.content.sha;
+            }
+            setStatus && setStatus(attempt === 1 ? "Synced changes to all devices" : `Synced changes (after ${attempt} attempts)`);
+            console.log(`[stateSync] push succeeded on attempt ${attempt}`);
+            lastErr = null;
+            break;
+          } catch (err) {
+            lastErr = err;
+            const status = Number(err && err.status) || 0;
+            const msg = String(err && err.message || err);
+            // 409 = SHA mismatch (concurrent write). 422 = GitHub sometimes
+            // uses this for "does not match". Retry with fresh SHA + merge.
+            const isConflict = status === 409 || status === 422 ||
+              /\b409\b|\b422\b|does not match|is at|but expected/i.test(msg);
+            if (!isConflict || attempt === 3) {
+              throw err;
+            }
+            console.warn(`[stateSync] attempt ${attempt} hit conflict (status ${status}), retrying with merge:`, msg);
+            // Invalidate the cached SHA so the next iteration refetches.
+            _stateSyncRemoteSha = null;
+            // Small backoff before retrying.
+            await new Promise(r => setTimeout(r, 500 * attempt));
+          }
         }
-        setStatus && setStatus("Synced changes to all devices");
+        if (lastErr) throw lastErr;
       } catch (err) {
         console.warn("State sync failed:", err);
-        // On a sha mismatch (someone else updated state.json), refetch
-        // the sha and try once more on the next scheduled sync.
+        // Reset cached SHA so the next scheduled sync starts fresh.
         _stateSyncRemoteSha = null;
+        setStatus && setStatus("Sync failed — will retry", true);
+        // Schedule another debounced attempt so we don't permanently give up.
+        scheduleStateSync(5000);
       } finally {
         _stateSyncInFlight = false;
       }
+    }
+
+    // Fetch the remote state.json without applying it to localStorage. Used
+    // by pushStateToGitHub's retry-on-conflict merge path.
+    async function loadRemoteStateOnly() {
+      const { owner, repo } = detectGithubRepo();
+      const t = Date.now();
+      const urls = [
+        `https://raw.githubusercontent.com/${owner}/${repo}/${GITHUB_BRANCH}/${STATE_JSON_PATH}?t=${t}`,
+        `${STATE_JSON_PATH}?t=${t}`,
+      ];
+      for (const url of urls) {
+        try {
+          const res = await fetch(url, { cache: "no-store" });
+          if (!res.ok) continue;
+          return await res.json();
+        } catch (_) { /* try next */ }
+      }
+      return null;
     }
 
     function scheduleStateSync(delayMs) {
@@ -4243,14 +4324,28 @@ let filterToCurrentImageDots = false;
           }
           setStatus(`Uploaded ${filename} to chapter ${chapter}`);
 
-          // Force an IMMEDIATE state sync to GitHub. The default localStorage
-          // hook schedules a 10-second debounced push, but if the user
-          // refreshes inside that window the new image vanishes — the next
-          // load reads the stale state.json from GitHub and overwrites the
-          // local change. Push now so the order/cache/un-hide all land before
-          // any reload.
-          try { if (typeof window.syncNow === 'function') window.syncNow(); } catch (e) { console.warn('[upload] syncNow failed', e); }
-
+          // Force an IMMEDIATE state sync to GitHub and WAIT for it. The
+          // localStorage hook only schedules a 10-second debounced push, and
+          // even the immediate path can hit a 409 from concurrent commits
+          // (e.g. the manifest-generation Action). We need the sync to be
+          // confirmed-on-GitHub before letting the user refresh — otherwise
+          // the next page load reads the stale state.json and silently drops
+          // the upload from the strip.
+          statusEl.textContent = "Saving order to all devices…";
+          statusEl.className = "lm-hint";
+          try {
+            if (typeof window.syncNow === 'function') {
+              await window.syncNow();
+            }
+            statusEl.textContent = `Uploaded & synced: ${filename}`;
+            statusEl.className = "lm-hint success";
+          } catch (syncErr) {
+            console.warn('[upload] syncNow failed', syncErr);
+            statusEl.textContent = `Uploaded ${filename}, but sync to other devices failed — retrying in background. DO NOT refresh yet.`;
+            statusEl.className = "lm-hint error";
+            // Don't auto-close on sync failure — give the user a chance to read the warning.
+            return;
+          }
           // Auto-close after a short delay
           setTimeout(closeUploadModal, 1500);
         }
