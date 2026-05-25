@@ -2833,8 +2833,22 @@ let filterToCurrentImageDots = false;
 
       // Insert each newcomer at the first slot whose locked item has a HIGHER
       // sortOrder than the newcomer. Walks the locked array once per newcomer.
+      //
+      // Exception: if the newcomer has an afterItemKey (quiz/tribal/mainpoints
+      // additions all record this), drop it right after that anchor in the
+      // result array. This rescues custom thumbs whose raw sortOrder is a big
+      // synthetic number like 21007.5 — those would otherwise be appended past
+      // the chapter-80 items at the very end of the strip, far from where the
+      // user actually placed them.
       const result = [...locked];
       newcomers.forEach(newItem => {
+        if (newItem.afterItemKey) {
+          const anchorIdx = result.findIndex(it => it && it.key === newItem.afterItemKey);
+          if (anchorIdx >= 0) {
+            result.splice(anchorIdx + 1, 0, newItem);
+            return;
+          }
+        }
         const newSort = Number(newItem.sortOrder || 0);
         let insertAt = result.length; // default: end
         for (let i = 0; i < result.length; i++) {
@@ -3050,6 +3064,9 @@ let filterToCurrentImageDots = false;
       }
 
       setStatus("Quiz thumbnail added after selected thumbnail");
+      // Push to GitHub immediately so a quick refresh doesn't lose this
+      // (the localStorage hook only schedules a 10s debounced sync).
+      try { if (typeof window.syncNow === 'function') window.syncNow(); } catch (e) { console.warn('[quiz] syncNow failed', e); }
     }
 
     function deleteSelectedQuizThumbnail() {
@@ -3174,6 +3191,7 @@ let filterToCurrentImageDots = false;
       }
 
       setStatus("Tribal knowledge thumbnail added after selected thumbnail");
+      try { if (typeof window.syncNow === 'function') window.syncNow(); } catch (e) { console.warn('[tribal] syncNow failed', e); }
     }
 
     function deleteSelectedTribalThumbnail() {
@@ -3294,6 +3312,7 @@ let filterToCurrentImageDots = false;
       }
 
       setStatus("MAIN POINTS thumbnail added after selected thumbnail");
+      try { if (typeof window.syncNow === 'function') window.syncNow(); } catch (e) { console.warn('[mainpoints] syncNow failed', e); }
     }
 
     function deleteSelectedMainPointsThumbnail() {
@@ -3500,6 +3519,7 @@ let filterToCurrentImageDots = false;
 
       closeLinkModal();
       setStatus(`Added "${label}" link to Chapter ${chapter}`);
+      try { if (typeof window.syncNow === 'function') window.syncNow(); } catch (e) { console.warn('[+Link] syncNow failed', e); }
     }
 
     // Wire up modal interactions (deferred until DOM is ready)
@@ -4098,6 +4118,31 @@ let filterToCurrentImageDots = false;
               saveChapterImageCache();
             }
           }
+
+          // Un-hide the newly-uploaded path. If the user previously hid an
+          // empty slot at this image number, that hide entry would silently
+          // filter the new upload out of the strip on every refresh
+          // (buildMediaItems() drops items where isImageThumbHidden() is true).
+          // Uploading new content over that slot clearly means "I want this
+          // visible now", so remove any matching hide entry — both by image
+          // URL and by chapter-N-M key — and persist.
+          try {
+            const uploadedUrl = chapterImagePath(chapter, json.imageNumber);
+            const uploadedKeyLower = uploadedKey ? String(uploadedKey).toLowerCase() : "";
+            const before = hiddenImageThumbs.length;
+            hiddenImageThumbs = hiddenImageThumbs.filter(h => {
+              const hl = String(h || "").toLowerCase();
+              if (uploadedUrl && hl === String(uploadedUrl).toLowerCase()) return false;
+              if (uploadedKeyLower && hl === uploadedKeyLower) return false;
+              return true;
+            });
+            if (hiddenImageThumbs.length !== before) {
+              saveHiddenImageThumbs();
+              console.log('[upload] unhid previously-hidden slot for', uploadedUrl);
+            }
+          } catch (e) {
+            console.warn('[upload] could not unhide uploaded slot', e);
+          }
           // Note: images/manifest.json is updated automatically by the
           // "Generate images manifest" GitHub Action whenever images/**
           // changes. We don't write it from JS — that caused 409 conflicts
@@ -4197,6 +4242,15 @@ let filterToCurrentImageDots = false;
             if (reIdx >= 0) currentMediaIndex = reIdx;
           }
           setStatus(`Uploaded ${filename} to chapter ${chapter}`);
+
+          // Force an IMMEDIATE state sync to GitHub. The default localStorage
+          // hook schedules a 10-second debounced push, but if the user
+          // refreshes inside that window the new image vanishes — the next
+          // load reads the stale state.json from GitHub and overwrites the
+          // local change. Push now so the order/cache/un-hide all land before
+          // any reload.
+          try { if (typeof window.syncNow === 'function') window.syncNow(); } catch (e) { console.warn('[upload] syncNow failed', e); }
+
           // Auto-close after a short delay
           setTimeout(closeUploadModal, 1500);
         }
