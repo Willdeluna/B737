@@ -1301,7 +1301,7 @@
 
       <label for="upPassword">GitHub token</label>
       <input type="password" id="upPassword" placeholder="ghp_… or github_pat_…" autocomplete="off" spellcheck="false">
-      <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Stored in this browser session only — gone when you close the tab. <a href="https://urldefense.com/v3/__https://github.com/settings/personal-access-tokens/new__;!!O8JL6HM!hYpXxlVazw817NevZnqKSpG1vd5hK3MiDamLe2TRTwQ3767oljvr02jHf3MzX643lLhgutv3RyZiBfIKFQLaaxj03g$" target="_blank" rel="noopener">Create one →</a></div>
+      <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Stored in this browser session only — gone when you close the tab. <a href="https://urldefense.com/v3/__https://github.com/settings/personal-access-tokens/new__;!!O8JL6HM!lYhiMk9NONRZPKuAWtVivANn2WwH0BpMOZmrvbLNnJIOMhxZ6GTJ-3ZIO4QIOEtFgbA3AUc9rgrKuN4EOgGbDlQDkA$" target="_blank" rel="noopener">Create one →</a></div>
 
       <div id="upStatus" class="lm-hint" style="min-height:18px;margin-top:8px;"></div>
 
@@ -1471,11 +1471,19 @@
           if (data && typeof data === "object") {
             _manifestData = data;
             _manifestLoaded = true;
-            // Seed the in-memory cache so probeChapterImages short-circuits
+            // Merge the manifest into the in-memory cache, taking the UNION
+            // of remote and local entries. This protects against a race where
+            // the user just uploaded a new image locally (so the local cache
+            // includes it) but the GitHub Action hasn't yet rebuilt the
+            // manifest. Blindly overwriting would erase the newly uploaded
+            // image from the strip after refresh.
             Object.keys(data).forEach(ch => {
-              if (Array.isArray(data[ch])) {
-                chapterImageCache.set(String(ch), data[ch].map(Number));
-              }
+              if (!Array.isArray(data[ch])) return;
+              const remote = data[ch].map(Number);
+              const existing = chapterImageCache.get(String(ch)) || [];
+              const merged = Array.from(new Set([...existing, ...remote]))
+                .sort((a, b) => a - b);
+              chapterImageCache.set(String(ch), merged);
             });
             // Persist so future loads on this device skip the network
             // round trip entirely.
