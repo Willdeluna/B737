@@ -2928,6 +2928,16 @@ let filterToCurrentImageDots = false;
       return result;
     }
 
+    // Translate a sync error into a user-facing status message. The most
+    // common failure on a fresh browser is "no token" — that's actionable
+    // (click Upload to enter the token), unlike a generic "sync failed".
+    function syncErrorMessage(err, actionLabel) {
+      if (err && err.noToken) {
+        return `${actionLabel} — NOT synced. Click ⬆ Upload once to enter your GitHub token, otherwise this will be lost on refresh.`;
+      }
+      return `${actionLabel} locally — sync to GitHub failed, will retry`;
+    }
+
     async function resetThumbnailOrder() {
       const confirmed = window.confirm("Reset the saved thumbnail order back to the default chapter order?");
       if (!confirmed) return;
@@ -2943,7 +2953,7 @@ let filterToCurrentImageDots = false;
         setStatus("Thumbnail order reset & synced");
       } catch (e) {
         console.warn('[resetOrder] syncNow failed', e);
-        setStatus("Reset locally — sync to GitHub failed, will retry", true);
+        setStatus(syncErrorMessage(e, "Reset"), true);
       }
     }
 
@@ -3006,7 +3016,7 @@ let filterToCurrentImageDots = false;
         setStatus(`Thumbnail hidden & synced: ${label}`);
       } catch (e) {
         console.warn('[delImg] syncNow failed', e);
-        setStatus(`Hidden locally — sync to GitHub failed, will retry`, true);
+        setStatus(syncErrorMessage(e, "Hidden"), true);
       }
     }
 
@@ -3028,7 +3038,7 @@ let filterToCurrentImageDots = false;
         setStatus("Hidden image thumbnails restored & synced");
       } catch (e) {
         console.warn('[restore] syncNow failed', e);
-        setStatus("Restored locally — sync to GitHub failed, will retry", true);
+        setStatus(syncErrorMessage(e, "Restored"), true);
       }
     }
 
@@ -3160,7 +3170,7 @@ let filterToCurrentImageDots = false;
         setStatus("Quiz thumbnail added & synced");
       } catch (e) {
         console.warn('[quiz] syncNow failed', e);
-        setStatus("Added locally — sync to GitHub failed, will retry", true);
+        setStatus(syncErrorMessage(e, "Added"), true);
       }
     }
 
@@ -3195,7 +3205,7 @@ let filterToCurrentImageDots = false;
         setStatus("Quiz thumbnail deleted & synced");
       } catch (e) {
         console.warn('[delQuiz] syncNow failed', e);
-        setStatus("Deleted locally — sync to GitHub failed, will retry", true);
+        setStatus(syncErrorMessage(e, "Deleted"), true);
       }
     }
 
@@ -3298,7 +3308,7 @@ let filterToCurrentImageDots = false;
         setStatus("Tribal knowledge thumbnail added & synced");
       } catch (e) {
         console.warn('[tribal] syncNow failed', e);
-        setStatus("Added locally — sync to GitHub failed, will retry", true);
+        setStatus(syncErrorMessage(e, "Added"), true);
       }
     }
 
@@ -3332,7 +3342,7 @@ let filterToCurrentImageDots = false;
         setStatus("Tribal knowledge thumbnail deleted & synced");
       } catch (e) {
         console.warn('[delTribal] syncNow failed', e);
-        setStatus("Deleted locally — sync to GitHub failed, will retry", true);
+        setStatus(syncErrorMessage(e, "Deleted"), true);
       }
     }
 
@@ -3432,7 +3442,7 @@ let filterToCurrentImageDots = false;
         setStatus("MAIN POINTS thumbnail added & synced");
       } catch (e) {
         console.warn('[mainpoints] syncNow failed', e);
-        setStatus("Added locally — sync to GitHub failed, will retry", true);
+        setStatus(syncErrorMessage(e, "Added"), true);
       }
     }
 
@@ -3466,7 +3476,7 @@ let filterToCurrentImageDots = false;
         setStatus("MAIN POINTS thumbnail deleted & synced");
       } catch (e) {
         console.warn('[delMainPoints] syncNow failed', e);
-        setStatus("Deleted locally — sync to GitHub failed, will retry", true);
+        setStatus(syncErrorMessage(e, "Deleted"), true);
       }
     }
 
@@ -3652,7 +3662,7 @@ let filterToCurrentImageDots = false;
         setStatus(`Added "${label}" link to Chapter ${chapter} & synced`);
       } catch (e) {
         console.warn('[+Link] syncNow failed', e);
-        setStatus(`Added locally — sync to GitHub failed, will retry`, true);
+        setStatus(syncErrorMessage(e, "Added"), true);
       }
     }
 
@@ -3990,8 +4000,15 @@ let filterToCurrentImageDots = false;
       }
       const token = getStoredToken();
       if (!token) {
-        // Read-only device (iPad/iPhone) — silently skip.
-        return;
+        // No token = no write access. Previously this silently returned,
+        // which meant deletes/adds appeared to succeed but were never pushed
+        // to GitHub — and on reload, the authoritative state from GitHub
+        // overwrote the local change, making it look like the action
+        // "didn't take". Throwing here lets awaiting callers (delete/add
+        // handlers) show a clear error to the user.
+        const err = new Error("No GitHub token saved. Click ⬆ Upload once and enter your token to enable cross-device sync. Changes made now exist only on this device until then.");
+        err.noToken = true;
+        throw err;
       }
       _stateSyncInFlight = true;
       try {
@@ -4717,7 +4734,7 @@ let filterToCurrentImageDots = false;
         setStatus("Link thumbnail deleted & synced");
       } catch (e) {
         console.warn('[delLink] syncNow failed', e);
-        setStatus("Deleted locally — sync to GitHub failed, will retry", true);
+        setStatus(syncErrorMessage(e, "Deleted"), true);
       }
     }
 
@@ -4855,7 +4872,7 @@ let filterToCurrentImageDots = false;
         setStatus("Video deleted & synced");
       } catch (e) {
         console.warn('[delVideo] syncNow failed', e);
-        setStatus("Deleted locally — sync to GitHub failed, will retry", true);
+        setStatus(syncErrorMessage(e, "Deleted"), true);
       }
     }
 
@@ -5261,6 +5278,33 @@ let filterToCurrentImageDots = false;
         // Fetch synced state from GitHub before reading any localStorage —
         // this is what makes iPad/iPhone show changes made on the PC.
         await loadRemoteState();
+
+        // Warn the user if no token is stored. Without a token, deletes and
+        // additions can't be pushed to GitHub — they only exist locally and
+        // get overwritten by the authoritative remote state on next reload.
+        // This is the cause of the "deleted thumbnail returns after refresh"
+        // symptom when the user hasn't connected GitHub yet.
+        try {
+          if (!getStoredToken()) {
+            const noticeKey = "b737EditorTokenNoticeDismissed";
+            const dismissed = localStorage.getItem(noticeKey);
+            if (!dismissed) {
+              setTimeout(() => {
+                const msg =
+                  "Cross-device sync is DISABLED on this browser.\n\n" +
+                  "Without a GitHub token, any thumbnails you delete or add " +
+                  "will appear deleted locally — but they'll come back on refresh " +
+                  "because GitHub never received the change.\n\n" +
+                  "FIX: Click ⬆ Upload, enter your GitHub token once. It will be " +
+                  "saved on this device and all future changes will sync.\n\n" +
+                  "Click OK to acknowledge (this warning won't show again on this device).";
+                alert(msg);
+                try { localStorage.setItem(noticeKey, "1"); } catch (_) {}
+              }, 600);
+            }
+          }
+        } catch (_) {}
+
         // Refresh the module-level state vars from the (now-updated) localStorage
         customVideos = loadEditorVideos();
         customQuizThumbs = loadQuizThumbs();
