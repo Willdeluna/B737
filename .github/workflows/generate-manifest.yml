@@ -40,7 +40,20 @@ jobs:
           git add images/manifest.json
           if git diff --cached --quiet; then
             echo "Manifest unchanged, nothing to commit."
-          else
-            git commit -m "Auto-update images/manifest.json [skip ci]"
-            git push
+            exit 0
           fi
+          git commit -m "Auto-update images/manifest.json [skip ci]"
+          # Retry the push a few times with rebase to handle concurrent
+          # commits (e.g. the editor's state.json auto-sync may land
+          # between our checkout and push).
+          for i in 1 2 3 4 5; do
+            if git push; then
+              echo "Push succeeded on attempt $i"
+              exit 0
+            fi
+            echo "Push attempt $i failed, pulling latest and retrying..."
+            git pull --rebase
+            sleep 2
+          done
+          echo "Push failed after 5 attempts"
+          exit 1
