@@ -1301,7 +1301,7 @@
 
       <label for="upPassword">GitHub token</label>
       <input type="password" id="upPassword" placeholder="ghp_… or github_pat_…" autocomplete="off" spellcheck="false">
-      <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Stored in this browser session only — gone when you close the tab. <a href="https://urldefense.com/v3/__https://github.com/settings/personal-access-tokens/new__;!!O8JL6HM!lYhiMk9NONRZPKuAWtVivANn2WwH0BpMOZmrvbLNnJIOMhxZ6GTJ-3ZIO4QIOEtFgbA3AUc9rgrKuN4EOgGbDlQDkA$" target="_blank" rel="noopener">Create one →</a></div>
+      <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Stored in this browser session only — gone when you close the tab. <a href="https://urldefense.com/v3/__https://github.com/settings/personal-access-tokens/new__;!!O8JL6HM!hrad2OuXzsYzWUif37HiQr_lebA-shRtmuerVa8rOc5H60Ly0uCxd7pQUraEllGM74k9BGslrpOHsrrUkRG59oBZdQ$" target="_blank" rel="noopener">Create one →</a></div>
 
       <div id="upStatus" class="lm-hint" style="min-height:18px;margin-top:8px;"></div>
 
@@ -3701,28 +3701,36 @@ let filterToCurrentImageDots = false;
     }
 
     async function loadRemoteState() {
-      try {
-        // Use raw.githubusercontent.com for fast, cache-busted reads.
-        // GitHub Pages can lag 30-60s; raw is immediate.
-        const { owner, repo } = detectGithubRepo();
-        const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${GITHUB_BRANCH}/${STATE_JSON_PATH}?t=${Date.now()}`;
-        const res = await fetch(rawUrl, { cache: "no-store" });
-        if (!res.ok) {
-          if (res.status !== 404) {
-            console.warn("state.json fetch returned", res.status);
+      // Try raw.githubusercontent.com first (fast, bypasses Pages cache),
+      // then fall back to the Pages URL if raw is blocked or unavailable
+      // (some corporate networks block raw.githubusercontent.com).
+      const { owner, repo } = detectGithubRepo();
+      const t = Date.now();
+      const urls = [
+        `https://raw.githubusercontent.com/${owner}/${repo}/${GITHUB_BRANCH}/${STATE_JSON_PATH}?t=${t}`,
+        `${STATE_JSON_PATH}?t=${t}`,  // Relative URL → same origin as the page (GitHub Pages)
+      ];
+
+      for (const rawUrl of urls) {
+        try {
+          const res = await fetch(rawUrl, { cache: "no-store" });
+          if (!res.ok) {
+            if (res.status !== 404) {
+              console.warn(`state.json fetch from ${rawUrl} returned`, res.status);
+            }
+            continue;  // Try next URL
           }
+          const remoteState = await res.json();
+          applyRemoteState(remoteState);
           _stateSyncLoaded = true;
-          return null;
+          return remoteState;
+        } catch (err) {
+          console.warn(`state.json fetch from ${rawUrl} failed:`, err);
+          // Try next URL
         }
-        const remoteState = await res.json();
-        applyRemoteState(remoteState);
-        _stateSyncLoaded = true;
-        return remoteState;
-      } catch (err) {
-        console.warn("Could not load state.json:", err);
-        _stateSyncLoaded = true;
-        return null;
       }
+      _stateSyncLoaded = true;
+      return null;
     }
 
     async function fetchStateSha() {
