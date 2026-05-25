@@ -2989,6 +2989,9 @@ let filterToCurrentImageDots = false;
       const nextIndex = Math.max(0, currentMediaIndex - 1);
       refreshMediaAfterThumbnailChange(nextIndex);
       setStatus(`Thumbnail hidden: ${label}`);
+      // Force immediate sync — otherwise refreshing before the 10s debounce
+      // fires loses the hide-entry and the thumbnail reappears on next load.
+      try { if (typeof window.syncNow === 'function') window.syncNow(); } catch (e) { console.warn('[delImg] syncNow failed', e); }
     }
 
     function restoreHiddenImageThumbnails() {
@@ -3004,6 +3007,7 @@ let filterToCurrentImageDots = false;
       saveHiddenImageThumbs();
       refreshMediaAfterThumbnailChange(currentMediaIndex);
       setStatus("Hidden image thumbnails restored");
+      try { if (typeof window.syncNow === 'function') window.syncNow(); } catch (e) { console.warn('[restore] syncNow failed', e); }
     }
 
 
@@ -3160,6 +3164,7 @@ let filterToCurrentImageDots = false;
       renderThumbnails(mediaItems);
       showMediaByIndex(Math.max(0, currentMediaIndex - 1));
       setStatus("Quiz thumbnail deleted");
+      try { if (typeof window.syncNow === 'function') window.syncNow(); } catch (e) { console.warn('[delQuiz] syncNow failed', e); }
     }
 
 
@@ -3284,6 +3289,7 @@ let filterToCurrentImageDots = false;
       renderThumbnails(mediaItems);
       showMediaByIndex(Math.max(0, currentMediaIndex - 1));
       setStatus("Tribal knowledge thumbnail deleted");
+      try { if (typeof window.syncNow === 'function') window.syncNow(); } catch (e) { console.warn('[delTribal] syncNow failed', e); }
     }
 
 
@@ -3405,6 +3411,7 @@ let filterToCurrentImageDots = false;
       renderThumbnails(mediaItems);
       showMediaByIndex(Math.max(0, currentMediaIndex - 1));
       setStatus("MAIN POINTS thumbnail deleted");
+      try { if (typeof window.syncNow === 'function') window.syncNow(); } catch (e) { console.warn('[delMainPoints] syncNow failed', e); }
     }
 
 
@@ -4524,6 +4531,7 @@ let filterToCurrentImageDots = false;
       renderThumbnails(mediaItems);
       showMediaByIndex(Math.max(0, currentMediaIndex - 1));
       setStatus("Link thumbnail deleted");
+      try { if (typeof window.syncNow === 'function') window.syncNow(); } catch (e) { console.warn('[delLink] syncNow failed', e); }
     }
 
 
@@ -4655,6 +4663,7 @@ let filterToCurrentImageDots = false;
       renderThumbnails(mediaItems);
       showMediaByIndex(Math.max(0, currentMediaIndex - 1));
       setStatus("Video deleted");
+      try { if (typeof window.syncNow === 'function') window.syncNow(); } catch (e) { console.warn('[delVideo] syncNow failed', e); }
     }
 
 
