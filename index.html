@@ -1301,7 +1301,7 @@
 
       <label for="upPassword">GitHub token</label>
       <input type="password" id="upPassword" placeholder="ghp_… or github_pat_…" autocomplete="off" spellcheck="false">
-      <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Stored in this browser session only — gone when you close the tab. <a href="https://urldefense.com/v3/__https://github.com/settings/personal-access-tokens/new__;!!O8JL6HM!iEVnAlqfvRDyEcibwhdQTVj5SB7MCUOIPotstS1LlQMFoau5nCGm_PBsGoVPWwmVbFx6GnsLOO7AZClHbUywSyS1Jg$" target="_blank" rel="noopener">Create one →</a></div>
+      <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Stored in this browser session only — gone when you close the tab. <a href="https://urldefense.com/v3/__https://github.com/settings/personal-access-tokens/new__;!!O8JL6HM!lYZycQlsbJGOi10N_W1Kx9LcKXsmCLw5iaA2RVD8Hqi2F286VZlLAp4eiBgi7RXTewBCD8XRH00eXAuh05_o-s3Glw$" target="_blank" rel="noopener">Create one →</a></div>
 
       <div id="upStatus" class="lm-hint" style="min-height:18px;margin-top:8px;"></div>
 
@@ -2760,7 +2760,17 @@ let filterToCurrentImageDots = false;
 
     function saveThumbnailOrder() {
       try {
-        const order = mediaItems.map(item => item?.key).filter(Boolean);
+        const currentKeys = mediaItems.map(item => item?.key).filter(Boolean);
+        const currentKeySet = new Set(currentKeys);
+        // Preserve any keys from the previous order that aren't currently in
+        // mediaItems — usually because the manifest hasn't caught up yet to a
+        // newly-uploaded image. Otherwise a sync round-trip would erase
+        // recently-uploaded images that other devices haven't seen yet.
+        const previousOrder = Array.isArray(savedThumbnailOrder) ? savedThumbnailOrder : [];
+        const preserved = previousOrder.filter(k => k && !currentKeySet.has(k));
+        const order = preserved.length
+          ? [...currentKeys, ...preserved]
+          : currentKeys;
         savedThumbnailOrder = order;
         localStorage.setItem(THUMB_ORDER_STORAGE_KEY, JSON.stringify(order));
 
