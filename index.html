@@ -1301,7 +1301,7 @@
 
       <label for="upPassword">GitHub token</label>
       <input type="password" id="upPassword" placeholder="ghp_… or github_pat_…" autocomplete="off" spellcheck="false">
-      <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Stored in this browser session only — gone when you close the tab. <a href="https://urldefense.com/v3/__https://github.com/settings/personal-access-tokens/new__;!!O8JL6HM!lYZycQlsbJGOi10N_W1Kx9LcKXsmCLw5iaA2RVD8Hqi2F286VZlLAp4eiBgi7RXTewBCD8XRH00eXAuh05_o-s3Glw$" target="_blank" rel="noopener">Create one →</a></div>
+      <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Stored in this browser session only — gone when you close the tab. <a href="https://urldefense.com/v3/__https://github.com/settings/personal-access-tokens/new__;!!O8JL6HM!nLoi2B7wQmk3dKNajhht1MKhSU3roSb3c16OR75pCrOst9Dc1nVf7Nx4jwejv0f7mLOcyEpTwsef3PFjzi1lUsdi-Q$" target="_blank" rel="noopener">Create one →</a></div>
 
       <div id="upStatus" class="lm-hint" style="min-height:18px;margin-top:8px;"></div>
 
@@ -4144,7 +4144,34 @@ let filterToCurrentImageDots = false;
 
               try { saveThumbnailOrder(); console.log('[upload] saved order'); } catch (e) { console.warn('[upload] save failed', e); }
             } else {
-              console.warn('[upload] uploadedKey not found in rebuilt mediaItems');
+              console.warn('[upload] uploadedKey not found in rebuilt mediaItems — injecting manually');
+              // Manifest hasn't caught up yet (it lives on GitHub and updates
+              // asynchronously). Inject the new chapter item directly so the
+              // strip still shows it right away.
+              try {
+                const newItem = createChapterMediaItem(chapter, json.imageNumber);
+                // Place after the anchor when in the same chapter; otherwise
+                // append to the end of this chapter's group.
+                let insertAfterIdx = -1;
+                if (anchorKey) {
+                  const anchorIdx = mediaItems.findIndex(it => it && it.key === anchorKey);
+                  if (anchorIdx >= 0 && String(mediaItems[anchorIdx]?.chapter || "") === String(chapter)) {
+                    insertAfterIdx = anchorIdx;
+                  }
+                }
+                if (insertAfterIdx < 0) {
+                  for (let i = 0; i < mediaItems.length; i++) {
+                    if (String(mediaItems[i]?.chapter || "") === String(chapter)) {
+                      insertAfterIdx = i;
+                    }
+                  }
+                }
+                if (insertAfterIdx < 0) insertAfterIdx = mediaItems.length - 1;
+                mediaItems.splice(insertAfterIdx + 1, 0, newItem);
+                try { saveThumbnailOrder(); console.log('[upload] saved order after injection'); } catch (e) { console.warn('[upload] save failed', e); }
+              } catch (e) {
+                console.warn('[upload] manual injection failed', e);
+              }
             }
           } else {
             console.warn('[upload] missing uploadedKey, no reposition');
