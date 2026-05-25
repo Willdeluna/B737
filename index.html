@@ -1301,7 +1301,7 @@
 
       <label for="upPassword">GitHub token</label>
       <input type="password" id="upPassword" placeholder="ghp_… or github_pat_…" autocomplete="off" spellcheck="false">
-      <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Stored in this browser session only — gone when you close the tab. <a href="https://urldefense.com/v3/__https://github.com/settings/personal-access-tokens/new__;!!O8JL6HM!nLoi2B7wQmk3dKNajhht1MKhSU3roSb3c16OR75pCrOst9Dc1nVf7Nx4jwejv0f7mLOcyEpTwsef3PFjzi1lUsdi-Q$" target="_blank" rel="noopener">Create one →</a></div>
+      <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Stored in this browser session only — gone when you close the tab. <a href="https://urldefense.com/v3/__https://github.com/settings/personal-access-tokens/new__;!!O8JL6HM!hYpXxlVazw817NevZnqKSpG1vd5hK3MiDamLe2TRTwQ3767oljvr02jHf3MzX643lLhgutv3RyZiBfIKFQLaaxj03g$" target="_blank" rel="noopener">Create one →</a></div>
 
       <div id="upStatus" class="lm-hint" style="min-height:18px;margin-top:8px;"></div>
 
@@ -4082,14 +4082,10 @@ let filterToCurrentImageDots = false;
               saveChapterImageCache();
             }
           }
-          // Fire-and-forget: update images/manifest.json on GitHub so other
-          // devices pick up the new image on their next page load.
-          // Failures here log a warning but don't affect this upload.
-          if (json.imageNumber) {
-            updateManifestAfterUpload({
-              owner, repo, chapter, imageNumber: json.imageNumber, token
-            }).catch(err => console.warn("Manifest update failed:", err));
-          }
+          // Note: images/manifest.json is updated automatically by the
+          // "Generate images manifest" GitHub Action whenever images/**
+          // changes. We don't write it from JS — that caused 409 conflicts
+          // when both JS and the Action raced to update the file.
           // Refresh the thumbnail strip so the new image appears
           mediaItems = buildMediaItems(allImages);
           attachImageRowsToMediaItems();
