@@ -1249,9 +1249,6 @@
         <option value="">— Custom (fill in below) —</option>
         <option value="3dlocator">3D Location Finder</option>
         <option value="partnumbers">Common Part Numbers</option>
-        <option value="cbfinder">Circuit Breakers</option>
-        <option value="damagelimits">Damage Limits</option>
-        <option value="mcdu">MCDU Simulation</option>
         <option value="mainpoints">Main Points (current chapter)</option>
         <option value="tribal">Tribal Knowledge (current chapter)</option>
         <option value="quiz">Quiz (current chapter)</option>
@@ -1272,12 +1269,6 @@
       <select id="lmChapter"></select>
       <div class="lm-hint">The link will be inserted after the currently selected thumbnail in this chapter.</div>
 
-      <label for="lmPassword">GitHub token (needed to save across devices)</label>
-      <input type="password" id="lmPassword" placeholder="ghp_… or github_pat_…" autocomplete="off" spellcheck="false">
-      <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Enter it once per browser — it's saved automatically so future links sync without re-typing. If you've already entered it here or in Upload, this stays filled. <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Create one →</a></div>
-
-      <div id="lmStatus" class="lm-hint" style="min-height:18px;margin-top:8px;"></div>
-
       <div class="lm-row">
         <button type="button" class="lm-btn" id="lmCancel">Cancel</button>
         <button type="button" class="lm-btn primary" id="lmSave">Add Link</button>
@@ -1292,7 +1283,7 @@
 
       <label for="upChapter">Chapter</label>
       <select id="upChapter"></select>
-      <div class="lm-hint">The image will be committed to <code>images/&lt;chapter&gt;/</code> in your GitHub repo. Pages takes ~30–60s to rebuild, but the new image shows here immediately.</div>
+      <div class="lm-hint">The image will be uploaded to the <code>images/&lt;chapter&gt;/</code> folder on the server.</div>
 
       <label for="upFile">Image file (PNG / JPG / WEBP)</label>
       <input type="file" id="upFile" accept="image/png,image/jpeg,image/webp">
@@ -1306,9 +1297,9 @@
         Auto-filled based on chapter and next available number — edit if needed.
       </div>
 
-      <label for="upPassword">GitHub token</label>
-      <input type="password" id="upPassword" placeholder="ghp_… or github_pat_…" autocomplete="off" spellcheck="false">
-      <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Stored in this browser session only — gone when you close the tab. <a href="https://urldefense.com/v3/__https://github.com/settings/personal-access-tokens/new__;!!O8JL6HM!hrad2OuXzsYzWUif37HiQr_lebA-shRtmuerVa8rOc5H60Ly0uCxd7pQUraEllGM74k9BGslrpOHsrrUkRG59oBZdQ$" target="_blank" rel="noopener">Create one →</a></div>
+      <label for="upPassword">Upload password</label>
+      <input type="password" id="upPassword" placeholder="Required" autocomplete="current-password">
+      <div class="lm-hint">Stops random people from uploading to your server. Remembered for this browser session.</div>
 
       <div id="upStatus" class="lm-hint" style="min-height:18px;margin-top:8px;"></div>
 
@@ -1456,55 +1447,6 @@
       }
     }
 
-    // ── Manifest fast path ───────────────────────────────────────────
-    // If images/manifest.json exists, use it instead of probing every
-    // numbered image URL. One request replaces up to ~1,950 HEAD-like
-    // image loads on a cold cache. Generate with the python script in
-    // the repo. Falls back to probing if the manifest is missing.
-    //
-    // Expected shape:
-    //   { "21": [1,2,3,4,5], "22": [1,2,3], ... }
-    let _manifestLoadPromise = null;
-    let _manifestLoaded = false;
-    let _manifestData = null;
-
-    function loadManifest() {
-      if (_manifestLoadPromise) return _manifestLoadPromise;
-      _manifestLoadPromise = (async () => {
-        try {
-          const res = await fetch("images/manifest.json", { cache: "no-cache" });
-          if (!res.ok) return null;
-          const data = await res.json();
-          if (data && typeof data === "object") {
-            _manifestData = data;
-            _manifestLoaded = true;
-            // Merge the manifest into the in-memory cache, taking the UNION
-            // of remote and local entries. This protects against a race where
-            // the user just uploaded a new image locally (so the local cache
-            // includes it) but the GitHub Action hasn't yet rebuilt the
-            // manifest. Blindly overwriting would erase the newly uploaded
-            // image from the strip after refresh.
-            Object.keys(data).forEach(ch => {
-              if (!Array.isArray(data[ch])) return;
-              const remote = data[ch].map(Number);
-              const existing = chapterImageCache.get(String(ch)) || [];
-              const merged = Array.from(new Set([...existing, ...remote]))
-                .sort((a, b) => a - b);
-              chapterImageCache.set(String(ch), merged);
-            });
-            // Persist so future loads on this device skip the network
-            // round trip entirely.
-            saveChapterImageCache();
-            return data;
-          }
-        } catch (err) {
-          console.warn("No images/manifest.json found — falling back to probing", err);
-        }
-        return null;
-      })();
-      return _manifestLoadPromise;
-    }
-
     // Probe one chapter for which numbered images actually exist.
     // Loads every candidate image (1..configCount) and resolves to the
     // array of imageNumbers that loaded successfully. Cached for next time.
@@ -1599,14 +1541,6 @@
     // after each chapter completes so the strip fills in progressively
     // without flicker. Boot path fires this without awaiting.
     async function probeAllChaptersInBackground() {
-      // Try the manifest fast path first. If it loads, every chapter
-      // listed in it is now in chapterImageCache and probeChapterImages
-      // will resolve from cache instantly.
-      await loadManifest();
-      if (_manifestLoaded) {
-        scheduleProbeRerender();
-      }
-
       const chapters = Object.keys(CHAPTER_FOLDER_CONFIG);
       for (const ch of chapters) {
         if (chapterImageCache.has(ch)) continue;
@@ -1622,9 +1556,6 @@
     window.rescanChapterImages = function rescanChapterImages() {
       chapterImageCache.clear();
       try { localStorage.removeItem(CHAPTER_IMAGE_CACHE_KEY); } catch (_) { /* noop */ }
-      _manifestLoadPromise = null;
-      _manifestLoaded = false;
-      _manifestData = null;
       probeAllChaptersInBackground();
     };
 
@@ -1660,66 +1591,6 @@
       return `images/${chapterText}/chapter${chapterText}.png`;
     }
 
-    // ── GitHub Pages fallback for freshly-uploaded images ────────────────
-    // When you upload a new image, GitHub Pages can take 30s–several minutes
-    // to propagate it through its CDN. During that window, the Pages URL
-    // (willdeluna.github.io/.../images/22/22_58.png) 404s — but the same
-    // file is immediately available at raw.githubusercontent.com. This
-    // helper returns the raw URL for any same-origin "images/..." path so
-    // we can swap to it whenever the Pages URL fails to load.
-    //
-    // Returns null when no fallback is appropriate (e.g. the URL isn't an
-    // images/... path, we couldn't figure out the repo, or we've already
-    // tried the raw URL and it also failed).
-    function resolveRawFallbackUrl(srcOrPath) {
-      try {
-        if (!srcOrPath) return null;
-        let s = String(srcOrPath);
-        // Strip the page origin if present so we only look at the path.
-        try {
-          const u = new URL(s, window.location.href);
-          // Only do fallback for same-origin URLs (i.e. GitHub Pages serves it).
-          if (u.origin !== window.location.origin) return null;
-          s = u.pathname;
-        } catch (_) {}
-        // Find the "images/..." part of the path.
-        const idx = s.indexOf("images/");
-        if (idx < 0) return null;
-        const relPath = s.slice(idx);
-        if (typeof detectGithubRepo !== "function") return null;
-        const { owner, repo } = detectGithubRepo();
-        if (!owner || !repo) return null;
-        const branch = typeof GITHUB_BRANCH === "string" ? GITHUB_BRANCH : "main";
-        // Cache-buster so we don't get the cached 404 from earlier in the session.
-        return `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${relPath}?t=${Date.now()}`;
-      } catch (_) {
-        return null;
-      }
-    }
-
-    // Attach a one-shot onerror handler that swaps the <img> to the raw
-    // GitHub URL when the Pages URL 404s. Calls onFinalFail if even the raw
-    // URL fails (so callers can hide-the-thumbnail / show-fallback-tile).
-    // Marks the element with a data-attribute so the swap only happens once
-    // — no infinite error loops.
-    function withRawFallback(imgEl, onFinalFail) {
-      if (!imgEl) return;
-      imgEl.addEventListener("error", function handler() {
-        // Already tried the raw URL? Stop and let the caller handle it.
-        if (imgEl.dataset.rawFallbackTried === "1") {
-          if (typeof onFinalFail === "function") onFinalFail();
-          return;
-        }
-        const fallback = resolveRawFallbackUrl(imgEl.src);
-        if (!fallback) {
-          if (typeof onFinalFail === "function") onFinalFail();
-          return;
-        }
-        imgEl.dataset.rawFallbackTried = "1";
-        imgEl.src = fallback;
-      });
-    }
-
     const searchBox = document.getElementById("searchBox");
     const resultsDiv = document.getElementById("results");
     const melCount = document.getElementById("melCount");
@@ -1733,11 +1604,6 @@
     const viewerImage = document.getElementById("viewerImage");
     const viewerOverlay = document.getElementById("viewerOverlay");
     const hoverTooltip = document.getElementById("hoverTooltip");
-    // Install the GitHub raw-URL fallback on the main viewer image once.
-    // The fallback is a one-shot — clearing data-raw-fallback-tried before
-    // each new src assignment in showImageMedia() lets each image get its
-    // own retry chance.
-    if (viewerImage) { try { withRawFallback(viewerImage); } catch (_) {} }
 
     const viewerPopup = document.getElementById("viewerPopup");
     const viewerPopupTitle = document.getElementById("viewerPopupTitle");
@@ -1826,32 +1692,6 @@ let filterToCurrentImageDots = false;
         originalUrl: "Common_Part_Numbers.html",
         previewUrl: "Common_Part_Numbers.html",
         sortOrder: 7.5,
-        afterItemKey: null
-      },
-      {
-        type: "quiz",
-        key: "link-thumb-cbfinder-default",
-        label: "Circuit Breakers",
-        chapter: "00",
-        imageLabel: "Circuit Breakers",
-        imageName: "cb_finder.png",
-        imageUrl: "images/00/cb_finder.png",
-        originalUrl: "cb_finder.html",
-        previewUrl: "cb_finder.html",
-        sortOrder: 6.5,
-        afterItemKey: null
-      },
-      {
-        type: "quiz",
-        key: "link-thumb-damagelimits-default",
-        label: "Damage Limits",
-        chapter: "00",
-        imageLabel: "Damage Limits",
-        imageName: "damage_srm.png",
-        imageUrl: "images/00/damage_srm.png",
-        originalUrl: "damage_srm.html",
-        previewUrl: "damage_srm.html",
-        sortOrder: 5.5,
         afterItemKey: null
       },
       {
@@ -2704,7 +2544,7 @@ let filterToCurrentImageDots = false;
               <th>Fault Code</th>
               <th>Kind</th>
               <th>MEL</th>
-              <th>Troubleshooting</th>
+              <th>Resets</th>
               <th>Notes</th>
               <th>Action</th>
             </tr>
@@ -2727,7 +2567,7 @@ let filterToCurrentImageDots = false;
             <td data-label="Fault Code">${escapeHtml(item.fault_code || "—")}</td>
             <td data-label="Kind">${escapeHtml(item.kind || "—")}</td>
             <td data-label="MEL" class="mel-col">${escapeHtml(item.mel_reference || "—")}${renderDispatchPill(item.dispatch_label)}</td>
-            <td data-label="Troubleshooting" class="formatted-text">${escapeHtml(item.troubleshooting_steps || "—")}</td>
+            <td data-label="Resets" class="formatted-text">${escapeHtml(item.troubleshooting_steps || "—")}</td>
             <td data-label="Notes" class="notes-cell">${formatNotesWithCheckboxes(item.notes || "", item.id)}${renderProcedureBlock(item.procedures, item.id)}</td>
             <td data-label="Action" class="action-col">
               <button class="image-btn" type="button" onclick="startSetDot(${item.id})">Set Dot</button>
@@ -2840,17 +2680,7 @@ let filterToCurrentImageDots = false;
 
     function saveThumbnailOrder() {
       try {
-        const currentKeys = mediaItems.map(item => item?.key).filter(Boolean);
-        const currentKeySet = new Set(currentKeys);
-        // Preserve any keys from the previous order that aren't currently in
-        // mediaItems — usually because the manifest hasn't caught up yet to a
-        // newly-uploaded image. Otherwise a sync round-trip would erase
-        // recently-uploaded images that other devices haven't seen yet.
-        const previousOrder = Array.isArray(savedThumbnailOrder) ? savedThumbnailOrder : [];
-        const preserved = previousOrder.filter(k => k && !currentKeySet.has(k));
-        const order = preserved.length
-          ? [...currentKeys, ...preserved]
-          : currentKeys;
+        const order = mediaItems.map(item => item?.key).filter(Boolean);
         savedThumbnailOrder = order;
         localStorage.setItem(THUMB_ORDER_STORAGE_KEY, JSON.stringify(order));
 
@@ -2905,22 +2735,8 @@ let filterToCurrentImageDots = false;
 
       // Insert each newcomer at the first slot whose locked item has a HIGHER
       // sortOrder than the newcomer. Walks the locked array once per newcomer.
-      //
-      // Exception: if the newcomer has an afterItemKey (quiz/tribal/mainpoints
-      // additions all record this), drop it right after that anchor in the
-      // result array. This rescues custom thumbs whose raw sortOrder is a big
-      // synthetic number like 21007.5 — those would otherwise be appended past
-      // the chapter-80 items at the very end of the strip, far from where the
-      // user actually placed them.
       const result = [...locked];
       newcomers.forEach(newItem => {
-        if (newItem.afterItemKey) {
-          const anchorIdx = result.findIndex(it => it && it.key === newItem.afterItemKey);
-          if (anchorIdx >= 0) {
-            result.splice(anchorIdx + 1, 0, newItem);
-            return;
-          }
-        }
         const newSort = Number(newItem.sortOrder || 0);
         let insertAt = result.length; // default: end
         for (let i = 0; i < result.length; i++) {
@@ -2935,33 +2751,14 @@ let filterToCurrentImageDots = false;
       return result;
     }
 
-    // Translate a sync error into a user-facing status message. The most
-    // common failure on a fresh browser is "no token" — that's actionable
-    // (click Upload to enter the token), unlike a generic "sync failed".
-    function syncErrorMessage(err, actionLabel) {
-      if (err && err.noToken) {
-        return `${actionLabel} — NOT synced. Enter your GitHub token in the Add Link or ⬆ Upload modal, otherwise this will be lost on refresh.`;
-      }
-      return `${actionLabel} locally — sync to GitHub failed, will retry`;
-    }
-
-    async function resetThumbnailOrder() {
+    function resetThumbnailOrder() {
       const confirmed = window.confirm("Reset the saved thumbnail order back to the default chapter order?");
       if (!confirmed) return;
 
       savedThumbnailOrder = [];
       localStorage.removeItem(THUMB_ORDER_STORAGE_KEY);
-      // removeItem doesn't fire the setItem hook, so explicitly schedule sync.
-      // Then await it so the reset can't be lost by a quick refresh.
       refreshMediaAfterThumbnailChange(currentMediaIndex);
-      setStatus("Thumbnail order reset — syncing…");
-      try {
-        if (typeof window.syncNow === 'function') await window.syncNow();
-        setStatus("Thumbnail order reset & synced");
-      } catch (e) {
-        console.warn('[resetOrder] syncNow failed', e);
-        setStatus(syncErrorMessage(e, "Reset"), true);
-      }
+      setStatus("Thumbnail order reset");
     }
 
     function isImageThumbHidden(item) {
@@ -2985,7 +2782,7 @@ let filterToCurrentImageDots = false;
       }
     }
 
-    async function deleteSelectedImageThumbnail() {
+    function deleteSelectedImageThumbnail() {
       const item = mediaItems[currentMediaIndex];
 
       if (!item || item.type === "video" || item.type === "quiz") {
@@ -3014,20 +2811,10 @@ let filterToCurrentImageDots = false;
 
       const nextIndex = Math.max(0, currentMediaIndex - 1);
       refreshMediaAfterThumbnailChange(nextIndex);
-      setStatus(`Hiding "${label}" — syncing to all devices…`);
-      // AWAIT the sync. Without this, the function returns immediately and
-      // if the user refreshes in the next ~500ms the PUT never lands and the
-      // thumbnail comes back on next load.
-      try {
-        if (typeof window.syncNow === 'function') await window.syncNow();
-        setStatus(`Thumbnail hidden & synced: ${label}`);
-      } catch (e) {
-        console.warn('[delImg] syncNow failed', e);
-        setStatus(syncErrorMessage(e, "Hidden"), true);
-      }
+      setStatus(`Thumbnail hidden: ${label}`);
     }
 
-    async function restoreHiddenImageThumbnails() {
+    function restoreHiddenImageThumbnails() {
       if (!hiddenImageThumbs.length) {
         setStatus("No hidden image thumbnails to restore");
         return;
@@ -3039,14 +2826,7 @@ let filterToCurrentImageDots = false;
       hiddenImageThumbs = [];
       saveHiddenImageThumbs();
       refreshMediaAfterThumbnailChange(currentMediaIndex);
-      setStatus("Restoring hidden thumbnails — syncing…");
-      try {
-        if (typeof window.syncNow === 'function') await window.syncNow();
-        setStatus("Hidden image thumbnails restored & synced");
-      } catch (e) {
-        console.warn('[restore] syncNow failed', e);
-        setStatus(syncErrorMessage(e, "Restored"), true);
-      }
+      setStatus("Hidden image thumbnails restored");
     }
 
 
@@ -3115,7 +2895,7 @@ let filterToCurrentImageDots = false;
       }
     }
 
-    async function addQuizThumbnail() {
+    function addQuizThumbnail() {
       const quizUrl = window.prompt("Quiz link:", "https://willdeluna.github.io/chapter21quiz_1/");
       if (!quizUrl || !quizUrl.trim()) return;
 
@@ -3171,17 +2951,10 @@ let filterToCurrentImageDots = false;
         });
       }
 
-      setStatus("Quiz thumbnail added — syncing…");
-      try {
-        if (typeof window.syncNow === 'function') await window.syncNow();
-        setStatus("Quiz thumbnail added & synced");
-      } catch (e) {
-        console.warn('[quiz] syncNow failed', e);
-        setStatus(syncErrorMessage(e, "Added"), true);
-      }
+      setStatus("Quiz thumbnail added after selected thumbnail");
     }
 
-    async function deleteSelectedQuizThumbnail() {
+    function deleteSelectedQuizThumbnail() {
       const currentItem = mediaItems[currentMediaIndex];
 
       if (!currentItem || currentItem.type !== "quiz") {
@@ -3206,14 +2979,7 @@ let filterToCurrentImageDots = false;
       attachImageRowsToMediaItems();
       renderThumbnails(mediaItems);
       showMediaByIndex(Math.max(0, currentMediaIndex - 1));
-      setStatus("Quiz thumbnail deleted — syncing…");
-      try {
-        if (typeof window.syncNow === 'function') await window.syncNow();
-        setStatus("Quiz thumbnail deleted & synced");
-      } catch (e) {
-        console.warn('[delQuiz] syncNow failed', e);
-        setStatus(syncErrorMessage(e, "Deleted"), true);
-      }
+      setStatus("Quiz thumbnail deleted");
     }
 
 
@@ -3257,7 +3023,7 @@ let filterToCurrentImageDots = false;
       }
     }
 
-    async function addTribalThumbnail() {
+    function addTribalThumbnail() {
       const pageUrl = window.prompt("Tribal knowledge HTML page link/path:", "ATA22_DFCS_Clean_Version.html");
       if (!pageUrl || !pageUrl.trim()) return;
 
@@ -3309,17 +3075,10 @@ let filterToCurrentImageDots = false;
         });
       }
 
-      setStatus("Tribal knowledge thumbnail added — syncing…");
-      try {
-        if (typeof window.syncNow === 'function') await window.syncNow();
-        setStatus("Tribal knowledge thumbnail added & synced");
-      } catch (e) {
-        console.warn('[tribal] syncNow failed', e);
-        setStatus(syncErrorMessage(e, "Added"), true);
-      }
+      setStatus("Tribal knowledge thumbnail added after selected thumbnail");
     }
 
-    async function deleteSelectedTribalThumbnail() {
+    function deleteSelectedTribalThumbnail() {
       const currentItem = mediaItems[currentMediaIndex];
       if (!currentItem || currentItem.type !== "tribal") {
         alert("Select a tribal knowledge thumbnail first, then click Del Tribal.");
@@ -3343,14 +3102,7 @@ let filterToCurrentImageDots = false;
       attachImageRowsToMediaItems();
       renderThumbnails(mediaItems);
       showMediaByIndex(Math.max(0, currentMediaIndex - 1));
-      setStatus("Tribal knowledge thumbnail deleted — syncing…");
-      try {
-        if (typeof window.syncNow === 'function') await window.syncNow();
-        setStatus("Tribal knowledge thumbnail deleted & synced");
-      } catch (e) {
-        console.warn('[delTribal] syncNow failed', e);
-        setStatus(syncErrorMessage(e, "Deleted"), true);
-      }
+      setStatus("Tribal knowledge thumbnail deleted");
     }
 
 
@@ -3391,7 +3143,7 @@ let filterToCurrentImageDots = false;
       }
     }
 
-    async function addMainPointsThumbnail() {
+    function addMainPointsThumbnail() {
       const pageUrl = window.prompt("MAIN POINTS HTML page link/path:", "MAIN_POINTS.html");
       if (!pageUrl || !pageUrl.trim()) return;
 
@@ -3443,17 +3195,10 @@ let filterToCurrentImageDots = false;
         });
       }
 
-      setStatus("MAIN POINTS thumbnail added — syncing…");
-      try {
-        if (typeof window.syncNow === 'function') await window.syncNow();
-        setStatus("MAIN POINTS thumbnail added & synced");
-      } catch (e) {
-        console.warn('[mainpoints] syncNow failed', e);
-        setStatus(syncErrorMessage(e, "Added"), true);
-      }
+      setStatus("MAIN POINTS thumbnail added after selected thumbnail");
     }
 
-    async function deleteSelectedMainPointsThumbnail() {
+    function deleteSelectedMainPointsThumbnail() {
       const currentItem = mediaItems[currentMediaIndex];
       if (!currentItem || currentItem.type !== "mainpoints") {
         alert("Select a MAIN POINTS thumbnail first, then click Del Main Points.");
@@ -3477,14 +3222,7 @@ let filterToCurrentImageDots = false;
       attachImageRowsToMediaItems();
       renderThumbnails(mediaItems);
       showMediaByIndex(Math.max(0, currentMediaIndex - 1));
-      setStatus("MAIN POINTS thumbnail deleted — syncing…");
-      try {
-        if (typeof window.syncNow === 'function') await window.syncNow();
-        setStatus("MAIN POINTS thumbnail deleted & synced");
-      } catch (e) {
-        console.warn('[delMainPoints] syncNow failed', e);
-        setStatus(syncErrorMessage(e, "Deleted"), true);
-      }
+      setStatus("MAIN POINTS thumbnail deleted");
     }
 
 
@@ -3544,12 +3282,6 @@ let filterToCurrentImageDots = false;
       document.getElementById("lmThumb").value = "";
       document.getElementById("lmThumbPreview").classList.remove("show");
 
-      // Pre-fill token from storage if we already have one (session or local).
-      const lmPw = document.getElementById("lmPassword");
-      if (lmPw) lmPw.value = getStoredToken() || "";
-      const lmStatusEl = document.getElementById("lmStatus");
-      if (lmStatusEl) { lmStatusEl.textContent = ""; lmStatusEl.className = "lm-hint"; }
-
       modal.classList.add("show");
       // Focus label after a tick so iOS keyboards behave
       setTimeout(() => {
@@ -3573,26 +3305,13 @@ let filterToCurrentImageDots = false;
           labelEl.value = "3D Locator";
           urlEl.value   = "B737_Location_Finder.html";
           thumbEl.value = "images/00/3D_locator.png";
+          document.getElementById("lmChapter").value = "00";
           break;
         case "partnumbers":
           labelEl.value = "Common Part Numbers";
           urlEl.value   = "Common_Part_Numbers.html";
           thumbEl.value = "images/00/part_numbers.png";
-          break;
-        case "cbfinder":
-          labelEl.value = "Circuit Breakers";
-          urlEl.value   = "cb_finder.html";
-          thumbEl.value = "images/00/cb_finder.png";
-          break;
-        case "damagelimits":
-          labelEl.value = "Damage Limits";
-          urlEl.value   = "damage_srm.html";
-          thumbEl.value = "images/00/damage_srm.png";
-          break;
-        case "mcdu":
-          labelEl.value = "MCDU";
-          urlEl.value   = "mcdu.html";
-          thumbEl.value = "images/00/mcdu.png";
+          document.getElementById("lmChapter").value = "00";
           break;
         case "mainpoints":
           labelEl.value = "Main Points";
@@ -3625,7 +3344,7 @@ let filterToCurrentImageDots = false;
       }
     }
 
-    async function saveLinkFromModal() {
+    function saveLinkFromModal() {
       const label    = document.getElementById("lmLabel").value.trim() || "Link";
       const pageUrl  = document.getElementById("lmUrl").value.trim();
       const thumbUrl = document.getElementById("lmThumb").value.trim();
@@ -3635,11 +3354,6 @@ let filterToCurrentImageDots = false;
         alert("Please enter a Link URL.");
         return;
       }
-
-      // Make sure any token typed (or autofilled) into this modal is stored
-      // before we try to sync — autofill doesn't always fire an input event.
-      const lmPwEl = document.getElementById("lmPassword");
-      if (lmPwEl && lmPwEl.value.trim()) setStoredToken(lmPwEl.value.trim());
 
       const info = getActiveInsertInfo();
 
@@ -3679,14 +3393,7 @@ let filterToCurrentImageDots = false;
       });
 
       closeLinkModal();
-      setStatus(`Added "${label}" link — syncing…`);
-      try {
-        if (typeof window.syncNow === 'function') await window.syncNow();
-        setStatus(`Added "${label}" link to Chapter ${chapter} & synced`);
-      } catch (e) {
-        console.warn('[+Link] syncNow failed', e);
-        setStatus(syncErrorMessage(e, "Added"), true);
-      }
+      setStatus(`Added "${label}" link to Chapter ${chapter}`);
     }
 
     // Wire up modal interactions (deferred until DOM is ready)
@@ -3702,15 +3409,6 @@ let filterToCurrentImageDots = false;
       thumb.addEventListener("input", updateThumbPreview);
       save.addEventListener("click", saveLinkFromModal);
       cancel.addEventListener("click", closeLinkModal);
-      // Save the token as soon as it's typed so adding a link can sync to
-      // GitHub immediately — no need to open the Upload modal first.
-      const lmPw = document.getElementById("lmPassword");
-      if (lmPw) {
-        lmPw.addEventListener("input", () => {
-          const tok = lmPw.value.trim();
-          if (tok) setStoredToken(tok);
-        });
-      }
       // Tap outside card to close
       modal.addEventListener("click", e => {
         if (e.target === modal) closeLinkModal();
@@ -3728,593 +3426,12 @@ let filterToCurrentImageDots = false;
     }
 
     // ── Image Upload Modal ──────────────────────────────────────────
-    // Uploads commit directly to the GitHub repo via the GitHub REST API.
-    // No server-side code required — works on GitHub Pages (or any static
-    // host). The user provides a fine-grained Personal Access Token with
-    // "Contents: Read and write" permission on this repo. The token lives
-    // in sessionStorage only (cleared when the tab closes).
-    //
-    // Repo info is auto-detected from window.location:
-    //   willdeluna.github.io/B737/   → owner=willdeluna, repo=B737
-    //   <user>.github.io/            → owner=<user>, repo=<user>.github.io
-    //   custom domain                → fall back to GITHUB_REPO_FALLBACK below.
-    // Override either by setting window.GITHUB_OWNER / window.GITHUB_REPO
-    // in a small <script> before this one (handy when you move to a
-    // custom domain later).
-    const GITHUB_REPO_FALLBACK = { owner: "Willdeluna", repo: "B737" };
-    const GITHUB_BRANCH = "main";  // change to "gh-pages" if your Pages source is that branch
-    const UPLOAD_PW_KEY = "b737EditorGithubToken";
-
-    // Token storage. Originally session-only to avoid persisting credentials,
-    // but that meant the token was lost on every tab close → loadRemoteState
-    // had no way to call the authoritative GitHub Contents API on cold load
-    // and fell back to the stale raw.githubusercontent.com CDN — which is
-    // exactly what made "deletes return after refresh".
-    //
-    // Now: we MIRROR the token into localStorage when set, and read from
-    // EITHER store on get (session preferred for currentness). User can wipe
-    // by clearing site data or with `forgetGithubToken()` from console.
-    function getStoredToken() {
-      try {
-        return sessionStorage.getItem(UPLOAD_PW_KEY) || localStorage.getItem(UPLOAD_PW_KEY) || "";
-      } catch (_) { return ""; }
-    }
-    function setStoredToken(token) {
-      try { sessionStorage.setItem(UPLOAD_PW_KEY, token); } catch (_) {}
-      try { localStorage.setItem(UPLOAD_PW_KEY, token); } catch (_) {}
-    }
-    window.forgetGithubToken = function forgetGithubToken() {
-      try { sessionStorage.removeItem(UPLOAD_PW_KEY); } catch (_) {}
-      try { localStorage.removeItem(UPLOAD_PW_KEY); } catch (_) {}
-      console.log("GitHub token cleared from this browser.");
-    };
-
-    function detectGithubRepo() {
-      if (window.GITHUB_OWNER && window.GITHUB_REPO) {
-        return { owner: window.GITHUB_OWNER, repo: window.GITHUB_REPO };
-      }
-      const host = location.hostname;
-      const m = host.match(/^([^.]+)\.github\.io$/i);
-      if (m) {
-        const owner = m[1];
-        // Path looks like /B737/foo.html → repo is "B737".
-        // For user/org root pages (no path prefix), repo === "<user>.github.io".
-        const seg = location.pathname.split("/").filter(Boolean)[0];
-        const repo = seg ? seg : `${owner}.github.io`;
-        // Hostnames are lowercase, but GitHub repo paths preserve casing
-        // and fine-grained tokens are scoped to the exact-cased path.
-        // If the URL-derived owner/repo (case-insensitively) matches the
-        // hardcoded fallback, prefer the fallback's casing — it's known good.
-        if (owner.toLowerCase() === GITHUB_REPO_FALLBACK.owner.toLowerCase() &&
-            repo.toLowerCase() === GITHUB_REPO_FALLBACK.repo.toLowerCase()) {
-          return { owner: GITHUB_REPO_FALLBACK.owner, repo: GITHUB_REPO_FALLBACK.repo };
-        }
-        return { owner, repo };
-      }
-      return GITHUB_REPO_FALLBACK;
-    }
-
-    // GitHub Contents API requires base64; FileReader gives us a data URL,
-    // we just strip the "data:...;base64," prefix.
-    function fileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const r = new FileReader();
-        r.onload = () => {
-          const s = String(r.result || "");
-          const comma = s.indexOf(",");
-          resolve(comma >= 0 ? s.slice(comma + 1) : s);
-        };
-        r.onerror = () => reject(new Error("Could not read file"));
-        r.readAsDataURL(file);
-      });
-    }
-
-    // GitHub's PUT /contents/{path} endpoint requires `sha` when overwriting
-    // an existing file. We look it up first; 404 means "new file, no sha".
-    async function fetchExistingSha(owner, repo, path, token) {
-      const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURI(path)}?ref=${encodeURIComponent(GITHUB_BRANCH)}`;
-      const res = await fetch(url, {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Accept": "application/vnd.github+json",
-          "X-GitHub-Api-Version": "2022-11-28"
-        }
-      });
-      if (res.status === 404) return null;
-      if (!res.ok) {
-        const body = await res.text().catch(() => "");
-        throw new Error(`Lookup failed (HTTP ${res.status}): ${body.slice(0, 200)}`);
-      }
-      const json = await res.json();
-      return json.sha || null;
-    }
-
-    async function githubPutFile({ owner, repo, path, base64, message, sha, token }) {
-      const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURI(path)}`;
-      const body = {
-        message,
-        content: base64,
-        branch: GITHUB_BRANCH
-      };
-      if (sha) body.sha = sha;
-      const res = await fetch(url, {
-        method: "PUT",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Accept": "application/vnd.github+json",
-          "X-GitHub-Api-Version": "2022-11-28",
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-      });
-      const txt = await res.text();
-      let json;
-      try { json = JSON.parse(txt); } catch { json = { message: txt.slice(0, 200) }; }
-      if (!res.ok) {
-        const err = new Error(`HTTP ${res.status}: ${json.message || res.statusText || "request failed"}`);
-        err.status = res.status;
-        throw err;
-      }
-      return json;
-    }
-
-    // ── Cross-device state sync ──────────────────────────────────────
-    // Syncs the editor's localStorage state to a state.json file on GitHub
-    // so changes made on the PC appear on iPad/iPhone (and vice versa).
-    //
-    // - On page load: fetches state.json and applies it to localStorage
-    //   BEFORE the rest of the editor reads from localStorage.
-    // - On any change: schedules a debounced 10-second push that commits
-    //   the current state to GitHub in a single commit.
-    // - Read-only mode: if no GitHub token is present (iPad/iPhone), the
-    //   device fetches state on load but never pushes.
-    const STATE_JSON_PATH = "state.json";
-    const STATE_SYNC_KEYS = [
-      "b737EditorCustomVideos",
-      "b737EditorHiddenImageThumbs",
-      "b737EditorThumbnailOrder",
-      "b737EditorQuizThumbs",
-      "b737EditorTribalThumbs",
-      "b737EditorMainPointsThumbs",
-      "b737EditorDeletedDefaultQuizKeys",
-      // Image-dot annotations live under per-image keys like
-      // b737EditorDots:images/21/21_5.png. Those are handled by the
-      // prefix scan below; no need to list them individually.
-    ];
-    const STATE_SYNC_KEY_PREFIXES = [
-      "b737EditorDots:",
-      "b737EditorDeletedDefault",
-    ];
-
-    let _stateSyncTimer = null;
-    let _stateSyncRemoteSha = null;  // sha of last fetched state.json (for safe update)
-    let _stateSyncLoaded = false;
-    let _stateSyncInFlight = false;
-
-    function collectLocalState() {
-      const state = { keys: {} };
-      // Named keys
-      STATE_SYNC_KEYS.forEach(k => {
-        const v = localStorage.getItem(k);
-        if (v != null) state.keys[k] = v;
-      });
-      // Prefix keys (dots, deleted-default lists, etc.)
-      for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (!k) continue;
-        if (STATE_SYNC_KEY_PREFIXES.some(p => k.startsWith(p))) {
-          if (state.keys[k] == null) {
-            state.keys[k] = localStorage.getItem(k);
-          }
-        }
-      }
-      return state;
-    }
-
-    function applyRemoteState(remoteState) {
-      if (!remoteState || !remoteState.keys) return;
-      Object.keys(remoteState.keys).forEach(k => {
-        try {
-          localStorage.setItem(k, remoteState.keys[k]);
-        } catch (err) {
-          console.warn("Could not write synced key", k, err);
-        }
-      });
-    }
-
-    async function loadRemoteState() {
-      // CRITICAL: order matters here. raw.githubusercontent.com has a CDN
-      // cache that can serve a stale state.json for several minutes after
-      // a write, even with cache-buster query strings. That stale read
-      // would silently overwrite our just-saved local state on reload —
-      // exactly the "delete returned after refresh" bug.
-      //
-      // The GitHub Contents API is always authoritative; it returns the
-      // current sha and content with no CDN lag. Try it FIRST when we have
-      // a token. Fall back to raw, then Pages, when the API isn't usable
-      // (no token, rate-limited, network blocked, etc.).
-      const { owner, repo } = detectGithubRepo();
-      const t = Date.now();
-      const token = getStoredToken();
-
-      // Strategy 1: GitHub Contents API (authoritative, no CDN cache).
-      // Try with token if available (5000/hour rate limit). Falls back to
-      // anonymous (60/hour) if no token — anonymous is still authoritative
-      // and good enough for the once-per-page-load read.
-      try {
-        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURI(STATE_JSON_PATH)}?ref=${encodeURIComponent(GITHUB_BRANCH)}&_=${t}`;
-        const headers = {
-          "Accept": "application/vnd.github+json",
-          "X-GitHub-Api-Version": "2022-11-28"
-        };
-        if (token) headers["Authorization"] = `Bearer ${token}`;
-        const res = await fetch(apiUrl, { cache: "no-store", headers });
-        if (res.ok) {
-          const json = await res.json();
-          if (json && json.content) {
-            const decoded = decodeURIComponent(escape(atob(json.content.replace(/\s/g, ""))));
-            const remoteState = JSON.parse(decoded);
-            applyRemoteState(remoteState);
-            if (json.sha) _stateSyncRemoteSha = json.sha;
-            _stateSyncLoaded = true;
-            console.log(`[stateSync] loaded state.json via Contents API (${token ? 'authenticated' : 'anonymous'}, authoritative)`);
-            return remoteState;
-          }
-        } else if (res.status === 404) {
-          _stateSyncLoaded = true;
-          return null;
-        } else if (res.status === 403) {
-          // Rate limited — fall through to raw/Pages
-          console.warn(`[stateSync] Contents API rate-limited (403), falling back to raw — DELETES MAY APPEAR TO RETURN until raw CDN catches up. Add a token to fix.`);
-        } else {
-          console.warn(`[stateSync] Contents API returned ${res.status}, falling back to raw`);
-        }
-      } catch (err) {
-        console.warn(`[stateSync] Contents API fetch failed, falling back to raw:`, err);
-      }
-
-      // Strategy 2/3: raw.githubusercontent.com (fast, but may be stale by
-      // a few minutes), then same-origin Pages URL.
-      const urls = [
-        `https://raw.githubusercontent.com/${owner}/${repo}/${GITHUB_BRANCH}/${STATE_JSON_PATH}?t=${t}`,
-        `${STATE_JSON_PATH}?t=${t}`,
-      ];
-      for (const rawUrl of urls) {
-        try {
-          const res = await fetch(rawUrl, { cache: "no-store" });
-          if (!res.ok) {
-            if (res.status !== 404) {
-              console.warn(`state.json fetch from ${rawUrl} returned`, res.status);
-            }
-            continue;
-          }
-          const remoteState = await res.json();
-          applyRemoteState(remoteState);
-          _stateSyncLoaded = true;
-          console.log('[stateSync] loaded state.json via fallback (' + (rawUrl.includes('raw.github') ? 'raw CDN — may be stale' : 'Pages') + ')');
-          return remoteState;
-        } catch (err) {
-          console.warn(`state.json fetch from ${rawUrl} failed:`, err);
-        }
-      }
-      _stateSyncLoaded = true;
-      return null;
-    }
-
-    async function fetchStateSha() {
-      // Get the current sha of state.json so we can update (vs create).
-      try {
-        const token = getStoredToken();
-        if (!token) return null;
-        const { owner, repo } = detectGithubRepo();
-        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURI(STATE_JSON_PATH)}?ref=${encodeURIComponent(GITHUB_BRANCH)}`;
-        const res = await fetch(apiUrl, {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Accept": "application/vnd.github+json",
-            "X-GitHub-Api-Version": "2022-11-28"
-          }
-        });
-        if (res.status === 404) return null;
-        if (!res.ok) return null;
-        const json = await res.json();
-        return json.sha || null;
-      } catch (_) {
-        return null;
-      }
-    }
-
-    async function pushStateToGitHub() {
-      if (_stateSyncInFlight) {
-        // Already pushing; schedule another push when this one finishes.
-        scheduleStateSync(2000);
-        return;
-      }
-      const token = getStoredToken();
-      if (!token) {
-        // No token = no write access. Previously this silently returned,
-        // which meant deletes/adds appeared to succeed but were never pushed
-        // to GitHub — and on reload, the authoritative state from GitHub
-        // overwrote the local change, making it look like the action
-        // "didn't take". Throwing here lets awaiting callers (delete/add
-        // handlers) show a clear error to the user.
-        const err = new Error("No GitHub token saved. Click ⬆ Upload once and enter your token to enable cross-device sync. Changes made now exist only on this device until then.");
-        err.noToken = true;
-        throw err;
-      }
-      _stateSyncInFlight = true;
-      try {
-        // Retry up to 3 times on SHA conflict (409). The most common cause:
-        // the "Generate images manifest" Action commits manifest.json between
-        // when we fetched the SHA and when we PUT — that bumps state.json's
-        // tree SHA, GitHub rejects our stale-SHA PUT, and we'd silently lose
-        // the upload without this retry.
-        //
-        // Each retry refetches the remote state.json and MERGES our local
-        // additions on top of it (last-writer-wins per key), so a concurrent
-        // edit from another device or the Action doesn't wipe whatever the
-        // user just did locally.
-        const { owner, repo } = detectGithubRepo();
-        let lastErr = null;
-        for (let attempt = 1; attempt <= 3; attempt++) {
-          try {
-            const localState = collectLocalState();
-            if (!Object.keys(localState.keys).length) {
-              _stateSyncInFlight = false;
-              return;
-            }
-            // On retries, pull the remote state fresh and merge — never blindly
-            // overwrite, that's how multi-device edits get lost.
-            let mergedState = localState;
-            if (attempt > 1) {
-              try {
-                const remote = await loadRemoteStateOnly();
-                if (remote && remote.keys) {
-                  // Local wins for every key we currently hold; remote fills
-                  // in anything we don't have. Then we write the merged blob.
-                  mergedState = { keys: { ...remote.keys, ...localState.keys } };
-                  // Also push the merged remote keys back into localStorage so
-                  // future collectLocalState() calls include them.
-                  Object.keys(remote.keys).forEach(k => {
-                    if (localState.keys[k] == null) {
-                      try { localStorage.setItem(k, remote.keys[k]); } catch (_) {}
-                    }
-                  });
-                }
-              } catch (mergeErr) {
-                console.warn("[stateSync] merge fetch failed, pushing local only:", mergeErr);
-              }
-            }
-            const stateText = JSON.stringify(mergedState);
-            const base64 = btoa(unescape(encodeURIComponent(stateText)));
-            // Always refetch the current SHA on retry — the cached one is stale.
-            const sha = (attempt === 1)
-              ? (_stateSyncRemoteSha || await fetchStateSha())
-              : await fetchStateSha();
-            const result = await githubPutFile({
-              owner, repo,
-              path: STATE_JSON_PATH,
-              base64,
-              message: attempt === 1 ? "Auto-sync editor state" : `Auto-sync editor state (retry ${attempt})`,
-              sha,
-              token
-            });
-            if (result && result.content && result.content.sha) {
-              _stateSyncRemoteSha = result.content.sha;
-            }
-            setStatus && setStatus(attempt === 1 ? "Synced changes to all devices" : `Synced changes (after ${attempt} attempts)`);
-            console.log(`[stateSync] push succeeded on attempt ${attempt}`);
-            lastErr = null;
-            break;
-          } catch (err) {
-            lastErr = err;
-            const status = Number(err && err.status) || 0;
-            const msg = String(err && err.message || err);
-            // 409 = SHA mismatch (concurrent write). 422 = GitHub sometimes
-            // uses this for "does not match". Retry with fresh SHA + merge.
-            const isConflict = status === 409 || status === 422 ||
-              /\b409\b|\b422\b|does not match|is at|but expected/i.test(msg);
-            if (!isConflict || attempt === 3) {
-              throw err;
-            }
-            console.warn(`[stateSync] attempt ${attempt} hit conflict (status ${status}), retrying with merge:`, msg);
-            // Invalidate the cached SHA so the next iteration refetches.
-            _stateSyncRemoteSha = null;
-            // Small backoff before retrying.
-            await new Promise(r => setTimeout(r, 500 * attempt));
-          }
-        }
-        if (lastErr) throw lastErr;
-      } catch (err) {
-        console.warn("State sync failed:", err);
-        // Reset cached SHA so the next scheduled sync starts fresh.
-        _stateSyncRemoteSha = null;
-        setStatus && setStatus("Sync failed — will retry", true);
-        // Schedule another debounced attempt so we don't permanently give up.
-        scheduleStateSync(5000);
-      } finally {
-        _stateSyncInFlight = false;
-      }
-    }
-
-    // Fetch the remote state.json without applying it to localStorage. Used
-    // by pushStateToGitHub's retry-on-conflict merge path.
-    async function loadRemoteStateOnly() {
-      const { owner, repo } = detectGithubRepo();
-      const t = Date.now();
-      const token = getStoredToken();
-      // Prefer authoritative Contents API (auth or anon) for retry-merge to
-      // ensure we have the freshest possible state to merge into. Raw CDN
-      // can lag minutes.
-      try {
-        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURI(STATE_JSON_PATH)}?ref=${encodeURIComponent(GITHUB_BRANCH)}&_=${t}`;
-        const headers = {
-          "Accept": "application/vnd.github+json",
-          "X-GitHub-Api-Version": "2022-11-28"
-        };
-        if (token) headers["Authorization"] = `Bearer ${token}`;
-        const res = await fetch(apiUrl, { cache: "no-store", headers });
-        if (res.ok) {
-          const json = await res.json();
-          if (json && json.content) {
-            const decoded = decodeURIComponent(escape(atob(json.content.replace(/\s/g, ""))));
-            return JSON.parse(decoded);
-          }
-        }
-      } catch (_) { /* fall through to raw */ }
-      const urls = [
-        `https://raw.githubusercontent.com/${owner}/${repo}/${GITHUB_BRANCH}/${STATE_JSON_PATH}?t=${t}`,
-        `${STATE_JSON_PATH}?t=${t}`,
-      ];
-      for (const url of urls) {
-        try {
-          const res = await fetch(url, { cache: "no-store" });
-          if (!res.ok) continue;
-          return await res.json();
-        } catch (_) { /* try next */ }
-      }
-      return null;
-    }
-
-    function scheduleStateSync(delayMs) {
-      const delay = typeof delayMs === "number" ? delayMs : 10000;
-      if (_stateSyncTimer) clearTimeout(_stateSyncTimer);
-      _stateSyncTimer = setTimeout(() => {
-        _stateSyncTimer = null;
-        pushStateToGitHub();
-      }, delay);
-    }
-
-    // Wrap localStorage.setItem so writes to synced keys auto-schedule a push.
-    // This avoids having to find and modify every save call site in the
-    // editor — anything that writes to a synced key triggers a debounced
-    // commit automatically.
-    (function installStateSyncHook() {
-      const originalSetItem = Storage.prototype.setItem;
-      Storage.prototype.setItem = function(k, v) {
-        const result = originalSetItem.apply(this, arguments);
-        try {
-          if (this === window.localStorage) {
-            const isSyncedKey =
-              STATE_SYNC_KEYS.includes(k) ||
-              STATE_SYNC_KEY_PREFIXES.some(p => typeof k === "string" && k.startsWith(p));
-            if (isSyncedKey && _stateSyncLoaded) {
-              scheduleStateSync();
-            }
-          }
-        } catch (_) { /* noop */ }
-        return result;
-      };
-    })();
-
-    // Devtools helper: force an immediate sync push (skips the 10s debounce).
-    window.syncNow = function syncNow() {
-      if (_stateSyncTimer) {
-        clearTimeout(_stateSyncTimer);
-        _stateSyncTimer = null;
-      }
-      return pushStateToGitHub();
-    };
-
-    // Refresh-safety guard: if the user tries to close/refresh the tab while
-    // a sync is in flight (or there's a pending debounced sync that hasn't
-    // run yet), warn them. The browser will show a "Leave site?" dialog —
-    // confirming proceeds, cancelling gives the sync time to land.
-    //
-    // This is the difference between "delete persisted" and "thumb came back
-    // after refresh" — without the warning, refreshing 200ms after a delete
-    // unloads the page mid-PUT and GitHub never receives the commit.
-    window.addEventListener("beforeunload", (e) => {
-      const hasPendingDebounce = _stateSyncTimer !== null;
-      const hasInFlightSync = _stateSyncInFlight === true;
-      if (hasPendingDebounce || hasInFlightSync) {
-        // Try one last fire-and-forget push so even if they confirm leaving,
-        // we at least kick off the request before the page unloads.
-        try {
-          if (_stateSyncTimer) {
-            clearTimeout(_stateSyncTimer);
-            _stateSyncTimer = null;
-          }
-          if (!hasInFlightSync) pushStateToGitHub();
-        } catch (_) {}
-        // Modern browsers ignore the custom message but show their own dialog.
-        const msg = "Changes are still saving to GitHub. Leave anyway?";
-        e.preventDefault();
-        e.returnValue = msg;
-        return msg;
-      }
-    });
-
-    // ── Manifest auto-update after upload ─────────────────────────────
-    // After committing a new chapter image, also update images/manifest.json
-    // so other devices see the new image on next page load without having
-    // to clear cache or re-probe.
-    //
-    // Best-effort: failures here log a warning but don't fail the upload.
-    async function updateManifestAfterUpload({ owner, repo, chapter, imageNumber, token }) {
-      if (!imageNumber) return; // Non-numbered files (covers, link thumbs) aren't in the manifest
-      const manifestPath = "images/manifest.json";
-      const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURI(manifestPath)}?ref=${encodeURIComponent(GITHUB_BRANCH)}`;
-
-      let existing = {};
-      let existingSha = null;
-
-      try {
-        const res = await fetch(apiUrl, {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Accept": "application/vnd.github+json",
-            "X-GitHub-Api-Version": "2022-11-28"
-          }
-        });
-        if (res.ok) {
-          const json = await res.json();
-          existingSha = json.sha || null;
-          // GitHub returns base64-encoded content
-          if (json.content) {
-            try {
-              const decoded = atob(json.content.replace(/\n/g, ""));
-              const parsed = JSON.parse(decoded);
-              if (parsed && typeof parsed === "object") existing = parsed;
-            } catch (_) { /* fall through to empty */ }
-          }
-        } else if (res.status !== 404) {
-          console.warn("Manifest lookup returned", res.status);
-        }
-      } catch (err) {
-        console.warn("Could not fetch manifest:", err);
-        return;
-      }
-
-      const chKey = String(chapter);
-      const current = Array.isArray(existing[chKey]) ? existing[chKey].map(Number) : [];
-      if (current.includes(Number(imageNumber))) {
-        return; // Already in manifest, nothing to do
-      }
-      current.push(Number(imageNumber));
-      current.sort((a, b) => a - b);
-      existing[chKey] = current;
-
-      const newContent = JSON.stringify(existing);
-      // Base64-encode UTF-8 safely
-      const base64 = btoa(unescape(encodeURIComponent(newContent)));
-
-      try {
-        await githubPutFile({
-          owner, repo,
-          path: manifestPath,
-          base64,
-          message: `Update manifest: add ${chKey}_${imageNumber}`,
-          sha: existingSha,
-          token
-        });
-        // Update local cache so this device also sees the change immediately
-        chapterImageCache.set(chKey, current);
-        saveChapterImageCache();
-      } catch (err) {
-        console.warn("Could not write manifest:", err);
-      }
-    }
+    // Opens a form to pick a file + filename + chapter, then POSTs to
+    // upload.php (which must be hosted next to this HTML file on the
+    // same Bluehost server). Sessions remember the password so you don't
+    // re-type it after the first upload.
+    const UPLOAD_ENDPOINT = "upload.php";   // path on Bluehost, relative to this file
+    const UPLOAD_PW_KEY = "b737EditorUploadPw";
 
     function openUploadModal() {
       const modal = document.getElementById("uploadModal");
@@ -4334,7 +3451,7 @@ let filterToCurrentImageDots = false;
       });
 
       // Pre-fill password from session storage if available
-      const savedPw = getStoredToken() || "";
+      const savedPw = sessionStorage.getItem(UPLOAD_PW_KEY) || "";
       document.getElementById("upPassword").value = savedPw;
 
       document.getElementById("upFile").value = "";
@@ -4419,70 +3536,34 @@ let filterToCurrentImageDots = false;
       }
 
       const chapter = document.getElementById("upChapter").value;
-      const token = document.getElementById("upPassword").value.trim();
-      if (!token) {
-        statusEl.textContent = "GitHub token required.";
+      const password = document.getElementById("upPassword").value;
+      if (!password) {
+        statusEl.textContent = "Upload password required.";
         statusEl.className = "lm-hint error";
         return;
       }
 
-      // GitHub rejects files >100MB outright and warns >50MB.
-      // The contents API itself has a hard 100MB limit, but realistically
-      // these are training screenshots — bail early if something's huge.
-      if (file.size > 25 * 1024 * 1024) {
-        statusEl.textContent = `File too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Resize to under 25MB first.`;
-        statusEl.className = "lm-hint error";
-        return;
-      }
-
-      const { owner, repo } = detectGithubRepo();
-      const repoPath = `images/${chapter}/${filename}`;
-
-      statusEl.textContent = `Uploading to ${owner}/${repo}…`;
+      statusEl.textContent = "Uploading…";
       statusEl.className = "lm-hint";
 
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("chapter", chapter);
+      fd.append("filename", filename);
+      fd.append("password", password);
+
       try {
-        const base64 = await fileToBase64(file);
-
-        // Check if file already exists (overwrite needs the sha)
-        statusEl.textContent = "Checking for existing file…";
-        const existingSha = await fetchExistingSha(owner, repo, repoPath, token);
-
-        statusEl.textContent = existingSha ? "Overwriting…" : "Creating…";
-        const result = await githubPutFile({
-          owner, repo,
-          path: repoPath,
-          base64,
-          message: `${existingSha ? "Update" : "Add"} ${repoPath} via editor`,
-          sha: existingSha,
-          token
-        });
-
-        // Parse imageNumber out of the filename so the existing repositioning
-        // logic still works (e.g. "22_18.png" → 18).
-        const numMatch = filename.match(/_(\d+)\.[a-z]+$/i);
-        const imageNumber = numMatch ? Number(numMatch[1]) : null;
-
-        // For the "show it now" trick: GitHub Pages takes 30–60s to rebuild,
-        // but raw.githubusercontent.com serves the file immediately. We
-        // monkey-patch a one-off override URL into the image cache so the
-        // new thumbnail appears instantly. Next page reload, the Pages copy
-        // takes over.
-        const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${GITHUB_BRANCH}/${repoPath}`;
-        window.__githubRawOverrides = window.__githubRawOverrides || {};
-        window.__githubRawOverrides[repoPath] = rawUrl;
-
-        statusEl.textContent = `Committed → ${repoPath}`;
-        statusEl.className = "lm-hint success";
-        // Remember the token for this session
-        setStoredToken(token);
-
-        // Build a compatibility object matching the old PHP response so the
-        // rest of the function below (which we want to keep) reads it cleanly.
-        const json = { ok: true, path: repoPath, imageNumber, chapter };
-        const res = { ok: true, status: 200 };
+        const res = await fetch(UPLOAD_ENDPOINT, { method: "POST", body: fd });
+        const txt = await res.text();
+        let json;
+        try { json = JSON.parse(txt); }
+        catch { json = { ok: false, error: "Server didn't return JSON. Response was: " + txt.slice(0, 200) }; }
 
         if (res.ok && json.ok) {
+          statusEl.textContent = `Uploaded → ${json.path}`;
+          statusEl.className = "lm-hint success";
+          // Remember the password for this session
+          sessionStorage.setItem(UPLOAD_PW_KEY, password);
           // Capture the anchor BEFORE the rebuild
           const anchorKey = mediaItems[currentMediaIndex]?.key || null;
           // The upload response gives us the chapter and imageNumber, which
@@ -4501,117 +3582,55 @@ let filterToCurrentImageDots = false;
               saveChapterImageCache();
             }
           }
-
-          // Un-hide the newly-uploaded path. If the user previously hid an
-          // empty slot at this image number, that hide entry would silently
-          // filter the new upload out of the strip on every refresh
-          // (buildMediaItems() drops items where isImageThumbHidden() is true).
-          // Uploading new content over that slot clearly means "I want this
-          // visible now", so remove any matching hide entry — both by image
-          // URL and by chapter-N-M key — and persist.
-          try {
-            const uploadedUrl = chapterImagePath(chapter, json.imageNumber);
-            const uploadedKeyLower = uploadedKey ? String(uploadedKey).toLowerCase() : "";
-            const before = hiddenImageThumbs.length;
-            hiddenImageThumbs = hiddenImageThumbs.filter(h => {
-              const hl = String(h || "").toLowerCase();
-              if (uploadedUrl && hl === String(uploadedUrl).toLowerCase()) return false;
-              if (uploadedKeyLower && hl === uploadedKeyLower) return false;
-              return true;
-            });
-            if (hiddenImageThumbs.length !== before) {
-              saveHiddenImageThumbs();
-              console.log('[upload] unhid previously-hidden slot for', uploadedUrl);
-            }
-          } catch (e) {
-            console.warn('[upload] could not unhide uploaded slot', e);
-          }
-          // Note: images/manifest.json is updated automatically by the
-          // "Generate images manifest" GitHub Action whenever images/**
-          // changes. We don't write it from JS — that caused 409 conflicts
-          // when both JS and the Action raced to update the file.
           // Refresh the thumbnail strip so the new image appears
           mediaItems = buildMediaItems(allImages);
           attachImageRowsToMediaItems();
 
-          // Reposition the uploaded image. Prefer placement right after the
-          // thumbnail the user had selected when they clicked Upload (the
-          // anchor) — that's the most intuitive behavior: "drop the new
-          // image where I was looking." Only fall back to "end of chapter"
-          // when the selection isn't in this chapter (e.g. user uploaded
-          // from chapter 24 while a chapter-25 thumb was selected).
-          console.log('[upload] uploadedKey=', uploadedKey, 'json.imageNumber=', json.imageNumber, 'chapter=', chapter, 'anchorKey=', anchorKey);
+          // Reposition the uploaded image into its chapter group.
+          // The old anchor-based logic depended on whatever thumb the user had
+          // selected, which meant a saved thumbnail order in localStorage could
+          // park the new image at the end of the strip. Instead, place the new
+          // image right after the last existing item belonging to the same
+          // chapter (or right after the chapter cover if it's the first one).
+          console.log('[upload] uploadedKey=', uploadedKey, 'json.imageNumber=', json.imageNumber, 'chapter=', chapter);
           if (uploadedKey) {
             const uploadedIdx = mediaItems.findIndex(it => it && it.key === uploadedKey);
             if (uploadedIdx >= 0) {
+              // Pull the uploaded item out of wherever applySavedThumbnailOrder
+              // put it, so we can re-insert it in the right spot.
               const [picked] = mediaItems.splice(uploadedIdx, 1);
 
-              // First try: place right after the anchor (currently selected
-              // thumb), but only if the anchor is in the same chapter as
-              // the upload. Otherwise it's confusing to scatter chapter-24
-              // images into a chapter-25 group.
+              // Find the latest index that still belongs to this chapter.
+              // We prefer landing right after the last existing chapter image
+              // (so the strip stays "cover, img1, img2, … , NEW"); failing that,
+              // we land right after the chapter cover itself.
+              // NOTE: match on chapter, not type — attachImageRowsToMediaItems()
+              // may have already promoted some "chapter" items to "image" type
+              // if they have a matching Supabase row, but their chapter field
+              // is preserved.
               let insertAfterIdx = -1;
-              if (anchorKey) {
-                const anchorIdx = mediaItems.findIndex(it => it && it.key === anchorKey);
-                if (anchorIdx >= 0) {
-                  const anchorItem = mediaItems[anchorIdx];
-                  if (String(anchorItem?.chapter || "") === String(chapter)) {
-                    insertAfterIdx = anchorIdx;
-                    console.log('[upload] using anchor placement at idx', anchorIdx);
-                  }
+              for (let i = 0; i < mediaItems.length; i++) {
+                const it = mediaItems[i];
+                if (!it || it.key === uploadedKey) continue;
+                if (String(it.chapter || "") === String(chapter)) {
+                  insertAfterIdx = i;
                 }
               }
-
-              // Fallback: end of this chapter's group.
-              if (insertAfterIdx < 0) {
-                for (let i = 0; i < mediaItems.length; i++) {
-                  const it = mediaItems[i];
-                  if (!it || it.key === uploadedKey) continue;
-                  if (String(it.chapter || "") === String(chapter)) {
-                    insertAfterIdx = i;
-                  }
-                }
-                console.log('[upload] anchor not usable, falling back to end-of-chapter at', insertAfterIdx);
-              }
+              console.log('[upload] insertAfterIdx=', insertAfterIdx, 'for chapter', chapter);
 
               if (insertAfterIdx >= 0) {
                 mediaItems.splice(insertAfterIdx + 1, 0, picked);
                 console.log('[upload] repositioned', uploadedKey, 'to index', insertAfterIdx + 1);
               } else {
+                // No chapter items in the strip at all? Put it back where it was.
                 mediaItems.splice(uploadedIdx, 0, picked);
                 console.warn('[upload] chapter', chapter, 'not found in mediaItems, kept natural slot');
               }
 
+              // Persist so the placement survives reloads (and future rebuilds).
               try { saveThumbnailOrder(); console.log('[upload] saved order'); } catch (e) { console.warn('[upload] save failed', e); }
             } else {
-              console.warn('[upload] uploadedKey not found in rebuilt mediaItems — injecting manually');
-              // Manifest hasn't caught up yet (it lives on GitHub and updates
-              // asynchronously). Inject the new chapter item directly so the
-              // strip still shows it right away.
-              try {
-                const newItem = createChapterMediaItem(chapter, json.imageNumber);
-                // Place after the anchor when in the same chapter; otherwise
-                // append to the end of this chapter's group.
-                let insertAfterIdx = -1;
-                if (anchorKey) {
-                  const anchorIdx = mediaItems.findIndex(it => it && it.key === anchorKey);
-                  if (anchorIdx >= 0 && String(mediaItems[anchorIdx]?.chapter || "") === String(chapter)) {
-                    insertAfterIdx = anchorIdx;
-                  }
-                }
-                if (insertAfterIdx < 0) {
-                  for (let i = 0; i < mediaItems.length; i++) {
-                    if (String(mediaItems[i]?.chapter || "") === String(chapter)) {
-                      insertAfterIdx = i;
-                    }
-                  }
-                }
-                if (insertAfterIdx < 0) insertAfterIdx = mediaItems.length - 1;
-                mediaItems.splice(insertAfterIdx + 1, 0, newItem);
-                try { saveThumbnailOrder(); console.log('[upload] saved order after injection'); } catch (e) { console.warn('[upload] save failed', e); }
-              } catch (e) {
-                console.warn('[upload] manual injection failed', e);
-              }
+              console.warn('[upload] uploadedKey not found in rebuilt mediaItems');
             }
           } else {
             console.warn('[upload] missing uploadedKey, no reposition');
@@ -4625,45 +3644,14 @@ let filterToCurrentImageDots = false;
             if (reIdx >= 0) currentMediaIndex = reIdx;
           }
           setStatus(`Uploaded ${filename} to chapter ${chapter}`);
-
-          // Force an IMMEDIATE state sync to GitHub and WAIT for it. The
-          // localStorage hook only schedules a 10-second debounced push, and
-          // even the immediate path can hit a 409 from concurrent commits
-          // (e.g. the manifest-generation Action). We need the sync to be
-          // confirmed-on-GitHub before letting the user refresh — otherwise
-          // the next page load reads the stale state.json and silently drops
-          // the upload from the strip.
-          statusEl.textContent = "Saving order to all devices…";
-          statusEl.className = "lm-hint";
-          try {
-            if (typeof window.syncNow === 'function') {
-              await window.syncNow();
-            }
-            statusEl.textContent = `Uploaded & synced: ${filename}`;
-            statusEl.className = "lm-hint success";
-          } catch (syncErr) {
-            console.warn('[upload] syncNow failed', syncErr);
-            statusEl.textContent = `Uploaded ${filename}, but sync to other devices failed — retrying in background. DO NOT refresh yet.`;
-            statusEl.className = "lm-hint error";
-            // Don't auto-close on sync failure — give the user a chance to read the warning.
-            return;
-          }
           // Auto-close after a short delay
           setTimeout(closeUploadModal, 1500);
+        } else {
+          statusEl.textContent = "Upload failed: " + (json.error || `HTTP ${res.status}`);
+          statusEl.className = "lm-hint error";
         }
       } catch (err) {
-        // Common GitHub API error patterns, translated to plain English
-        let msg = err.message || String(err);
-        if (/Bad credentials/i.test(msg)) {
-          msg = "GitHub rejected the token. Check it's not expired and has Contents: Read & write on this repo.";
-        } else if (/Resource not accessible/i.test(msg)) {
-          msg = "Token doesn't have write access to this repo. Re-generate with Contents: Read & write.";
-        } else if (/Not Found/i.test(msg)) {
-          msg = "Repo not found. Check owner/repo names and that the token can see this repo.";
-        } else if (/Failed to fetch|NetworkError/i.test(msg)) {
-          msg = "Network error reaching api.github.com — is GitHub blocked on this network?";
-        }
-        statusEl.textContent = "Upload failed: " + msg;
+        statusEl.textContent = "Network error: " + err.message;
         statusEl.className = "lm-hint error";
       }
     }
@@ -4675,7 +3663,6 @@ let filterToCurrentImageDots = false;
       const file     = document.getElementById("upFile");
       const save     = document.getElementById("upSave");
       const cancel   = document.getElementById("upCancel");
-      const pwField  = document.getElementById("upPassword");
       if (!btn || !modal || !save) return;
 
       btn.addEventListener("click", openUploadModal);
@@ -4683,17 +3670,6 @@ let filterToCurrentImageDots = false;
       file.addEventListener("change", previewUploadFile);
       save.addEventListener("click", doUpload);
       cancel.addEventListener("click", closeUploadModal);
-      // Save the token to sessionStorage as soon as it's typed so that
-      // cross-device sync works even if the user opens the modal just to
-      // enter the token (no actual upload yet).
-      if (pwField) {
-        pwField.addEventListener("input", () => {
-          const tok = pwField.value.trim();
-          if (tok) {
-            setStoredToken(tok);
-          }
-        });
-      }
       modal.addEventListener("click", e => { if (e.target === modal) closeUploadModal(); });
       document.addEventListener("keydown", e => {
         if (e.key === "Escape" && modal.classList.contains("show")) closeUploadModal();
@@ -4705,7 +3681,7 @@ let filterToCurrentImageDots = false;
       initUploadModal();
     }
 
-    async function deleteSelectedLinkThumbnail() {
+    function deleteSelectedLinkThumbnail() {
       const currentItem = mediaItems[currentMediaIndex];
 
       if (!currentItem || !["quiz", "app", "tribal", "mainpoints"].includes(currentItem.type)) {
@@ -4760,14 +3736,7 @@ let filterToCurrentImageDots = false;
       attachImageRowsToMediaItems();
       renderThumbnails(mediaItems);
       showMediaByIndex(Math.max(0, currentMediaIndex - 1));
-      setStatus("Link thumbnail deleted — syncing…");
-      try {
-        if (typeof window.syncNow === 'function') await window.syncNow();
-        setStatus("Link thumbnail deleted & synced");
-      } catch (e) {
-        console.warn('[delLink] syncNow failed', e);
-        setStatus(syncErrorMessage(e, "Deleted"), true);
-      }
+      setStatus("Link thumbnail deleted");
     }
 
 
@@ -4873,7 +3842,7 @@ let filterToCurrentImageDots = false;
       setStatus(placement === null ? `Video added at end: ${label}` : `Video added after selected thumbnail: ${label}`);
     }
 
-    async function deleteSelectedVideo() {
+    function deleteSelectedVideo() {
       const currentItem = mediaItems[currentMediaIndex];
 
       if (!currentItem || currentItem.type !== "video") {
@@ -4898,14 +3867,7 @@ let filterToCurrentImageDots = false;
       attachImageRowsToMediaItems();
       renderThumbnails(mediaItems);
       showMediaByIndex(Math.max(0, currentMediaIndex - 1));
-      setStatus("Video deleted — syncing…");
-      try {
-        if (typeof window.syncNow === 'function') await window.syncNow();
-        setStatus("Video deleted & synced");
-      } catch (e) {
-        console.warn('[delVideo] syncNow failed', e);
-        setStatus(syncErrorMessage(e, "Deleted"), true);
-      }
+      setStatus("Video deleted");
     }
 
 
@@ -5307,44 +4269,6 @@ let filterToCurrentImageDots = false;
         // skips the missing-image slots.
         loadChapterImageCache();
 
-        // Fetch synced state from GitHub before reading any localStorage —
-        // this is what makes iPad/iPhone show changes made on the PC.
-        await loadRemoteState();
-
-        // Warn the user if no token is stored. Without a token, deletes and
-        // additions can't be pushed to GitHub — they only exist locally and
-        // get overwritten by the authoritative remote state on next reload.
-        // This is the cause of the "deleted thumbnail returns after refresh"
-        // symptom when the user hasn't connected GitHub yet.
-        try {
-          if (!getStoredToken()) {
-            const noticeKey = "b737EditorTokenNoticeDismissed";
-            const dismissed = localStorage.getItem(noticeKey);
-            if (!dismissed) {
-              setTimeout(() => {
-                const msg =
-                  "Cross-device sync is DISABLED on this browser.\n\n" +
-                  "Without a GitHub token, any thumbnails you delete or add " +
-                  "will appear deleted locally — but they'll come back on refresh " +
-                  "because GitHub never received the change.\n\n" +
-                  "FIX: Click ⬆ Upload, enter your GitHub token once. It will be " +
-                  "saved on this device and all future changes will sync.\n\n" +
-                  "Click OK to acknowledge (this warning won't show again on this device).";
-                alert(msg);
-                try { localStorage.setItem(noticeKey, "1"); } catch (_) {}
-              }, 600);
-            }
-          }
-        } catch (_) {}
-
-        // Refresh the module-level state vars from the (now-updated) localStorage
-        customVideos = loadEditorVideos();
-        customQuizThumbs = loadQuizThumbs();
-        customTribalThumbs = loadTribalThumbs();
-        customMainPointsThumbs = loadMainPointsThumbs();
-        hiddenImageThumbs = loadHiddenImageThumbs();
-        savedThumbnailOrder = loadThumbnailOrder();
-
         const { data, error } = await supabaseClient
           .from("aircraft_images737")
           .select(`
@@ -5471,15 +4395,11 @@ let filterToCurrentImageDots = false;
         if (item.type === "image" || item.type === "chapter") {
           image.src = item.imageUrl;
           image.alt = item.imageLabel || `Image ${item.imageIndex + 1}`;
-          // Try the raw.githubusercontent.com URL before giving up.
-          // GitHub Pages can take minutes to propagate a freshly-uploaded
-          // image, but raw serves it immediately. Without this fallback,
-          // newly-uploaded thumbnails just disappear from the strip.
-          withRawFallback(image, () => {
+          image.onerror = () => {
             if (item.type === "chapter") {
               btn.style.display = "none";
             }
-          });
+          };
           btn.title = item.chapter
             ? `Chapter ${item.chapter} - ${item.imageLabel}`
             : item.imageLabel;
@@ -5492,13 +4412,13 @@ let filterToCurrentImageDots = false;
           if (thumb) {
             image.src = thumb;
             image.alt = item.label || `${appLabel} Thumbnail`;
-            withRawFallback(image, () => {
+            image.onerror = () => {
               image.remove();
               const fallback = document.createElement("div");
               fallback.className = "quiz-fallback-tile";
               fallback.innerHTML = `<div class="quiz-title">${escapeHtml(item.label || "LINK")}</div>`;
               btn.insertBefore(fallback, btn.firstChild);
-            });
+            };
             btn.appendChild(image);
           } else {
             const fallback = document.createElement("div");
@@ -5653,9 +4573,6 @@ let filterToCurrentImageDots = false;
       viewerOverlay.style.display = "block";
       isVideoShowing = false;
 
-      // Reset the raw-fallback flag so this image gets its own retry chance
-      // (it's a one-shot per element, so we clear it on each new src).
-      delete viewerImage.dataset.rawFallbackTried;
       viewerImage.src = item.imageUrl;
       viewerImage.alt = item.imageLabel || `Image ${item.imageIndex + 1}`;
 
