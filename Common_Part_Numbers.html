@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Common Part Numbers</title>
+<title>OBJ Aircraft 3D Viewer - XYZ Axis</title>
 <style>
   *{box-sizing:border-box} body{margin:0;background:#000;color:#ff9f1c;font-family:Arial,Helvetica,sans-serif;overflow:hidden}
   .app{display:grid;grid-template-rows:auto 1fr;height:100vh;background:radial-gradient(circle at top left,rgba(255,159,28,.14),transparent 35%),#000}
@@ -27,441 +27,12 @@
   .dotlist{position:absolute;right:12px;top:12px;width:min(360px,calc(100% - 24px));max-height:32vh;overflow:auto;color:#ffd27f;background:rgba(0,0,0,.78);border:1px solid rgba(255,159,28,.7);border-radius:12px;padding:10px;font-size:12px;line-height:1.35;box-shadow:0 0 18px rgba(255,159,28,.18);z-index:9}
   .dotlist h3{margin:0 0 6px;color:#ff9f1c;font-size:13px}.dotrow{border-top:1px solid rgba(255,159,28,.25);padding:7px 0;cursor:pointer}.dotrow:hover{color:#fff}.dotrow b{color:#ff9f1c}.dotrow.selected{background:rgba(102,184,255,.08);outline:1px solid rgba(102,184,255,.35);border-radius:8px;padding-left:6px;padding-right:6px}.dotrow.selected b{color:#66b8ff}.dotrow-head{display:flex;justify-content:space-between;gap:8px;align-items:center}.dotedit{display:none;margin-top:6px;gap:5px;grid-template-columns:1fr;}.dotrow.selected .dotedit{display:grid}.dotedit input{width:100%;background:#111;color:#ffd27f;border:1px solid rgba(255,159,28,.65);border-radius:6px;padding:6px;font-size:12px}.dotedit button{width:100%;background:#111;color:#ff9f1c;border:1px solid #ff9f1c;border-radius:6px;padding:6px;font-weight:800;cursor:pointer}.dotedit button:hover{background:#ff9f1c;color:#000}.dotcoords{font-size:10px;color:#b99461;margin-top:3px}.dothelp{font-size:11px;color:#ffd27f;margin:0 0 6px;border:1px solid rgba(255,159,28,.35);border-radius:8px;padding:5px;background:rgba(255,159,28,.06)}
 
-
-/* Responsive collapsible panels for tablet / iPhone */
-.panel-toggle-row{
-  position:absolute;
-  left:12px;
-  top:12px;
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  z-index:120;
-  pointer-events:auto;
-}
-.panel-toggle-row button{
-  background:rgba(17,17,17,.94);
-  color:#ff9f1c;
-  border:1px solid #ff9f1c;
-  border-radius:999px;
-  padding:7px 10px;
-  font-weight:900;
-  font-size:12px;
-  box-shadow:0 0 12px rgba(255,159,28,.18);
-}
-.panel-toggle-row button.active-panel-toggle{
-  background:#ff9f1c;
-  color:#000;
-}
-.collapsible-panel{
-  transition:transform .18s ease,opacity .18s ease,max-height .18s ease;
-}
-.collapsible-panel.collapsed{
-  opacity:0;
-  transform:translateY(8px) scale(.98);
-  pointer-events:none;
-  max-height:0!important;
-  padding-top:0!important;
-  padding-bottom:0!important;
-  border-width:0!important;
-  overflow:hidden!important;
-}
-.dotlist{
-  top:56px;
-}
-.hud{
-  bottom:12px;
-}
-.model-info-header,
-.hotspot-list-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:8px;
-  margin-bottom:6px;
-}
-.model-info-title,
-.hotspot-list-title{
-  color:#ff9f1c;
-  font-weight:900;
-  font-size:13px;
-}
-.panel-mini-close{
-  min-width:auto;
-  padding:3px 7px;
-  border-radius:999px;
-  font-size:11px;
-  line-height:1;
-}
-@media(max-width:900px){
-  body{overflow:hidden}
-  header{
-    max-height:38vh;
-    overflow:auto;
-    padding:8px 10px;
-  }
-  h1{font-size:15px}
-  .controls{gap:6px}
-  .dottools{
-    width:100%;
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:6px;
-  }
-  .dottools input[type=text],
-  .dottools #dotInfo,
-  .dottools input[type=number],
-  .dottools button{
-    width:100%;
-  }
-  .dottools input[type=number]{min-width:0}
-  .panel-toggle-row{
-    top:8px;
-    left:8px;
-    right:8px;
-    justify-content:flex-start;
-  }
-  .dotlist{
-    top:54px;
-    right:8px;
-    left:8px;
-    width:auto;
-    max-height:34vh;
-    font-size:12px;
-  }
-  .hud{
-    left:8px;
-    right:8px;
-    bottom:8px;
-    max-width:none;
-    max-height:24vh;
-    overflow:auto;
-    font-size:12px;
-  }
-  .axes{
-    width:72px;
-    height:72px;
-    right:8px;
-    bottom:8px;
-  }
-  .panel-visible-hud .axes{bottom:calc(24vh + 18px)}
-}
-@media(max-width:520px){
-  header{max-height:42vh}
-  .control{font-size:11px;padding:4px 6px}
-  button,label.filebtn{font-size:11px;padding:6px 8px}
-  .dottools{grid-template-columns:1fr}
-  .dotlist{max-height:38vh}
-  .hud{max-height:22vh}
-  .dot3d{width:10px;height:10px;box-shadow:0 0 0 1px #fff,0 0 6px rgba(255,159,28,.9)}
-  .dot3d.selected{box-shadow:0 0 0 1px #fff,0 0 8px rgba(102,184,255,1)}
-}
-
-
-
-/* CLEAN 3D PAGE LAYOUT: hotspot controls moved below aircraft, Model Info removed */
-body{overflow:hidden!important;}
-.app{grid-template-rows:auto minmax(0,1fr) auto!important;height:100vh!important;}
-header{padding:8px 12px!important;gap:8px!important;}
-h1{font-size:17px!important;}
-.sub{display:none!important;}
-.controls{gap:6px!important;}
-#wrap{position:relative!important;min-height:0!important;overflow:hidden!important;}
-#gl{width:100%!important;height:100%!important;display:block!important;}
-.panel-toggle-row,.hud,.hud-hidden,.model-info-header,.model-info-title,#closeModelInfoPanel,#toggleModelInfoPanel{display:none!important;}
-.axes{right:12px!important;bottom:12px!important;width:78px!important;height:78px!important;}
-.bottom-hotspot-panel{
-  border-top:1px solid #ff9f1c;
-  background:rgba(8,8,8,.98);
-  padding:10px 12px;
-  max-height:36vh;
-  overflow:auto;
-  box-shadow:0 -6px 18px rgba(255,159,28,.08);
-}
-.bottom-hotspot-title{
-  color:#ff9f1c;
-  font-weight:900;
-  margin:0 0 8px;
-  font-size:14px;
-  letter-spacing:.02em;
-}
-.bottom-hotspot-panel .dottools{
-  width:100%;
-  display:flex;
-  gap:8px;
-  align-items:center;
-  flex-wrap:wrap;
-  border:1px solid rgba(255,159,28,.55);
-  border-radius:10px;
-  padding:8px;
-  margin-bottom:10px;
-  background:#070707;
-}
-.bottom-hotspot-panel .dottools input{
-  min-height:34px;
-}
-.bottom-hotspot-panel .dottools input[type=text]{width:min(260px,100%);}
-.bottom-hotspot-panel .dottools #dotInfo{width:min(360px,100%);}
-.bottom-hotspot-panel .dottools input[type=number]{width:82px;}
-.bottom-hotspot-panel label.filebtn{display:inline-flex;align-items:center;justify-content:center;}
-.dotlist.bottom-dotlist{
-  position:static!important;
-  right:auto!important;
-  top:auto!important;
-  width:100%!important;
-  max-height:20vh!important;
-  overflow:auto!important;
-  background:rgba(0,0,0,.72)!important;
-  border:1px solid rgba(255,159,28,.55)!important;
-  border-radius:10px!important;
-  padding:10px!important;
-  box-shadow:none!important;
-  z-index:auto!important;
-}
-.hotspot-list-header{margin-bottom:6px!important;}
-.panel-mini-close{display:none!important;}
-@media(max-width:900px){
-  .app{grid-template-rows:auto minmax(42vh,1fr) auto!important;}
-  header{max-height:20vh!important;overflow:auto!important;}
-  .controls{width:100%;}
-  .bottom-hotspot-panel{max-height:42vh;padding:8px;}
-  .bottom-hotspot-panel .dottools{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
-  .bottom-hotspot-panel .dottools input[type=text],
-  .bottom-hotspot-panel .dottools #dotInfo,
-  .bottom-hotspot-panel .dottools input[type=number],
-  .bottom-hotspot-panel .dottools button,
-  .bottom-hotspot-panel .dottools label.filebtn{width:100%!important;}
-  .dotlist.bottom-dotlist{max-height:18vh!important;}
-  .axes{width:64px!important;height:64px!important;}
-}
-@media(max-width:520px){
-  header{max-height:22vh!important;padding:7px 8px!important;}
-  h1{font-size:14px!important;}
-  .control input[type=range]{width:70px!important;}
-  .bottom-hotspot-panel{max-height:45vh;}
-  .bottom-hotspot-panel .dottools{grid-template-columns:1fr;}
-  .dotlist.bottom-dotlist{max-height:17vh!important;}
-}
-
-
-
-/* FINAL CLEANUP: remove the wide bottom screenshot-style panel and use a compact lower-left 3D Hotspot info/editor box */
-.app{position:relative!important;grid-template-rows:auto minmax(0,1fr)!important;height:100vh!important;}
-#wrap{grid-row:2!important;}
-.hud,.panel-toggle-row,.model-info-header,.model-info-title,#closeModelInfoPanel,#toggleModelInfoPanel{display:none!important;}
-.bottom-hotspot-panel{
-  position:absolute!important;
-  left:12px!important;
-  bottom:12px!important;
-  width:min(455px,calc(100vw - 24px))!important;
-  max-height:48vh!important;
-  overflow:auto!important;
-  border:1px solid rgba(255,159,28,.75)!important;
-  border-radius:12px!important;
-  background:rgba(0,0,0,.82)!important;
-  padding:9px!important;
-  box-shadow:0 0 18px rgba(255,159,28,.18)!important;
-  z-index:140!important;
-}
-.bottom-hotspot-title{margin:0 0 6px!important;font-size:13px!important;color:#ff9f1c!important;}
-.bottom-hotspot-panel .dottools{
-  display:grid!important;
-  grid-template-columns:1fr 1fr!important;
-  gap:6px!important;
-  border:0!important;
-  padding:0!important;
-  margin:0 0 8px!important;
-  background:transparent!important;
-}
-.bottom-hotspot-panel .dottools input,
-.bottom-hotspot-panel .dottools button,
-.bottom-hotspot-panel label.filebtn{
-  width:100%!important;
-  min-height:32px!important;
-  font-size:12px!important;
-}
-.bottom-hotspot-panel .dottools input[type=number]{width:100%!important;}
-.bottom-hotspot-panel .dottools input[type=text],
-.bottom-hotspot-panel .dottools #dotInfo{width:100%!important;}
-.bottom-hotspot-panel .dottools::before{content:'Name';color:#ffd27f;font-size:11px;align-self:center;}
-.bottom-hotspot-panel .dottools input#dotName{grid-column:auto;}
-.bottom-hotspot-panel .dottools input#dotInfo{grid-column:1 / -1;}
-.bottom-hotspot-panel .dottools button{padding:6px 8px!important;}
-.dotlist.bottom-dotlist{
-  position:static!important;
-  width:100%!important;
-  max-height:14vh!important;
-  overflow:auto!important;
-  border:1px solid rgba(255,159,28,.45)!important;
-  border-radius:9px!important;
-  background:rgba(8,8,8,.82)!important;
-  padding:8px!important;
-  box-shadow:none!important;
-}
-.hotspot-list-title{font-size:12px!important;}
-.dothelp{font-size:12px!important;margin:0!important;}
-.dotrow,.dotcoords,.dotedit{display:none!important;}
-.axes{right:12px!important;bottom:12px!important;}
-@media(max-width:700px){
-  header{max-height:18vh!important;overflow:auto!important;}
-  .bottom-hotspot-panel{left:8px!important;right:8px!important;bottom:8px!important;width:auto!important;max-height:46vh!important;}
-  .bottom-hotspot-panel .dottools{grid-template-columns:1fr!important;}
-  .axes{display:none!important;}
-}
-
-</style>
-
-
-<style id="viewer-mode-remove-editing-keep-info">
-  #bottomHotspotPanel .dottools,
-  #bottomHotspotPanel label.filebtn {
-    display: none !important;
-  }
-
-  #bottomHotspotPanel {
-    position: absolute !important;
-    left: 12px !important;
-    bottom: 12px !important;
-    width: min(360px, calc(100vw - 24px)) !important;
-    max-height: 28vh !important;
-    overflow: auto !important;
-    border: 1px solid rgba(255,159,28,.7) !important;
-    border-radius: 12px !important;
-    background: rgba(0,0,0,.78) !important;
-    padding: 10px !important;
-    box-shadow: 0 0 18px rgba(255,159,28,.18) !important;
-    z-index: 140 !important;
-  }
-
-  #bottomHotspotPanel .bottom-hotspot-title {
-    display: block !important;
-    margin: 0 0 6px !important;
-    font-size: 13px !important;
-    color: #ff9f1c !important;
-    font-weight: 900 !important;
-  }
-
-  #dotList.bottom-dotlist {
-    display: block !important;
-    position: static !important;
-    width: 100% !important;
-    max-height: 20vh !important;
-    overflow: auto !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    padding: 0 !important;
-    box-shadow: none !important;
-  }
-
-  #dotList .hotspot-list-header,
-  #dotList .hotspot-list-title,
-  #dotList .dotcoords,
-  #dotList .dotedit {
-    display: none !important;
-  }
-
-  #dotList .dotrow {
-    display: block !important;
-    border-top: 1px solid rgba(255,159,28,.22) !important;
-    padding: 7px 0 !important;
-    cursor: pointer !important;
-  }
-
-  #dotList .dotrow:first-child {
-    border-top: 0 !important;
-  }
-
-  #dotList .dotrow:not(.selected) {
-    opacity: .62 !important;
-  }
-
-  #dotList .dotrow.selected {
-    background: rgba(102,184,255,.08) !important;
-    outline: 1px solid rgba(102,184,255,.35) !important;
-    border-radius: 8px !important;
-    padding-left: 7px !important;
-    padding-right: 7px !important;
-    opacity: 1 !important;
-  }
-
-  @media(max-width:700px){
-    #bottomHotspotPanel {
-      left: 8px !important;
-      right: 8px !important;
-      bottom: 8px !important;
-      width: auto !important;
-      max-height: 26vh !important;
-    }
-  }
-</style>
-
-
-<style id="upper-left-hotspot-info-final">
-  /* Final request: show 3D Hotspot info in the upper left, not lower left */
-  #bottomHotspotPanel {
-    position: absolute !important;
-    left: 12px !important;
-    top: 72px !important;
-    bottom: auto !important;
-    width: min(370px, calc(100vw - 24px)) !important;
-    max-height: 34vh !important;
-    overflow: auto !important;
-    border: 1px solid rgba(255,159,28,.78) !important;
-    border-radius: 12px !important;
-    background: rgba(0,0,0,.82) !important;
-    padding: 10px !important;
-    box-shadow: 0 0 18px rgba(255,159,28,.20) !important;
-    z-index: 160 !important;
-  }
-
-  #bottomHotspotPanel .bottom-hotspot-title::after {
-    content: ' — click an orange dot';
-    color: #ffd27f;
-    font-weight: 700;
-    font-size: 11px;
-  }
-
-  #dotList .dothelp {
-    display: block !important;
-    margin: 0 !important;
-    border: 1px solid rgba(255,159,28,.42) !important;
-    border-radius: 9px !important;
-    padding: 8px !important;
-    background: rgba(255,159,28,.07) !important;
-    color: #ffd27f !important;
-    font-size: 13px !important;
-    line-height: 1.35 !important;
-  }
-
-  #dotList .dothelp b {
-    display: block !important;
-    color: #ff9f1c !important;
-    font-size: 14px !important;
-    margin-bottom: 3px !important;
-  }
-
-  .dot3d.selected {
-    background: #66b8ff !important;
-    box-shadow: 0 0 0 1px #fff, 0 0 12px rgba(102,184,255,1) !important;
-  }
-
-  @media(max-width:700px){
-    #bottomHotspotPanel {
-      left: 8px !important;
-      right: 8px !important;
-      top: 64px !important;
-      bottom: auto !important;
-      width: auto !important;
-      max-height: 30vh !important;
-    }
-  }
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-  <div><h1>Common Part Numbers</h1><div class="sub">Add/edit name + info from the lower-left fields or the selected row • selected dot turns blue</div></div>
+  <div><h1>Aircraft 3D Dot Plotter • X / Y / Z Axis</h1><div class="sub">Add/edit name + info from the upper-left fields or the selected row • selected dot turns blue</div></div>
   <div class="controls">
     <div class="control">X <input id="rx" type="range" min="-180" max="180" value="0"><span id="rxv">0°</span></div>
     <div class="control">Y <input id="ry" type="range" min="-180" max="180" value="0"><span id="ryv">0°</span></div>
@@ -471,43 +42,27 @@ h1{font-size:17px!important;}
     <label class="control"><input id="wire" type="checkbox" checked> Wire</label>
     <label class="control"><input id="solid" type="checkbox" checked> Solid</label>
     <label class="control"><input id="auto" type="checkbox"> Auto</label>
-  </div>
-</header>
-<div id="wrap">
-  <canvas id="gl"></canvas>
-  <div id="dotOverlay"></div>  <div class="hud collapsible-panel" id="hud">
-    <div class="model-info-header">
-      <div class="model-info-title">Model Info</div>
-      <button id="closeModelInfoPanel" class="panel-mini-close" type="button">Hide</button>
-    </div>
-    <div id="hudBody"><b>Status:</b> Loading embedded OBJ…<br><span class="pill">Click: save dot</span><span class="pill">Drag: orbit</span><span class="pill">Wheel: zoom</span></div>
-  </div>
-
-  <canvas class="axes" id="axes"></canvas>
-
-</div>
-
-<div class="bottom-hotspot-panel" id="bottomHotspotPanel">
-  <div class="bottom-hotspot-title">3D Hotspot Info</div>
-  <div class="dottools" title="Plot named 3D dots using model-space X/Y/Z coordinates">
+    
+    <div class="dottools" title="Plot named 3D dots using model-space X/Y/Z coordinates">
       <input id="dotName" type="text" placeholder="Enter Name" value="Enter Name">
       <input id="dotInfo" type="text" placeholder="Info / MEL / note">
       X <input id="dotX" type="number" step="0.01" value="0">
       Y <input id="dotY" type="number" step="0.01" value="0">
       Z <input id="dotZ" type="number" step="0.01" value="0">
       <button id="clickSet3dDot" type="button">Place Dot Mode: OFF</button>
-      <button id="add3dDot" type="button">+ Add New Dot</button>
       <button id="update3dDot" type="button">Save Edit</button>
       <button id="delete3dDot" type="button">Del 3D Dot</button>
       <button id="clear3dDots" type="button">Clear</button>
     </div>
     <label class="filebtn">Load OBJ<input id="file" type="file" accept=".obj,text/plain"></label>
-  <div id="dotList" class="dotlist bottom-dotlist">
-    <div class="hotspot-list-header">
-      <div class="hotspot-list-title">Saved 3D Hotspots</div>
-    </div>
-    <div id="dotListBody">No 3D dots yet.</div>
   </div>
+</header>
+<div id="wrap">
+  <canvas id="gl"></canvas>
+  <div id="dotOverlay"></div>
+  <div id="dotList" class="dotlist"><h3>3D Hotspots</h3><div id="dotListBody">No 3D dots yet.</div></div>
+  <div class="hud" id="hud"><b>Status:</b> Loading embedded OBJ…<br><span class="pill">Click: save dot</span><span class="pill">Drag: orbit</span><span class="pill">Wheel: zoom</span></div>
+  <canvas class="axes" id="axes"></canvas>
 </div>
 </div>
 <script id="embeddedObj" type="text/plain"># Blender 4.0.2
@@ -24345,15 +23900,8 @@ f 8815/34/5903 8816/34/5902 8826/36/5811 8827/36/5811
 'use strict';
 const canvas = document.getElementById('gl');
 const hud = document.getElementById('hud');
-const hudBody = document.getElementById('hudBody') || hud;
-const toggleHotspotsPanel = document.getElementById('toggleHotspotsPanel');
-const toggleModelInfoPanel = document.getElementById('toggleModelInfoPanel');
-const closeHotspotsPanel = document.getElementById('closeHotspotsPanel');
-const closeModelInfoPanel = document.getElementById('closeModelInfoPanel');
-const dotListPanel = document.getElementById('dotList');
-const wrapPanel = document.getElementById('wrap');
 const gl = canvas.getContext('webgl2', {antialias:true});
-if(!gl){ hudBody.innerHTML='<b class="bad">WebGL2 not available.</b> Try Chrome/Edge with hardware acceleration on.'; return; }
+if(!gl){ hud.innerHTML='<b class="bad">WebGL2 not available.</b> Try Chrome/Edge with hardware acceleration on.'; return; }
 let verts=null, triIdx=null, lineIdx=null, vertexCount=0, triCount=0, lineCount=0;
 let buffers={};
 let rotX=0,rotY=0,rotZ=0, orbitX=-0.24, orbitY=0.7, zoom=3.0, panX=0, panY=0;
@@ -24366,38 +23914,8 @@ const dotOverlay=document.getElementById('dotOverlay'), dotListBody=document.get
 const dotName=document.getElementById('dotName'), dotInfo=document.getElementById('dotInfo'), dotX=document.getElementById('dotX'), dotY=document.getElementById('dotY'), dotZ=document.getElementById('dotZ');
 const add3dDot=document.getElementById('add3dDot'), update3dDot=document.getElementById('update3dDot'), delete3dDot=document.getElementById('delete3dDot'), clear3dDots=document.getElementById('clear3dDots'), clickSet3dDot=document.getElementById('clickSet3dDot');
 const DOT_STORAGE_KEY='b737-editor-3d-hotspots-v2';
-
-// ── Baked-in default dots ────────────────────────────────────────────
-// These appear for any visitor who hasn't placed their own dots yet
-// (fresh iPad, new browser, etc.). If a user adds/removes dots, their
-// changes save to localStorage and override these. Duplicates from the
-// original capture were removed.
-const DEFAULT_DOTS3D = [
-  { id: "default-nav-light",     name: "Nav Light",     info: "HLX64621", x: 0.891, y: -0.013, z: -0.160 },
-  { id: "default-landing-light", name: "Landing Light", info: "Q4559X",   x: 0.123, y: -0.116, z:  0.305 },
-  { id: "default-nose-light",    name: "Nose Light",    info: "4551",     x: -0.004, y: -0.224, z:  0.826 },
-  { id: "default-mlg-tire",      name: "MLG Tire",      info: "B737RAD",  x: 0.181, y: -0.275, z:  0.024 },
-  { id: "default-nose-tire",     name: "Nose Tire",     info: "B737NRAD", x: 0.022, y: -0.292, z:  0.798 },
-  { id: "default-cfm56",         name: "CFM56",         info: "",         x: 0.310, y: -0.163, z:  0.273 }
-];
-
 let dots3d=[]; let selectedDotId=null; let clickSetMode=false; let modelBounds=null; let currentMvp=null; let currentModel=null; let currentView=null; let currentProj=null; let lastAutoDotAt=0;
-function loadDots3d(){
-  try {
-    const raw = localStorage.getItem(DOT_STORAGE_KEY);
-    if (raw !== null) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        // User has explicitly saved their own dots — use those
-        dots3d = parsed;
-        return;
-      }
-    }
-  } catch(e) {}
-  // No saved state OR saved state is empty — show baked-in defaults.
-  // Clone the defaults so editing the active list doesn't mutate the constant.
-  dots3d = DEFAULT_DOTS3D.map(d => ({...d}));
-}
+function loadDots3d(){try{dots3d=JSON.parse(localStorage.getItem(DOT_STORAGE_KEY)||'[]')||[]}catch(e){dots3d=[]}}
 function saveDots3d(){localStorage.setItem(DOT_STORAGE_KEY,JSON.stringify(dots3d)); renderDotList();}
 function dotNum(v){const n=Number(v); return Number.isFinite(n)?n:0;}
 function resetNewDotFields(){
@@ -24414,7 +23932,7 @@ function selectDot(id){
     dotName.value=d.name || 'Enter Name';
     if(dotInfo)dotInfo.value=d.info||'';
     dotX.value=d.x; dotY.value=d.y; dotZ.value=d.z;
-    setHud(`<b class="ok">Selected dot:</b> ${escapeHtml(d.name||'Enter Name')}<br><span class="pill">Dot is blue</span><span class="pill">Info shows upper left</span><span class="pill">Edit fields, then Save Edit</span>`);
+    setHud(`<b class="ok">Selected dot:</b> ${escapeHtml(d.name||'Enter Name')}<br><span class="pill">Dot is blue</span><span class="pill">3D Hotspot row opens on the right</span><span class="pill">Edit upper-left fields or right-side row, then Save Edit</span>`);
   }
   renderDotList();
   scrollSelectedDotRowIntoView();
@@ -24431,16 +23949,22 @@ function scrollSelectedDotRowIntoView(){
 }
 function renderDotList(){
   if(!dotListBody)return;
-  if(!dots3d.length){
-    dotListBody.innerHTML='<div class="dothelp"><b>3D Hotspot Info</b><br>No dots yet. Turn Place Dot Mode ON, type a name/info, then click the aircraft.</div>';
-    return;
-  }
-  const d=dots3d.find(x=>x.id===selectedDotId);
-  if(!d){
-    dotListBody.innerHTML='<div class="dothelp"><b>3D Hotspot Info</b><br>Click an orange dot on the aircraft to select it. The selected dot turns blue.</div>';
-    return;
-  }
-  dotListBody.innerHTML=`<div class="dothelp"><b>${escapeHtml(d.name||'Unnamed')}</b><br>${escapeHtml(d.info||'No info added.')}</div>`;
+  if(!dots3d.length){dotListBody.innerHTML='<div class="dothelp">No 3D dots yet. Turn Place Dot Mode ON, then click the aircraft.</div>';return;}
+  dotListBody.innerHTML='<div class="dothelp">Click any dot or row to select it blue. Edit name/info here or in the upper-left fields, then Save Edit.</div>' + dots3d.map(d=>`
+    <div class="dotrow ${d.id===selectedDotId?'selected':''}" data-id="${d.id}">
+      <div class="dotrow-head"><span><b>${escapeHtml(d.name||'Unnamed')}</b><br>${escapeHtml(d.info||'')}</span><span>✈</span></div>
+      <div class="dotcoords">X ${d.x} • Y ${d.y} • Z ${d.z}</div>
+      <div class="dotedit" onclick="event.stopPropagation()">
+        <input class="editDotName" data-id="${d.id}" type="text" value="${escapeAttr(d.name||'')}" placeholder="Edit dot name">
+        <input class="editDotInfo" data-id="${d.id}" type="text" value="${escapeAttr(d.info||'')}" placeholder="Edit info / MEL / note">
+        <button class="saveDotEdit" data-id="${d.id}" type="button">Save Edit</button>
+      </div>
+    </div>`).join('');
+  dotListBody.querySelectorAll('.dotrow').forEach(r=>r.onclick=()=>selectDot(r.dataset.id));
+  dotListBody.querySelectorAll('.saveDotEdit').forEach(btn=>btn.onclick=(ev)=>{ev.stopPropagation(); saveDotNameInfo(btn.dataset.id);});
+  dotListBody.querySelectorAll('.editDotName,.editDotInfo').forEach(inp=>{
+    inp.onkeydown=(ev)=>{ if(ev.key==='Enter'){ev.preventDefault(); saveDotNameInfo(inp.dataset.id);} };
+  });
 }
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
 function escapeAttr(s){return escapeHtml(s).replace(/`/g,'&#096;');}
@@ -24452,10 +23976,10 @@ function addDotFromInputs(){
   dots3d.push(d);
   selectedDotId=d.id;
   saveDots3d();
-  // Keep the newly placed dot selected and keep the lower-left fields populated so Save Edit is immediately useful.
+  // Keep the newly placed dot selected and keep the upper-left fields populated so Save Edit is immediately useful.
   if(dotName) dotName.value=d.name;
   if(dotInfo) dotInfo.value=d.info;
-  setHud(`<b class="ok">Added 3D dot:</b> ${escapeHtml(name)}<br>${escapeHtml(info)}<br>X ${d.x} • Y ${d.y} • Z ${d.z}<br><span class="pill">New dot is selected blue</span><span class="pill">Edit lower-left fields and click Save Edit</span>`);
+  setHud(`<b class="ok">Added 3D dot:</b> ${escapeHtml(name)}<br>${escapeHtml(info)}<br>X ${d.x} • Y ${d.y} • Z ${d.z}<br><span class="pill">New dot is selected blue</span><span class="pill">Edit upper-left fields and click Save Edit</span>`);
 }
 function updateSelectedDot(){
   const d=dots3d.find(x=>x.id===selectedDotId);
@@ -24491,7 +24015,7 @@ function deleteSelectedDot(){
   setHud('<b class="ok">Deleted selected 3D dot.</b>');
 }
 function clearAllDots(){if(confirm('Clear all 3D dots saved in this browser?')){dots3d=[];selectedDotId=null;saveDots3d();resetNewDotFields();}}
-add3dDot.onclick=()=>{ addDotFromInputs(); };
+if(add3dDot){ add3dDot.onclick=()=>{ addDotFromInputs(); }; }
 if(update3dDot){ update3dDot.style.display='inline-block'; update3dDot.textContent='Save Edit'; update3dDot.onclick=updateSelectedDot; }
 delete3dDot.onclick=deleteSelectedDot; clear3dDots.onclick=clearAllDots;
 if(clickSet3dDot){
@@ -24603,10 +24127,10 @@ function placeDotFromScreen(clientX, clientY){
   lastAutoDotAt=now;
   const p=unprojectClick(clientX, clientY);
   dotX.value=p.x.toFixed(3); dotY.value=p.y.toFixed(3); dotZ.value=p.z.toFixed(3);
-  // Use whatever name/info is typed in the lower-left fields. If blank, default to Enter Name.
+  // Use whatever name/info is typed in the upper-left fields. If blank, default to Enter Name.
   if(dotName && !String(dotName.value||'').trim()) dotName.value='Enter Name';
   addDotFromInputs();
-  setHud(`<b class="ok">Saved orange 3D dot on the aircraft surface.</b><br><b>${escapeHtml(dotName.value||'Enter Name')}</b><br>X ${dotX.value} • Y ${dotY.value} • Z ${dotZ.value}<br><span class="pill">Dot is selected blue</span><span class="pill">Edit lower-left fields and click Save Edit</span><span class="pill">Hover shows name only</span>`);
+  setHud(`<b class="ok">Saved orange 3D dot on the aircraft surface.</b><br><b>${escapeHtml(dotName.value||'Enter Name')}</b><br>X ${dotX.value} • Y ${dotY.value} • Z ${dotZ.value}<br><span class="pill">Dot is selected blue</span><span class="pill">Edit upper-left fields and click Save Edit</span><span class="pill">Hover shows name only</span>`);
 }
 
 function projectPoint(m,x,y,z){const cx=m[0]*x+m[4]*y+m[8]*z+m[12], cy=m[1]*x+m[5]*y+m[9]*z+m[13], cz=m[2]*x+m[6]*y+m[10]*z+m[14], cw=m[3]*x+m[7]*y+m[11]*z+m[15]; if(Math.abs(cw)<1e-6)return null; const nx=cx/cw, ny=cy/cw, nz=cz/cw; if(nz<-1.2||nz>1.2)return null; return {x:(nx*.5+.5)*canvas.clientWidth,y:(-.5*ny+.5)*canvas.clientHeight,front:cw>0};}
@@ -24644,42 +24168,9 @@ function updateDotOverlay(mvp){
     dotOverlay.appendChild(el);
   });
 }
-
-function setPanelCollapsed(panel, button, collapsed){
-  if(!panel || !button) return;
-  panel.classList.toggle('collapsed', collapsed);
-  button.classList.toggle('active-panel-toggle', !collapsed);
-  button.textContent = button.id === 'toggleHotspotsPanel'
-    ? (collapsed ? 'Show 3D Hotspots' : '3D Hotspots')
-    : (collapsed ? 'Show Model Info' : 'Model Info');
-  if(wrapPanel && panel === hud){
-    wrapPanel.classList.toggle('panel-visible-hud', !collapsed);
-  }
-}
-function togglePanel(panel, button){
-  const willCollapse = !panel.classList.contains('collapsed');
-  setPanelCollapsed(panel, button, willCollapse);
-}
-function openHotspotsPanel(){
-  setPanelCollapsed(dotListPanel, toggleHotspotsPanel, false);
-}
-function openModelInfoPanel(){
-  setPanelCollapsed(hud, toggleModelInfoPanel, false);
-}
-if(toggleHotspotsPanel) toggleHotspotsPanel.addEventListener('click',()=>togglePanel(dotListPanel,toggleHotspotsPanel));
-if(toggleModelInfoPanel) toggleModelInfoPanel.addEventListener('click',()=>togglePanel(hud,toggleModelInfoPanel));
-if(closeHotspotsPanel) closeHotspotsPanel.addEventListener('click',()=>setPanelCollapsed(dotListPanel,toggleHotspotsPanel,true));
-if(closeModelInfoPanel) closeModelInfoPanel.addEventListener('click',()=>setPanelCollapsed(hud,toggleModelInfoPanel,true));
-
-// Default to collapsed info panels on phone/tablet to keep the model view clean.
-if(window.matchMedia && window.matchMedia('(max-width: 900px)').matches){
-  setPanelCollapsed(dotListPanel, toggleHotspotsPanel, true);
-  setPanelCollapsed(hud, toggleModelInfoPanel, true);
-}
-
 loadDots3d(); renderDotList();
 
-function setHud(msg){ hudBody.innerHTML=msg; }
+function setHud(msg){ hud.innerHTML=msg; }
 function resize(){ const dpr=Math.min(devicePixelRatio||1,2); const w=canvas.clientWidth||innerWidth, h=canvas.clientHeight||innerHeight; const nw=Math.floor(w*dpr), nh=Math.floor(h*dpr); if(canvas.width!==nw||canvas.height!==nh){canvas.width=nw;canvas.height=nh;} }
 function shader(type,src){ const s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s); if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; }
 const vs=`#version 300 es
@@ -24734,23 +24225,6 @@ canvas.style.cursor = 'grab';
 let activePointerId = null;
 let downTime = 0;
 
-// ── Multi-touch / pinch state ──────────────────────────────────────
-// Track every active pointer (finger / mouse / stylus) so we can
-// detect two-finger pinch on iPad. activePointerId stays the "primary"
-// pointer for rotate/pan; a second pointer triggers pinch-zoom mode.
-const activePointers = new Map(); // pointerId -> {x, y}
-let pinchActive = false;
-let pinchStartDist = 0;
-let pinchStartZoom = 1;
-
-function pinchDistance() {
-  const pts = [...activePointers.values()];
-  if (pts.length < 2) return 0;
-  const dx = pts[0].x - pts[1].x;
-  const dy = pts[0].y - pts[1].y;
-  return Math.hypot(dx, dy);
-}
-
 function eventIsInsideCanvas(e){
   const r = canvas.getBoundingClientRect();
   return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
@@ -24758,56 +24232,21 @@ function eventIsInsideCanvas(e){
 
 canvas.addEventListener('pointerdown', e => {
   if (!eventIsInsideCanvas(e)) return;
-  activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-
-  // Second finger down → start pinch-zoom, abort any in-progress rotate/pan
-  if (activePointers.size === 2) {
-    pinchActive = true;
-    pinchStartDist = pinchDistance();
-    pinchStartZoom = zoom;
-    dragging = false;
-    panning = false;
-    dragMoved = true; // prevent click-to-place-dot when pinch ends
-    canvas.style.cursor = 'grabbing';
-    try { canvas.setPointerCapture(e.pointerId); } catch(_) {}
-    e.preventDefault();
-    return;
-  }
-
-  // First finger / single click → normal rotate/pan
-  if (activePointers.size === 1) {
-    activePointerId = e.pointerId;
-    dragging = true;
-    panning = e.button === 2 || e.shiftKey;
-    lastX = e.clientX;
-    lastY = e.clientY;
-    downX = e.clientX;
-    downY = e.clientY;
-    downTime = performance.now();
-    dragMoved = false;
-    try { canvas.setPointerCapture(e.pointerId); } catch(_) {}
-    canvas.style.cursor = panning ? 'move' : (clickSetMode ? 'crosshair' : 'grabbing');
-  }
+  activePointerId = e.pointerId;
+  dragging = true;
+  panning = e.button === 2 || e.shiftKey;
+  lastX = e.clientX;
+  lastY = e.clientY;
+  downX = e.clientX;
+  downY = e.clientY;
+  downTime = performance.now();
+  dragMoved = false;
+  canvas.setPointerCapture(e.pointerId);
+  canvas.style.cursor = panning ? 'move' : (clickSetMode ? 'crosshair' : 'grabbing');
   e.preventDefault();
 });
 
 canvas.addEventListener('pointermove', e => {
-  if (!activePointers.has(e.pointerId)) return;
-  activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-
-  // Two-finger pinch: scale zoom by ratio of current distance to start
-  if (pinchActive && activePointers.size >= 2) {
-    const d = pinchDistance();
-    if (d > 0 && pinchStartDist > 0) {
-      const ratio = pinchStartDist / d;
-      zoom = pinchStartZoom * ratio;
-      zoom = Math.max(0.55, Math.min(35, zoom));
-    }
-    e.preventDefault();
-    return;
-  }
-
-  // Single-finger / mouse drag: rotate or pan as before
   if (!dragging || e.pointerId !== activePointerId) return;
   const dx = e.clientX - lastX;
   const dy = e.clientY - lastY;
@@ -24819,6 +24258,7 @@ canvas.addEventListener('pointermove', e => {
     panX += dx / Math.max(1, canvas.clientWidth) * 2;
     panY -= dy / Math.max(1, canvas.clientHeight) * 2;
   } else {
+    // Drag always rotates, even when place-dot mode is ON.
     orbitY += dx * 0.008;
     orbitX += dy * 0.008;
     orbitX = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, orbitX));
@@ -24826,47 +24266,24 @@ canvas.addEventListener('pointermove', e => {
   e.preventDefault();
 });
 
-function endPointer(e) {
-  activePointers.delete(e.pointerId);
-
-  if (pinchActive && activePointers.size < 2) {
-    pinchActive = false;
-    pinchStartDist = 0;
-    if (activePointers.size === 1) {
-      const [remainingId, remainingPt] = activePointers.entries().next().value;
-      activePointerId = remainingId;
-      lastX = remainingPt.x;
-      lastY = remainingPt.y;
-      downX = remainingPt.x;
-      downY = remainingPt.y;
-      downTime = performance.now();
-      dragging = true;
-      dragMoved = true;
-    } else {
-      dragging = false;
-      activePointerId = null;
-    }
-  } else if (e.pointerId === activePointerId) {
-    const wasShortClick = !dragMoved && (performance.now() - downTime) < 450;
-    if (clickSetMode && wasShortClick && !panning && (e.button === 0 || e.button === undefined)) {
-      placeDotFromScreen(e.clientX, e.clientY);
-    }
-    dragging = false;
-    panning = false;
-    activePointerId = null;
+canvas.addEventListener('pointerup', e => {
+  const wasShortClick = !dragMoved && (performance.now() - downTime) < 450;
+  if (clickSetMode && wasShortClick && !panning && e.button === 0) {
+    placeDotFromScreen(e.clientX, e.clientY);
   }
-
+  dragging = false;
+  panning = false;
+  activePointerId = null;
   try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
   canvas.style.cursor = clickSetMode ? 'crosshair' : 'grab';
-}
-
-canvas.addEventListener('pointerup', e => {
-  endPointer(e);
   e.preventDefault();
 });
 
 canvas.addEventListener('pointercancel', e => {
-  endPointer(e);
+  dragging = false;
+  panning = false;
+  activePointerId = null;
+  canvas.style.cursor = clickSetMode ? 'crosshair' : 'grab';
 });
 
 canvas.addEventListener('contextmenu', e => e.preventDefault());
