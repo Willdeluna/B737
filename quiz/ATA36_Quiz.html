@@ -239,6 +239,7 @@ body{
   </div>
   <div class="res-btns">
     <button class="btn-again" onclick="startGame()">🔁 Play Again</button>
+    <a href="../angry_bird_strike.html" style="display:block;width:100%;padding:12px;text-align:center;text-decoration:none;border-radius:14px;font-family:'Nunito',sans-serif;font-weight:900;font-size:14px;letter-spacing:.3px;color:#fff;background:linear-gradient(135deg,#ff5e3a,#ff2d55);box-shadow:0 5px 0 #c81e3a,0 7px 20px rgba(255,45,85,.3)">🐦 Angry Bird Strike</a>
     <button class="btn-home-sm" onclick="goHome()">← Back to Home</button>
   </div>
 </div>
@@ -409,7 +410,9 @@ function updateHearts(){
 
 function showResult(){
   const acc=G.idx?Math.round((G.correct/G.idx)*100):0;
-  const stars=acc>=90?3:acc>=70?2:acc>=50?1:0;
+  const correctCount=G.correct;
+  const stars=correctCount>=20?3:correctCount>=10?2:correctCount>=5?1:0;
+  try{const k='ataBest_36';const prev=parseInt(localStorage.getItem(k)||'0',10)||0;if(correctCount>prev)localStorage.setItem(k,String(correctCount));}catch(e){}
   const trophies=['😅','🥉','🥈','🏆'];
   const titles=['Keep Practicing!','Nice Try!','Well Done!','Outstanding! 🎯'];
   const subs=['Review the ATA 22 DFCS manual and try again.','Good effort — study the explanations!','Strong DFCS knowledge!','You are an ATA 22 expert! ✈️'];
