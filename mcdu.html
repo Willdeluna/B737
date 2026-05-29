@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B737-800 CDU — FMC</title>
+<style>
+  :root{
+    --amber:#ffb000; --amber-dim:#7a5400; --amber-glow:rgba(255,176,0,.55);
+    --pri:#e9f2f5; --pri-glow:rgba(170,225,240,.35);
+    --cyan:#4fd4ea; --cyan-glow:rgba(79,212,234,.4);
+    --grn:#62f08c; --grn-glow:rgba(98,240,140,.5);
+    --warn:#ffd24a; --warn-glow:rgba(255,210,74,.5);
+    --mag:#e58be5;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%}
+  body{background:radial-gradient(1100px 700px at 50% -8%, #20242a 0%, #0d0f12 60%, #060708 100%);
+    color:var(--amber);font-family:"Arial Narrow",Arial,Helvetica,sans-serif;min-height:100%;
+    display:flex;justify-content:center;padding:22px 14px 44px;gap:24px;flex-wrap:wrap;align-items:flex-start}
+
+  /* ===== side reference panel ===== */
+  .side{width:340px;max-width:94vw;display:flex;flex-direction:column;gap:14px;
+    font-family:"Courier New",ui-monospace,monospace}
+  .plate{border:1px solid var(--amber-dim);border-radius:8px;
+    background:linear-gradient(180deg,#0f0c04,#0a0902);
+    box-shadow:0 0 0 1px #000 inset,0 6px 22px rgba(0,0,0,.5);padding:14px 15px}
+  .hd{font-size:11px;letter-spacing:3px;color:var(--amber);opacity:.8;margin:0 0 6px}
+  .ttl{font-size:18px;font-weight:bold;letter-spacing:1px;color:var(--amber);
+    text-shadow:0 0 10px var(--amber-glow);line-height:1.25;margin:0}
+  .sub{font-size:11.5px;line-height:1.65;color:#d6a23e;margin:8px 0 0;opacity:.95}
+  .sub b{color:var(--amber)}
+  .li{font-size:11.5px;line-height:1.5;color:#c9a64a;margin:3px 0;padding-left:14px;position:relative}
+  .li:before{content:"›";position:absolute;left:2px;color:var(--amber)}
+  .done{color:#8fbf6a}
+  .btnrow{display:flex;gap:8px;margin-top:6px}
+  .tbtn{flex:1;background:#1a1407;border:1px solid var(--amber-dim);color:var(--amber);
+    font-family:inherit;font-size:11px;letter-spacing:1px;padding:8px;border-radius:5px;cursor:pointer}
+  .tbtn:hover{background:#241b08}
+  .pb{background:#151515;border:1px solid #333;border-radius:6px;padding:9px 8px;margin-top:8px;
+    text-align:center;cursor:pointer;position:relative;user-select:none}
+  .pb .lbl{font-size:9px;letter-spacing:1px;color:#8a8a8a}
+  .pb .lt{margin-top:6px;font-size:10px;font-weight:bold;letter-spacing:2px;padding:3px 0;
+    border-radius:3px;border:1px solid #444;color:#5a5a5a;background:#0c0c0c}
+  .pb.on .lt{color:#0a1a06;background:var(--grn);border-color:var(--grn);box-shadow:0 0 14px var(--grn-glow)}
+  .foot{font-size:10px;color:#7a5400;text-align:center;line-height:1.6}
+
+  /* ===================== UNIT / BEZEL ===================== */
+  .cdu{--w:560px;width:var(--w);max-width:96vw;position:relative;padding:20px 20px 26px;border-radius:16px;
+    background:linear-gradient(180deg,#a3a8aa 0%, #939799 8%, #7f8587 50%, #686d70 100%);
+    box-shadow:0 30px 60px rgba(0,0,0,.6),0 2px 1px rgba(255,255,255,.45) inset,
+      0 -6px 14px rgba(0,0,0,.45) inset,0 0 0 1px #2e3236}
+  .cdu:before{content:"";position:absolute;inset:0;border-radius:16px;pointer-events:none;
+    background-image:radial-gradient(circle at 30% 20%, rgba(255,255,255,.06), transparent 40%),
+      repeating-linear-gradient(115deg, rgba(0,0,0,.018) 0 2px, rgba(255,255,255,.018) 2px 4px);
+    mix-blend-mode:overlay}
+  .screw{position:absolute;width:13px;height:13px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #babfc2, #6c7174 55%, #3a3e41);
+    box-shadow:0 1px 1px rgba(255,255,255,.5),0 1px 2px rgba(0,0,0,.6) inset, 0 0 0 1px #2c3033}
+  .screw:after{content:"";position:absolute;left:50%;top:50%;width:8px;height:1.5px;background:#23262a;
+    transform:translate(-50%,-50%) rotate(40deg);border-radius:2px;box-shadow:0 1px 0 rgba(255,255,255,.25)}
+  .screw.tl{top:7px;left:7px}.screw.tr{top:7px;right:7px}.screw.bl{bottom:7px;left:7px}.screw.br{bottom:7px;right:7px}
+  .gold{position:absolute;width:11px;height:11px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #f1d27a, #b8862f 55%, #7c560f);
+    box-shadow:0 1px 2px rgba(0,0,0,.55),0 0 0 1px #5a3f0c}
+  .gold.l{left:8px;top:50%}.gold.r{right:8px;top:50%}
+  .lever{position:absolute;width:10px;height:170px;border-radius:5px;top:50%;
+    background:linear-gradient(90deg,#7e221a,#c43b2c 45%,#e0594a 60%,#9c2b20);
+    box-shadow:0 2px 5px rgba(0,0,0,.5),0 0 0 1px #3c1009, 0 1px 0 rgba(255,255,255,.2) inset}
+  .lever.l{left:6px}.lever.r{right:6px}
+
+  /* ===================== SCREEN + LSK ===================== */
+  .dispgrid{display:grid;grid-template-columns:58px 1fr 58px;
+    grid-template-rows:30px repeat(6,38px) 28px;column-gap:11px;align-items:stretch;
+    margin:6px 2px 16px;position:relative}
+  .scrbg{grid-column:2;grid-row:1 / span 8;border-radius:7px;position:relative;overflow:hidden;
+    background:radial-gradient(120% 80% at 50% 0%, #0a1418 0%, #04090c 60%, #020405 100%);
+    box-shadow:0 0 0 7px #34393d, 0 0 0 8px #15181a, 0 0 0 9px #4a4f52,
+      0 0 28px rgba(80,180,240,.10) inset, 0 3px 8px rgba(0,0,0,.7) inset}
+  .scrbg:before{content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(135deg, rgba(120,150,170,.08) 0%, transparent 30%, transparent 72%, rgba(0,0,0,.22) 100%)}
+  .scrbg:after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,.13) 0 2px, transparent 2px 4px)}
+
+  .t-title{grid-column:2;grid-row:1;display:flex;align-items:center;justify-content:center;gap:10px;
+    color:var(--pri);letter-spacing:.5px;font-size:14px;position:relative;z-index:2;
+    font-family:"Courier New",monospace;text-shadow:0 0 6px var(--pri-glow)}
+  .t-title .pg{font-size:13px}.t-title .arR{position:absolute;right:8px;color:var(--cyan)}
+  .t-title .arL{position:absolute;left:8px;color:var(--cyan)}
+  .t-scratch{grid-column:2;grid-row:8;display:flex;align-items:center;color:var(--pri);
+    font-size:14px;position:relative;z-index:2;letter-spacing:.5px;font-family:"Courier New",monospace;
+    text-shadow:0 0 6px var(--pri-glow);padding-left:4px}
+  .t-scratch.msg{color:var(--warn);text-shadow:0 0 6px var(--warn-glow)}
+  .t-scratch .cur{display:inline-block;width:9px;height:15px;background:var(--pri);margin-left:1px;
+    animation:blink 1s step-end infinite;box-shadow:0 0 6px var(--pri-glow);vertical-align:-2px}
+  @keyframes blink{50%{opacity:0}}
+
+  .rowcell{grid-column:2;display:grid;grid-template-columns:1fr 1fr;align-items:center;position:relative;z-index:2;
+    font-family:"Courier New",monospace}
+  .half{display:flex;flex-direction:column;justify-content:center;min-width:0}
+  .half.r{align-items:flex-end;text-align:right}
+  .lab{font-size:10px;letter-spacing:.5px;color:var(--cyan);line-height:1.05;
+    text-shadow:0 0 5px var(--cyan-glow);white-space:nowrap;overflow:hidden}
+  .val{font-size:14px;color:var(--pri);line-height:1.05;white-space:nowrap;overflow:hidden;
+    text-shadow:0 0 6px var(--pri-glow)}
+  .val.cyan{color:var(--cyan);text-shadow:0 0 6px var(--cyan-glow)}
+  .val.grn{color:var(--grn);text-shadow:0 0 7px var(--grn-glow)}
+  .val.box{color:#bcd0d6;letter-spacing:1px}
+  .val.amb{color:var(--warn);text-shadow:0 0 6px var(--warn-glow)}
+  .kv{grid-column:1/3;display:flex;align-items:center;justify-content:space-between;gap:8px;z-index:2;position:relative;
+    font-family:"Courier New",monospace}
+  .kv .kvk{font-size:13px;color:var(--cyan);text-shadow:0 0 5px var(--cyan-glow);white-space:nowrap}
+  .kv .kvv{font-size:14px;color:var(--pri);text-shadow:0 0 6px var(--pri-glow);white-space:nowrap}
+  .center{grid-column:1/3;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;
+    color:var(--pri);font-size:14px;letter-spacing:.5px;text-shadow:0 0 6px var(--pri-glow);
+    font-family:"Courier New",monospace}
+  .center.cyan{color:var(--cyan)}.center.grn{color:var(--grn);font-weight:bold}
+
+  .lcell{grid-column:1;display:flex;align-items:center;gap:4px}
+  .rcell{grid-column:3;display:flex;align-items:center;gap:4px;justify-content:flex-end}
+  .lsk{width:34px;height:19px;border-radius:4px;cursor:pointer;position:relative;flex:0 0 auto;
+    background:linear-gradient(180deg,#4b5155,#2b3034 60%,#1c2023);
+    box-shadow:0 1px 0 rgba(255,255,255,.18) inset,0 -2px 3px rgba(0,0,0,.5) inset,0 2px 3px rgba(0,0,0,.5);
+    border:1px solid #15181b;transition:.06s}
+  .lsk:before{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:18px;height:6px;border-radius:3px;background:linear-gradient(180deg,#3a4044,#23282b);
+    box-shadow:0 1px 1px rgba(0,0,0,.6) inset}
+  .lsk:active{transform:translateY(1px);filter:brightness(1.25)}
+  .tick{flex:1;height:2px;position:relative}
+  .tick:after{content:"";position:absolute;top:50%;width:18px;height:2px;border-radius:2px}
+  .lcell .tick:after{left:0;transform:translateY(-50%) rotate(7deg);
+    background:linear-gradient(90deg,rgba(230,235,238,.8),rgba(230,235,238,.12))}
+  .rcell .tick:after{right:0;transform:translateY(-50%) rotate(-7deg);
+    background:linear-gradient(270deg,rgba(230,235,238,.8),rgba(230,235,238,.12))}
+
+  /* ===================== KEYBOARD ===================== */
+  .kbd{padding:4px 2px 0;display:flex;flex-direction:column;gap:8px}
+  .frow{display:flex;gap:7px;align-items:center}
+  .btn{border:1px solid #121517;cursor:pointer;color:#eef2f4;font-weight:bold;line-height:1;
+    background:linear-gradient(180deg,#42484c 0%,#34393d 42%,#23282b 100%);
+    box-shadow:0 1px 0 rgba(255,255,255,.18) inset,0 -3px 5px rgba(0,0,0,.4) inset,0 3px 4px rgba(0,0,0,.5);
+    display:flex;align-items:center;justify-content:center;text-align:center;user-select:none;transition:.06s}
+  .btn:active{transform:translateY(1.5px);filter:brightness(1.18)}
+  .fn{height:34px;border-radius:8px;font-size:10.5px;letter-spacing:.3px;flex:1}
+  .fn small{display:block;font-size:10.5px;line-height:1.05}
+  .brt{height:34px;border-radius:8px;font-size:11px;width:78px;letter-spacing:.5px}
+  .exec{height:34px;border-radius:8px;font-size:11px;width:78px;position:relative}
+  .exec:after{content:"";position:absolute;inset:5px 8px;border:1.5px solid #cfd4d7;border-radius:4px;opacity:.85}
+  .exec.lit{color:#fff;background:linear-gradient(180deg,#3a6a44,#244a2c);box-shadow:0 0 14px var(--grn-glow),0 1px 0 rgba(255,255,255,.18) inset}
+  .exec.lit:after{border-color:var(--grn)}
+  .spacer{flex:0 0 6px}
+  .lower{display:grid;grid-template-columns:156px repeat(5,1fr);column-gap:7px;row-gap:8px;align-items:center}
+  .leftzone{grid-column:1;display:flex;gap:7px;align-items:center}
+  .leftzone .fn{height:38px;flex:1}
+  .nums{grid-column:1;display:flex;gap:9px;align-items:center}
+  .num{width:40px;height:40px;border-radius:50%;font-size:16px;flex:0 0 auto;font-family:Arial,Helvetica,sans-serif}
+  .alpha{height:40px;border-radius:8px;font-size:17px;font-family:Arial,Helvetica,sans-serif;position:relative}
+  .alpha.boxed:after{content:"";position:absolute;inset:6px 7px;border:1.6px solid #cfd4d7;border-radius:3px;opacity:.9}
+  .sm{font-size:12px;letter-spacing:.5px}
+  .brand{position:absolute;left:0;right:0;bottom:6px;text-align:center;font-size:8px;letter-spacing:3px;color:#2b2f33;opacity:.7}
+  @media(max-width:780px){body{padding-top:10px}}
+
+  /* ===== contextual EEC BITE guide ===== */
+  .guide{width:300px;max-width:94vw;display:none;flex-direction:column;gap:12px;
+    font-family:"Courier New",ui-monospace,monospace}
+  .gsteps{display:flex;flex-direction:column;gap:3px;margin-top:2px}
+  .step{display:flex;gap:9px;align-items:flex-start;font-size:11.5px;line-height:1.35;
+    padding:6px 8px;border-radius:5px;color:#9a7a2e;border:1px solid transparent;transition:.18s}
+  .step .n{flex:0 0 18px;height:18px;border-radius:50%;border:1px solid var(--amber-dim);
+    display:flex;align-items:center;justify-content:center;font-size:10px;margin-top:1px}
+  .step.active{color:var(--amber);background:rgba(255,176,0,.07);border-color:var(--amber-dim);
+    box-shadow:0 0 14px rgba(255,176,0,.12) inset}
+  .step.active .n{border-color:var(--amber);color:var(--amber);box-shadow:0 0 8px var(--amber-glow)}
+  .chans{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+  .chan{border:1px solid #3a3320;border-radius:6px;padding:9px 10px;background:#0c0a04;
+    display:flex;align-items:center;justify-content:space-between;font-size:12px;letter-spacing:1px}
+  .chan .cn{color:#caa64a}.chan .mk{font-size:11px;color:#6a5a22}
+  .chan.done{border-color:var(--grn);background:rgba(98,240,140,.07)}
+  .chan.done .cn{color:var(--grn)}.chan.done .mk{color:var(--grn);text-shadow:0 0 8px var(--grn-glow)}
+  .gfoot{font-size:10px;color:#7a5400;text-align:center;line-height:1.6}
+  .lsk.hot{box-shadow:0 0 0 2px var(--amber),0 0 16px var(--amber-glow);animation:lskhot 1s infinite}
+  @keyframes lskhot{0%,100%{box-shadow:0 0 0 2px var(--amber),0 0 9px var(--amber-glow)}
+    50%{box-shadow:0 0 0 2px var(--amber),0 0 20px var(--amber-glow)}}
+
+  /* ===== right column + scenario launcher ===== */
+  .rightcol{display:flex;flex-direction:column;gap:14px;align-items:center}
+  .apptitle{width:560px;max-width:96vw;font-family:"Courier New",ui-monospace,monospace;
+    display:flex;flex-direction:column;gap:3px;padding:2px 2px 0}
+  .apptitle .t{font-size:19px;font-weight:bold;letter-spacing:3px;color:var(--amber);
+    text-shadow:0 0 12px var(--amber-glow);white-space:nowrap}
+  .apptitle .appsub{font-size:10px;letter-spacing:2px;color:#7a5400}
+  .scenbtn.ac .lt{font-weight:bold;letter-spacing:1px}
+  .scenbtn.ac.on{background:#0e2a14;border-color:var(--grn);color:var(--grn);
+    box-shadow:0 0 14px var(--grn-glow),0 0 10px rgba(98,240,140,.12) inset}
+  .scenbtn.rst{min-width:80px;flex:0 0 auto}
+  .scenbar{width:560px;max-width:96vw;border:1px solid var(--amber-dim);border-radius:10px;
+    background:linear-gradient(180deg,#0f0c04,#0a0902);
+    box-shadow:0 0 0 1px #000 inset,0 6px 22px rgba(0,0,0,.5);padding:11px 13px;
+    font-family:"Courier New",ui-monospace,monospace}
+  .schd{font-size:10px;letter-spacing:3px;color:var(--amber);opacity:.8;margin:0 0 9px}
+  .scrow{display:flex;gap:7px;flex-wrap:wrap}
+  .scenbtn{flex:1 1 auto;min-width:108px;background:linear-gradient(180deg,#241b08,#16100a);
+    border:1px solid var(--amber-dim);color:var(--amber);font-family:"Courier New",monospace;
+    font-size:11px;font-weight:bold;letter-spacing:1px;padding:9px 6px;border-radius:6px;cursor:pointer;
+    box-shadow:0 0 10px rgba(255,176,0,.05) inset;transition:.12s}
+  .scenbtn:hover{background:#2e2208;box-shadow:0 0 14px rgba(255,176,0,.18)}
+  .scenbtn.active{background:#3a2b0a;border-color:var(--amber);color:#ffd56b;
+    box-shadow:0 0 16px var(--amber-glow),0 0 10px rgba(255,176,0,.12) inset}
+</style>
+</head>
+<body>
+
+<!-- ===== contextual EEC BITE guidance (left) ===== -->
+<div class="guide" id="guide">
+  <div class="plate">
+    <p class="hd">EEC BITE — PROCEDURE</p>
+    <div class="gsteps" id="gsteps"></div>
+  </div>
+  <div class="plate">
+    <p class="hd">EEC TEST — ENGINES</p>
+    <div class="chans" id="gchans"></div>
+  </div>
+  <div class="gfoot">CFM56-7B · EEC ground test · training aid</div>
+</div>
+
+<!-- ===== right column: title + scenario bar + CDU ===== -->
+<div class="rightcol">
+  <div class="apptitle"><span class="t">B737 MCDU SIMULATION</span><span class="appsub">Training aid · not for line use · verify against current AMM/FIM</span></div>
+  <div class="scenbar">
+    <div class="schd">SIMULATOR SCENARIOS — QUICK LAUNCH</div>
+    <div class="scrow">
+      <button class="scenbtn" data-s="FMC"     onclick="scen('FMC')">FMC PREFLIGHT</button>
+      <button class="scenbtn" data-s="POS"     onclick="scen('POS')">POS / IRS</button>
+      <button class="scenbtn" data-s="ENGBITE" onclick="scen('ENGBITE')">ENG BITE</button>
+      <button class="scenbtn" data-s="EEC"     onclick="scen('EEC')">EEC TEST</button>
+      <button class="scenbtn" data-s="APU"     onclick="scen('APU')">APU BITE</button>
+      <button class="scenbtn" data-s="CDS"     onclick="scen('CDS')">CDS BITE</button>
+      <button class="scenbtn" data-s="FQIS"    onclick="scen('FQIS')">FQIS BITE</button>
+      <button class="scenbtn" data-s="FMCB"    onclick="scen('FMCB')">FMC BITE</button>
+      <button class="scenbtn ac" id="pbac" onclick="toggleAC()">AC PWR&nbsp;<span class="lt">OFF</span></button>
+      <button class="scenbtn rst" onclick="resetAll()">RESET</button>
+    </div>
+  </div>
+
+  <!-- ===== CDU unit ===== -->
+  <div class="cdu" id="cdu">
+    <div class="screw tl"></div><div class="screw tr"></div>
+    <div class="screw bl"></div><div class="screw br"></div>
+    <div class="gold l"></div><div class="gold r"></div>
+    <div class="lever l"></div><div class="lever r"></div>
+
+  <div class="dispgrid" id="disp">
+    <div class="scrbg"></div>
+    <div class="t-title" id="scrTitle"></div>
+    <div class="lcell" style="grid-row:2"><div class="lsk" id="lsk-L1" onclick="lsk('L1')"></div><span class="tick"></span></div>
+    <div class="lcell" style="grid-row:3"><div class="lsk" id="lsk-L2" onclick="lsk('L2')"></div><span class="tick"></span></div>
+    <div class="lcell" style="grid-row:4"><div class="lsk" id="lsk-L3" onclick="lsk('L3')"></div><span class="tick"></span></div>
+    <div class="lcell" style="grid-row:5"><div class="lsk" id="lsk-L4" onclick="lsk('L4')"></div><span class="tick"></span></div>
+    <div class="lcell" style="grid-row:6"><div class="lsk" id="lsk-L5" onclick="lsk('L5')"></div><span class="tick"></span></div>
+    <div class="lcell" style="grid-row:7"><div class="lsk" id="lsk-L6" onclick="lsk('L6')"></div><span class="tick"></span></div>
+    <div class="rowcell" id="b1" style="grid-row:2"></div>
+    <div class="rowcell" id="b2" style="grid-row:3"></div>
+    <div class="rowcell" id="b3" style="grid-row:4"></div>
+    <div class="rowcell" id="b4" style="grid-row:5"></div>
+    <div class="rowcell" id="b5" style="grid-row:6"></div>
+    <div class="rowcell" id="b6" style="grid-row:7"></div>
+    <div class="rcell" style="grid-row:2"><span class="tick"></span><div class="lsk" id="lsk-R1" onclick="lsk('R1')"></div></div>
+    <div class="rcell" style="grid-row:3"><span class="tick"></span><div class="lsk" id="lsk-R2" onclick="lsk('R2')"></div></div>
+    <div class="rcell" style="grid-row:4"><span class="tick"></span><div class="lsk" id="lsk-R3" onclick="lsk('R3')"></div></div>
+    <div class="rcell" style="grid-row:5"><span class="tick"></span><div class="lsk" id="lsk-R4" onclick="lsk('R4')"></div></div>
+    <div class="rcell" style="grid-row:6"><span class="tick"></span><div class="lsk" id="lsk-R5" onclick="lsk('R5')"></div></div>
+    <div class="rcell" style="grid-row:7"><span class="tick"></span><div class="lsk" id="lsk-R6" onclick="lsk('R6')"></div></div>
+    <div class="t-scratch" id="scratch"></div>
+  </div>
+
+  <div class="kbd">
+    <div class="frow">
+      <button class="btn fn" id="key-initref" onclick="keyInitRef()"><span>INIT<small>REF</small></span></button>
+      <button class="btn fn" data-key="RTE" onclick="goPage('RTE')">RTE</button>
+      <button class="btn fn">CLB</button><button class="btn fn">CRZ</button><button class="btn fn">DES</button>
+      <span class="spacer"></span><button class="btn brt">– BRT +</button>
+    </div>
+    <div class="frow">
+      <button class="btn fn" id="key-menu" onclick="goPage('MENU')">MENU</button>
+      <button class="btn fn">LEGS</button><button class="btn fn"><span>DEP<small>ARR</small></span></button>
+      <button class="btn fn">HOLD</button><button class="btn fn">PROG</button>
+      <span class="spacer"></span><button class="btn exec" id="key-exec" onclick="keyExec()">EXEC</button>
+    </div>
+    <div class="lower">
+      <div class="leftzone">
+        <button class="btn fn" id="key-n1" onclick="goPage('N1LIMIT')"><span>N1<small>LIMIT</small></span></button><button class="btn fn">FIX</button>
+      </div>
+      <button class="btn alpha" data-key="A">A</button><button class="btn alpha" data-key="B">B</button>
+      <button class="btn alpha" data-key="C">C</button><button class="btn alpha" data-key="D">D</button>
+      <button class="btn alpha boxed" data-key="E">E</button>
+
+      <div class="leftzone">
+        <button class="btn fn" id="key-prev" onclick="pageKey(-1)"><span>PREV<small>PAGE</small></span></button>
+        <button class="btn fn" id="key-next" onclick="pageKey(1)"><span>NEXT<small>PAGE</small></span></button>
+      </div>
+      <button class="btn alpha" data-key="F">F</button><button class="btn alpha" data-key="G">G</button>
+      <button class="btn alpha" data-key="H">H</button><button class="btn alpha" data-key="I">I</button>
+      <button class="btn alpha" data-key="J">J</button>
+
+      <div class="nums">
+        <button class="btn num" data-key="1">1</button><button class="btn num" data-key="2">2</button><button class="btn num" data-key="3">3</button>
+      </div>
+      <button class="btn alpha" data-key="K">K</button><button class="btn alpha" data-key="L">L</button>
+      <button class="btn alpha" data-key="M">M</button><button class="btn alpha boxed" data-key="N">N</button>
+      <button class="btn alpha" data-key="O">O</button>
+
+      <div class="nums">
+        <button class="btn num" data-key="4">4</button><button class="btn num" data-key="5">5</button><button class="btn num" data-key="6">6</button>
+      </div>
+      <button class="btn alpha" data-key="P">P</button><button class="btn alpha" data-key="Q">Q</button>
+      <button class="btn alpha" data-key="R">R</button><button class="btn alpha boxed" data-key="S">S</button>
+      <button class="btn alpha" data-key="T">T</button>
+
+      <div class="nums">
+        <button class="btn num" data-key="7">7</button><button class="btn num" data-key="8">8</button><button class="btn num" data-key="9">9</button>
+      </div>
+      <button class="btn alpha" data-key="U">U</button><button class="btn alpha" data-key="V">V</button>
+      <button class="btn alpha boxed" data-key="W">W</button><button class="btn alpha" data-key="X">X</button>
+      <button class="btn alpha" data-key="Y">Y</button>
+
+      <div class="nums">
+        <button class="btn num" data-key=".">.</button><button class="btn num" data-key="0">0</button>
+        <button class="btn num" data-key="PM" style="font-size:13px">+/–</button>
+      </div>
+      <button class="btn alpha" data-key="Z">Z</button><button class="btn alpha sm" data-key="SP">SP</button>
+      <button class="btn alpha sm" data-key="DEL">DEL</button><button class="btn alpha" data-key="SLSH">/</button>
+      <button class="btn alpha sm" data-key="CLR">CLR</button>
+    </div>
+  </div>
+  <div class="brand">BOEING&nbsp;&nbsp;CDU</div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   EMBEDDED SAMPLE NAV DATA  (approximate; illustrative only)
+   Expand from public-domain sources (OurAirports / X-Plane).
+   ========================================================= */
+const NAVDB = {
+  KATL:{t:'APT',n:'ATLANTA',     lat:33.6367, lon:-84.4281, elev:1026},
+  KDTW:{t:'APT',n:'DETROIT',     lat:42.2162, lon:-83.3554, elev:645},
+  KMSP:{t:'APT',n:'MINNEAPOLIS', lat:44.8820, lon:-93.2218, elev:841},
+  KSLC:{t:'APT',n:'SALT LAKE',   lat:40.7884, lon:-111.9779,elev:4227},
+  KJFK:{t:'APT',n:'NEW YORK',    lat:40.6398, lon:-73.7789, elev:13},
+  KLGA:{t:'APT',n:'LA GUARDIA',  lat:40.7772, lon:-73.8726, elev:21},
+  KBOS:{t:'APT',n:'BOSTON',      lat:42.3656, lon:-71.0096, elev:20},
+  KSEA:{t:'APT',n:'SEATTLE',     lat:47.4502, lon:-122.3088,elev:433},
+  KLAX:{t:'APT',n:'LOS ANGELES', lat:33.9425, lon:-118.4081,elev:125},
+  KSFO:{t:'APT',n:'SAN FRAN',    lat:37.6189, lon:-122.3750,elev:13},
+  KORD:{t:'APT',n:'CHICAGO ORD', lat:41.9786, lon:-87.9048, elev:672},
+  KDFW:{t:'APT',n:'DALLAS FW',   lat:32.8968, lon:-97.0380, elev:607},
+  KDEN:{t:'APT',n:'DENVER',      lat:39.8617, lon:-104.6731,elev:5434},
+  KMIA:{t:'APT',n:'MIAMI',       lat:25.7932, lon:-80.2906, elev:8},
+  KCVG:{t:'APT',n:'CINCINNATI',  lat:39.0488, lon:-84.6678, elev:896},
+  KLAS:{t:'APT',n:'LAS VEGAS',   lat:36.0801, lon:-115.1522,elev:2181},
+  KPHX:{t:'APT',n:'PHOENIX',     lat:33.4373, lon:-112.0078,elev:1135},
+  KMCO:{t:'APT',n:'ORLANDO',     lat:28.4294, lon:-81.3090, elev:96},
+  KEWR:{t:'APT',n:'NEWARK',      lat:40.6925, lon:-74.1687, elev:18}
+};
+function lookup(id){ id=(id||'').toUpperCase().trim();
+  return NAVDB[id] || NAVDB['K'+id] || null; }
+
+/* coordinate formatting / parsing */
+function fmtLat(l){ const h=l>=0?'N':'S'; l=Math.abs(l); const d=Math.floor(l);
+  const m=((l-d)*60).toFixed(1); return `${h}${String(d).padStart(2,'0')}\u00B0${m.padStart(4,'0')}`; }
+function fmtLon(l){ const h=l>=0?'E':'W'; l=Math.abs(l); const d=Math.floor(l);
+  const m=((l-d)*60).toFixed(1); return `${h}${String(d).padStart(3,'0')}\u00B0${m.padStart(4,'0')}`; }
+function parsePos(s){
+  const m=s.replace(/\s/g,'').match(/^([NS])(\d{2})\u00B0?(\d{2}\.\d)([EW])(\d{3})\u00B0?(\d{2}\.\d)$/);
+  if(!m) return null;
+  let la=(+m[2])+(+m[3])/60; if(m[1]==='S') la=-la;
+  let lo=(+m[5])+(+m[6])/60; if(m[4]==='W') lo=-lo;
+  return {lat:la, lon:lo};
+}
+function gmt(){ const d=new Date(); const h=String(d.getUTCHours()).padStart(2,'0');
+  const m=String(d.getUTCMinutes()).padStart(2,'0'); return h+m+'z'; }
+function boxes(n){ return '\u2610'.repeat(n); }
+function num(s){ const v=parseFloat(s); return isNaN(v)?null:v; }
+function fmtW(v){ return v==null?null:v.toFixed(1); }
+function normAlt(s){ s=String(s).replace(/^FL/i,''); let v=parseInt(s,10);
+  if(isNaN(v)) return null; if(v>1000) v=Math.round(v/100); if(v<10||v>450) return null; return v; }
+/* approximate 737-800 VREF (illustrative); gw in thousands lb */
+function vref(gw, flap){ const base=122+(gw-100)*0.49;
+  if(flap===40) return Math.round(base-6);
+  if(flap===15) return Math.round(base+9);
+  return Math.round(base); }
+
+/* =========================================================
+   STATE
+   ========================================================= */
+const BOX='\u2610\u2610\u2610\u2610';
+function freshFMC(){ return { refApt:'', refPos:null, irs:'OFF', irsT0:0, irsDur:24000,
+  origin:'', dest:'', fltNo:'', execPend:false, nav:null,
+  gw:null, zfw:null, fuel:null, crzAlt:null, costIndex:null, reserves:null,
+  n1rating:'26K-TO', toThrust:'26K', selTemp:null,
+  toFlaps:null, v1:null, vr:null, v2:null, cg:null, trim:null, accelHt:1000,
+  appWt:null, appSel:null }; }
+function freshBITE(){ return { eng:'1', chan:null, sub:null, warn:null, done:{'1':false,'2':false} }; }
+let state={ page:'IDENT', scratch:'', msg:'', ac:false, waiting:false, _waitTitle:'', _waitMsg:'',
+  fmc:freshFMC(), bite:freshBITE() };
+
+/* =========================================================
+   SCRATCHPAD + KEYPAD
+   ========================================================= */
+function type(ch){ if(state.msg) state.msg=''; if(state.scratch==='DELETE') state.scratch='';
+  if(state.scratch.length<22) state.scratch+=ch; render(); }
+function clr(){ if(state.msg){state.msg='';render();return;}
+  state.scratch=state.scratch.slice(0,-1); render(); }
+function del(){ if(state.scratch==='') state.scratch='DELETE'; render(); }
+function err(m){ state.msg=m; render(); }
+function takeScratch(){ const s=(state.msg?'':state.scratch); return s; }
+function clearScratch(){ state.scratch=''; state.msg=''; }
+
+function handleKey(k){
+  if(/^[A-Z0-9.]$/.test(k)) return type(k);
+  if(k==='SP') return type(' ');
+  if(k==='SLSH') return type('/');
+  if(k==='PM'){ // +/- : toggle a leading minus on numeric-ish entry
+    if(state.scratch.startsWith('-')) state.scratch=state.scratch.slice(1); else state.scratch='-'+state.scratch; return render(); }
+  if(k==='DEL') return del();
+  if(k==='CLR') return clr();
+}
+document.querySelectorAll('[data-key]').forEach(el=>{
+  const k=el.getAttribute('data-key');
+  if(['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+      '0','1','2','3','4','5','6','7','8','9','.','SP','SLSH','PM','DEL','CLR'].includes(k))
+    el.addEventListener('click',()=>handleKey(k));
+});
+document.addEventListener('keydown',e=>{
+  const k=e.key;
+  if(/^[a-zA-Z0-9.]$/.test(k)){ handleKey(k.toUpperCase()); e.preventDefault(); return; }
+  if(k===' '){ handleKey('SP'); e.preventDefault(); return; }
+  if(k==='/'){ handleKey('SLSH'); return; }
+  if(k==='Backspace'){ clr(); e.preventDefault(); return; }
+  if(k==='Delete'){ del(); return; }
+  if(k==='ArrowRight') pageKey(1);
+  if(k==='ArrowLeft') pageKey(-1);
+});
+
+/* =========================================================
+   NAVIGATION KEYS
+   ========================================================= */
+function keyInitRef(){ goPage('INITREF'); }
+function goPage(p){ state.page=p; clearScratch(); render(); }
+function pageKey(dir){ const pg=PAGES[state.page]; if(pg&&pg.page) pg.page(dir); }
+function keyExec(){ if(state.fmc.execPend){ state.fmc.execPend=false; flash('ROUTE ACTIVATED'); } render(); }
+function flash(m){ state.msg=m; render(); clearTimeout(window._f); window._f=setTimeout(()=>{state.msg='';render();},1800); }
+function toggleAC(){ state.ac=!state.ac;
+  if(state.ac && state.fmc.fuel==null) state.fmc.fuel=28.0;
+  if(!state.ac){ state.fmc.irs='OFF'; } render(); }
+function resetAll(){ state={page:'IDENT',scratch:'',msg:'',ac:false,waiting:false,_waitTitle:'',_waitMsg:'',fmc:freshFMC(),bite:freshBITE()}; render(); }
+
+/* IRS alignment progress */
+function irsRemain(){
+  if(state.fmc.irs!=='ALIGNING') return 0;
+  const el=Date.now()-state.fmc.irsT0;
+  if(el>=state.fmc.irsDur){ state.fmc.irs='ALIGNED'; return 0; }
+  return 1-(el/state.fmc.irsDur);
+}
+function irsStatus(){
+  if(state.fmc.irs==='OFF') return {t:'IRS OFF', c:'box'};
+  if(state.fmc.irs==='ALIGNED') return {t:'IRS NAV', c:'grn'};
+  const frac=irsRemain(); const sec=Math.ceil(frac*600); // display 10:00 -> 0
+  const mm=String(Math.floor(sec/60)).padStart(2,'0'); const ss=String(sec%60).padStart(2,'0');
+  return {t:'ALIGN '+mm+':'+ss, c:'amb'};
+}
+
+/* =========================================================
+   PAGE REGISTRY  — add new pages here as we go
+   each page: build()=>{title,sub,page,arrows,rows}, lsk(pos), page(dir)
+   ========================================================= */
+/* =========================================================
+   BITE / MAINTENANCE — wait mechanism, subsystems, scenarios
+   ========================================================= */
+function waitGoto(page, msg, dur, title, after){
+  state.waiting=true; state._waitTitle=title||''; state._waitMsg=msg||'WAIT'; state.scratch=''; state.msg=''; render();
+  setTimeout(()=>{ state.waiting=false; state.page=page; clearScratch(); if(after) after(); render(); }, dur||1200);
+}
+const ttlE=()=>'ENGINE '+state.bite.eng+' BITE TEST';
+
+/* engine BITE actions */
+function selEng(e,ch){ state.bite.eng=e; state.bite.chan=ch;
+  if(!state.ac){ waitGoto('ENG_BITE_INDEX','ACCESSING EEC '+e,1200,ttlE(),()=>flash('NO EEC DATA - CHECK PWR')); return; }
+  waitGoto('ENG_MAIN','EEC SORTING\nFAULT HISTORY DATA\nTHIS TAKES ABOUT 45 SECONDS',2400,ttlE()); }
+function runEEC(){ const e=state.bite.eng; state.bite.warn=null;
+  waitGoto('ENG_EECRESULT','EEC TEST IN PROGRESS',2000,ttlE(),()=>{ state.bite.done[e]=true; }); }
+function startWarn(name,type){ state.bite.warn={name,type}; goPage('ENG_WARN'); }
+function runWarn(){ waitGoto('ENG_TESTRESULT', state.bite.warn.name+' IN PROGRESS',2200,ttlE()); }
+
+/* generic subsystem BITE */
+const SUBSYS = {
+  APU:  {name:'APU',        test:'APU BITE TEST',  cfg:[['MODEL','GTCP131-9B'],['ECB S/W P/N','3886219-3'],['EGT','--- C'],['RPM','0 %']]},
+  CDS:  {name:'CDS',        test:'DISPLAY TEST',   cfg:[['CDS P/N','284W0001'],['DEU 1','OPERATE'],['DEU 2','OPERATE']]},
+  EFIS: {name:'EFIS/EICAS', test:'DISPLAY TEST',   cfg:[['DU CONFIG','6 DU'],['DEU 1','OPERATE'],['DEU 2','OPERATE']]},
+  FQIS: {name:'FQIS',       test:'FQIS BITE TEST', cfg:[['TANK 1','12500 LB'],['CTR','0 LB'],['TANK 2','12500 LB']]},
+  FMCB: {name:'FMC',        test:'FMC BITE TEST',  cfg:[['FMC P/N','2044M25P19'],['OP PROGRAM','U14.0'],['NAV DATA','AIRAC 2506']]}
+};
+function openSub(k){ state.bite.sub=k; goPage('SUB_MAIN'); }
+function runSubTest(){ const s=SUBSYS[state.bite.sub]; waitGoto('SUB_RESULT', s.test+' IN PROGRESS',1800, s.name+' BITE'); }
+
+/* scenario quick-launch */
+function scen(which){
+  if(which==='FMC') goPage('IDENT');
+  else if(which==='POS') goPage('POSINIT');
+  else if(which==='ENGBITE') goPage('ENG_BITE_INDEX');
+  else if(which==='EEC'){ state.bite.eng='1';
+    if(state.ac) goPage('ENG_GROUND'); else { goPage('ENG_BITE_INDEX'); flash('AC POWER REQUIRED'); } }
+  else if(which==='APU') openSub('APU');
+  else if(which==='CDS') openSub('CDS');
+  else if(which==='FQIS') openSub('FQIS');
+  else if(which==='FMCB') openSub('FMCB');
+  highlightScen(which);
+}
+function highlightScen(which){
+  document.querySelectorAll('.scenbtn').forEach(b=>b.classList.toggle('active', b.dataset.s===which));
+}
+
+const PAGES = {
+  MENU:{
+    build:()=>({title:'CDU MENU', rows:[
+      {l:{val:'<FMC', cls:''}},
+      {l:{val:'<ATSU', cls:''}},
+      {l:{val:'<DFCS', cls:''}},
+      {l:{val:'<BITE / MAINT', cls:''}},
+      {}, {}
+    ]}),
+    lsk:(p)=>{ if(p==='L1') goPage('IDENT');
+      else if(p==='L4') goPage('MAINT');
+      else if(p==='L2'||p==='L3') flash('NOT IMPLEMENTED'); }
+  },
+
+  IDENT:{
+    build:()=>({title:'IDENT', page:'1/1', rows:[
+      {l:{lab:'MODEL', val:'737-800'},               r:{lab:'ENG RATING', val:'26K'}},
+      {l:{lab:'NAV DATA', val:'AIRAC 2506'},          r:{lab:'', val:''}},
+      {l:{lab:'ACTIVE', val:'17APR-15MAY', cls:'cyan'}, r:{lab:'',val:''}},
+      {l:{lab:'OP PROGRAM', val:'U14.0'},             r:{lab:'',val:''}},
+      {}, 
+      {l:{val:'<INDEX', cls:'cyan'},                  r:{val:'POS INIT>', cls:'cyan'}}
+    ]}),
+    lsk:(p)=>{ if(p==='L6') goPage('INITREF'); else if(p==='R6') goPage('POSINIT'); }
+  },
+
+  INITREF:{
+    build:()=>({title:'INIT/REF INDEX', page:'1/1', rows:[
+      {l:{val:'<IDENT', cls:''},        r:{val:'NAV DATA>', cls:''}},
+      {l:{val:'<POS', cls:''},          r:{val:'',cls:''}},
+      {l:{val:'<PERF', cls:''},         r:{val:'',cls:''}},
+      {l:{val:'<TAKEOFF', cls:''},      r:{val:'',cls:''}},
+      {l:{val:'<APPROACH', cls:''},     r:{val:'',cls:''}},
+      {l:{val:'', cls:''},              r:{val:'MAINT>', cls:'cyan'}}
+    ]}),
+    lsk:(p)=>{ if(p==='L1') goPage('IDENT');
+      else if(p==='L2') goPage('POSINIT');
+      else if(p==='R1') goPage('NAVDATA');
+      else if(p==='L3') goPage('PERF');
+      else if(p==='L4') goPage('TKOF');
+      else if(p==='L5') goPage('APPR');
+      else if(p==='R6') goPage('MAINT'); }
+  },
+
+  POSINIT:{
+    build:()=>{
+      const f=state.fmc; const st=irsStatus();
+      const refVal = f.refApt ? f.refApt : BOX;
+      const refCoord = f.refPos ? fmtLat(f.refPos.lat)+' '+fmtLon(f.refPos.lon) : '';
+      const setVal = f.refPos ? (f.irs==='OFF'? (fmtLat(f.refPos.lat)) : fmtLat(f.refPos.lat)) : BOX.slice(0,3);
+      return {title:'POS INIT', page:'1/1', rows:[
+        {l:{lab:'LAST POS', val: f.refPos? fmtLat(f.refPos.lat):'', cls:''},
+         r:{lab:'GMT', val:gmt(), cls:''}},
+        {l:{lab:'REF AIRPORT', val:refVal, cls: f.refApt?'':'box'},
+         r:{lab:'', val: refCoord, cls:''}},
+        {l:{lab:'GATE', val:'-----', cls:'box'}, r:{}},
+        {},
+        {l:{lab:'SET IRS POS', val: f.refPos? (fmtLat(f.refPos.lat)+' '+fmtLon(f.refPos.lon)) : BOX, cls: f.refPos?'':'box'},
+         r:{lab:'IRS', val: st.t, cls: st.c}},
+        {l:{val:'<INDEX', cls:'cyan'}, r:{val:'ROUTE>', cls:'cyan'}}
+      ]};
+    },
+    lsk:(p)=>{
+      const f=state.fmc;
+      if(p==='L2'){ // REF AIRPORT
+        const s=takeScratch();
+        if(s===''){ if(f.refApt) state.scratch=f.refApt; render(); return; } // downselect
+        const apt=lookup(s);
+        if(!apt||apt.t!=='APT'){ err('NOT IN DATABASE'); return; }
+        f.refApt=(s.length===3?'K'+s.toUpperCase():s.toUpperCase());
+        f.refPos={lat:apt.lat, lon:apt.lon}; clearScratch(); render(); return;
+      }
+      if(p==='L5'){ // SET IRS POS
+        if(!state.ac){ err('NO IRS POWER'); return; }
+        const s=takeScratch();
+        if(s===''){ // downselect ref coords
+          if(f.refPos){ state.scratch=fmtLat(f.refPos.lat)+fmtLon(f.refPos.lon); render(); }
+          else err('REF AIRPORT REQD'); return;
+        }
+        const pos=parsePos(s);
+        if(!pos){ err('INVALID ENTRY'); return; }
+        f.refPos=pos; f.irs='ALIGNING'; f.irsT0=Date.now(); clearScratch(); flash('IRS ALIGN STARTED'); render(); return;
+      }
+      if(p==='L6') goPage('INITREF');
+      if(p==='R6') goPage('RTE');
+    }
+  },
+
+  NAVDATA:{
+    build:()=>{
+      const n=state.fmc.nav;
+      const rows=[{l:{lab:'IDENT', val: n? n.id : BOX, cls: n?'':'box'}, r:{}}];
+      if(n){
+        rows.push({l:{lab:'LATITUDE', val:fmtLat(n.lat), cls:''}, r:{lab:'LONGITUDE', val:fmtLon(n.lon), cls:''}});
+        rows.push({l:{lab:'ELEVATION', val:n.elev+' FT', cls:''}, r:{lab:'TYPE', val:'AIRPORT', cls:''}});
+        rows.push({l:{lab:'NAME', val:n.n, cls:''}, r:{}});
+      } else { rows.push({},{},{ center:{txt:'ENTER IDENT ABOVE', cls:'cyan'} }); }
+      rows.push({});
+      rows.push({l:{val:'<INDEX', cls:'cyan'}, r:{}});
+      while(rows.length<6) rows.splice(5,0,{});
+      return {title:'REF NAV DATA', page:'1/1', rows:rows.slice(0,6)};
+    },
+    lsk:(p)=>{
+      if(p==='L1'){
+        const s=takeScratch();
+        if(s===''){ if(state.fmc.nav) state.scratch=state.fmc.nav.id; render(); return; }
+        const r=lookup(s);
+        if(!r){ err('NOT IN DATABASE'); return; }
+        state.fmc.nav={id:(s.length===3?'K'+s.toUpperCase():s.toUpperCase()), ...r};
+        clearScratch(); render(); return;
+      }
+      if(p==='L6') goPage('INITREF');
+    }
+  },
+
+  RTE:{
+    build:()=>{ const f=state.fmc; return {title:'RTE', page:'1/1', rows:[
+      {l:{lab:'ORIGIN', val: f.origin||BOX, cls: f.origin?'':'box'},
+       r:{lab:'DEST', val: f.dest||BOX, cls: f.dest?'':'box'}},
+      {l:{lab:'RUNWAY', val:'-----', cls:'box'}, r:{lab:'FLT NO', val: f.fltNo||'-------', cls: f.fltNo?'':'box'}},
+      {}, {}, {},
+      {l:{val:'<INDEX', cls:'cyan'}, r:{val: f.execPend?'<ACTIVATE>':'ACTIVATE>', cls: f.execPend?'amb':'cyan'}}
+    ]};},
+    lsk:(p)=>{ const f=state.fmc;
+      if(p==='L1'){ const s=takeScratch(); if(s===''){ if(f.origin) state.scratch=f.origin; render(); return; }
+        if(!lookup(s)){ err('NOT IN DATABASE'); return; } f.origin=(s.length===3?'K'+s:s).toUpperCase(); clearScratch(); render(); return; }
+      if(p==='R1'){ const s=takeScratch(); if(s===''){ if(f.dest) state.scratch=f.dest; render(); return; }
+        if(!lookup(s)){ err('NOT IN DATABASE'); return; } f.dest=(s.length===3?'K'+s:s).toUpperCase(); clearScratch(); render(); return; }
+      if(p==='R2'){ const s=takeScratch(); if(s===''){ if(f.fltNo) state.scratch=f.fltNo; render(); return; }
+        f.fltNo=s.toUpperCase(); clearScratch(); render(); return; }
+      if(p==='R6'){ if(f.origin&&f.dest){ f.execPend=true; flash('PUSH EXEC TO ACTIVATE'); } else err('ORIGIN/DEST REQD'); return; }
+      if(p==='L6') goPage('INITREF');
+    }
+  },
+
+  PERF:{
+    build:()=>{ const f=state.fmc; return {title:'PERF INIT', page:'1/1', rows:[
+      {l:{lab:'GW', val: f.gw!=null? fmtW(f.gw): boxes(5), cls: f.gw!=null?'':'box'},
+       r:{lab:'CRZ ALT', val: f.crzAlt!=null? 'FL'+f.crzAlt : boxes(5), cls: f.crzAlt!=null?'':'box'}},
+      {l:{lab:'FUEL', val: f.fuel!=null? fmtW(f.fuel) : 'CALC', cls:'grn'},
+       r:{lab:'CRZ CG', val:'8.0 %', cls:''}},
+      {l:{lab:'ZFW', val: f.zfw!=null? fmtW(f.zfw): boxes(5), cls: f.zfw!=null?'':'box'},
+       r:{lab:'COST INDEX', val: f.costIndex!=null? String(f.costIndex): boxes(3), cls: f.costIndex!=null?'':'box'}},
+      {l:{lab:'RESERVES', val: f.reserves!=null? fmtW(f.reserves): '-----', cls: f.reserves!=null?'':'box'}, r:{}},
+      {},
+      {l:{val:'<INDEX', cls:'cyan'}, r:{val:'N1 LIMIT>', cls:'cyan'}}
+    ]};},
+    lsk:(p)=>{ const f=state.fmc;
+      if(p==='L1'){ const s=takeScratch();
+        if(s===''){ state.scratch=(f.gw!=null?fmtW(f.gw):(f.zfw!=null&&f.fuel!=null?fmtW(f.zfw+f.fuel):'145.0')); render(); return; }
+        const v=num(s); if(v==null||v<80||v>175){ err('INVALID ENTRY'); return; }
+        f.gw=v; if(f.fuel!=null) f.zfw=+(v-f.fuel).toFixed(1); clearScratch(); render(); return; }
+      if(p==='L3'){ const s=takeScratch();
+        if(s===''){ state.scratch=(f.zfw!=null?fmtW(f.zfw):(f.gw!=null&&f.fuel!=null?fmtW(f.gw-f.fuel):'117.0')); render(); return; }
+        const v=num(s); if(v==null||v<70||v>140){ err('INVALID ENTRY'); return; }
+        f.zfw=v; if(f.fuel!=null) f.gw=+(v+f.fuel).toFixed(1); clearScratch(); render(); return; }
+      if(p==='L4'){ const s=takeScratch(); if(s===''){ if(f.reserves!=null)state.scratch=fmtW(f.reserves); render(); return; }
+        const v=num(s); if(v==null||v<0||v>30){ err('INVALID ENTRY'); return; } f.reserves=v; clearScratch(); render(); return; }
+      if(p==='R1'){ const s=takeScratch(); if(s===''){ if(f.crzAlt!=null)state.scratch='FL'+f.crzAlt; render(); return; }
+        const a=normAlt(s); if(a==null){ err('INVALID ENTRY'); return; } f.crzAlt=a; clearScratch(); render(); return; }
+      if(p==='R3'){ const s=takeScratch(); if(s===''){ if(f.costIndex!=null)state.scratch=String(f.costIndex); render(); return; }
+        const v=parseInt(s,10); if(isNaN(v)||v<0||v>999){ err('INVALID ENTRY'); return; } f.costIndex=v; clearScratch(); render(); return; }
+      if(p==='L6') goPage('INITREF');
+      if(p==='R6') goPage('N1LIMIT');
+    }
+  },
+
+  N1LIMIT:{
+    build:()=>{ const f=state.fmc; const sel=f.n1rating;
+      const opt=(r,label)=>({val:(sel===r?'<':' ')+label, cls: sel===r?'grn':''});
+      return {title:'N1 LIMIT', page:'1/1', rows:[
+        {l:{lab:'SEL TEMP', val: f.selTemp!=null? f.selTemp+'\u00B0C':'-----', cls:'box'}, r:{lab:'OAT', val:'+15\u00B0C', cls:''}},
+        {l:opt('26K-TO','TO   26K'),  r:opt('26K-CLB','CLB')},
+        {l:opt('24K-TO','TO 1 24K'),  r:opt('24K-CLB','CLB 1')},
+        {l:opt('22K-TO','TO 2 22K'),  r:opt('22K-CLB','CLB 2')},
+        {l:opt('CON','CON'),          r:{}},
+        {l:{val:'<INDEX', cls:'cyan'}, r:{val:'TAKEOFF>', cls:'cyan'}}
+      ]};},
+    lsk:(p)=>{ const f=state.fmc;
+      const setr=(r,thr)=>{ f.n1rating=r; f.toThrust=thr; clearScratch(); render(); };
+      if(p==='L1'){ const s=takeScratch(); if(s===''){ render(); return; }
+        const v=parseInt(s,10); if(isNaN(v)||v<-60||v>70){ err('INVALID ENTRY'); return; } f.selTemp=v; clearScratch(); render(); return; }
+      if(p==='L2') return setr('26K-TO','26K');
+      if(p==='L3') return setr('24K-TO','24K');
+      if(p==='L4') return setr('22K-TO','22K');
+      if(p==='L5') return setr('CON','26K');
+      if(p==='L6') goPage('INITREF');
+      if(p==='R6') goPage('TKOF');
+    }
+  },
+
+  TKOF:{
+    build:()=>{ const f=state.fmc; return {title:'TAKEOFF REF', page:'1/1', rows:[
+      {l:{lab:'FLAPS', val: f.toFlaps!=null? String(f.toFlaps): boxes(2), cls: f.toFlaps!=null?'':'box'},
+       r:{lab:'V1', val: f.v1!=null? f.v1+'KT': boxes(3), cls: f.v1!=null?'':'box'}},
+      {l:{lab:'THRUST', val:(f.toThrust||'26K')+' N1', cls:'grn'},
+       r:{lab:'VR', val: f.vr!=null? f.vr+'KT': boxes(3), cls: f.vr!=null?'':'box'}},
+      {l:{lab:'CG / TRIM', val: f.cg!=null? f.cg+'% / '+f.trim : '----', cls: f.cg!=null?'':'box'},
+       r:{lab:'V2', val: f.v2!=null? f.v2+'KT': boxes(3), cls: f.v2!=null?'':'box'}},
+      {l:{lab:'ACCEL HT', val: f.accelHt+' FT', cls:''}, r:{}},
+      {},
+      {l:{val:'<INDEX', cls:'cyan'}, r:{}}
+    ]};},
+    lsk:(p)=>{ const f=state.fmc;
+      const vsp=(field,lo,hi)=>{ const s=takeScratch(); if(s===''){ if(f[field]!=null)state.scratch=String(f[field]); render(); return; }
+        const v=parseInt(s,10); if(isNaN(v)||v<lo||v>hi){ err('INVALID ENTRY'); return; } f[field]=v; clearScratch(); render(); };
+      if(p==='L1'){ const s=takeScratch(); if(s===''){ if(f.toFlaps!=null)state.scratch=String(f.toFlaps); render(); return; }
+        const v=parseInt(s,10); if(![1,5,10,15,25].includes(v)){ err('INVALID ENTRY'); return; } f.toFlaps=v; clearScratch(); render(); return; }
+      if(p==='R1') return vsp('v1',100,200);
+      if(p==='R2') return vsp('vr',100,200);
+      if(p==='R3') return vsp('v2',100,200);
+      if(p==='L3'){ const s=takeScratch(); if(s===''){ if(f.cg!=null)state.scratch=String(f.cg); render(); return; }
+        const v=num(s); if(v==null||v<0||v>30){ err('INVALID ENTRY'); return; }
+        f.cg=v; f.trim=(8.5-(v-15)*0.15).toFixed(1); clearScratch(); render(); return; }
+      if(p==='L4'){ const s=takeScratch(); if(s===''){ state.scratch=String(f.accelHt); render(); return; }
+        const v=parseInt(s,10); if(isNaN(v)||v<400||v>5000){ err('INVALID ENTRY'); return; } f.accelHt=v; clearScratch(); render(); return; }
+      if(p==='L6') goPage('INITREF');
+    }
+  },
+
+  APPR:{
+    build:()=>{ const f=state.fmc; const gw=f.appWt!=null?f.appWt:(f.gw!=null?f.gw:null);
+      return {title:'APPROACH REF', page:'1/1', rows:[
+        {l:{lab:'GROSS WT', val: gw!=null? fmtW(gw): boxes(5), cls: gw!=null?'':'box'},
+         r:{lab:'FLAP/SPEED', val: f.appSel? f.appSel : '---/---', cls: f.appSel?'':'box'}},
+        {l:{lab:'FLAPS 15', val: gw!=null? '15/'+vref(gw,15):'15/---', cls:''}, r:{}},
+        {l:{lab:'FLAPS 30', val: gw!=null? '30/'+vref(gw,30):'30/---', cls:''}, r:{}},
+        {l:{lab:'FLAPS 40', val: gw!=null? '40/'+vref(gw,40):'40/---', cls:''}, r:{}},
+        {},
+        {l:{val:'<INDEX', cls:'cyan'}, r:{}}
+      ]};},
+    lsk:(p)=>{ const f=state.fmc; const gw=f.appWt!=null?f.appWt:f.gw;
+      if(p==='L1'){ const s=takeScratch(); if(s===''){ state.scratch=(gw!=null?fmtW(gw):'130.0'); render(); return; }
+        const v=num(s); if(v==null||v<80||v>150){ err('INVALID ENTRY'); return; } f.appWt=v; clearScratch(); render(); return; }
+      if(p==='L2'){ if(gw!=null) state.scratch='15/'+vref(gw,15); render(); return; }  // down-select
+      if(p==='L3'){ if(gw!=null) state.scratch='30/'+vref(gw,30); render(); return; }
+      if(p==='L4'){ if(gw!=null) state.scratch='40/'+vref(gw,40); render(); return; }
+      if(p==='R1'){ const s=takeScratch(); if(s===''){ if(f.appSel)state.scratch=f.appSel; render(); return; }
+        f.appSel=s; clearScratch(); render(); return; }
+      if(p==='L6') goPage('INITREF');
+    }
+  },
+
+  MAINT:{
+    build:()=>({title:'MAINT BITE INDEX', page:'1/1', rows:[
+      {l:{val:'<CDS', cls:''},        r:{val:'ENGINE>', cls:''}},
+      {l:{val:'<FMC', cls:''},        r:{val:'FQIS>', cls:''}},
+      {l:{val:'<EFIS/EICAS', cls:''}, r:{val:'APU>', cls:''}},
+      {}, {},
+      {l:{val:'<INDEX', cls:'cyan'},  r:{}}
+    ]}),
+    lsk:(p)=>{ if(p==='L1') openSub('CDS');
+      else if(p==='L2') openSub('FMCB');
+      else if(p==='L3') openSub('EFIS');
+      else if(p==='R1') goPage('ENG_BITE_INDEX');
+      else if(p==='R2') openSub('FQIS');
+      else if(p==='R3') openSub('APU');
+      else if(p==='L6') goPage('MENU'); }
+  },
+
+  /* ---------------- ENGINE / EEC BITE ---------------- */
+  ENG_BITE_INDEX:{
+    build:()=>({title:'ENGINE/EXCEED BITE INDEX', page:'1/1', rows:[
+      {l:{val:'<ENGINE 1', cls:''},        r:{val:'ENGINE 2>', cls:''}},
+      {l:{val:'<ENGINE 1 CH A', cls:''},   r:{val:'ENGINE 2 CH A>', cls:''}},
+      {l:{val:'<ENGINE 1 CH B', cls:''},   r:{val:'ENGINE 2 CH B>', cls:''}},
+      {}, {},
+      {l:{val:'<INDEX', cls:'cyan'},       r:{val:'EXCEEDANCES>', cls:'cyan'}}
+    ]}),
+    lsk:(p)=>{ const m={L1:['1',null],R1:['2',null],L2:['1','A'],R2:['2','A'],L3:['1','B'],R3:['2','B']};
+      if(m[p]) return selEng(m[p][0],m[p][1]);
+      if(p==='L6') goPage('MAINT');
+      if(p==='R6') flash('NO EXCEEDANCES'); }
+  },
+  ENG_MAIN:{
+    build:()=>({title:ttlE(), subtitle:'MAIN MENU', page:'1/1', rows:[
+      {l:{val:'<RECENT FAULTS', cls:''}},
+      {l:{val:'<FAULT HISTORY', cls:''}},
+      {l:{val:'<IDENT/CONFIG', cls:''}},
+      {l:{val:'<GROUND TESTS', cls:''}},
+      {l:{val:'<INPUT MONITORING', cls:''}},
+      {l:{val:'<INDEX', cls:'cyan'}}
+    ]}),
+    lsk:(p)=>{ if(p==='L1') waitGoto('ENG_RECENT','COLLECTING DATA',900,ttlE());
+      else if(p==='L2') waitGoto('ENG_FH','COLLECTING DATA',900,ttlE());
+      else if(p==='L3') goPage('ENG_CFG1');
+      else if(p==='L4') goPage('ENG_GROUND');
+      else if(p==='L5') goPage('ENG_INPUTNOTICE');
+      else if(p==='L6') goPage('ENG_BITE_INDEX'); }
+  },
+  ENG_RECENT:{ build:()=>({title:ttlE(), subtitle:'RECENT FAULTS', page:'1/1', rows:[
+      {},{center:{txt:'NO RECENT FAULTS'}},{},{},{},{l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('ENG_MAIN'); } },
+  ENG_FH:{ build:()=>({title:ttlE(), subtitle:'FAULT HISTORY', page:'1/1', rows:[
+      {},{center:{txt:'NO FAULT HISTORY'}},{center:{txt:'STORED'}},{},{},{l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('ENG_MAIN'); } },
+  ENG_CFG1:{ build:()=>({title:ttlE(), subtitle:'IDENT/CONFIG', page:'1/2', arrows:{r:true}, rows:[
+      {kv:{k:'APL MODEL', v:'737-800'}},
+      {kv:{k:'ENGINE MODEL', v:'7B24 /3'}},
+      {kv:{k:'N1 TRIM', v:'0'}},
+      {kv:{k:'EEC S/W P/N', v:'2044M25P19'}},
+      {kv:{k:'START MODE', v:'ENHANCED'}},
+      {l:{val:'<INDEX', cls:'cyan'}, r:{val:'ERASE>', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('ENG_MAIN'); else if(p==='R6') flash('ERASE INHIBITED'); },
+    page:(d)=>{ if(d===1) goPage('ENG_CFG2'); } },
+  ENG_CFG2:{ build:()=>({title:ttlE(), subtitle:'IDENT/CONFIG', page:'2/2', arrows:{l:true}, rows:[
+      {kv:{k:'ENG S/N', v:'803-732'}},
+      {kv:{k:'EEC S/W VER', v:'7E6A'}},
+      {kv:{k:'BUMP INSTALLED', v:'NO'}},
+      {kv:{k:'REVERSER MODE', v:'STANDARD'}},
+      {kv:{k:'ACMS INSTALLED', v:'NO'}},
+      {l:{val:'<INDEX', cls:'cyan'}, r:{val:'ERASE>', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('ENG_MAIN'); else if(p==='R6') flash('ERASE INHIBITED'); },
+    page:(d)=>{ if(d===-1) goPage('ENG_CFG1'); } },
+  ENG_GROUND:{ build:()=>({title:ttlE(), subtitle:'GROUND TESTS', page:'1/1', rows:[
+      {l:{val:'<EEC TEST', cls:''}},
+      {l:{val:'<T/R LEVER INTLK TEST', cls:''}},
+      {l:{val:'<ACTUATORS TEST', cls:''}},
+      {l:{val:'<L IGNITER TEST', cls:''}},
+      {l:{val:'<R IGNITER TEST', cls:''}},
+      {l:{val:'<INDEX', cls:'cyan'}, r:{val:'WATER WASH>', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L1') runEEC();
+      else if(p==='L2') startWarn('T/R LEVER INTLK TEST','turn');
+      else if(p==='L3') startWarn('ACTUATORS TEST','turn');
+      else if(p==='L4') startWarn('L IGNITER TEST','ignite');
+      else if(p==='L5') startWarn('R IGNITER TEST','ignite');
+      else if(p==='L6') goPage('ENG_MAIN');
+      else if(p==='R6') flash('NOT IN THIS PROC'); } },
+  ENG_WARN:{ build:()=>{ const turn=state.bite.warn.type==='turn';
+      return {title:ttlE(), subtitle:state.bite.warn.name, rows:[
+        {center:{txt:'! ! !  WARNING  ! ! !', cls:'warn'}},
+        {center:{txt: turn?'THIS TEST WILL CAUSE':'THIS TEST WILL FIRE'}},
+        {center:{txt: turn?'THE ENGINE TO TURN':'THE IGNITERS'}},
+        {center:{txt:'KEEP PEOPLE AND EQUIPMENT'}},
+        {center:{txt:'CLEAR OF THE ENGINE'}},
+        {l:{val:'<GO BACK', cls:'cyan'}, r:{val:'START TEST>', cls:'cyan'}}]}; },
+    lsk:(p)=>{ if(p==='L6') goPage('ENG_GROUND'); else if(p==='R6') runWarn(); } },
+  ENG_EECRESULT:{ build:()=>({title:ttlE(), subtitle:'EEC TEST', rows:[
+      {},{center:{txt:'TEST COMPLETE', cls:'grn'}},{center:{txt:'NO FAULTS FOUND'}},{},{},{l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('ENG_GROUND'); } },
+  ENG_TESTRESULT:{ build:()=>({title:ttlE(), subtitle:(state.bite.warn?state.bite.warn.name:''), rows:[
+      {},{center:{txt:'TEST COMPLETE', cls:'grn'}},{center:{txt:'NO FAULTS FOUND'}},{},{},{l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('ENG_GROUND'); } },
+  ENG_INPUTNOTICE:{ build:()=>({title:ttlE(), subtitle:'INPUT MONITORING', rows:[
+      {center:{txt:'NOTICE', cls:'cyan'}},
+      {center:{txt:'THIS IS NOT AN APPROVED'}},
+      {center:{txt:'PRIMARY PROCEDURE USED'}},
+      {center:{txt:'TO ISOLATE FAULTS'}},
+      {},
+      {l:{val:'<GO BACK', cls:'cyan'}, r:{val:'CONTINUE>', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('ENG_MAIN'); else if(p==='R6') waitGoto('ENG_INPUTDATA','ACCESSING EEC',1100,ttlE()); } },
+  ENG_INPUTDATA:{ build:()=>({title:ttlE(), subtitle:'INPUT MONITORING', page:'1/1', rows:[
+      {kv:{k:'N1', v:'0.0 %'}},{kv:{k:'N2', v:'0.0 %'}},{kv:{k:'EGT', v:'+18 C'}},
+      {kv:{k:'TAT', v:'+19 C'}},{kv:{k:'TLA', v:'0.0 DEG'}},{l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('ENG_MAIN'); } },
+
+  /* ---------------- GENERIC SUBSYSTEM BITE ---------------- */
+  SUB_MAIN:{ build:()=>{ const s=SUBSYS[state.bite.sub]; return {title:s.name+' BITE', subtitle:'MAIN MENU', page:'1/1', rows:[
+      {l:{val:'<RECENT FAULTS', cls:''}},
+      {l:{val:'<FAULT HISTORY', cls:''}},
+      {l:{val:'<GROUND TEST', cls:''}},
+      {l:{val:'<IDENT/CONFIG', cls:''}},
+      {},
+      {l:{val:'<INDEX', cls:'cyan'}}]}; },
+    lsk:(p)=>{ if(p==='L1') waitGoto('SUB_RECENT','COLLECTING DATA',800,SUBSYS[state.bite.sub].name+' BITE');
+      else if(p==='L2') waitGoto('SUB_FH','COLLECTING DATA',800,SUBSYS[state.bite.sub].name+' BITE');
+      else if(p==='L3') goPage('SUB_GROUND');
+      else if(p==='L4') goPage('SUB_CFG');
+      else if(p==='L6') goPage('MAINT'); } },
+  SUB_RECENT:{ build:()=>({title:SUBSYS[state.bite.sub].name+' BITE', subtitle:'RECENT FAULTS', page:'1/1', rows:[
+      {},{center:{txt:'NO RECENT FAULTS'}},{},{},{},{l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('SUB_MAIN'); } },
+  SUB_FH:{ build:()=>({title:SUBSYS[state.bite.sub].name+' BITE', subtitle:'FAULT HISTORY', page:'1/1', rows:[
+      {},{center:{txt:'NO FAULT HISTORY'}},{center:{txt:'STORED'}},{},{},{l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('SUB_MAIN'); } },
+  SUB_GROUND:{ build:()=>{ const s=SUBSYS[state.bite.sub]; return {title:s.name+' BITE', subtitle:'GROUND TEST', page:'1/1', rows:[
+      {l:{val:'<'+s.test, cls:''}},{},{},{},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}; },
+    lsk:(p)=>{ if(p==='L1') runSubTest(); else if(p==='L6') goPage('SUB_MAIN'); } },
+  SUB_CFG:{ build:()=>{ const s=SUBSYS[state.bite.sub];
+      const rows=s.cfg.map(c=>({kv:{k:c[0], v:c[1]}})); while(rows.length<5) rows.push({});
+      rows.push({l:{val:'<INDEX', cls:'cyan'}}); return {title:s.name+' BITE', subtitle:'IDENT/CONFIG', page:'1/1', rows:rows.slice(0,6)}; },
+    lsk:(p)=>{ if(p==='L6') goPage('SUB_MAIN'); } },
+  SUB_RESULT:{ build:()=>({title:SUBSYS[state.bite.sub].name+' BITE', subtitle:SUBSYS[state.bite.sub].test, rows:[
+      {},{center:{txt:'TEST COMPLETE', cls:'grn'}},{center:{txt:'NO FAULTS FOUND'}},{},{},{l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('SUB_GROUND'); } }
+};
+
+/* =========================================================
+   DISPATCH + RENDER
+   ========================================================= */
+function lsk(pos){ const pg=PAGES[state.page]; if(pg&&pg.lsk) pg.lsk(pos); }
+
+/* contextual EEC BITE guidance */
+const STEPS_EEC=[
+  'AC power ON · start levers CUTOFF · engine area clear',
+  'ENGINE/EXCEED BITE INDEX — select ENGINE 1 or 2',
+  'MAIN MENU → select GROUND TESTS (LSK 4L)',
+  'Select EEC TEST (LSK 1L)',
+  'Read TEST COMPLETE / NO FAULTS → INDEX'
+];
+function inEEC(){ return state.page.indexOf('ENG_')===0 ||
+  (state.waiting && (state._waitTitle||'').indexOf('ENGINE')>=0); }
+function hintEEC(){
+  if(!state.ac) return {step:0, hot:null};
+  switch(state.page){
+    case 'ENG_BITE_INDEX': return {step:1, hot:(state.bite.done['1']&&!state.bite.done['2'])?'lsk-R1':'lsk-L1'};
+    case 'ENG_MAIN':       return {step:2, hot:'lsk-L4'};
+    case 'ENG_GROUND':     return {step:3, hot:'lsk-L1'};
+    case 'ENG_EECRESULT':  return {step:4, hot:'lsk-L6'};
+  }
+  return {step:-1, hot:null};
+}
+function renderGuide(show){
+  const g=document.getElementById('guide');
+  g.style.display = show ? 'flex' : 'none';
+  document.querySelectorAll('.lsk.hot').forEach(e=>e.classList.remove('hot'));
+  if(!show) return;
+  const h = state.waiting ? {step:-1,hot:null} : hintEEC();
+  const gs=document.getElementById('gsteps');
+  if(gs.childElementCount!==STEPS_EEC.length)
+    gs.innerHTML=STEPS_EEC.map((t,i)=>`<div class="step"><div class="n">${i}</div><div>${esc(t)}</div></div>`).join('');
+  [...gs.children].forEach((el,i)=>el.classList.toggle('active', i===h.step));
+  const gc=document.getElementById('gchans');
+  gc.innerHTML=['1','2'].map(e=>{ const d=state.bite.done[e];
+    return `<div class="chan ${d?'done':''}"><span class="cn">ENGINE ${e}</span>`+
+      `<span class="mk">${d?'\u2713 EEC OK':'\u2014'}</span></div>`; }).join('');
+  if(h.hot){ const el=document.getElementById(h.hot); if(el) el.classList.add('hot'); }
+}
+
+function render(){
+  renderGuide(inEEC());
+  document.getElementById('key-exec').classList.toggle('lit', !!state.fmc.execPend);
+  const pb=document.getElementById('pbac'); pb.classList.toggle('on',state.ac);
+  pb.querySelector('.lt').textContent=state.ac?'ON':'OFF';
+  const titleEl=document.getElementById('scrTitle');
+  const sc=document.getElementById('scratch');
+
+  if(state.waiting){
+    titleEl.innerHTML=`<span>${esc(state._waitTitle||'')}</span>`;
+    for(let i=1;i<=6;i++){const c=document.getElementById('b'+i);c.className='rowcell';c.innerHTML='';}
+    const lines=(state._waitMsg||'WAIT').split('\n');
+    const start=Math.max(1,4-Math.floor(lines.length/2));
+    lines.forEach((ln,k)=>{ const r=start+k; if(r>=1&&r<=6)
+      document.getElementById('b'+r).innerHTML=`<div class="center" style="grid-column:1/3">${esc(ln)}</div>`; });
+    sc.className='t-scratch'; sc.textContent='';
+    return;
+  }
+
+  const pg=PAGES[state.page]; const def=pg.build();
+  let tA='';
+  if(def.arrows&&def.arrows.l) tA+=`<span class="arL">\u2190</span>`;
+  if(def.arrows&&def.arrows.r) tA+=`<span class="arR">\u2192</span>`;
+  titleEl.innerHTML=tA+`<span>${esc(def.title||'')}</span>`+((def.page&&!def.subtitle)?`<span class="pg">${esc(def.page)}</span>`:'');
+
+  for(let i=0;i<6;i++){
+    const cell=document.getElementById('b'+(i+1)); cell.className='rowcell';
+    const row=def.rows[i]||{};
+    let inner;
+    if(row.center) inner=`<div class="center ${row.center.cls||''}" style="grid-column:1/3">${esc(row.center.txt)}</div>`;
+    else if(row.kv) inner=`<div class="kv"><span class="kvk">${esc(row.kv.k)}</span><span class="kvv">${esc(row.kv.v)}</span></div>`;
+    else inner=halfHTML(row.l,'l')+halfHTML(row.r,'r');
+    if(i===0 && def.subtitle){
+      const pgTag = def.page ? `<span style="position:absolute;right:2px;top:50%;transform:translateY(-50%);color:var(--pri);font-size:11px;text-shadow:0 0 5px var(--pri-glow)">${esc(def.page)}</span>` : '';
+      cell.innerHTML=`<div style="grid-column:1/3;display:flex;flex-direction:column;justify-content:center;gap:1px;height:100%">
+        <div style="position:relative;text-align:center"><span class="lab" style="color:var(--pri);font-size:11px;text-shadow:0 0 6px var(--pri-glow)">${esc(def.subtitle)}</span>${pgTag}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;align-items:center">${inner}</div></div>`;
+      continue;
+    }
+    cell.innerHTML=inner;
+  }
+  if(state.msg){ sc.className='t-scratch msg'; sc.textContent=state.msg; }
+  else { sc.className='t-scratch'; sc.innerHTML=esc(state.scratch)+`<span class="cur"></span>`; }
+}
+function halfHTML(side,which){
+  if(!side||(side.lab==null&&side.val==null)) return `<div class="half ${which==='r'?'r':''}"></div>`;
+  const lab=side.lab?`<div class="lab">${esc(side.lab)}</div>`:'';
+  const val=side.val!=null&&side.val!==''?`<div class="val ${side.cls||''}">${esc(side.val)}</div>`:'';
+  return `<div class="half ${which==='r'?'r':''}">${lab}${val}</div>`;
+}
+function esc(s){return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* tick clock + IRS countdown */
+setInterval(()=>{ if(state.page==='POSINIT' || state.fmc.irs==='ALIGNING') render(); }, 500);
+
+render();
+</script>
+</body>
+</html>
