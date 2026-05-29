@@ -1251,6 +1251,7 @@
         <option value="partnumbers">Common Part Numbers</option>
         <option value="cbfinder">Circuit Breakers</option>
         <option value="damagelimits">Damage Limits</option>
+        <option value="mcdu">MCDU Simulation</option>
         <option value="mainpoints">Main Points (current chapter)</option>
         <option value="tribal">Tribal Knowledge (current chapter)</option>
         <option value="quiz">Quiz (current chapter)</option>
@@ -1270,6 +1271,12 @@
       <label for="lmChapter">Chapter</label>
       <select id="lmChapter"></select>
       <div class="lm-hint">The link will be inserted after the currently selected thumbnail in this chapter.</div>
+
+      <label for="lmPassword">GitHub token (needed to save across devices)</label>
+      <input type="password" id="lmPassword" placeholder="ghp_… or github_pat_…" autocomplete="off" spellcheck="false">
+      <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Enter it once per browser — it's saved automatically so future links sync without re-typing. If you've already entered it here or in Upload, this stays filled. <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Create one →</a></div>
+
+      <div id="lmStatus" class="lm-hint" style="min-height:18px;margin-top:8px;"></div>
 
       <div class="lm-row">
         <button type="button" class="lm-btn" id="lmCancel">Cancel</button>
@@ -2933,7 +2940,7 @@ let filterToCurrentImageDots = false;
     // (click Upload to enter the token), unlike a generic "sync failed".
     function syncErrorMessage(err, actionLabel) {
       if (err && err.noToken) {
-        return `${actionLabel} — NOT synced. Click ⬆ Upload once to enter your GitHub token, otherwise this will be lost on refresh.`;
+        return `${actionLabel} — NOT synced. Enter your GitHub token in the Add Link or ⬆ Upload modal, otherwise this will be lost on refresh.`;
       }
       return `${actionLabel} locally — sync to GitHub failed, will retry`;
     }
@@ -3537,6 +3544,12 @@ let filterToCurrentImageDots = false;
       document.getElementById("lmThumb").value = "";
       document.getElementById("lmThumbPreview").classList.remove("show");
 
+      // Pre-fill token from storage if we already have one (session or local).
+      const lmPw = document.getElementById("lmPassword");
+      if (lmPw) lmPw.value = getStoredToken() || "";
+      const lmStatusEl = document.getElementById("lmStatus");
+      if (lmStatusEl) { lmStatusEl.textContent = ""; lmStatusEl.className = "lm-hint"; }
+
       modal.classList.add("show");
       // Focus label after a tick so iOS keyboards behave
       setTimeout(() => {
@@ -3575,6 +3588,11 @@ let filterToCurrentImageDots = false;
           labelEl.value = "Damage Limits";
           urlEl.value   = "damage_srm.html";
           thumbEl.value = "images/00/damage_srm.png";
+          break;
+        case "mcdu":
+          labelEl.value = "MCDU";
+          urlEl.value   = "mcdu.html";
+          thumbEl.value = "images/00/mcdu.png";
           break;
         case "mainpoints":
           labelEl.value = "Main Points";
@@ -3617,6 +3635,11 @@ let filterToCurrentImageDots = false;
         alert("Please enter a Link URL.");
         return;
       }
+
+      // Make sure any token typed (or autofilled) into this modal is stored
+      // before we try to sync — autofill doesn't always fire an input event.
+      const lmPwEl = document.getElementById("lmPassword");
+      if (lmPwEl && lmPwEl.value.trim()) setStoredToken(lmPwEl.value.trim());
 
       const info = getActiveInsertInfo();
 
@@ -3679,6 +3702,15 @@ let filterToCurrentImageDots = false;
       thumb.addEventListener("input", updateThumbPreview);
       save.addEventListener("click", saveLinkFromModal);
       cancel.addEventListener("click", closeLinkModal);
+      // Save the token as soon as it's typed so adding a link can sync to
+      // GitHub immediately — no need to open the Upload modal first.
+      const lmPw = document.getElementById("lmPassword");
+      if (lmPw) {
+        lmPw.addEventListener("input", () => {
+          const tok = lmPw.value.trim();
+          if (tok) setStoredToken(tok);
+        });
+      }
       // Tap outside card to close
       modal.addEventListener("click", e => {
         if (e.target === modal) closeLinkModal();
