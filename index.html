@@ -1285,8 +1285,8 @@
       <select id="lmChapter"></select>
       <div class="lm-hint">The link will be inserted after the currently selected thumbnail in this chapter.</div>
 
-      <label for="lmPassword">GitHub token (needed to save across devices)</label>
-      <input type="password" id="lmPassword" placeholder="ghp_… or github_pat_…" autocomplete="off" spellcheck="false">
+      <label for="lmGithubToken">GitHub token (needed to save across devices)</label>
+      <input type="password" id="lmGithubToken" placeholder="ghp_… or github_pat_…" autocomplete="off" spellcheck="false">
       <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Enter it once per browser — it's saved automatically so future links sync without re-typing. If you've already entered it here or in Upload, this stays filled. <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Create one →</a></div>
 
       <div id="lmStatus" class="lm-hint" style="min-height:18px;margin-top:8px;"></div>
@@ -1319,9 +1319,9 @@
         Auto-filled based on chapter and next available number — edit if needed.
       </div>
 
-      <label for="upPassword">GitHub token</label>
-      <input type="password" id="upPassword" placeholder="ghp_… or github_pat_…" autocomplete="off" spellcheck="false">
-      <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Stored in this browser session only — gone when you close the tab. <a href="https://urldefense.com/v3/__https://github.com/settings/personal-access-tokens/new__;!!O8JL6HM!hrad2OuXzsYzWUif37HiQr_lebA-shRtmuerVa8rOc5H60Ly0uCxd7pQUraEllGM74k9BGslrpOHsrrUkRG59oBZdQ$" target="_blank" rel="noopener">Create one →</a></div>
+      <label for="upGithubToken">GitHub token</label>
+      <input type="password" id="upGithubToken" placeholder="ghp_… or github_pat_…" autocomplete="off" spellcheck="false">
+      <div class="lm-hint">Fine-grained personal access token with <strong>Contents: Read &amp; write</strong> on this repo. Saved in this browser so image/link changes can sync across devices. Use forgetGithubToken() in the console to clear it. <a href="https://urldefense.com/v3/__https://github.com/settings/personal-access-tokens/new__;!!O8JL6HM!hrad2OuXzsYzWUif37HiQr_lebA-shRtmuerVa8rOc5H60Ly0uCxd7pQUraEllGM74k9BGslrpOHsrrUkRG59oBZdQ$" target="_blank" rel="noopener">Create one →</a></div>
 
       <div id="upStatus" class="lm-hint" style="min-height:18px;margin-top:8px;"></div>
 
@@ -3587,8 +3587,8 @@ let filterToCurrentImageDots = false;
       document.getElementById("lmThumbPreview").classList.remove("show");
 
       // Pre-fill token from storage if we already have one (session or local).
-      const lmPw = document.getElementById("lmPassword");
-      if (lmPw) lmPw.value = getStoredToken() || "";
+      const lmToken = document.getElementById("lmGithubToken");
+      if (lmToken) lmToken.value = getStoredToken() || "";
       const lmStatusEl = document.getElementById("lmStatus");
       if (lmStatusEl) { lmStatusEl.textContent = ""; lmStatusEl.className = "lm-hint"; }
 
@@ -3680,8 +3680,8 @@ let filterToCurrentImageDots = false;
 
       // Make sure any token typed (or autofilled) into this modal is stored
       // before we try to sync — autofill doesn't always fire an input event.
-      const lmPwEl = document.getElementById("lmPassword");
-      if (lmPwEl && lmPwEl.value.trim()) setStoredToken(lmPwEl.value.trim());
+      const lmTokenEl = document.getElementById("lmGithubToken");
+      if (lmTokenEl && lmTokenEl.value.trim()) setStoredToken(lmTokenEl.value.trim());
 
       const info = getActiveInsertInfo();
 
@@ -3746,10 +3746,10 @@ let filterToCurrentImageDots = false;
       cancel.addEventListener("click", closeLinkModal);
       // Save the token as soon as it's typed so adding a link can sync to
       // GitHub immediately — no need to open the Upload modal first.
-      const lmPw = document.getElementById("lmPassword");
-      if (lmPw) {
-        lmPw.addEventListener("input", () => {
-          const tok = lmPw.value.trim();
+      const lmToken = document.getElementById("lmGithubToken");
+      if (lmToken) {
+        lmToken.addEventListener("input", () => {
+          const tok = lmToken.value.trim();
           if (tok) setStoredToken(tok);
         });
       }
@@ -3785,7 +3785,7 @@ let filterToCurrentImageDots = false;
     // custom domain later).
     const GITHUB_REPO_FALLBACK = { owner: "Willdeluna", repo: "B737" };
     const GITHUB_BRANCH = "main";  // change to "gh-pages" if your Pages source is that branch
-    const UPLOAD_PW_KEY = "b737EditorGithubToken";
+    const GITHUB_TOKEN_KEY = "b737EditorGithubToken";
 
     // Token storage. Originally session-only to avoid persisting credentials,
     // but that meant the token was lost on every tab close → loadRemoteState
@@ -3798,16 +3798,16 @@ let filterToCurrentImageDots = false;
     // by clearing site data or with `forgetGithubToken()` from console.
     function getStoredToken() {
       try {
-        return sessionStorage.getItem(UPLOAD_PW_KEY) || localStorage.getItem(UPLOAD_PW_KEY) || "";
+        return sessionStorage.getItem(GITHUB_TOKEN_KEY) || localStorage.getItem(GITHUB_TOKEN_KEY) || "";
       } catch (_) { return ""; }
     }
     function setStoredToken(token) {
-      try { sessionStorage.setItem(UPLOAD_PW_KEY, token); } catch (_) {}
-      try { localStorage.setItem(UPLOAD_PW_KEY, token); } catch (_) {}
+      try { sessionStorage.setItem(GITHUB_TOKEN_KEY, token); } catch (_) {}
+      try { localStorage.setItem(GITHUB_TOKEN_KEY, token); } catch (_) {}
     }
     window.forgetGithubToken = function forgetGithubToken() {
-      try { sessionStorage.removeItem(UPLOAD_PW_KEY); } catch (_) {}
-      try { localStorage.removeItem(UPLOAD_PW_KEY); } catch (_) {}
+      try { sessionStorage.removeItem(GITHUB_TOKEN_KEY); } catch (_) {}
+      try { localStorage.removeItem(GITHUB_TOKEN_KEY); } catch (_) {}
       console.log("GitHub token cleared from this browser.");
     };
 
@@ -4375,9 +4375,9 @@ let filterToCurrentImageDots = false;
         chapterSelect.appendChild(opt);
       });
 
-      // Pre-fill password from session storage if available
-      const savedPw = getStoredToken() || "";
-      document.getElementById("upPassword").value = savedPw;
+      // Pre-fill token from session storage if available
+      const savedToken = getStoredToken() || "";
+      document.getElementById("upGithubToken").value = savedToken;
 
       document.getElementById("upFile").value = "";
       document.getElementById("upName").value = "";
@@ -4461,7 +4461,7 @@ let filterToCurrentImageDots = false;
       }
 
       const chapter = document.getElementById("upChapter").value;
-      const token = document.getElementById("upPassword").value.trim();
+      const token = document.getElementById("upGithubToken").value.trim();
       if (!token) {
         statusEl.textContent = "GitHub token required.";
         statusEl.className = "lm-hint error";
@@ -4717,7 +4717,7 @@ let filterToCurrentImageDots = false;
       const file     = document.getElementById("upFile");
       const save     = document.getElementById("upSave");
       const cancel   = document.getElementById("upCancel");
-      const pwField  = document.getElementById("upPassword");
+      const tokenField  = document.getElementById("upGithubToken");
       if (!btn || !modal || !save) return;
 
       btn.addEventListener("click", openUploadModal);
@@ -4728,9 +4728,9 @@ let filterToCurrentImageDots = false;
       // Save the token to sessionStorage as soon as it's typed so that
       // cross-device sync works even if the user opens the modal just to
       // enter the token (no actual upload yet).
-      if (pwField) {
-        pwField.addEventListener("input", () => {
-          const tok = pwField.value.trim();
+      if (tokenField) {
+        tokenField.addEventListener("input", () => {
+          const tok = tokenField.value.trim();
           if (tok) {
             setStoredToken(tok);
           }
