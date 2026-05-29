@@ -23895,6 +23895,7 @@ f 8813/34/5896 8814/34/5899 8828/35/5834 8824/34/5814
 f 8812/34/5897 8813/34/5896 8824/34/5814 8825/35/5813
 f 8815/34/5903 8816/34/5902 8826/36/5811 8827/36/5811
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (() => {
 'use strict';
@@ -23914,9 +23915,90 @@ const dotOverlay=document.getElementById('dotOverlay'), dotListBody=document.get
 const dotName=document.getElementById('dotName'), dotInfo=document.getElementById('dotInfo'), dotX=document.getElementById('dotX'), dotY=document.getElementById('dotY'), dotZ=document.getElementById('dotZ');
 const add3dDot=document.getElementById('add3dDot'), update3dDot=document.getElementById('update3dDot'), delete3dDot=document.getElementById('delete3dDot'), clear3dDots=document.getElementById('clear3dDots'), clickSet3dDot=document.getElementById('clickSet3dDot');
 const DOT_STORAGE_KEY='b737-editor-3d-hotspots-v2';
+
+// ===== SUPABASE DOT SAVE SETTINGS =====
+// 1) Paste your Supabase Project URL and anon public key below.
+// 2) Run b737_part_numbers_supabase.sql in Supabase SQL Editor first.
+// 3) If either value is left blank, this page safely falls back to localStorage only.
+    const SUPABASE_URL = "https://vtibzkzkyatwbydbagau.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0aWJ6a3preWF0d2J5ZGJhZ2F1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMTc4MjcsImV4cCI6MjA5MDg5MzgyN30._7OG7-KGZduwUyg0bzWubxSPtgjXpPeMaTsgpGXV8YY";
+const SUPABASE_DOT_TABLE = 'part_hotspots_737';
+const AIRCRAFT_KEY = 'B737-800';
+const MODEL_KEY = 'A_AirPlane1';
+const supabaseReady =
+  SUPABASE_URL.startsWith('https://') &&
+  SUPABASE_ANON_KEY &&
+  !SUPABASE_ANON_KEY.includes('PASTE_') &&
+  window.supabase;
+const sb = supabaseReady ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+let dotsLoadedFromSupabase = false;
+
 let dots3d=[]; let selectedDotId=null; let clickSetMode=false; let modelBounds=null; let currentMvp=null; let currentModel=null; let currentView=null; let currentProj=null; let lastAutoDotAt=0;
-function loadDots3d(){try{dots3d=JSON.parse(localStorage.getItem(DOT_STORAGE_KEY)||'[]')||[]}catch(e){dots3d=[]}}
-function saveDots3d(){localStorage.setItem(DOT_STORAGE_KEY,JSON.stringify(dots3d)); renderDotList();}
+function saveDotsLocal(){ localStorage.setItem(DOT_STORAGE_KEY, JSON.stringify(dots3d)); }
+async function loadDots3d(){
+  // Local fallback so the viewer still works while Supabase is not configured or offline.
+  try{dots3d=JSON.parse(localStorage.getItem(DOT_STORAGE_KEY)||'[]')||[]}catch(e){dots3d=[]}
+  renderDotList();
+  if(!sb){
+    setHud('<b>Status:</b> Supabase not configured yet — using browser localStorage only.<br><span class="pill">Paste URL + anon key in the HTML</span>');
+    return;
+  }
+  const {data, error} = await sb
+    .from(SUPABASE_DOT_TABLE)
+    .select('id,name,info,x,y,z')
+    .eq('aircraft', AIRCRAFT_KEY)
+    .eq('model_key', MODEL_KEY)
+    .order('created_at', {ascending:true});
+  if(error){
+    console.error('Supabase load dots error:', error);
+    setHud(`<b class="bad">Supabase load failed:</b> ${escapeHtml(error.message)}<br><span class="pill">Check table + RLS policy</span>`);
+    return;
+  }
+  dots3d = (data || []).map(d => ({id:String(d.id), name:d.name||'Enter Name', info:d.info||'', x:Number(d.x)||0, y:Number(d.y)||0, z:Number(d.z)||0}));
+  dotsLoadedFromSupabase = true;
+  saveDotsLocal();
+  renderDotList();
+  setHud(`<b class="ok">Loaded ${dots3d.length} 3D dots from Supabase.</b>`);
+}
+async function saveDots3d(){
+  saveDotsLocal();
+  renderDotList();
+  if(!sb) return;
+  const rows = dots3d.map(d => ({
+    id: String(d.id),
+    name: d.name || 'Enter Name',
+    info: d.info || '',
+    x: Number(d.x)||0,
+    y: Number(d.y)||0,
+    z: Number(d.z)||0,
+    aircraft: AIRCRAFT_KEY,
+    model_key: MODEL_KEY
+  }));
+  if(!rows.length) return;
+  const {error} = await sb.from(SUPABASE_DOT_TABLE).upsert(rows, {onConflict:'id'});
+  if(error){
+    console.error('Supabase save dots error:', error);
+    setHud(`<b class="bad">Supabase save failed:</b> ${escapeHtml(error.message)}<br><span class="pill">Still saved in this browser</span>`);
+  } else {
+    setHud(`<b class="ok">Saved ${rows.length} dot(s) to Supabase.</b>`);
+  }
+}
+async function deleteDotFromSupabase(id){
+  if(!sb || !id) return;
+  const {error} = await sb.from(SUPABASE_DOT_TABLE).delete().eq('id', String(id));
+  if(error){
+    console.error('Supabase delete dot error:', error);
+    setHud(`<b class="bad">Supabase delete failed:</b> ${escapeHtml(error.message)}`);
+  }
+}
+async function clearDotsFromSupabase(){
+  if(!sb) return;
+  const {error} = await sb.from(SUPABASE_DOT_TABLE).delete().eq('aircraft', AIRCRAFT_KEY).eq('model_key', MODEL_KEY);
+  if(error){
+    console.error('Supabase clear dots error:', error);
+    setHud(`<b class="bad">Supabase clear failed:</b> ${escapeHtml(error.message)}`);
+  }
+}
 function dotNum(v){const n=Number(v); return Number.isFinite(n)?n:0;}
 function resetNewDotFields(){
   selectedDotId=null;
@@ -24006,15 +24088,25 @@ function saveDotNameInfo(id){
   saveDots3d();
   setHud(`<b class="ok">Saved edit:</b> ${escapeHtml(d.name)}<br>${escapeHtml(d.info||'')}<br><span class="pill">Selected dot stays blue</span>`);
 }
-function deleteSelectedDot(){
+async function deleteSelectedDot(){
   if(!selectedDotId){setHud('<b class="bad">No dot selected.</b><br>Click any dot first; it turns blue, then delete.');return;}
-  dots3d=dots3d.filter(d=>d.id!==selectedDotId);
+  const idToDelete = selectedDotId;
+  dots3d=dots3d.filter(d=>d.id!==idToDelete);
   selectedDotId=null;
-  saveDots3d();
+  saveDotsLocal();
+  renderDotList();
+  await deleteDotFromSupabase(idToDelete);
   resetNewDotFields();
   setHud('<b class="ok">Deleted selected 3D dot.</b>');
 }
-function clearAllDots(){if(confirm('Clear all 3D dots saved in this browser?')){dots3d=[];selectedDotId=null;saveDots3d();resetNewDotFields();}}
+async function clearAllDots(){
+  if(confirm('Clear all 3D dots saved in Supabase and this browser?')){
+    dots3d=[]; selectedDotId=null; saveDotsLocal(); renderDotList();
+    await clearDotsFromSupabase();
+    resetNewDotFields();
+    setHud('<b class="ok">Cleared all 3D dots.</b>');
+  }
+}
 if(add3dDot){ add3dDot.onclick=()=>{ addDotFromInputs(); }; }
 if(update3dDot){ update3dDot.style.display='inline-block'; update3dDot.textContent='Save Edit'; update3dDot.onclick=updateSelectedDot; }
 delete3dDot.onclick=deleteSelectedDot; clear3dDots.onclick=clearAllDots;
@@ -24168,7 +24260,7 @@ function updateDotOverlay(mvp){
     dotOverlay.appendChild(el);
   });
 }
-loadDots3d(); renderDotList();
+loadDots3d();
 
 function setHud(msg){ hud.innerHTML=msg; }
 function resize(){ const dpr=Math.min(devicePixelRatio||1,2); const w=canvas.clientWidth||innerWidth, h=canvas.clientHeight||innerHeight; const nw=Math.floor(w*dpr), nh=Math.floor(h*dpr); if(canvas.width!==nw||canvas.height!==nh){canvas.width=nw;canvas.height=nh;} }
