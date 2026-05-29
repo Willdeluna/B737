@@ -37,13 +37,15 @@
   .hud.collapsed #hudBody,.dotlist.collapsed #dotListBody{display:none}
   .dotlist.collapsed{max-height:none;overflow:visible}
 
+  .hdr-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .controls.collapsed{display:none}
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-  <div><h1>Aircraft 3D Dot Plotter • X / Y / Z Axis</h1><div class="sub">Add/edit name + info from the upper-left fields or the selected row • selected dot turns blue</div></div>
-  <div class="controls">
+  <div class="hdr-left"><div><h1>Aircraft 3D Dot Plotter • X / Y / Z Axis</h1><div class="sub">Add/edit name + info from the upper-left fields or the selected row • selected dot turns blue</div></div><button class="panel-toggle" id="controlsToggle" type="button" aria-label="Show or hide controls" title="Show / hide controls">+</button></div>
+  <div class="controls collapsed" id="controls">
     <div class="control">X <input id="rx" type="range" min="-180" max="180" value="0"><span id="rxv">0°</span></div>
     <div class="control">Y <input id="ry" type="range" min="-180" max="180" value="0"><span id="ryv">0°</span></div>
     <div class="control">Z <input id="rz" type="range" min="-180" max="180" value="0"><span id="rzv">0°</span></div>
@@ -23937,6 +23939,7 @@ function wirePanelCollapse(panelId, toggleId, headId){
 }
 wirePanelCollapse('hud','hudToggle','hudHead');
 wirePanelCollapse('dotList','dotListToggle','dotListHead');
+wirePanelCollapse('controls','controlsToggle');
 const dotName=document.getElementById('dotName'), dotInfo=document.getElementById('dotInfo'), dotX=document.getElementById('dotX'), dotY=document.getElementById('dotY'), dotZ=document.getElementById('dotZ');
 const add3dDot=document.getElementById('add3dDot'), update3dDot=document.getElementById('update3dDot'), delete3dDot=document.getElementById('delete3dDot'), clear3dDots=document.getElementById('clear3dDots'), clickSet3dDot=document.getElementById('clickSet3dDot');
 const DOT_STORAGE_KEY='b737-editor-3d-hotspots-v2';
