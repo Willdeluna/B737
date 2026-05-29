@@ -26,6 +26,16 @@
   .dottools input[type=number]{width:72px}.dottools input[type=text]{width:140px}.dottools #dotInfo{width:190px}.dottools #update3dDot{display:inline-block!important;visibility:visible!important;background:#111;color:#ff9f1c;border:1px solid #ff9f1c}.dottools #update3dDot:hover{background:#ff9f1c;color:#000}
   .dotlist{position:absolute;right:12px;top:12px;width:min(360px,calc(100% - 24px));max-height:32vh;overflow:auto;color:#ffd27f;background:rgba(0,0,0,.78);border:1px solid rgba(255,159,28,.7);border-radius:12px;padding:10px;font-size:12px;line-height:1.35;box-shadow:0 0 18px rgba(255,159,28,.18);z-index:9}
   .dotlist h3{margin:0 0 6px;color:#ff9f1c;font-size:13px}.dotrow{border-top:1px solid rgba(255,159,28,.25);padding:7px 0;cursor:pointer}.dotrow:hover{color:#fff}.dotrow b{color:#ff9f1c}.dotrow.selected{background:rgba(102,184,255,.08);outline:1px solid rgba(102,184,255,.35);border-radius:8px;padding-left:6px;padding-right:6px}.dotrow.selected b{color:#66b8ff}.dotrow-head{display:flex;justify-content:space-between;gap:8px;align-items:center}.dotedit{display:none;margin-top:6px;gap:5px;grid-template-columns:1fr;}.dotrow.selected .dotedit{display:grid}.dotedit input{width:100%;background:#111;color:#ffd27f;border:1px solid rgba(255,159,28,.65);border-radius:6px;padding:6px;font-size:12px}.dotedit button{width:100%;background:#111;color:#ff9f1c;border:1px solid #ff9f1c;border-radius:6px;padding:6px;font-weight:800;cursor:pointer}.dotedit button:hover{background:#ff9f1c;color:#000}.dotcoords{font-size:10px;color:#b99461;margin-top:3px}.dothelp{font-size:11px;color:#ffd27f;margin:0 0 6px;border:1px solid rgba(255,159,28,.35);border-radius:8px;padding:5px;background:rgba(255,159,28,.06)}
+  /* Collapsible panels (status HUD + 3D Hotspots list) */
+  .panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;user-select:none}
+  .panel-head .panel-title{color:#ff9f1c;font-size:13px;font-weight:800;letter-spacing:.02em}
+  .dotlist .panel-head h3{margin:0}
+  .panel-toggle{flex:0 0 auto;width:24px;height:22px;padding:0;line-height:1;font-size:16px;font-weight:900;cursor:pointer;color:#ff9f1c;background:rgba(255,159,28,.12);border:1px solid rgba(255,159,28,.6);border-radius:6px}
+  .panel-toggle:hover{background:#ff9f1c;color:#000}
+  .hud:not(.collapsed) .panel-head{margin-bottom:8px}
+  .dotlist:not(.collapsed) .panel-head{margin-bottom:6px}
+  .hud.collapsed #hudBody,.dotlist.collapsed #dotListBody{display:none}
+  .dotlist.collapsed{max-height:none;overflow:visible}
 
 </style>
 </head>
@@ -60,8 +70,8 @@
 <div id="wrap">
   <canvas id="gl"></canvas>
   <div id="dotOverlay"></div>
-  <div id="dotList" class="dotlist"><h3>3D Hotspots</h3><div id="dotListBody">No 3D dots yet.</div></div>
-  <div class="hud" id="hud"><b>Status:</b> Loading embedded OBJ…<br><span class="pill">Click: save dot</span><span class="pill">Drag: orbit</span><span class="pill">Wheel: zoom</span></div>
+  <div id="dotList" class="dotlist collapsed"><div class="panel-head" id="dotListHead"><h3>3D Hotspots</h3><button class="panel-toggle" id="dotListToggle" type="button" aria-label="Toggle 3D Hotspots panel">+</button></div><div id="dotListBody">No 3D dots yet.</div></div>
+  <div class="hud collapsed" id="hud"><div class="panel-head" id="hudHead"><span class="panel-title">Status</span><button class="panel-toggle" id="hudToggle" type="button" aria-label="Toggle status panel">+</button></div><div id="hudBody"><b>Status:</b> Loading embedded OBJ…<br><span class="pill">Click: save dot</span><span class="pill">Drag: orbit</span><span class="pill">Wheel: zoom</span></div></div>
   <canvas class="axes" id="axes"></canvas>
 </div>
 </div>
@@ -23902,7 +23912,7 @@ f 8815/34/5903 8816/34/5902 8826/36/5811 8827/36/5811
 const canvas = document.getElementById('gl');
 const hud = document.getElementById('hud');
 const gl = canvas.getContext('webgl2', {antialias:true});
-if(!gl){ hud.innerHTML='<b class="bad">WebGL2 not available.</b> Try Chrome/Edge with hardware acceleration on.'; return; }
+if(!gl){ const b=document.getElementById('hudBody')||hud; b.innerHTML='<b class="bad">WebGL2 not available.</b> Try Chrome/Edge with hardware acceleration on.'; hud.classList.remove('collapsed'); const ht=document.getElementById('hudToggle'); if(ht) ht.textContent='–'; return; }
 let verts=null, triIdx=null, lineIdx=null, vertexCount=0, triCount=0, lineCount=0;
 let buffers={};
 let rotX=0,rotY=0,rotZ=0, orbitX=-0.24, orbitY=0.7, zoom=3.0, panX=0, panY=0;
@@ -23912,6 +23922,21 @@ const rxv=document.getElementById('rxv'), ryv=document.getElementById('ryv'), rz
 const wire=document.getElementById('wire'), solid=document.getElementById('solid'), auto=document.getElementById('auto');
 
 const dotOverlay=document.getElementById('dotOverlay'), dotListBody=document.getElementById('dotListBody');
+
+// Collapsible panels: clicking the header bar or the +/- button toggles them.
+// Both panels start collapsed (the .collapsed class is set in the HTML).
+function wirePanelCollapse(panelId, toggleId, headId){
+  const panel=document.getElementById(panelId);
+  const toggle=document.getElementById(toggleId);
+  const head=document.getElementById(headId);
+  if(!panel||!toggle) return;
+  const sync=()=>{ toggle.textContent = panel.classList.contains('collapsed') ? '+' : '–'; };
+  toggle.addEventListener('click', e=>{ e.stopPropagation(); panel.classList.toggle('collapsed'); sync(); });
+  if(head) head.addEventListener('click', e=>{ if(e.target===toggle) return; panel.classList.toggle('collapsed'); sync(); });
+  sync();
+}
+wirePanelCollapse('hud','hudToggle','hudHead');
+wirePanelCollapse('dotList','dotListToggle','dotListHead');
 const dotName=document.getElementById('dotName'), dotInfo=document.getElementById('dotInfo'), dotX=document.getElementById('dotX'), dotY=document.getElementById('dotY'), dotZ=document.getElementById('dotZ');
 const add3dDot=document.getElementById('add3dDot'), update3dDot=document.getElementById('update3dDot'), delete3dDot=document.getElementById('delete3dDot'), clear3dDots=document.getElementById('clear3dDots'), clickSet3dDot=document.getElementById('clickSet3dDot');
 const DOT_STORAGE_KEY='b737-editor-3d-hotspots-v2';
@@ -24262,7 +24287,7 @@ function updateDotOverlay(mvp){
 }
 loadDots3d();
 
-function setHud(msg){ hud.innerHTML=msg; }
+function setHud(msg){ const b=document.getElementById('hudBody'); if(b){ b.innerHTML=msg; } else { hud.innerHTML=msg; } }
 function resize(){ const dpr=Math.min(devicePixelRatio||1,2); const w=canvas.clientWidth||innerWidth, h=canvas.clientHeight||innerHeight; const nw=Math.floor(w*dpr), nh=Math.floor(h*dpr); if(canvas.width!==nw||canvas.height!==nh){canvas.width=nw;canvas.height=nh;} }
 function shader(type,src){ const s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s); if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; }
 const vs=`#version 300 es
