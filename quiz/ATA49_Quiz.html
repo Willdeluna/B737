@@ -160,6 +160,7 @@ body{
 <div id="home" class="screen on">
 <div class="home-card">
   <span class="plane">🧠</span>
+  <a href="../ATAcademy.html" style="display:block;width:fit-content;margin:0 auto 12px;padding:6px 16px;border:1.5px solid rgba(255,159,28,.5);border-radius:99px;color:#ff9f1c;background:rgba(255,159,28,.08);text-decoration:none;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;position:relative;z-index:2">← ATA Quizzes</a>
   <div class="home-badge">ATA Chapter 49</div>
   <h1 class="home-h1">B737NG APU<br><span>Comprehension Quiz</span></h1>
   <p class="home-sub">20 questions on start sequence, EGT, oil, fuel staging, bleed, SCV, inlet door, duty cycle &amp; tribal knowledge.</p>
@@ -240,6 +241,8 @@ body{
   </div>
   <div class="res-btns">
     <button class="btn-again" onclick="startGame()">🔁 Play Again</button>
+    <a href="../angry_bird_strike.html" style="display:block;width:100%;padding:12px;text-align:center;text-decoration:none;border-radius:14px;font-family:'Nunito',sans-serif;font-weight:900;font-size:14px;letter-spacing:.3px;color:#fff;background:linear-gradient(135deg,#ff5e3a,#ff2d55);box-shadow:0 5px 0 #c81e3a,0 7px 20px rgba(255,45,85,.3)">🐦 Angry Bird Strike</a>
+    <a href="../ATAcademy.html" style="display:block;width:100%;padding:11px;text-align:center;text-decoration:none;border:1.5px solid rgba(255,159,28,.55);border-radius:14px;color:#ff9f1c;background:rgba(255,159,28,.08);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;letter-spacing:.3px">← All ATA Quizzes</a>
     <button class="btn-home-sm" onclick="goHome()">← Back to Home</button>
   </div>
 </div>
@@ -408,7 +411,9 @@ function updateHearts(){
 
 function showResult(){
   const acc=G.idx?Math.round((G.correct/G.idx)*100):0;
-  const stars=acc>=90?3:acc>=70?2:acc>=50?1:0;
+  const correctCount=G.correct;
+  const stars=correctCount>=20?3:correctCount>=10?2:correctCount>=5?1:0;
+  try{const k='ataBest_49';const prev=parseInt(localStorage.getItem(k)||'0',10)||0;if(correctCount>prev)localStorage.setItem(k,String(correctCount));}catch(e){}
   const trophies=['😅','🥉','🥈','🏆'];
   const titles=['Keep Practicing!','Nice Try!','Well Done!','Outstanding! 🎯'];
   const subs=['Review the ATA 22 DFCS manual and try again.','Good effort — study the explanations!','Strong DFCS knowledge!','You are an ATA 22 expert! ✈️'];
