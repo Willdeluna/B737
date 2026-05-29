@@ -773,6 +773,19 @@
       width: 120px;
     }
 
+    .mel-showall-bar {
+      margin: 12px 2px;
+      padding: 10px 14px;
+      border: 1px dashed rgba(255, 165, 0, 0.5);
+      border-radius: 8px;
+      color: #ffb84d;
+      font-size: 0.9rem;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
     .image-btn {
       display: inline-block;
       padding: 7px 10px;
@@ -1637,6 +1650,8 @@
 
     let allFaults = [];
     let filteredFaults = [];
+    let melRenderLimit = 150;   // max rows drawn at once for snappy rendering
+    let showAllRows = false;    // user override to render the full filtered list
     let allImages = [];
     let mediaItems = [];
     let currentHotspots = [];
@@ -2362,6 +2377,17 @@ let filterToCurrentImageDots = false;
       </details>`;
     }
 
+    function renderResetsBlock(text) {
+      const t = String(text || "").trim();
+      if (!t || t === "\u2014") return "\u2014";
+      const count = t.split(";").filter(s => s.trim()).length;
+      const label = count > 1 ? `Reset C/Bs (${count})` : "Reset C/Bs";
+      return `<details class="mel-procedure-block mel-reset-block">
+        <summary class="mel-procedure-summary">${label}</summary>
+        <div class="mel-procedure-inner formatted-text">${escapeHtml(t)}</div>
+      </details>`;
+    }
+
     function renderProcedureBlock(procedures, rowId) {
       const list = Array.isArray(procedures) ? procedures : [];
 
@@ -2484,6 +2510,7 @@ let filterToCurrentImageDots = false;
     }
 
     function applyFilters() {
+      showAllRows = false;
       const raw = String(currentSearchText || "").trim().toLowerCase();
       const terms = raw.split(/\s+/).filter(Boolean);
 
@@ -2536,6 +2563,10 @@ let filterToCurrentImageDots = false;
         return;
       }
 
+      const totalRows = data.length;
+      const capped = !showAllRows && totalRows > melRenderLimit;
+      const rowsToRender = capped ? data.slice(0, melRenderLimit) : data;
+
       let html = `
         <table>
           <thead>
@@ -2552,7 +2583,7 @@ let filterToCurrentImageDots = false;
           <tbody>
       `;
 
-      data.forEach(item => {
+      rowsToRender.forEach(item => {
         let rowClass = "";
         if (Number(item.id) === Number(setDotModeMelId)) {
           rowClass = "set-dot-row";
@@ -2567,7 +2598,7 @@ let filterToCurrentImageDots = false;
             <td data-label="Fault Code">${escapeHtml(item.fault_code || "—")}</td>
             <td data-label="Kind">${escapeHtml(item.kind || "—")}</td>
             <td data-label="MEL" class="mel-col">${escapeHtml(item.mel_reference || "—")}${renderDispatchPill(item.dispatch_label)}</td>
-            <td data-label="Resets" class="formatted-text">${escapeHtml(item.troubleshooting_steps || "—")}</td>
+            <td data-label="Resets">${renderResetsBlock(item.troubleshooting_steps)}</td>
             <td data-label="Notes" class="notes-cell">${formatNotesWithCheckboxes(item.notes || "", item.id)}${renderProcedureBlock(item.procedures, item.id)}</td>
             <td data-label="Action" class="action-col">
               <button class="image-btn" type="button" onclick="startSetDot(${item.id})">Set Dot</button>
@@ -2578,8 +2609,19 @@ let filterToCurrentImageDots = false;
       });
 
       html += "</tbody></table>";
+      if (capped) {
+        html += `<div class="mel-showall-bar">
+          <span>Showing ${melRenderLimit} of ${totalRows} entries — filter by chapter or search to narrow the list.</span>
+          <button type="button" class="image-btn" onclick="showAllMelRows()">Show all ${totalRows}</button>
+        </div>`;
+      }
       resultsDiv.innerHTML = html;
       syncAllNotesButtonState();
+    }
+
+    function showAllMelRows() {
+      showAllRows = true;
+      renderResults(filteredFaults);
     }
 
     function setAllNotes(open) {
