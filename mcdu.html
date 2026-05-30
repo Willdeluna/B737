@@ -227,16 +227,19 @@
 <div class="rightcol">
   <div class="apptitle"><span class="t">B737 MCDU SIMULATION</span><span class="appsub">Training aid · not for line use · verify against current AMM/FIM</span></div>
   <div class="scenbar">
-    <div class="schd">SIMULATOR SCENARIOS — QUICK LAUNCH</div>
+    <div class="schd">SCENARIOS — QUICK LAUNCH &nbsp;·&nbsp; MAINT BITE INDEX = INIT/REF 6R</div>
     <div class="scrow">
-      <button class="scenbtn" data-s="FMC"     onclick="scen('FMC')">FMC PREFLIGHT</button>
-      <button class="scenbtn" data-s="POS"     onclick="scen('POS')">POS / IRS</button>
-      <button class="scenbtn" data-s="ENGBITE" onclick="scen('ENGBITE')">ENG BITE</button>
-      <button class="scenbtn" data-s="EEC"     onclick="scen('EEC')">EEC TEST</button>
-      <button class="scenbtn" data-s="APU"     onclick="scen('APU')">APU BITE</button>
-      <button class="scenbtn" data-s="CDS"     onclick="scen('CDS')">CDS BITE</button>
-      <button class="scenbtn" data-s="FQIS"    onclick="scen('FQIS')">FQIS BITE</button>
-      <button class="scenbtn" data-s="FMCB"    onclick="scen('FMCB')">FMC BITE</button>
+      <button class="scenbtn" data-s="FMC"   onclick="scen('FMC')">FMC PREFLT</button>
+      <button class="scenbtn" data-s="POS"   onclick="scen('POS')">POS / IRS</button>
+      <button class="scenbtn" data-s="MAINT" onclick="scen('MAINT')">MAINT INDEX</button>
+      <button class="scenbtn" data-s="FMCS"  onclick="scen('FMCS')">FMCS</button>
+      <button class="scenbtn" data-s="DFCS"  onclick="scen('DFCS')">DFCS</button>
+      <button class="scenbtn" data-s="AT"    onclick="scen('AT')">A/T</button>
+      <button class="scenbtn" data-s="ADIRS" onclick="scen('ADIRS')">ADIRS</button>
+      <button class="scenbtn" data-s="CDS"   onclick="scen('CDS')">CDS</button>
+      <button class="scenbtn" data-s="ENG"   onclick="scen('ENG')">ENGINES</button>
+      <button class="scenbtn" data-s="APU"   onclick="scen('APU')">APU</button>
+      <button class="scenbtn" data-s="FQIS"  onclick="scen('FQIS')">FQIS</button>
       <button class="scenbtn ac" id="pbac" onclick="toggleAC()">AC PWR&nbsp;<span class="lt">OFF</span></button>
       <button class="scenbtn rst" onclick="resetAll()">RESET</button>
     </div>
@@ -400,7 +403,9 @@ function freshFMC(){ return { refApt:'', refPos:null, irs:'OFF', irsT0:0, irsDur
   n1rating:'26K-TO', toThrust:'26K', selTemp:null,
   toFlaps:null, v1:null, vr:null, v2:null, cg:null, trim:null, accelHt:1000,
   appWt:null, appSel:null }; }
-function freshBITE(){ return { eng:'1', chan:null, sub:null, warn:null, done:{'1':false,'2':false} }; }
+function freshBITE(){ return { eng:'1', chan:null, warn:null, done:{'1':false,'2':false},
+  fmc:'L', adirs:'L', deu:'1',
+  rTitle:'', rSub:'', rLines:null, back:'MAINT' }; }
 let state={ page:'IDENT', scratch:'', msg:'', ac:false, waiting:false, _waitTitle:'', _waitMsg:'',
   fmc:freshFMC(), bite:freshBITE() };
 
@@ -417,6 +422,8 @@ function takeScratch(){ const s=(state.msg?'':state.scratch); return s; }
 function clearScratch(){ state.scratch=''; state.msg=''; }
 
 function handleKey(k){
+  if(state.page==='FMCS_KEYTEST'){ const lbl={SP:'SP',SLSH:'/',PM:'+/-',DEL:'DEL',CLR:'CLR'}[k]||k;
+    state.bite._lastKey=lbl; render(); return; }
   if(/^[A-Z0-9.]$/.test(k)) return type(k);
   if(k==='SP') return type(' ');
   if(k==='SLSH') return type('/');
@@ -475,45 +482,62 @@ function irsStatus(){
    each page: build()=>{title,sub,page,arrows,rows}, lsk(pos), page(dir)
    ========================================================= */
 /* =========================================================
-   BITE / MAINTENANCE — wait mechanism, subsystems, scenarios
+   BITE / MAINTENANCE — wait mechanism + per-system helpers
+   Page trees & data derived from the B737NG MCDU BITE
+   Reference Manual (Delta TechOps, Rev 01 JAN 2008).
+   Training aid only — verify against current AMM/FIM.
    ========================================================= */
 function waitGoto(page, msg, dur, title, after){
   state.waiting=true; state._waitTitle=title||''; state._waitMsg=msg||'WAIT'; state.scratch=''; state.msg=''; render();
   setTimeout(()=>{ state.waiting=false; state.page=page; clearScratch(); if(after) after(); render(); }, dur||1200);
 }
-const ttlE=()=>'ENGINE '+state.bite.eng+' BITE TEST';
 
-/* engine BITE actions */
+/* generic BITE result page (test complete / pass) */
+function biteResult(title, sub, lines, back){
+  state.bite.rTitle=title; state.bite.rSub=sub||''; state.bite.rLines=lines||['TEST COMPLETE','NO FAULTS FOUND']; state.bite.back=back;
+  goPage('BITE_RESULT');
+}
+function runBite(title, sub, name, dur, lines, back){
+  waitGoto('BITE_RESULT', name+'\nIN PROGRESS', dur||2000, title,
+    ()=>{ state.bite.rTitle=title; state.bite.rSub=sub||name; state.bite.rLines=lines||['TEST COMPLETE','NO FAULTS FOUND']; state.bite.back=back; });
+}
+
+/* ---- ENGINE / EEC ---- */
+const ttlE=()=>'ENGINE '+state.bite.eng+' BITE TEST';
 function selEng(e,ch){ state.bite.eng=e; state.bite.chan=ch;
   if(!state.ac){ waitGoto('ENG_BITE_INDEX','ACCESSING EEC '+e,1200,ttlE(),()=>flash('NO EEC DATA - CHECK PWR')); return; }
-  waitGoto('ENG_MAIN','EEC SORTING\nFAULT HISTORY DATA\nTHIS TAKES ABOUT 45 SECONDS',2400,ttlE()); }
+  waitGoto('ENG_MAIN','INITIALIZING EEC '+e+'\nSORTING FAULT HISTORY DATA\nTHIS TAKES ABOUT 45 SECONDS',2400,ttlE()); }
 function runEEC(){ const e=state.bite.eng; state.bite.warn=null;
-  waitGoto('ENG_EECRESULT','EEC TEST IN PROGRESS',2000,ttlE(),()=>{ state.bite.done[e]=true; }); }
+  waitGoto('ENG_EECRESULT','EEC TEST IN PROGRESS\nABOUT 30 SECONDS',2200,ttlE(),()=>{ state.bite.done[e]=true; }); }
 function startWarn(name,type){ state.bite.warn={name,type}; goPage('ENG_WARN'); }
-function runWarn(){ waitGoto('ENG_TESTRESULT', state.bite.warn.name+' IN PROGRESS',2200,ttlE()); }
+function runWarn(){ waitGoto('ENG_TESTRESULT', state.bite.warn.name+'\nIN PROGRESS',2200,ttlE()); }
 
-/* generic subsystem BITE */
-const SUBSYS = {
-  APU:  {name:'APU',        test:'APU BITE TEST',  cfg:[['MODEL','GTCP131-9B'],['ECB S/W P/N','3886219-3'],['EGT','--- C'],['RPM','0 %']]},
-  CDS:  {name:'CDS',        test:'DISPLAY TEST',   cfg:[['CDS P/N','284W0001'],['DEU 1','OPERATE'],['DEU 2','OPERATE']]},
-  EFIS: {name:'EFIS/EICAS', test:'DISPLAY TEST',   cfg:[['DU CONFIG','6 DU'],['DEU 1','OPERATE'],['DEU 2','OPERATE']]},
-  FQIS: {name:'FQIS',       test:'FQIS BITE TEST', cfg:[['TANK 1','12500 LB'],['CTR','0 LB'],['TANK 2','12500 LB']]},
-  FMCB: {name:'FMC',        test:'FMC BITE TEST',  cfg:[['FMC P/N','2044M25P19'],['OP PROGRAM','U14.0'],['NAV DATA','AIRAC 2506']]}
-};
-function openSub(k){ state.bite.sub=k; goPage('SUB_MAIN'); }
-function runSubTest(){ const s=SUBSYS[state.bite.sub]; waitGoto('SUB_RESULT', s.test+' IN PROGRESS',1800, s.name+' BITE'); }
+/* ---- FMCS ---- */
+const fmcTag=()=> state.bite.fmc==='L'?'FMC-L':'FMC-R';
+const fmcArrow=()=> state.bite.fmc==='L'?'LT':'RT';
+
+/* ---- DFCS ---- (selftest before main menu) */
+function enterDFCS(){ waitGoto('DFCS_MAIN','*DFCS SELFTEST*\nIN PROGRESS.',2400,'DFCS BITE TEST'); }
+
+/* ---- A/T ---- */
+function enterAT(){ if(!state.ac){ goPage('AT_INOP'); return; }
+  waitGoto('AT_INDEX','A/T BITE\nACCESSING',1400,'A/T BITE TEST'); }
 
 /* scenario quick-launch */
 function scen(which){
-  if(which==='FMC') goPage('IDENT');
-  else if(which==='POS') goPage('POSINIT');
-  else if(which==='ENGBITE') goPage('ENG_BITE_INDEX');
-  else if(which==='EEC'){ state.bite.eng='1';
-    if(state.ac) goPage('ENG_GROUND'); else { goPage('ENG_BITE_INDEX'); flash('AC POWER REQUIRED'); } }
-  else if(which==='APU') openSub('APU');
-  else if(which==='CDS') openSub('CDS');
-  else if(which==='FQIS') openSub('FQIS');
-  else if(which==='FMCB') openSub('FMCB');
+  switch(which){
+    case 'FMC':   goPage('IDENT'); break;
+    case 'POS':   goPage('POSINIT'); break;
+    case 'MAINT': goPage('MAINT'); break;
+    case 'FMCS':  goPage('FMCS_SRC'); break;
+    case 'DFCS':  enterDFCS(); break;
+    case 'AT':    enterAT(); break;
+    case 'ADIRS': goPage('ADIRS_TOP'); break;
+    case 'CDS':   goPage('CDS_SEL'); break;
+    case 'ENG':   goPage('ENG_BITE_INDEX'); break;
+    case 'APU':   goPage('APU_MAIN'); break;
+    case 'FQIS':  goPage('FQIS_MAIN'); break;
+  }
   highlightScen(which);
 }
 function highlightScen(which){
@@ -763,43 +787,449 @@ const PAGES = {
     }
   },
 
+  /* =========================================================
+     SHARED — generic BITE result / "test complete" page
+     ========================================================= */
+  BITE_RESULT:{ build:()=>{ const b=state.bite; const lines=b.rLines||['TEST COMPLETE','NO FAULTS FOUND'];
+      const rows=[{}]; lines.forEach(l=>rows.push({center:{txt:l, cls: /PASS|COMPLETE|OK/.test(l)?'grn':''}}));
+      while(rows.length<5) rows.push({}); rows.push({l:{val:'<INDEX', cls:'cyan'}});
+      return {title:b.rTitle||'BITE TEST', subtitle:b.rSub||'', rows:rows.slice(0,6)}; },
+    lsk:(p)=>{ if(p==='L6') goPage(state.bite.back||'MAINT'); } },
+
+  /* =========================================================
+     MAINT BITE INDEX  (INIT/REF INDEX 6R or MENU)
+     ========================================================= */
   MAINT:{
     build:()=>({title:'MAINT BITE INDEX', page:'1/1', rows:[
-      {l:{val:'<CDS', cls:''},        r:{val:'ENGINE>', cls:''}},
-      {l:{val:'<FMC', cls:''},        r:{val:'FQIS>', cls:''}},
-      {l:{val:'<EFIS/EICAS', cls:''}, r:{val:'APU>', cls:''}},
-      {}, {},
-      {l:{val:'<INDEX', cls:'cyan'},  r:{}}
+      {l:{val:'<FMCS', cls:''},  r:{val:'ENGINES>', cls:''}},
+      {l:{val:'<DFCS', cls:''},  r:{val:'APU>', cls:''}},
+      {l:{val:'<A/T', cls:''},   r:{val:'FQIS>', cls:''}},
+      {l:{val:'<ADIRS', cls:''}},
+      {l:{val:'<CDS', cls:''}},
+      {l:{val:'<INDEX', cls:'cyan'}, r:{val:'FMC DOWN LOAD>', cls:'cyan'}}
     ]}),
-    lsk:(p)=>{ if(p==='L1') openSub('CDS');
-      else if(p==='L2') openSub('FMCB');
-      else if(p==='L3') openSub('EFIS');
+    lsk:(p)=>{ if(p==='L1') goPage('FMCS_SRC');
+      else if(p==='L2') enterDFCS();
+      else if(p==='L3') enterAT();
+      else if(p==='L4') goPage('ADIRS_TOP');
+      else if(p==='L5') goPage('CDS_SEL');
       else if(p==='R1') goPage('ENG_BITE_INDEX');
-      else if(p==='R2') openSub('FQIS');
-      else if(p==='R3') openSub('APU');
+      else if(p==='R2') goPage('APU_MAIN');
+      else if(p==='R3') goPage('FQIS_MAIN');
+      else if(p==='R6') flash('NO DATABASE DISKETTE');
       else if(p==='L6') goPage('MENU'); }
   },
 
-  /* ---------------- ENGINE / EEC BITE ---------------- */
+  /* =========================================================
+     1) FMCS BITE
+     ========================================================= */
+  FMCS_SRC:{ build:()=>({title:'FMCS BITE', page:'1/1', rows:[
+      {l:{lab:'BITE SOURCE', val:'<FMC LEFT', cls: state.bite.fmc==='L'?'grn':''}},
+      {l:{val:'<FMC RIGHT', cls: state.bite.fmc==='R'?'grn':''}},
+      {center:{txt:'LEFT ARROW = FMC 1 PRIMARY', cls:'cyan'}},
+      {center:{txt:'RIGHT ARROW = FMC 2 PRIMARY', cls:'cyan'}},
+      {},
+      {l:{val:'<INDEX', cls:'cyan'}, r:{val:'CROSSLOAD>', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L1'){ state.bite.fmc='L'; goPage('FMCS_MAIN'); }
+      else if(p==='L2'){ state.bite.fmc='R'; goPage('FMCS_MAIN'); }
+      else if(p==='R6') flash('CROSSLOAD UNAVAILABLE');
+      else if(p==='L6') goPage('MAINT'); } },
+
+  FMCS_MAIN:{ build:()=>({title:fmcArrow()+' FMCS BITE', page:'1/1', rows:[
+      {l:{val:'<INFLT FAULT', cls:''}, r:{val:'MODEL/ENG>', cls:''}},
+      {l:{val:'<CDU TEST', cls:''},    r:{val:'SW OPTIONS>', cls:''}},
+      {l:{val:'<SENSORS', cls:''},     r:{val:'PERF FACTR>', cls:''}},
+      {l:{val:'<DISCRETES', cls:''},   r:{val:'IRS MONITR>', cls:''}},
+      {l:{val:'<FIXED OUTPUTS', cls:''}},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L1') goPage('FMCS_INFLT');
+      else if(p==='L2') goPage('FMCS_CDUTEST');
+      else if(p==='L3') goPage('FMCS_SENS1');
+      else if(p==='L4') goPage('FMCS_DISC');
+      else if(p==='L5') goPage('FMCS_FIXED1');
+      else if(p==='R1') goPage('FMCS_MODEL');
+      else if(p==='R2') goPage('FMCS_SWOPT');
+      else if(p==='R3') goPage('FMCS_PERF');
+      else if(p==='R4') goPage('FMCS_IRS');
+      else if(p==='L6') goPage('FMCS_SRC'); } },
+
+  FMCS_INFLT:{ build:()=>({title:fmcTag()+' IN FLT FAULTS', subtitle:'', page:'1/1', rows:[
+      {center:{txt:'NO INFLIGHT FAULTS'}},{},
+      {center:{txt:'9 FLIGHT LEGS MONITORED', cls:'cyan'}},
+      {kv:{k:'ACCESS CODE', v:'300'}},{},
+      {l:{val:'<INDEX', cls:'cyan'}, r:{val:'ENG DATA>', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('FMCS_MAIN'); else if(p==='R6') flash('SET 300 IN SCRATCHPAD'); } },
+
+  FMCS_CDUTEST:{ build:()=>({title:'FMCS CDU TEST', page:'1/1', rows:[
+      {},{},{l:{val:'<KEY TEST', cls:''}, r:{val:'DSPLY TEST>', cls:''}},{},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L3') goPage('FMCS_KEYTEST');
+      else if(p==='R3') goPage('FMCS_DSPLY');
+      else if(p==='L6') goPage('FMCS_MAIN'); } },
+  FMCS_KEYTEST:{ build:()=>({title:'FMCS KEY TEST', page:'1/1', rows:[
+      {center:{txt:'PUSH KEYS TO TEST'}},{},
+      {center:{txt:'[KEY] INDICATES VALID', cls:'cyan'}},
+      {center:{txt:state.bite._lastKey?('"'+state.bite._lastKey+'" KEY PUSHED'):'', cls:'grn'}},{},
+      {l:{val:'<CDU TEST', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('FMCS_CDUTEST'); } },
+  FMCS_DSPLY:{ build:()=>({title:'FMCS DSPLY TEST', page:'1/1', rows:[
+      {center:{txt:'0123456789  ABCDEF'}},
+      {center:{txt:'GHIJKLMNOPQRSTUVWXYZ'}},
+      {center:{txt:'#!"%&()*+,-./ :;<=>?'}},
+      {center:{txt:'ALL CHARACTERS / FONTS', cls:'cyan'}},{},
+      {l:{val:'<CDU TEST', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('FMCS_CDUTEST'); } },
+
+  FMCS_SENS1:{ build:()=>({title:fmcTag()+' SENSOR STATUS', page:'1/2', arrows:{r:true}, rows:[
+      {kv:{k:'        LRU', v:'LEFT  RIGHT'}},
+      {kv:{k:'VOR', v:'OK     OK'}},
+      {kv:{k:'DME', v:'TEST   OK'}},
+      {kv:{k:'ADIRS', v:'FAIL   OK'}},
+      {kv:{k:'DFCS / FQIS', v:'OK    ----'}},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('FMCS_MAIN'); },
+    page:(d)=>{ if(d===1) goPage('FMCS_SENS2'); } },
+  FMCS_SENS2:{ build:()=>({title:fmcTag()+' SENSOR STATUS', page:'2/2', arrows:{l:true}, rows:[
+      {kv:{k:'        LRU', v:'LEFT  RIGHT'}},
+      {kv:{k:'CDS DEU', v:'OK    FAIL'}},
+      {kv:{k:'FMC', v:'OK     OK'}},
+      {kv:{k:'ETI HRS', v:'127'}},
+      {kv:{k:'ACCESS CODE', v:'100'}},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('FMCS_MAIN'); },
+    page:(d)=>{ if(d===-1) goPage('FMCS_SENS1'); } },
+
+  FMCS_DISC:{ build:()=>({title:fmcTag()+' ANALOG DISC', page:'1/4', arrows:{r:true}, rows:[
+      {kv:{k:'        ', v:'LEFT  RIGHT'}},
+      {kv:{k:'ECS PACK', v:'ON     OFF'}},
+      {kv:{k:'ECS PACK H/L', v:'LO     HI'}},
+      {kv:{k:'ISOL VALVE', v:'OP'}},
+      {kv:{k:'COWL/WING A/ICE', v:'OFF    ON'}},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('FMCS_MAIN'); } },
+
+  FMCS_FIXED1:{ build:()=>({title:'FMCS FIXED OUTPUTS', page:'1/2', arrows:{r:true}, rows:[
+      {center:{txt:'THRUST MODE TO CP\u2019S', cls:'cyan'}},
+      {kv:{k:'TMA "CRZ"', v:'OFF'}},
+      {kv:{k:'TMA "CLB"', v:'ON'}},
+      {kv:{k:'TMA "TO"/"GA"', v:'OFF'}},
+      {kv:{k:'CDS FMC INTERFACE', v:'OK'}},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('FMCS_MAIN'); },
+    page:(d)=>{ if(d===1) goPage('FMCS_FIXED2'); } },
+  FMCS_FIXED2:{ build:()=>({title:'FMCS FIXED OUTPUTS', page:'2/2', arrows:{l:true}, rows:[
+      {center:{txt:'CHECK ANNUNCIATORS', cls:'cyan'}},
+      {kv:{k:'CDU "MSG"/"FAIL"', v:'ON'}},
+      {kv:{k:'CDU "OFST"/"CALL"', v:'ON'}},
+      {kv:{k:'AA "FMC" ALERT', v:'ON'}},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('FMCS_MAIN'); },
+    page:(d)=>{ if(d===-1) goPage('FMCS_FIXED1'); } },
+
+  FMCS_MODEL:{ build:()=>({title:fmcTag()+' MODEL/ENG CFG', page:'1/1', rows:[
+      {kv:{k:'MODEL', v:'737-800'}},
+      {kv:{k:'ENGINE', v:'CFM56-7B'}},
+      {kv:{k:'BRAKE OPT', v:'STD'}},
+      {kv:{k:'ENGINE OPT', v:'DAC'}},
+      {kv:{k:'RATINGS FULL/TO1/TO2', v:'26K'}},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('FMCS_MAIN'); } },
+
+  FMCS_SWOPT:{ build:()=>({title:fmcTag()+' SW OPTIONS', page:'1/1', rows:[
+      {kv:{k:'NDB SIZE', v:'128K WORDS'}},
+      {kv:{k:'OPTION CODE', v:'0000000003C1'}},
+      {l:{val:'HIGH IDLE DESCENT', cls:''}},
+      {l:{val:'GPS WITH INTEGRITY', cls:''}},
+      {l:{val:'MANUAL RNP ENTRY', cls:''}},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('FMCS_MAIN'); } },
+
+  FMCS_PERF:{ build:()=>({title:fmcTag()+' PERF FACTORS', page:'1/1', rows:[
+      {kv:{k:'DRAG FACTOR', v:'+0.0'}},
+      {kv:{k:'F-F FACTOR', v:'+0.0'}},
+      {kv:{k:'MNVR MARGIN', v:'1.30'}},
+      {kv:{k:'MIN R/C  CLB / CRZ', v:'300 / 100'}},
+      {kv:{k:'MIN CRZ TIME ENG OUT', v:'---'}},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('FMCS_MAIN'); } },
+
+  FMCS_IRS:{ build:()=>({title:fmcTag()+' IRS MONITOR', page:'1/1', rows:[
+      {kv:{k:'IRS L', v:'0.5 NM/HR'}},
+      {kv:{k:'IRS R', v:'0.9 NM/HR'}},{},
+      {center:{txt:'POSITION ERROR RATE', cls:'cyan'}},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('FMCS_MAIN'); } },
+
+  /* =========================================================
+     2) DFCS BITE  (FCC A/B selftest -> main menu)
+     ========================================================= */
+  DFCS_MAIN:{ build:()=>({title:'DFCS BITE TEST', subtitle:'MAIN MENU', page:'1/1', rows:[
+      {l:{val:'<FAULT REVIEW', cls:''}},
+      {l:{val:'<LRU REPLACEMENT TEST', cls:''}},
+      {l:{val:'<LAND VERIFY', cls:''}},
+      {l:{val:'<EXTENDED MAINTENANCE', cls:''}},
+      {l:{val:'<IDENT AND CONFIG', cls:''}},
+      {l:{val:'<EXIT', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L1') goPage('DFCS_FAULT');
+      else if(p==='L2') runBite('DFCS BITE TEST','LRU REPLACEMENT','*AUTOTEST*',2200,['ALL TESTS PASSED'],'DFCS_MAIN');
+      else if(p==='L3') goPage('DFCS_LAND');
+      else if(p==='L4') goPage('DFCS_EXT');
+      else if(p==='L5') goPage('DFCS_IDENT');
+      else if(p==='L6') goPage('MAINT'); } },
+
+  DFCS_FAULT:{ build:()=>({title:'DFCS BITE TEST', subtitle:'FAULT REVIEW', page:'1/1', rows:[
+      {l:{val:'<CURRENT STATUS', cls:''}},
+      {l:{val:'<FAULT HIST BY FLT LEG', cls:''}},
+      {l:{val:'<FAULT HIST BY FD EFFECT', cls:''}},
+      {l:{val:'<ERASE FAULT HISTORY', cls:''}},{},
+      {l:{val:'<EXIT', cls:'cyan'}, r:{val:'MAIN MENU>', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L1') runBite('DFCS BITE TEST','CURRENT STATUS *10.XX','*AUTOTEST INITIALIZATION*',2400,['AUTOTEST PASSED','ALL TESTS PASS'],'DFCS_FAULT');
+      else if(p==='L2') goPage('DFCS_FHLEG');
+      else if(p==='L3') flash('NO FLIGHT DECK EFFECTS');
+      else if(p==='L4') flash('FAULT HISTORY ERASED');
+      else if(p==='L6') goPage('MAINT');
+      else if(p==='R6') goPage('DFCS_MAIN'); } },
+
+  DFCS_FHLEG:{ build:()=>({title:'FAULT HISTORY-A', subtitle:'', page:'1/1', rows:[
+      {kv:{k:'<LEG 01', v:'NO FAULTS'}},
+      {kv:{k:'<LEG 02', v:'03 FAULTS'}},
+      {kv:{k:'<LEG 03', v:'02 FAULTS'}},
+      {kv:{k:'<LEG 04', v:'06 FAULTS'}},
+      {kv:{k:'<LEG 05', v:'05 FAULTS'}},
+      {l:{val:'<EXIT', cls:'cyan'}, r:{val:'PREV MENU>', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('MAINT'); else if(p==='R6') goPage('DFCS_FAULT'); } },
+
+  DFCS_LAND:{ build:()=>({title:'DFCS BITE TEST', subtitle:'LAND VERIFY', rows:[
+      {center:{txt:'****WARNING****', cls:'warn'}},
+      {center:{txt:'CHECKS AUTOLAND SENSORS'}},
+      {center:{txt:'AND DUAL CHANNEL HW'}},
+      {center:{txt:'HYD A & B WILL MOVE SURFACES'}},
+      {},
+      {l:{val:'<EXIT', cls:'cyan'}, r:{val:'START TEST>', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('DFCS_MAIN');
+      else if(p==='R6') runBite('DFCS BITE TEST','LAND VERIFY','LAND VERIFY TEST',2600,['ALL TESTS PASSED'],'DFCS_MAIN'); } },
+
+  DFCS_EXT:{ build:()=>({title:'DFCS BITE TEST', subtitle:'EXTENDED MAINTENANCE', page:'1/1', rows:[
+      {l:{val:'<BITE LIBRARY TEST', cls:''}},
+      {l:{val:'<RIGGING', cls:''}},
+      {l:{val:'<MCP TEST', cls:''}},
+      {l:{val:'<SENSOR VALUES', cls:''}},{},
+      {l:{val:'<PREV MENU', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L1') runBite('DFCS BITE TEST','BITE LIBRARY','LIBRARY TEST',2200,['ALL TESTS PASSED'],'DFCS_EXT');
+      else if(p==='L3') runBite('DFCS BITE TEST','MCP TEST','MCP FUNCTIONAL TEST',2000,['TEST COMPLETE'],'DFCS_EXT');
+      else if(p==='L2'||p==='L4') flash('NO TEST EQUIP NEEDED');
+      else if(p==='L6') goPage('DFCS_MAIN'); } },
+
+  DFCS_IDENT:{ build:()=>({title:'DFCS *FCC-A CONFIG*', subtitle:'', page:'1/2', arrows:{r:true}, rows:[
+      {kv:{k:'BOEING P/N', v:'10-62038-05'}},
+      {kv:{k:'HONEYWELL P/N', v:'4051600-915'}},{},
+      {center:{txt:'HARDWARE PART NUMBERS', cls:'cyan'}},{},
+      {l:{val:'<EXIT', cls:'cyan'}, r:{val:'PREV MENU>', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('MAINT'); else if(p==='R6') goPage('DFCS_MAIN'); },
+    page:(d)=>{ if(d===1) goPage('DFCS_IDENT2'); } },
+  DFCS_IDENT2:{ build:()=>({title:'DFCS *FCC-A CONFIG*', subtitle:'SOFTWARE', page:'2/2', arrows:{l:true}, rows:[
+      {kv:{k:'CPU1 BOOT/APPS/BITE', v:'OK'}},
+      {kv:{k:'CPU2 BOOT/APPS/BITE', v:'OK'}},{},
+      {center:{txt:'SOFTWARE PART NUMBERS', cls:'cyan'}},{},
+      {l:{val:'<EXIT', cls:'cyan'}, r:{val:'PREV MENU>', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('MAINT'); else if(p==='R6') goPage('DFCS_MAIN'); },
+    page:(d)=>{ if(d===-1) goPage('DFCS_IDENT'); } },
+
+  /* =========================================================
+     3) A/T BITE
+     ========================================================= */
+  AT_INOP:{ build:()=>({title:'A/T BITE TEST', rows:[
+      {},{center:{txt:'A/T BITE INOP', cls:'warn'}},
+      {center:{txt:'CHECK A/T OR INTERFACE'}},{},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('MAINT'); } },
+  AT_INDEX:{ build:()=>({title:'A/T BITE INDEX', page:'1/1', rows:[
+      {l:{val:'<CURRENT STATUS', cls:''}},
+      {l:{val:'<INFLIGHT FAULTS', cls:''}},
+      {l:{val:'<INTERACTIVE', cls:''}},
+      {l:{val:'<IDENT/CONFIG', cls:''}},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L1') runBite('A/T BITE TEST','CURRENT STATUS','CURRENT STATUS TEST',2000,['TEST COMPLETE','NO FAULTS'],'AT_INDEX');
+      else if(p==='L2') goPage('AT_INFLT');
+      else if(p==='L3') goPage('AT_INT');
+      else if(p==='L4') goPage('AT_IDENT');
+      else if(p==='L6') goPage('MAINT'); } },
+  AT_INFLT:{ build:()=>({title:'A/T BITE TEST', subtitle:'INFLIGHT FAULTS', page:'1/1', rows:[
+      {l:{val:'<FLT 01', cls:''}, r:{val:'FLT 06>', cls:''}},
+      {l:{val:'<FLT 02', cls:''}, r:{val:'FLT 08>', cls:''}},
+      {l:{val:'<FLT 03', cls:''}, r:{val:'FLT 09>', cls:''}},
+      {l:{val:'<FLT 04', cls:''}, r:{val:'FLT 10>', cls:''}},
+      {l:{val:'<FLT 05', cls:''}, r:{val:'FLT 99>', cls:''}},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('AT_INDEX');
+      else if(p[0]==='L'||p[0]==='R') flash('NONE'); } },
+  AT_INT:{ build:()=>({title:'A/T BITE TEST', subtitle:'INTERACTIVE', rows:[
+      {center:{txt:'****WARNING****', cls:'warn'}},
+      {center:{txt:'THROTTLES WILL MOVE'}},
+      {center:{txt:'KEEP CLEAR OF QUADRANT'}},{},{},
+      {l:{val:'<INDEX', cls:'cyan'}, r:{val:'START>', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('AT_INDEX');
+      else if(p==='R6') runBite('A/T BITE TEST','INTERACTIVE','SERVO TEST',2400,['INTERACTIVE TEST PASSED'],'AT_INDEX'); } },
+  AT_IDENT:{ build:()=>({title:'A/T BITE TEST', subtitle:'IDENT/CONFIG', page:'1/2', arrows:{r:true}, rows:[
+      {kv:{k:'A/T OP', v:'NORMAL'}},
+      {kv:{k:'F/S OPTION', v:'ENABLED'}},
+      {kv:{k:'PARITY', v:'ODD'}},
+      {kv:{k:'737 MODEL', v:'-800'}},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('AT_INDEX'); },
+    page:(d)=>{ if(d===1) goPage('AT_IDENT2'); } },
+  AT_IDENT2:{ build:()=>({title:'A/T BITE TEST', subtitle:'IDENT/CONFIG', page:'2/2', arrows:{l:true}, rows:[
+      {kv:{k:'BOEING P/N', v:'10-62017-XX'}},
+      {kv:{k:'SMITHS P/N', v:'XXXSUEXXX'}},
+      {kv:{k:'SOFTWARE', v:'XXXXXXXX'}},{},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('AT_INDEX'); },
+    page:(d)=>{ if(d===-1) goPage('AT_IDENT'); } },
+
+  /* =========================================================
+     4) ADIRS BITE
+     ========================================================= */
+  ADIRS_TOP:{ build:()=>({title:'ADIRS BITE', page:'1/1', rows:[
+      {l:{val:'<ADIRS L', cls:''}},
+      {l:{val:'<ADIRS R', cls:''}},
+      {l:{val:'<ADIRS-IR L+R GND TEST', cls:''}},
+      {l:{val:'<ADIRS-ADR L+R GND TEST', cls:''}},
+      {l:{val:'<ADIRS MAINT CODES', cls:''}},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L1'){ state.bite.adirs='L'; goPage('ADIRS_MAIN'); }
+      else if(p==='L2'){ state.bite.adirs='R'; goPage('ADIRS_MAIN'); }
+      else if(p==='L3') runBite('ADIRS BITE','IR L+R GND TEST','IR L+R GROUND TEST',2600,['TEST COMPLETE'],'ADIRS_TOP');
+      else if(p==='L4') runBite('ADIRS BITE','ADR L+R GND TEST','ADR L+R GROUND TEST',2600,['TEST COMPLETE'],'ADIRS_TOP');
+      else if(p==='L5') goPage('ADIRS_MAINTC');
+      else if(p==='L6') goPage('MAINT'); } },
+
+  ADIRS_MAIN:{ build:()=>({title:'ADIRS '+state.bite.adirs+' BITE', subtitle:'MAIN MENU', page:'1/1', rows:[
+      {l:{val:'<CURRENT STATUS', cls:''}},
+      {l:{val:'<INFLIGHT FAULTS', cls:''}},
+      {l:{val:'<GROUND TEST', cls:''}},
+      {l:{val:'<IDENT/CONFIG', cls:''}},
+      {l:{val:' INPUT MONITORING', cls:''}},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L1') goPage('ADIRS_CURR');
+      else if(p==='L2') goPage('ADIRS_INFLT');
+      else if(p==='L3') goPage('ADIRS_GND');
+      else if(p==='L4') goPage('ADIRS_IDENT');
+      else if(p==='L5') flash('NOT IMPLEMENTED');
+      else if(p==='L6') goPage('ADIRS_TOP'); } },
+  ADIRS_CURR:{ build:()=>({title:'ADIRS '+state.bite.adirs+' BITE', subtitle:'CURRENT FAULTS', page:'1/1', rows:[
+      {center:{txt:'NO CURRENT FAULTS'}},{},
+      {kv:{k:'34-21002', v:'IR FAIL'}},
+      {kv:{k:'34-21020', v:'ADR DATA INVLD'}},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('ADIRS_MAIN'); } },
+  ADIRS_INFLT:{ build:()=>({title:'ADIRS '+state.bite.adirs+' BITE', subtitle:'INFLIGHT FAULTS MENU', page:'1/1', rows:[
+      {center:{txt:'FLT LEGS 01 - 09', cls:'cyan'}},{},
+      {center:{txt:'NO INFLIGHT FAULTS'}},{},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('ADIRS_MAIN'); } },
+  ADIRS_GND:{ build:()=>({title:'ADIRS '+state.bite.adirs+' BITE', subtitle:'GROUND TEST', page:'1/1', rows:[
+      {l:{val:'<IR GROUND TEST', cls:''}},
+      {l:{val:'<ADR GROUND TEST', cls:''}},{},{},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L1') runBite('ADIRS '+state.bite.adirs+' BITE','IR GROUND TEST','IR GROUND TEST',2400,['TEST COMPLETE'],'ADIRS_GND');
+      else if(p==='L2') runBite('ADIRS '+state.bite.adirs+' BITE','ADR GROUND TEST','ADR GROUND TEST',2400,['TEST COMPLETE'],'ADIRS_GND');
+      else if(p==='L6') goPage('ADIRS_MAIN'); } },
+  ADIRS_IDENT:{ build:()=>({title:'ADIRS '+state.bite.adirs+' BITE', subtitle:'IDENT/CONFIG', page:'1/1', rows:[
+      {kv:{k:'ADIRU P/N', v:'2588555-XXX'}},
+      {kv:{k:'SOFTWARE', v:'XXXX'}},
+      {kv:{k:'POSITION', v:state.bite.adirs==='L'?'LEFT':'RIGHT'}},{},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('ADIRS_MAIN'); } },
+  ADIRS_MAINTC:{ build:()=>({title:'ADIRS MAINT CODES', page:'1/1', rows:[
+      {kv:{k:'34-21002', v:'IR FAIL'}},
+      {kv:{k:'34-21020', v:'ADR DATA INVLD'}},
+      {kv:{k:'34-21021', v:'NO ADR DATA'}},{},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('ADIRS_TOP'); } },
+
+  /* =========================================================
+     5) CDS BITE  (DEU 1 / DEU 2)
+     ========================================================= */
+  CDS_SEL:{ build:()=>({title:'CDS BITE', page:'1/1', rows:[
+      {l:{val:'<DEU 1', cls: state.bite.deu==='1'?'grn':''}},
+      {l:{val:'<DEU 2', cls: state.bite.deu==='2'?'grn':''}},{},{},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L1'){ state.bite.deu='1'; goPage('CDS_MAIN'); }
+      else if(p==='L2'){ state.bite.deu='2'; goPage('CDS_MAIN'); }
+      else if(p==='L6') goPage('MAINT'); } },
+  CDS_MAIN:{ build:()=>({title:'CDS DEU '+state.bite.deu+' BITE', subtitle:'MAIN MENU', page:'1/1', rows:[
+      {l:{val:'<CURRENT STATUS', cls:''}},
+      {l:{val:'<INFLIGHT FAULTS', cls:''}},
+      {l:{val:'<GROUND TESTS', cls:''}},
+      {l:{val:'<IDENT/CONFIG', cls:''}},
+      {l:{val:'<INPUT MONITORING', cls:''}},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L1') goPage('CDS_CURR');
+      else if(p==='L2') flash('NO FAULTS');
+      else if(p==='L3') goPage('CDS_GND');
+      else if(p==='L4') goPage('CDS_IDENT');
+      else if(p==='L5') goPage('CDS_DISC');
+      else if(p==='L6') goPage('CDS_SEL'); } },
+  CDS_CURR:{ build:()=>({title:'CDS DEU '+state.bite.deu+' BITE', subtitle:'CURRENT STATUS', page:'1/1', rows:[
+      {center:{txt:'NO FAULTS'}},{},
+      {kv:{k:'31-61057', v:'NO DME-1 DATA'}},
+      {kv:{k:'SUSPECT LRU', v:'DME 1 / WIRING'}},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('CDS_MAIN'); } },
+  CDS_GND:{ build:()=>({title:'CDS DEU '+state.bite.deu+' BITE', subtitle:'GROUND TESTS', page:'1/1', rows:[
+      {l:{val:'<DEU '+state.bite.deu+' SELF TEST', cls:''}},
+      {l:{val:'<DU LOOP TEST', cls:''}},
+      {l:{val:'<DU OPTICAL TEST', cls:''}},
+      {l:{val:'<WXR INTERFACE TEST', cls:''}},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L1') runBite('CDS DEU '+state.bite.deu+' BITE','SELF TEST','DEU SELF TEST',2000,['TEST COMPLETE','NO FAULTS'],'CDS_GND');
+      else if(p==='L2') runBite('CDS DEU '+state.bite.deu+' BITE','DU LOOP TEST','DU LOOP TEST',2000,['TEST COMPLETE'],'CDS_GND');
+      else if(p==='L3') runBite('CDS DEU '+state.bite.deu+' BITE','DU OPTICAL TEST','DU OPTICAL TEST',2000,['TEST COMPLETE'],'CDS_GND');
+      else if(p==='L4') runBite('CDS DEU '+state.bite.deu+' BITE','WXR TEST','WXR INTERFACE TEST',2000,['TEST COMPLETE'],'CDS_GND');
+      else if(p==='L6') goPage('CDS_MAIN'); } },
+  CDS_IDENT:{ build:()=>({title:'CDS DEU '+state.bite.deu+' BITE', subtitle:'IDENT/CONFIG', page:'1/1', rows:[
+      {kv:{k:'OPS P/N', v:'284W0001'}},
+      {kv:{k:'OPC P/N', v:'284W0010'}},
+      {kv:{k:'DEU H/W P/N', v:'822-1234-001'}},{},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('CDS_MAIN'); } },
+  CDS_DISC:{ build:()=>({title:'CDS DEU '+state.bite.deu+' BITE', subtitle:'DISCRETE STATUS', page:'1/1', rows:[
+      {center:{txt:'CONNECTOR A / B / D / E / F', cls:'cyan'}},{},
+      {center:{txt:'G=GND O=OPEN'}},
+      {center:{txt:'V=28V DC  X=INVALID'}},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('CDS_MAIN'); } },
+
+  /* =========================================================
+     6) ENGINE / EEC BITE
+     ========================================================= */
   ENG_BITE_INDEX:{
     build:()=>({title:'ENGINE/EXCEED BITE INDEX', page:'1/1', rows:[
       {l:{val:'<ENGINE 1', cls:''},        r:{val:'ENGINE 2>', cls:''}},
-      {l:{val:'<ENGINE 1 CH A', cls:''},   r:{val:'ENGINE 2 CH A>', cls:''}},
-      {l:{val:'<ENGINE 1 CH B', cls:''},   r:{val:'ENGINE 2 CH B>', cls:''}},
+      {l:{val:'<ENGINE 1 CH A ONLY', cls:''}},
+      {l:{val:'<ENGINE 2 CH A ONLY', cls:''}},
       {}, {},
       {l:{val:'<INDEX', cls:'cyan'},       r:{val:'EXCEEDANCES>', cls:'cyan'}}
     ]}),
-    lsk:(p)=>{ const m={L1:['1',null],R1:['2',null],L2:['1','A'],R2:['2','A'],L3:['1','B'],R3:['2','B']};
-      if(m[p]) return selEng(m[p][0],m[p][1]);
+    lsk:(p)=>{ if(p==='L1') return selEng('1',null);
+      if(p==='R1') return selEng('2',null);
+      if(p==='L2') return selEng('1','A');
+      if(p==='L3') return selEng('2','A');
       if(p==='L6') goPage('MAINT');
-      if(p==='R6') flash('NO EXCEEDANCES'); }
+      if(p==='R6') goPage('ENG_EXCEED'); }
   },
+  ENG_EXCEED:{ build:()=>({title:'ENGINE EXCEEDANCE', subtitle:'EXCEEDANCE MENU', page:'1/1', rows:[
+      {l:{val:'<ENGINE 1 EXCEEDANCES', cls:''}},
+      {l:{val:'<ENGINE 2 EXCEEDANCES', cls:''}},{},{},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L1'||p==='L2') flash('NO EXCEEDANCES');
+      else if(p==='L6') goPage('ENG_BITE_INDEX'); } },
   ENG_MAIN:{
     build:()=>({title:ttlE(), subtitle:'MAIN MENU', page:'1/1', rows:[
       {l:{val:'<RECENT FAULTS', cls:''}},
       {l:{val:'<FAULT HISTORY', cls:''}},
       {l:{val:'<IDENT/CONFIG', cls:''}},
-      {l:{val:'<GROUND TESTS', cls:''}},
+      {l:{val:'<GROUND TEST', cls:''}},
       {l:{val:'<INPUT MONITORING', cls:''}},
       {l:{val:'<INDEX', cls:'cyan'}}
     ]}),
@@ -817,37 +1247,34 @@ const PAGES = {
       {},{center:{txt:'NO FAULT HISTORY'}},{center:{txt:'STORED'}},{},{},{l:{val:'<INDEX', cls:'cyan'}}]}),
     lsk:(p)=>{ if(p==='L6') goPage('ENG_MAIN'); } },
   ENG_CFG1:{ build:()=>({title:ttlE(), subtitle:'IDENT/CONFIG', page:'1/2', arrows:{r:true}, rows:[
-      {kv:{k:'APL MODEL', v:'737-800'}},
-      {kv:{k:'ENGINE MODEL', v:'7B24 /3'}},
+      {kv:{k:'AIRPLANE MODEL', v:'737-800'}},
+      {kv:{k:'ENG RATING', v:'26K'}},
       {kv:{k:'N1 TRIM', v:'0'}},
-      {kv:{k:'EEC S/W P/N', v:'2044M25P19'}},
+      {kv:{k:'ENG S/N', v:'803-732'}},
       {kv:{k:'START MODE', v:'ENHANCED'}},
       {l:{val:'<INDEX', cls:'cyan'}, r:{val:'ERASE>', cls:'cyan'}}]}),
-    lsk:(p)=>{ if(p==='L6') goPage('ENG_MAIN'); else if(p==='R6') flash('ERASE INHIBITED'); },
+    lsk:(p)=>{ if(p==='L6') goPage('ENG_MAIN'); else if(p==='R6') flash('TYPE OK TO ERASE'); },
     page:(d)=>{ if(d===1) goPage('ENG_CFG2'); } },
   ENG_CFG2:{ build:()=>({title:ttlE(), subtitle:'IDENT/CONFIG', page:'2/2', arrows:{l:true}, rows:[
-      {kv:{k:'ENG S/N', v:'803-732'}},
+      {kv:{k:'EEC P/N', v:'2044M25P19'}},
       {kv:{k:'EEC S/W VER', v:'7E6A'}},
       {kv:{k:'BUMP INSTALLED', v:'NO'}},
       {kv:{k:'REVERSER MODE', v:'STANDARD'}},
       {kv:{k:'ACMS INSTALLED', v:'NO'}},
       {l:{val:'<INDEX', cls:'cyan'}, r:{val:'ERASE>', cls:'cyan'}}]}),
-    lsk:(p)=>{ if(p==='L6') goPage('ENG_MAIN'); else if(p==='R6') flash('ERASE INHIBITED'); },
+    lsk:(p)=>{ if(p==='L6') goPage('ENG_MAIN'); else if(p==='R6') flash('TYPE OK TO ERASE'); },
     page:(d)=>{ if(d===-1) goPage('ENG_CFG1'); } },
-  ENG_GROUND:{ build:()=>({title:ttlE(), subtitle:'GROUND TESTS', page:'1/1', rows:[
+  ENG_GROUND:{ build:()=>({title:ttlE(), subtitle:'GROUND TEST', page:'1/1', rows:[
       {l:{val:'<EEC TEST', cls:''}},
       {l:{val:'<T/R LEVER INTLK TEST', cls:''}},
       {l:{val:'<ACTUATORS TEST', cls:''}},
-      {l:{val:'<L IGNITER TEST', cls:''}},
-      {l:{val:'<R IGNITER TEST', cls:''}},
-      {l:{val:'<INDEX', cls:'cyan'}, r:{val:'WATER WASH>', cls:'cyan'}}]}),
+      {l:{val:'<IGNITERS TEST', cls:''}},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
     lsk:(p)=>{ if(p==='L1') runEEC();
       else if(p==='L2') startWarn('T/R LEVER INTLK TEST','turn');
       else if(p==='L3') startWarn('ACTUATORS TEST','turn');
-      else if(p==='L4') startWarn('L IGNITER TEST','ignite');
-      else if(p==='L5') startWarn('R IGNITER TEST','ignite');
-      else if(p==='L6') goPage('ENG_MAIN');
-      else if(p==='R6') flash('NOT IN THIS PROC'); } },
+      else if(p==='L4') startWarn('IGNITERS TEST','ignite');
+      else if(p==='L6') goPage('ENG_MAIN'); } },
   ENG_WARN:{ build:()=>{ const turn=state.bite.warn.type==='turn';
       return {title:ttlE(), subtitle:state.bite.warn.name, rows:[
         {center:{txt:'! ! !  WARNING  ! ! !', cls:'warn'}},
@@ -870,42 +1297,152 @@ const PAGES = {
       {center:{txt:'TO ISOLATE FAULTS'}},
       {},
       {l:{val:'<GO BACK', cls:'cyan'}, r:{val:'CONTINUE>', cls:'cyan'}}]}),
-    lsk:(p)=>{ if(p==='L6') goPage('ENG_MAIN'); else if(p==='R6') waitGoto('ENG_INPUTDATA','ACCESSING EEC',1100,ttlE()); } },
-  ENG_INPUTDATA:{ build:()=>({title:ttlE(), subtitle:'INPUT MONITORING', page:'1/1', rows:[
-      {kv:{k:'N1', v:'0.0 %'}},{kv:{k:'N2', v:'0.0 %'}},{kv:{k:'EGT', v:'+18 C'}},
-      {kv:{k:'TAT', v:'+19 C'}},{kv:{k:'TLA', v:'0.0 DEG'}},{l:{val:'<INDEX', cls:'cyan'}}]}),
-    lsk:(p)=>{ if(p==='L6') goPage('ENG_MAIN'); } },
+    lsk:(p)=>{ if(p==='L6') goPage('ENG_MAIN'); else if(p==='R6') waitGoto('ENG_INPUTMENU','ACCESSING EEC',1100,ttlE()); } },
+  ENG_INPUTMENU:{ build:()=>({title:ttlE(), subtitle:'INPUT MONITORING', page:'1/2', arrows:{r:true}, rows:[
+      {l:{val:'<CONTROL LOOPS', cls:''}},
+      {l:{val:'<CONTROL PRESSURES', cls:''}},
+      {l:{val:'<CONTROL TEMPERATURES', cls:''}},
+      {l:{val:'<FUEL SYSTEM', cls:''}},
+      {l:{val:'<OIL SYSTEM', cls:''}},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L4') goPage('ENG_FUEL');
+      else if(p==='L5') goPage('ENG_OIL');
+      else if(p==='L1'||p==='L2'||p==='L3') goPage('ENG_SPEEDS');
+      else if(p==='L6') goPage('ENG_MAIN'); },
+    page:(d)=>{ if(d===1) goPage('ENG_INPUTMENU2'); } },
+  ENG_INPUTMENU2:{ build:()=>({title:ttlE(), subtitle:'INPUT MONITORING', page:'2/2', arrows:{l:true}, rows:[
+      {l:{val:'<ENGINE SPEEDS', cls:''}},
+      {l:{val:'<ANALOG SIGNALS', cls:''}},
+      {l:{val:'<DIGITAL DISCRETES', cls:''}},{},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L1') goPage('ENG_SPEEDS');
+      else if(p==='L2'||p==='L3') flash('GROUND DATA ONLY');
+      else if(p==='L6') goPage('ENG_MAIN'); },
+    page:(d)=>{ if(d===-1) goPage('ENG_INPUTMENU'); } },
+  ENG_FUEL:{ build:()=>({title:ttlE(), subtitle:'INPUT MON - FUEL SYSTEM', page:'1/1', rows:[
+      {kv:{k:'FUEL FLOW', v:'588.0 PPH'}},
+      {kv:{k:'FMV POS', v:'5.69 %'}},
+      {kv:{k:'FILTER BYPASSED', v:'NO'}},{},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('ENG_INPUTMENU'); } },
+  ENG_OIL:{ build:()=>({title:ttlE(), subtitle:'INPUT MON - OIL SYSTEM', page:'1/1', rows:[
+      {kv:{k:'PEO (OIL PRESS)', v:'?? PSI'}},
+      {kv:{k:'TEO (OIL TEMP)', v:'+18 C'}},
+      {kv:{k:'FILTER BYPASSED', v:'NO'}},
+      {kv:{k:'CHIP DETECTED', v:'NO'}},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('ENG_INPUTMENU'); } },
+  ENG_SPEEDS:{ build:()=>({title:ttlE(), subtitle:'INPUT MONITORING', page:'1/1', rows:[
+      {kv:{k:'N1', v:'0.0 %'}},{kv:{k:'N2', v:'0.0 %'}},
+      {kv:{k:'EGT', v:'+18 C'}},{kv:{k:'TAT', v:'+19 C'}},
+      {kv:{k:'TLA', v:'0.0 DEG'}},{l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('ENG_INPUTMENU'); } },
 
-  /* ---------------- GENERIC SUBSYSTEM BITE ---------------- */
-  SUB_MAIN:{ build:()=>{ const s=SUBSYS[state.bite.sub]; return {title:s.name+' BITE', subtitle:'MAIN MENU', page:'1/1', rows:[
-      {l:{val:'<RECENT FAULTS', cls:''}},
-      {l:{val:'<FAULT HISTORY', cls:''}},
+  /* =========================================================
+     7) APU BITE
+     ========================================================= */
+  APU_MAIN:{ build:()=>({title:'APU BITE TEST', subtitle:'MAIN MENU', page:'1/1', rows:[
+      {l:{val:'<CURRENT STATUS', cls:''}},
+      {l:{val:'<FAULT HISTORY', cls:''}, r:{val:'MAINT HISTORY>', cls:''}},
+      {l:{val:'<IDENT/CONFIG', cls:''}},
+      {l:{val:'<INPUT MONITORING', cls:''}},{},
+      {l:{val:'<INDEX', cls:'cyan'}, r:{val:'OIL QUANTITY>', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L1') waitGoto('APU_CURR','ECU POWER-UP TEST\nUP TO 10 SECONDS',2200,'APU BITE TEST');
+      else if(p==='L2') goPage('APU_FH');
+      else if(p==='R2') flash('NO MAINT HISTORY');
+      else if(p==='L3') goPage('APU_IDENT');
+      else if(p==='L4') goPage('APU_INPUT');
+      else if(p==='R6') goPage('APU_OIL');
+      else if(p==='L6') goPage('MAINT'); } },
+  APU_CURR:{ build:()=>({title:'APU BITE TEST', subtitle:'CURRENT STATUS  1/20', page:'', rows:[
+      {center:{txt:'MAINTENANCE LIGHT', cls:'warn'}},
+      {kv:{k:'MAINT MSG', v:'49-91227'}},
+      {center:{txt:'LOW OIL QUANTITY'}},
+      {center:{txt:'CYCLE APU MASTER SW'}},{},
+      {l:{val:'<INDEX', cls:'cyan'}, r:{val:'OTHER OCCUR>', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('APU_MAIN'); else if(p==='R6') flash('NO OTHER OCCURRENCES'); } },
+  APU_FH:{ build:()=>({title:'APU BITE TEST', subtitle:'FAULT HISTORY  1/11', page:'', rows:[
+      {kv:{k:'FAULT LIGHT', v:''}},
+      {kv:{k:'MAINT MSG', v:'49-41011'}},
+      {center:{txt:'NO FLAME SHUTDOWN'}},
+      {kv:{k:'APR 13  1149Z', v:'STARTS OLD 0'}},{},
+      {l:{val:'<INDEX', cls:'cyan'}, r:{val:'OTHER OCCUR>', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('APU_MAIN'); else if(p==='R6') flash('NO OTHER OCCURRENCES'); } },
+  APU_IDENT:{ build:()=>({title:'APU BITE TEST', subtitle:'IDENT/CONFIG  1/2', page:'', rows:[
+      {kv:{k:'APU MODEL', v:'GTCP131-9B'}},
+      {kv:{k:'ECU S/W P/N', v:'3886219-3'}},
+      {kv:{k:'SERIAL NO', v:'P-XXXX'}},{},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('APU_MAIN'); } },
+  APU_INPUT:{ build:()=>({title:'APU BITE TEST', subtitle:'INPUT MONITORING', page:'1/1', rows:[
+      {kv:{k:'EGT', v:'--- C'}},
+      {kv:{k:'RPM', v:'0 %'}},
+      {kv:{k:'INLET T', v:'+19 C'}},
+      {kv:{k:'BLEED VALVE', v:'CLOSED'}},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('APU_MAIN'); } },
+  APU_OIL:{ build:()=>({title:'APU BITE TEST', subtitle:'OIL QUANTITY', page:'1/1', rows:[
+      {kv:{k:'LEVEL', v:'FULL'}},
+      {kv:{k:'FULL  (~171 HRS)', v:''}},
+      {kv:{k:'ADD   (~60 HRS)', v:''}},
+      {kv:{k:'LOW   (~19 HRS)', v:''}},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('APU_MAIN'); } },
+
+  /* =========================================================
+     8) FQIS BITE
+     ========================================================= */
+  FQIS_MAIN:{ build:()=>({title:'FQIS BITE TEST', subtitle:'MAIN MENU', page:'1/2', arrows:{r:true}, rows:[
+      {l:{val:'<CURRENT STATUS', cls:''}},
+      {l:{val:'<INFLIGHT FAULTS /', cls:''}},
+      {l:{val:'  FAULT HISTORY', cls:''}},
       {l:{val:'<GROUND TEST', cls:''}},
       {l:{val:'<IDENT/CONFIG', cls:''}},
-      {},
-      {l:{val:'<INDEX', cls:'cyan'}}]}; },
-    lsk:(p)=>{ if(p==='L1') waitGoto('SUB_RECENT','COLLECTING DATA',800,SUBSYS[state.bite.sub].name+' BITE');
-      else if(p==='L2') waitGoto('SUB_FH','COLLECTING DATA',800,SUBSYS[state.bite.sub].name+' BITE');
-      else if(p==='L3') goPage('SUB_GROUND');
-      else if(p==='L4') goPage('SUB_CFG');
-      else if(p==='L6') goPage('MAINT'); } },
-  SUB_RECENT:{ build:()=>({title:SUBSYS[state.bite.sub].name+' BITE', subtitle:'RECENT FAULTS', page:'1/1', rows:[
-      {},{center:{txt:'NO RECENT FAULTS'}},{},{},{},{l:{val:'<INDEX', cls:'cyan'}}]}),
-    lsk:(p)=>{ if(p==='L6') goPage('SUB_MAIN'); } },
-  SUB_FH:{ build:()=>({title:SUBSYS[state.bite.sub].name+' BITE', subtitle:'FAULT HISTORY', page:'1/1', rows:[
-      {},{center:{txt:'NO FAULT HISTORY'}},{center:{txt:'STORED'}},{},{},{l:{val:'<INDEX', cls:'cyan'}}]}),
-    lsk:(p)=>{ if(p==='L6') goPage('SUB_MAIN'); } },
-  SUB_GROUND:{ build:()=>{ const s=SUBSYS[state.bite.sub]; return {title:s.name+' BITE', subtitle:'GROUND TEST', page:'1/1', rows:[
-      {l:{val:'<'+s.test, cls:''}},{},{},{},{},
-      {l:{val:'<INDEX', cls:'cyan'}}]}; },
-    lsk:(p)=>{ if(p==='L1') runSubTest(); else if(p==='L6') goPage('SUB_MAIN'); } },
-  SUB_CFG:{ build:()=>{ const s=SUBSYS[state.bite.sub];
-      const rows=s.cfg.map(c=>({kv:{k:c[0], v:c[1]}})); while(rows.length<5) rows.push({});
-      rows.push({l:{val:'<INDEX', cls:'cyan'}}); return {title:s.name+' BITE', subtitle:'IDENT/CONFIG', page:'1/1', rows:rows.slice(0,6)}; },
-    lsk:(p)=>{ if(p==='L6') goPage('SUB_MAIN'); } },
-  SUB_RESULT:{ build:()=>({title:SUBSYS[state.bite.sub].name+' BITE', subtitle:SUBSYS[state.bite.sub].test, rows:[
-      {},{center:{txt:'TEST COMPLETE', cls:'grn'}},{center:{txt:'NO FAULTS FOUND'}},{},{},{l:{val:'<INDEX', cls:'cyan'}}]}),
-    lsk:(p)=>{ if(p==='L6') goPage('SUB_GROUND'); } }
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L1') goPage('FQIS_CURR');
+      else if(p==='L2') goPage('FQIS_INFLT');
+      else if(p==='L4') goPage('FQIS_GND');
+      else if(p==='L5') goPage('FQIS_IDENT');
+      else if(p==='L6') goPage('MAINT'); },
+    page:(d)=>{ if(d===1) goPage('FQIS_MAIN2'); } },
+  FQIS_MAIN2:{ build:()=>({title:'FQIS BITE TEST', subtitle:'MAIN MENU', page:'2/2', arrows:{l:true}, rows:[
+      {l:{val:'<INPUT MONITORING', cls:''}},{},{},{},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L1') goPage('FQIS_INPUT'); else if(p==='L6') goPage('MAINT'); },
+    page:(d)=>{ if(d===-1) goPage('FQIS_MAIN'); } },
+  FQIS_CURR:{ build:()=>({title:'FQIS BITE TEST', subtitle:'CURRENT STATUS', page:'1/1', rows:[
+      {center:{txt:'NO FAULTS'}},{},
+      {kv:{k:'ATA 28-41101', v:'TANK 1 BLANK'}},
+      {kv:{k:'ATA 28-41309', v:'PROCESSOR FAIL'}},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('FQIS_MAIN'); } },
+  FQIS_INFLT:{ build:()=>({title:'FQIS BITE TEST', subtitle:'INFLIGHT FAULTS', page:'1/1', rows:[
+      {l:{val:'<SORTED BY FAULT', cls:''}},
+      {l:{val:'<SORTED BY LEG', cls:''}},{},
+      {center:{txt:'NO INFLIGHT FAULTS'}},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('FQIS_MAIN');
+      else if(p==='L1'||p==='L2') flash('NO INFLIGHT FAULTS'); } },
+  FQIS_GND:{ build:()=>({title:'FQIS BITE TEST', subtitle:'GROUND TEST', rows:[
+      {center:{txt:'CAUTION', cls:'warn'}},
+      {center:{txt:'DO NOT RUN TEST'}},
+      {center:{txt:'WHILE REFUELING AIRPLANE'}},
+      {center:{txt:'RUN GROUND TEST?'}},{},
+      {l:{val:'<NO', cls:'cyan'}, r:{val:'YES>', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('FQIS_MAIN');
+      else if(p==='R6') runBite('FQIS BITE TEST','GROUND TEST','FQIS GROUND TEST',2400,['TEST COMPLETE','NO FAULTS'],'FQIS_MAIN'); } },
+  FQIS_IDENT:{ build:()=>({title:'FQIS BITE TEST', subtitle:'IDENT/CONFIG', page:'1/1', rows:[
+      {kv:{k:'PROCESSOR P/N', v:'XXXSUEXXX'}},
+      {kv:{k:'SOFTWARE', v:'XXXX'}},
+      {kv:{k:'CONFIG', v:'737-800'}},{},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('FQIS_MAIN'); } },
+  FQIS_INPUT:{ build:()=>({title:'FQIS BITE TEST', subtitle:'INPUT MONITORING', page:'1/1', rows:[
+      {kv:{k:'TANK 1', v:'12500 LB'}},
+      {kv:{k:'CENTER', v:'0 LB'}},
+      {kv:{k:'TANK 2', v:'12500 LB'}},{},{},
+      {l:{val:'<INDEX', cls:'cyan'}}]}),
+    lsk:(p)=>{ if(p==='L6') goPage('FQIS_MAIN'); } }
 };
 
 /* =========================================================
