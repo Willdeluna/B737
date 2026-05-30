@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B737-800 FAULT REFERENCE</title>
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --panel:#121008;
+    --amber:#ff9500;
+    --amber-dim:#b86a00;
+    --amber-soft:#d98a2b;
+    --green:#39ff8c;
+    --line:#3a2c10;
+    --hi:#ffd27f;
+    --hi-bg:#2a1d05;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--amber);
+    font-family:"Courier New",Consolas,"Lucida Console",monospace;
+    font-size:15px;
+    line-height:1.5;
+    -webkit-font-smoothing:none;
+    padding-bottom:60px;
+  }
+  /* CRT scanlines + flicker vignette */
+  body::before{
+    content:"";
+    position:fixed;inset:0;
+    background:repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,0) 0px,
+      rgba(0,0,0,0) 2px,
+      rgba(0,0,0,0.18) 3px,
+      rgba(0,0,0,0.18) 3px
+    );
+    pointer-events:none;
+    z-index:9999;
+  }
+  body::after{
+    content:"";
+    position:fixed;inset:0;
+    background:radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(0,0,0,0.55) 100%);
+    pointer-events:none;
+    z-index:9998;
+  }
+  header{
+    position:sticky;top:0;z-index:50;
+    background:linear-gradient(180deg,#160f02 0%,#0a0a0a 100%);
+    border-bottom:2px solid var(--amber-dim);
+    padding:14px 20px 12px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.8);
+  }
+  h1{
+    margin:0;
+    font-size:20px;
+    letter-spacing:3px;
+    color:var(--amber);
+    text-shadow:0 0 8px rgba(255,149,0,0.55);
+  }
+  .sub{
+    font-size:11px;letter-spacing:4px;color:var(--amber-dim);
+    margin-top:2px;
+  }
+  .reference-only{
+    display:inline-block;
+    margin-top:8px;
+    border:1px solid var(--amber-dim);
+    color:var(--hi);
+    padding:2px 10px;
+    font-size:11px;letter-spacing:3px;
+  }
+  .searchwrap{
+    margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  }
+  #search{
+    flex:1;min-width:220px;
+    background:#000;
+    border:1px solid var(--amber-dim);
+    color:var(--amber);
+    font-family:inherit;font-size:15px;
+    padding:9px 12px;
+    outline:none;
+    letter-spacing:1px;
+    box-shadow:inset 0 0 8px rgba(255,149,0,0.15);
+  }
+  #search:focus{border-color:var(--amber);box-shadow:inset 0 0 12px rgba(255,149,0,0.35);}
+  #search::placeholder{color:var(--amber-dim);}
+  #count{font-size:12px;color:var(--amber-dim);letter-spacing:1px;white-space:nowrap;}
+  .main{max-width:980px;margin:0 auto;padding:18px 20px 0;}
+  .entry{
+    border:1px solid var(--line);
+    border-left:3px solid var(--amber-dim);
+    background:var(--panel);
+    margin:0 0 14px;
+    padding:0;
+    transition:border-color .15s;
+  }
+  .entry:hover{border-left-color:var(--amber);}
+  .entry-title{
+    cursor:pointer;
+    margin:0;
+    padding:12px 16px;
+    font-size:15px;
+    font-weight:bold;
+    letter-spacing:1px;
+    color:var(--hi);
+    text-shadow:0 0 4px rgba(255,210,127,0.3);
+    display:flex;justify-content:space-between;align-items:center;gap:12px;
+    user-select:none;
+  }
+  .entry-title .tog{color:var(--amber-dim);font-size:13px;flex-shrink:0;}
+  .entry-body{
+    padding:0 16px 14px 16px;
+    color:var(--amber-soft);
+    font-size:14px;
+  }
+  .entry.collapsed .entry-body{display:none;}
+  .entry-body p{margin:0 0 8px;}
+  .note{
+    border:1px dashed var(--amber-dim);
+    padding:8px 12px;
+    margin:6px 0 8px;
+    color:var(--hi);
+    background:rgba(255,149,0,0.05);
+    font-style:italic;
+  }
+  /* circuit breaker / panel code chips */
+  .cb{
+    color:#000;
+    background:var(--amber);
+    padding:0 5px;
+    border-radius:2px;
+    font-weight:bold;
+    letter-spacing:.5px;
+    box-shadow:0 0 6px rgba(255,149,0,0.4);
+    white-space:nowrap;
+  }
+  .mel{
+    color:var(--green);
+    text-shadow:0 0 5px rgba(57,255,140,0.4);
+    font-weight:bold;
+  }
+  table.cbtable{
+    border-collapse:collapse;width:100%;margin:6px 0;
+    font-size:13px;
+  }
+  table.cbtable td{
+    border:1px solid var(--line);
+    padding:5px 10px;
+  }
+  table.cbtable td:first-child{color:var(--hi);font-weight:bold;width:38%;}
+  .grp{
+    color:var(--amber);font-weight:bold;letter-spacing:2px;
+    border-bottom:1px solid var(--amber-dim);
+    margin:4px 0 8px;padding-bottom:3px;font-size:13px;
+  }
+  .controls{
+    display:flex;gap:14px;font-size:12px;letter-spacing:1px;margin-top:8px;
+  }
+  .controls a{color:var(--amber-dim);text-decoration:none;border-bottom:1px dotted var(--amber-dim);cursor:pointer;}
+  .controls a:hover{color:var(--amber);border-color:var(--amber);}
+  .noresult{text-align:center;color:var(--amber-dim);padding:40px;letter-spacing:2px;}
+  .indexbar{
+    display:flex;flex-wrap:wrap;gap:4px;margin:0 auto 10px;max-width:980px;padding:0 20px;
+  }
+  .indexbar a{
+    color:var(--amber-dim);text-decoration:none;font-size:12px;font-weight:bold;
+    border:1px solid var(--line);padding:2px 7px;letter-spacing:1px;
+  }
+  .indexbar a:hover{color:#000;background:var(--amber);border-color:var(--amber);}
+  footer{
+    text-align:center;color:var(--amber-dim);font-size:11px;letter-spacing:2px;
+    padding:24px 20px;margin-top:20px;border-top:1px solid var(--line);
+  }
+  mark{background:var(--hi-bg);color:var(--hi);text-shadow:0 0 6px rgba(255,210,127,0.5);}
+</style>
+</head>
+<body>
+<header>
+  <h1>B737-800 FAULT REFERENCE</h1>
+  <div class="sub">LINE MAINTENANCE TROUBLESHOOTING &amp; C/B GUIDE</div>
+  <span class="reference-only">FOR REFERENCE ONLY</span>
+  <div class="searchwrap">
+    <input id="search" type="text" placeholder="SEARCH FAULT, SYSTEM, OR C/B (e.g. P6-3, STICK SHAKER, MEL)..." autocomplete="off" spellcheck="false">
+    <span id="count"></span>
+  </div>
+  <div class="controls">
+    <a id="expandAll">[+] EXPAND ALL</a>
+    <a id="collapseAll">[−] COLLAPSE ALL</a>
+  </div>
+</header>
+
+<div class="indexbar" id="indexbar"></div>
+
+<div class="main" id="list"></div>
+
+<footer>FOR REFERENCE ONLY &nbsp;·&nbsp; VERIFY ALL ACTIONS AGAINST CURRENT AMM / FIM / MEL &nbsp;·&nbsp; B737-800</footer>
+
+<script>
+/* Fault data. body supports raw HTML. C/B codes & MEL refs auto-highlighted on render. */
+const FAULTS = [
+  {t:"ACARS (AOC FAULT)", k:"airlines ops control software",
+   b:`<p>On P18-2 (Captain's) D12 (VHF 3) and on P6-1 (F/O): E5 (Printer), E7 (ACARS MU AC), E8 (CMU AC 1), E9 (CMU/ACARS DC).</p>`},
+
+  {t:"AIRSHOW", k:"entertainment video",
+   b:`<p>P6-1 PNL C/B C-5 (Entertain Vid Control DC).</p>`},
+
+  {t:"ALL 3 ZONE TEMP LIGHT ON", k:"crew can placard cabin temp",
+   b:`<p>Crew can placard. MEL's 21-00-19 A or B (Pass Cabin Temp) and 21-00-21 A or B (Control Sys).</p>`},
+
+  {t:"ALIGN HUD DISPLAYED ON LOWER RT", k:"head up display detent",
+   b:`<p>HUD needs to be properly aligned — must be moved to its detent for the message to go away (may need a wiggle when in detent).</p>`},
+
+  {t:"APU ANNUNCIATOR LIGHT ON AFTER APU IS OFF", k:"master caution logic reset",
+   b:`<p>Master Caution Logic Reset: P6-3 PNL C/B B-12 and B-13, and on P6-4 F-14 (Batt Bus Ind).</p>
+       <p>Reset F-14 <b>first</b>, followed by B-12 and B-13.</p>`},
+
+  {t:"APU BLEED AIR NOT AVAILABLE", k:"bleed switch pack starter",
+   b:`<p>Cycle APU bleed air switch several times. Put demand on APU air by either running a pack — or if that doesn't work, try engaging eng starter.</p>`},
+
+  {t:"AUTO PILOT PRESS TO RESET WON'T RESET", k:"888 course select window afcs mcp",
+   b:`<p>Sometimes ASO has "888" in course select window.</p>
+       <p>P18-1 D5 (AFCS MCP DC1)<br>P6-2 C3 (AFCS MCP DC 2)</p>`},
+
+  {t:"AUTO PRESSURE FAIL", k:"pressurization mode selector altn",
+   b:`<p>Momentarily re-position mode selector to ALTN then back to AUTO. If light extinguishes, fault has been corrected. If not, MCO 21-00-14A thru Y.</p>`},
+
+  {t:"AUTO THROTTLE ARM LIGHT INOP", k:"dimmer capt panel knob",
+   b:`<p>Check dimmer on left side of CAPT PNL — upper left knob.</p>`},
+
+  {t:"AUTOFLIGHT – ALERT PANEL LIGHT – LIGHTS DO NOT TEST", k:"nte test switch warn light bat",
+   b:`<p>NTE does not test with AL on test switch — test from switch on panel. First try having crew switch power from Ground to APU or APU Ground to APU.</p>
+       <p>P6-2 B1 (AFCS Sys B Warn Light Bat)<br>P18-1 D1 (AFCS Sys A Warn Light Bat)</p>`},
+
+  {t:"AUX BATT CHARGER INOP", k:"battery discharge standby power bite test electrical",
+   b:`<p>Turn off external power and APU power. Turn Standby Power switch to "BAT" position and watch for the battery discharge light to illuminate.</p>
+       <p>Draw down the battery for 4–5 minutes, then take Standby Power switch back to AUTO and put APU or external power back on. You should see the battery charging on the electrical panel.</p>
+       <p>When you do the BITE test on the electrical panel, the "AUX BATT CHARGER INOP" should change to "AUX BATT CHARGER INOP I" and you should be able to reset the message — and the ELEC light should go out.</p>`},
+
+  {t:"CABIN LIGHTS INOP", k:"fwd fa panel master push button",
+   b:`<p>On FWD F/A PNL the switch labeled "MASTER" operates opposite of what they think — the push button light should be <b>extinguished</b> for cabin light.</p>`},
+
+  {t:"CABIN LIGHTS ON -800 UNCONTROLLABLE FROM AFT POSITION", k:"avionics bay zone control dual",
+   b:`<p>In main avionics bay, switch next to compartment lighting labeled "ZONE CONTROL" must be in DUAL position.</p>`},
+
+  {t:"CDS MSG (COMMON DISPLAY SYSTEM)", k:"31-00-08b maint msg deu holdup",
+   b:`<p><span class="mel">31-00-08B</span> – CDS, MAINT-MSG.</p>
+       <p>P6-1 D10 (Display DEU 1 Holdup), D9 (Display DEU 2 Holdup), D11 (Display DEU 2 PRI)<br>P18-2 D5 (Display DEU 1 PRI)</p>
+       <p>Reset D9 &amp; D10 — 30 seconds later D5 &amp; D11.</p>`},
+
+  {t:"CPDLC", k:"controller pilot data link printer cmu logon kusa",
+   b:`<p>On P6-1 (F/O): E5 (Printer), E7 (ACARS MU AC — only on 701-706), E8 (CMU AC 1), E9 (CMU/ACARS DC).</p>
+       <p>To log in: select ATC on MCDU, LOGON TO: <b>KUSA</b>, FLT NO: DAL____ (flt number). If tail number not autopopulated, enter manually. Select LOGON SEND.</p>`},
+
+  {t:"DFDAU – DIGITAL FLIGHT DATA ACQUISITION UNIT", k:"amm 31-31-22 flight recorder",
+   b:`<p>AMM 31-31-22 R/R.</p>
+       <p>P18-2 C9 (Flight Recorder AC), C10 (Flight Recorder DC).</p>`},
+
+  {t:"DISPLAYS", k:"display source select deu inbd outbd ctr mco",
+   b:`<p>Try switching the Display Source Select on OVHD PNL — ALL ON 1 or ALL ON 2. Possible DEU 1 or 2 problem.</p>
+       <p>CAPT: INBD P18-2 D-3, OUTBD P18-2 D-4.<br>
+       F/O's: INBD P6-1 E-11, OUTBD P6-13 E-10.<br>
+       CTR UPPER P18-2 D-2, CTR LWR P6-13 E-12. (You can MCO CTR LWR.)</p>`},
+
+  {t:"ELEC FAULT", k:"ovhd elec panel rotary nuisance hard fault bite",
+   b:`<p>Select TEST on OVHD ELEC PNL — both rotary switches. Push main button and hold thru test to see fault, then push once more to clear.</p>
+       <p>If msg clears, fault was a nuisance fault. If it comes back, it's a hard fault.</p>`},
+
+  {t:"ENG CONTROL LIGHT", k:"eec both alternate dispatch mel 73-00-11",
+   b:`<p>Must be extinguished for dispatch. Switch EEC's to BOTH ON ALTERNATE — if light extinguishes use MEL 73-00-11.</p>`},
+
+  {t:"ENGINE IGNITORS", k:"ignition right left",
+   b:`<p>No. 1 ENG: P18-2 A1 RT and A3 LEFT.<br>No. 2 ENG: P6-2 D4 RT and D6 LEFT.</p>`},
+
+  {t:"ENG START WITH LOW AIR PRESSURE", k:"apu cross bleed start n2 rotation isolation valve packs",
+   b:`<p>(APU or cross bleed start.) Reference 737 Volume 1, Section Normal Procedure, Section 20 AMP Procedure, Engine Start Procedure, Note page NP.20.37: "Eng Start with lower than N2 rotation 25% – above 20%".</p>
+       <p>High wind — point eng into wind.<br>Isolation valve — OPEN position.<br>Packs OFF.</p>`},
+
+  {t:"EQUIPMENT COOLING EXHAUST OFF LIGHT", k:"low flow detect reset fim fan control",
+   b:`<p>Low Flow Detect Reset — C/B P18-3 A17 Supply, A18 Exhaust.</p>
+       <p>FIM 21-27-00-810-805 for ALT, FIM 21-27-00-810-806 for normal. P4 C14 and C15 for fan control normal and altn.</p>`},
+
+  {t:"FDR OFF LIGHT ILLUMINATED", k:"flight data recorder",
+   b:`<p>P18-2 C9 (FDR AC), C10 (FDR DC).</p>`},
+
+  {t:"FEEL DIFF PRESS MSG", k:"feel differential pressure",
+   b:`<p>P6-2 C10.</p>`},
+
+  {t:"FEEL DIFF PRESS LIGHT ILLUMINATES MOMENTARILY", k:"fim 27-31-00-810-815 control column hydraulic elevator",
+   b:`<p>Ref. FIM Task 27-31-00-810-815.</p>
+       <div class="note">During the pre-flight checkout, if there is rapid movement of the Control Column, it is possible for the Hydraulic System A and B Pressure to fluctuate. This is due to the high flow conditions required for movement of the Elevator and can cause a momentary illumination of the FEEL DIFF PRESS Light. These intermittent illuminations, which are generally less than 0.5 seconds, are considered normal.</div>`},
+
+  {t:"FLIGHT ATTENDANT PANELS UNRESPONSIVE", k:"attendant panels isa amber led integrated switch assembly",
+   b:`<p>Reset C/B P6-1 D12 (Attendant Panels). Check the amber LED at the upper left corner of the Integrated Switch Assembly (ISA). The LED should turn on in the first 2 seconds after power-up, then turn off.</p>`},
+
+  {t:"FLT CONTROL CK ON TAXI OUT WITH REPORTED BUMP", k:"pcu response control inputs era 382460-14",
+   b:`<p>Apply slow &amp; deliberate pressure on the controls to detect anomalies. If input is made too fast during the check, a bump will be felt due to a delayed PCU response to control inputs. Per ERA 382460-14.</p>`},
+
+  {t:"FMC RESET", k:"fmc-1 fmc-2 fmcs bite cmpr mcdu xfr cmptr",
+   b:`<p class="grp">FMC-1</p>
+       <table class="cbtable">
+         <tr><td>P18-2 B10</td><td>FMCS BITE DC</td></tr>
+         <tr><td>P18-2 A6</td><td>FMCS CMPR 1</td></tr>
+         <tr><td>P18-2 A7</td><td>FMCS MCDU 1</td></tr>
+         <tr><td>P6-1 E15</td><td>FMCS XFR</td></tr>
+       </table>
+       <p class="grp">FMC-2</p>
+       <table class="cbtable">
+         <tr><td>P18-2 B10</td><td>FMCS BITE DC</td></tr>
+         <tr><td>P6-1 D16</td><td>FMCS CMPTR 2</td></tr>
+         <tr><td>P6-1 D15</td><td>FMCS MCDU 2</td></tr>
+         <tr><td>P6-1 E15</td><td>FMCS XFR</td></tr>
+       </table>`},
+
+  {t:"IFE PASS CODE", k:"inflight entertainment madc exit",
+   b:`<p>MADC pass code type – EXIT.</p>`},
+
+  {t:"IMBAL MESSAGE DISPLAYED", k:"fuel imbalance tank 1000 lbs 200 lbs",
+   b:`<p>The IMBAL message comes on if there is a difference of <b>1000 lbs (454 kg)</b> between the No. 1 tank and No. 2 tank. The message goes off again when the difference between the two tanks decreases to <b>less than 200 lbs (91 kg)</b>. The imbalance condition must exist for 60 seconds before the IMBAL message shows.</p>`},
+
+  {t:"LAVS WILL NOT FLUSH", k:"lavatory vacuum waste blower controller",
+   b:`<p>P18-3 D19 (Vacuum Waste)<br>P91 F2 Waste Blower<br>P91 C11 Waste Controller</p>`},
+
+  {t:"MACH TRIM FAIL", k:"master caution reset single channel ac dc",
+   b:`<p>Will it reset on Master Caution Reset? If so, it's a single channel fault — crew can't placard.</p>
+       <p>Try reset C/B's P18-1 C4 &amp; D4, P6-2 C1 &amp; B2 (Mach Trim AC/DC).</p>`},
+
+  {t:"MAP FAIL DISPLAYED IN FLT DIRECTOR", k:"fms nav data cross loaded both on mel 34-00-36c",
+   b:`<p>FMS Nav data not cross loaded. Switch to BOTH ON L or R. MEL 34-00-36C.</p>`},
+
+  {t:"MASTER CAUTION RESET (READ ALL)", k:"annunciator bus bat associated fault open cb fuel flt cont apu elec hyd anti-ice air cond overhead door eng irs ovht det",
+   b:`<p>On P6-3: B12 (Master Caution Annunciator Bus 1), B13 (Master Caution Annunciator Bat).</p>
+       <p class="grp">THEN FOR ASSOCIATED FAULT, OPEN THESE C/B'S</p>
+       <table class="cbtable">
+         <tr><td>FUEL</td><td>P6-3 C11 (MC Annunciator Cont)</td></tr>
+         <tr><td>FLT CONT</td><td>P6-3 C11 (MC Annunciator Cont 1)</td></tr>
+         <tr><td>APU</td><td>P6-4 F14 (DC Bus Indication Bat)</td></tr>
+         <tr><td>ELEC</td><td>P6-3 F14 (DC Bus Indication), F16 (Bat Bus Indication)</td></tr>
+         <tr><td>HYD</td><td>P6-3 C11 (MC Annunciator Cont 1)</td></tr>
+         <tr><td>ANTI-ICE</td><td>P6-3 C12 (Master Caution Annunciator Cont 2)</td></tr>
+         <tr><td>AIR COND</td><td>P6-3 C13 (Master Caution Annunciator Cont 3)</td></tr>
+         <tr><td>OVERHEAD</td><td>P6-3 C14 (Master Caution Annunciator Cont 4)</td></tr>
+         <tr><td>DOOR</td><td>P6-3 C12 (Master Caution Annunciator Cont 2)</td></tr>
+         <tr><td>ENG</td><td>P6-3 C13 (Master Caution Annunciator Cont 3)</td></tr>
+         <tr><td>IRS</td><td>P6-3 C14 (Master Caution Annunciator Cont 4)</td></tr>
+         <tr><td>OVHT/DET</td><td>P6-2 A21 (Fire Protection Det Master Warn &amp; Cont)</td></tr>
+       </table>
+       <div class="note">**CLOSE associated system and THEN close B12, B13**</div>`},
+
+  {t:"MMR / GPS", k:"multimode receiver",
+   b:`<p>MMR 1 – A-2 P18-2<br>MMR 2 – A-13 on P6-1</p>`},
+
+  {t:"OVERHEAD ANNUNCIATOR LIGHT ON WITH NO OVERHEAD INDICATOR LIGHT ON", k:"lights test master caution mco mel 33-00-16a",
+   b:`<p>Do all-lights test — all lights check good. If light can be extinguished with the Master Caution Light Reset, then light can be MCO'd per MEL 33-00-16A.</p>`},
+
+  {t:"PACK ZONE TEMP CONTROL", k:"flt deck fwd cab pass cabin pack light 21-00-32",
+   b:`<p>21-00-21A (Flt Deck) or 21-00-19A (Fwd Cab yellow plac) or B (Pass Cabin). PACK LIGHT 21-00-32 — light must extinguish when Master Caution Reset tried.</p>`},
+
+  {t:"PARKING BRAKE BLEEDING DOWN", k:"amm hold test system a system b tsm",
+   b:`<p>See AMM for Parking Brake Hold Test. Make sure to turn off System A 10 seconds prior to turning off System B. See notes in TSM.</p>`},
+
+  {t:"PFD NOT SHOWING SPEED OR ALTITUDE INFORMATION", k:"adiru primary flight display capt fo",
+   b:`<p>Reset associated ADIRU C/B.</p>
+       <p>F/O: ADIRU Right ECX P6-1 C15<br>CAPT: ADIRU Left EXC P18-2 E8</p>`},
+
+  {t:"PSEU LIGHT", k:"proximity switch master caution land gear aural warn 32-00-17b",
+   b:`<p>If able to reset by pressing Master Caution Light, crew can placard 32-00-17B. Also check C/B C18 (Land Gear T/Off Warning Cut Out) and C/B D18 (Landing Gear Aural Warn). Reset C/B on P6-3.</p>`},
+
+  {t:"PSEU BITE WILL NOT POWER UP", k:"access door switch",
+   b:`<p>Reset C.B. D-1 and D-2 on P6-3. If unsuccessful, reset access door switch.</p>`},
+
+  {t:"PWS (PREDICTIVE WINDSHEAR)", k:"weather radar",
+   b:`<p>P6-1 D13 (Weather Radar RT).</p>`},
+
+  {t:"REVERSER FAULT LIGHT ON OVERHEAD", k:"cycle reverser eau eng accy unit stowed retracted",
+   b:`<p>If off gate, cycle reverser 5 times. If on ground, reset fault on EAU (Eng Accy Unit). Fault must be reset in condition of fault (stowed/retracted).</p>`},
+
+  {t:"THRUST REVERSER LIGHT ILLUMINATED WITH ENGINES RUNNING", k:"cycle reversers eau amm 78-31-00-700-804-f00",
+   b:`<p>Cycle reversers 6 times to clear. If no help, clear faults on EAU (Eng Accy Unit). Ref AMM 78-31-00-700-804-F00. Fault must be cleared.</p>`},
+
+  {t:"SATCOM NO LINK", k:"sdu cmu acars",
+   b:`<p>Reset P18-2 D13, or E11 or E13 (SATCOM SDU), and P6-1 E8 (CMU-A AC), E9 (CMU/ACARS DC).</p>`},
+
+  {t:"SEAT EMPOWER", k:"pc power flt attd panel nef 24-5-01",
+   b:`<p>P6-12 A-5 &amp; A-8 (PC PWR). There is also a switch on FLT ATTD PNL. NEF 24-5-01.</p>`},
+
+  {t:"SPEEDBRAKE DO NOT ARM LIGHT ILLUMINATED AFTER A/G MODE ENGAGED", k:"spoiler pcu sov sys b",
+   b:`<p>Reset P6-2 A5 (Spoiler PCU SOV Sys B).</p>`},
+
+  {t:"SPOILERS DO NOT ARM", k:"off gate flaps extended stall warning test boeing known problem",
+   b:`<p>(Typically occurs off gate when flaps extended.) Perform #2 Stall Warning Test up to 3 times to clear message. Boeing published as a known problem — A/C OK to continue service if message clears.</p>`},
+
+  {t:"SPOILER WON'T STOW FLUSH TO WING", k:"aileron trim",
+   b:`<p>Check aileron trim &amp; set to 0 prior to T/S.</p>`},
+
+  {t:"STAB TRIM NOSE DOWN INOP (UP WORKS OK)", k:"flaps up main elec trim authority 3.95 14.5 units crack flaps",
+   b:`<p>W/flaps up, normal condition per Pilots Ops Manual (legacy, has since been removed) 9.20.8 states — trim authority for each mode of trim is limited to: Main Elec Trim flaps retracted 3.95 to 14.5 units.</p>
+       <p>So, crack flaps down out of detent &amp; trim will operate normally.</p>`},
+
+  {t:"STAB TRIM WILL NOT TRIM (EITHER UP OR DOWN)", k:"column centered neutral inhibited pressurize hydraulics",
+   b:`<p>Make sure column is centered prior to attempting to trim (trim may be inhibited if not in neutral position). Pressurize hydraulics to hold column in neutral position.</p>`},
+
+  {t:"START VALVES", k:"start valve light iso valve open",
+   b:`<p>Do they get a start valve light? ISO valve open? C/B No.1 P18-2 B-8, No.2 P6-2 C-4.</p>`},
+
+  {t:"STICK SHAKER DOES NOT RUN FOR REQUIRED 5 SECONDS / DOES NOT TEST", k:"leading edge flaps droop asymmetry smyd deu shakers amm 27-32-00-710-801",
+   b:`<p>AMM notes: if hydraulic power is off, the leading edge flaps can droop enough to cause a leading edge asymmetry signal — this can cause a failure of the Stall Warning System test. Ref. AMM 27-32-00-710-801.</p>
+       <p class="grp">IF NO HELP — RESET SMYD, DEU &amp; SHAKERS</p>
+       <table class="cbtable">
+         <tr><td>P18-2 E4</td><td>Stick Shaker LEFT</td></tr>
+         <tr><td>P6-1 B6</td><td>Stick Shaker RIGHT</td></tr>
+         <tr><td>P18-2 E5</td><td>SMYD-1 CMPTR DC</td></tr>
+         <tr><td>P18-2 E6</td><td>SMYD-1 SNSR EXC AC</td></tr>
+         <tr><td>P6-1 B5</td><td>SMYD-2 CMPTR DC</td></tr>
+         <tr><td>P6-1 B4</td><td>SMYD-2 SNSR EXC AC</td></tr>
+         <tr><td>P18-2 D5</td><td>Display DEU PRI</td></tr>
+         <tr><td>P6-1 D10</td><td>Display DEU 1 Holdup</td></tr>
+         <tr><td>P6-1 D9</td><td>Display DEU 2 Holdup</td></tr>
+         <tr><td>P6-1 D11</td><td>Display DEU 2 PRI</td></tr>
+       </table>`},
+
+  {t:"TCAS", k:"traffic collision avoidance",
+   b:`<p>P18-1 B6 (TCAS).</p>`},
+
+  {t:"VHF 3 DATA NOT DISPLAYED", k:"tune frequency indicator 136 118 mhz volume 2",
+   b:`<p>Tune slowly above maximum (136.00 MHz) or below minimum (118.000 MHz) — frequency displays "DATA" in the frequency indicator. Ref. Volume 2, 5.1, P. 257.</p>`},
+
+  {t:"BLUE APU MAINTENANCE LIGHT ILLUMINATED", k:"low oil quantity starter diode dal amm 49-61-00 bite deactivation",
+   b:`<p>Blue maint light on DAL A/C should be deactivated for low qty, utilizing AMM 49-61-00. If deactivated/not low oil, starter diode is suspect.</p>
+       <div class="note">Ref: Boeing 737 [AMM] 49-61-00-040-801 — Low Oil Quantity BITE Deactivation.</div>`}
+];
+
+/* ---- render & highlight ---- */
+const list = document.getElementById('list');
+const searchEl = document.getElementById('search');
+const countEl = document.getElementById('count');
+const indexbar = document.getElementById('indexbar');
+
+// auto-wrap circuit-breaker / panel codes in chips (only outside existing tags)
+function highlightCB(html){
+  // match codes like P6-3, P18-2, P91, P4, B-12, C/B references handled within text nodes
+  // We process by splitting on tags to avoid breaking HTML.
+  return html.replace(/(P\d{1,2}-\d{1,2}|P91|P4)\s+([A-F]-?\d{1,2})/g,
+    '<span class="cb">$1 $2</span>');
+}
+// highlight MEL/MCO/AMM/FIM numeric refs in green
+function highlightMEL(html){
+  return html.replace(/\b(MEL|MCO|AMM|FIM|NEF|ERA|FIM Task)\s+([0-9][0-9A-Z\-\.\/ ]{3,}?)(?=[\.\,\)\s<]|$)/g,
+    '<span class="mel">$1 $2</span>');
+}
+
+function process(html){
+  return highlightMEL(highlightCB(html));
+}
+
+function buildEntries(){
+  list.innerHTML='';
+  const letters = new Set();
+  FAULTS.forEach((f,i)=>{
+    const div=document.createElement('div');
+    div.className='entry collapsed';
+    div.dataset.search=(f.t+' '+(f.k||'')+' '+f.b).toUpperCase();
+    div.dataset.title=f.t.toUpperCase();
+    const firstChar=f.t[0].toUpperCase();
+    if(/[A-Z]/.test(firstChar)) letters.add(firstChar);
+    div.id='e'+i;
+    div.innerHTML=
+      '<h2 class="entry-title"><span class="ttl">'+f.t+'</span><span class="tog">[+]</span></h2>'+
+      '<div class="entry-body">'+process(f.b)+'</div>';
+    const head=div.querySelector('.entry-title');
+    head.addEventListener('click',()=>{
+      div.classList.toggle('collapsed');
+      div.querySelector('.tog').textContent=div.classList.contains('collapsed')?'[+]':'[−]';
+    });
+    list.appendChild(div);
+  });
+  // index bar A-Z
+  [...letters].sort().forEach(L=>{
+    const a=document.createElement('a');
+    a.textContent=L;
+    a.addEventListener('click',()=>{
+      const target=[...document.querySelectorAll('.entry')]
+        .find(e=>e.style.display!=='none' && e.dataset.title.startsWith(L));
+      if(target){target.classList.remove('collapsed');target.querySelector('.tog').textContent='[−]';target.scrollIntoView({behavior:'smooth',block:'start'});}
+    });
+    indexbar.appendChild(a);
+  });
+  updateCount();
+}
+
+function updateCount(){
+  const visible=[...document.querySelectorAll('.entry')].filter(e=>e.style.display!=='none').length;
+  countEl.textContent=visible+' / '+FAULTS.length+' ITEMS';
+}
+
+function clearMarks(){
+  document.querySelectorAll('mark').forEach(m=>{
+    m.replaceWith(document.createTextNode(m.textContent));
+  });
+}
+
+searchEl.addEventListener('input',()=>{
+  const q=searchEl.value.trim().toUpperCase();
+  const entries=document.querySelectorAll('.entry');
+  entries.forEach(e=>{
+    const match=!q || e.dataset.search.includes(q);
+    e.style.display=match?'':'none';
+    if(q && match){
+      e.classList.remove('collapsed');
+      e.querySelector('.tog').textContent='[−]';
+    } else if(!q){
+      e.classList.add('collapsed');
+      e.querySelector('.tog').textContent='[+]';
+    }
+  });
+  // no-result message
+  let nr=document.getElementById('noresult');
+  const anyVisible=[...entries].some(e=>e.style.display!=='none');
+  if(!anyVisible){
+    if(!nr){nr=document.createElement('div');nr.id='noresult';nr.className='noresult';nr.textContent='-- NO MATCH FOUND --';list.appendChild(nr);}
+  } else if(nr){nr.remove();}
+  updateCount();
+});
+
+document.getElementById('expandAll').addEventListener('click',()=>{
+  document.querySelectorAll('.entry').forEach(e=>{e.classList.remove('collapsed');e.querySelector('.tog').textContent='[−]';});
+});
+document.getElementById('collapseAll').addEventListener('click',()=>{
+  document.querySelectorAll('.entry').forEach(e=>{e.classList.add('collapsed');e.querySelector('.tog').textContent='[+]';});
+});
+
+buildEntries();
+</script>
+</body>
+</html>
