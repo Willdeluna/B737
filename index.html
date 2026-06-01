@@ -4076,6 +4076,14 @@ let filterToCurrentImageDots = false;
     let _stateSyncRemoteSha = null;  // sha of last fetched state.json (for safe update)
     let _stateSyncLoaded = false;
     let _stateSyncInFlight = false;
+    // Serialize pushes. Every pushStateToGitHub() call queues behind the
+    // previous one and then runs with the LATEST local state. Without this,
+    // a push that arrived while another was in flight used to just schedule a
+    // delayed retry and resolve immediately — so an awaited syncNow() reported
+    // "synced" even though the change (e.g. a just-saved link preset) never
+    // actually reached GitHub. That was the "presets don't save to other
+    // devices / come back missing after refresh" bug.
+    let _stateSyncChain = Promise.resolve();
 
     function collectLocalState() {
       const state = { keys: {} };
@@ -4210,12 +4218,11 @@ let filterToCurrentImageDots = false;
       }
     }
 
-    async function pushStateToGitHub() {
-      if (_stateSyncInFlight) {
-        // Already pushing; schedule another push when this one finishes.
-        scheduleStateSync(2000);
-        return;
-      }
+    // Internal worker: performs exactly one push attempt sequence. Callers
+    // should use pushStateToGitHub() (below), which serializes these so two
+    // pushes never run at once and a queued push always captures the latest
+    // local state.
+    async function _runPushOnce() {
       const token = getStoredToken();
       if (!token) {
         // No token = no write access. Previously this silently returned,
@@ -4321,6 +4328,24 @@ let filterToCurrentImageDots = false;
       } finally {
         _stateSyncInFlight = false;
       }
+    }
+
+    // Public push entry point. Serializes calls: if a push is already in
+    // flight, this one waits for it to finish and then runs a FRESH push that
+    // re-reads localStorage — so whatever was saved most recently (a link, a
+    // preset, a reorder) is guaranteed to be captured and committed. The
+    // returned promise resolves/rejects for THIS specific push, so callers
+    // that `await syncNow()` know the change really reached GitHub (or get a
+    // real error to show the user). A lone push with no contention behaves
+    // exactly like the old direct call.
+    function pushStateToGitHub() {
+      const runFresh = () => _runPushOnce();
+      // Run regardless of whether the previous push resolved or rejected.
+      const result = _stateSyncChain.then(runFresh, runFresh);
+      // Keep the chain alive even if this push errors, so one failure doesn't
+      // wedge every future push.
+      _stateSyncChain = result.then(() => {}, () => {});
+      return result;
     }
 
     // Fetch the remote state.json without applying it to localStorage. Used
