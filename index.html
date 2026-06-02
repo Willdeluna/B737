@@ -566,6 +566,15 @@
       border: 1px solid #ff8c8c;
     }
 
+    .dispatch-placard {
+      display: block;
+      margin-top: 5px;
+      color: #ff5a5a;
+      font-weight: bold;
+      font-size: 0.82rem;
+      letter-spacing: 0.3px;
+    }
+
     .formatted-text {
       white-space: pre-wrap;
       line-height: 1.5;
@@ -2759,7 +2768,7 @@ let filterToCurrentImageDots = false;
         html += `
           <tr id="mel-row-${item.id}" class="${rowClass}">
             <td data-label="Chapter" class="chapter-col">${chapter === 999 ? "—" : chapter}</td>
-            <td data-label="Fault Code">${escapeHtml(item.fault_code || "—")}</td>
+            <td data-label="Fault Code">${escapeHtml(item.fault_code || "—")}${item.dispatch_placard ? `<span class="dispatch-placard">${escapeHtml(item.dispatch_placard)}</span>` : ""}</td>
             <td data-label="Kind">${escapeHtml(item.kind || "—")}</td>
             <td data-label="MEL" class="mel-col">${escapeHtml(item.mel_reference || "—")}${renderDispatchPill(item.dispatch_label)}</td>
             <td data-label="Resets">${renderResetsBlock(item.troubleshooting_steps)}</td>
@@ -5465,10 +5474,10 @@ let filterToCurrentImageDots = false;
         let data, error;
         ({ data, error } = await supabaseClient
           .from("all_faults737")
-          .select(BASE_COLUMNS + ", dispatch_label"));
+          .select(BASE_COLUMNS + ", dispatch_label, dispatch_placard"));
 
-        if (error && /dispatch_label/i.test(error.message || "")) {
-          console.warn("dispatch_label column not present yet; loading without it.");
+        if (error && /dispatch_label|dispatch_placard/i.test(error.message || "")) {
+          console.warn("dispatch_label/dispatch_placard column not present yet; loading without it.");
           ({ data, error } = await supabaseClient
             .from("all_faults737")
             .select(BASE_COLUMNS));
