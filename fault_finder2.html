@@ -335,9 +335,13 @@ function localEditTime(){ try{ const v=localStorage.getItem(LS_EDIT); return v?(
    browser (own LS key) and is never written into the HTML or state. */
 const GH = (function(){
   const PAT_KEY="b737_p5_gh_pat", CFG_KEY="b737_p5_gh_cfg";
-  const DEFAULTS={owner:"willdeluna",repo:"willdeluna.github.io",path:"fault_finder_state.json",branch:"main"};
+  const DEFAULTS={owner:"willdeluna",repo:"B737",path:"fault_finder_state.json",branch:"main"};
   let cfg=Object.assign({},DEFAULTS), pat="";
   try{ const c=localStorage.getItem(CFG_KEY); if(c) cfg=Object.assign({},DEFAULTS,JSON.parse(c)); }catch(e){}
+  /* migrate: early versions defaulted to a repo that doesn't exist (willdeluna.github.io),
+     so every push silently 404'd. Repoint those devices at the real repo. */
+  if(cfg.repo==="willdeluna.github.io"){ cfg.repo=DEFAULTS.repo;
+    try{ localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }catch(e){} }
   try{ pat=localStorage.getItem(PAT_KEY)||""; }catch(e){}
   let lastSha=null, pushTimer=null, busy=false;
 
@@ -383,7 +387,19 @@ const GH = (function(){
     setStatus("● Pulling from GitHub…","busy");
     try{
       const r=await fetch(apiUrl()+"?ref="+encodeURIComponent(cfg.branch)+"&t="+Date.now(),{headers:headers(),cache:"no-store"});
-      if(r.status===404){ lastSha=null; setStatus("● Connected — no state file yet (PUSH to create)","ok"); return; }
+      if(r.status===404){
+        /* 404 here is ambiguous: missing file in a real repo, OR the repo/branch
+           doesn't exist. Probe the repo so a misconfig doesn't masquerade as 'connected'. */
+        lastSha=null;
+        try{
+          const rr=await fetch("https://api.github.com/repos/"+cfg.owner+"/"+cfg.repo,{headers:headers(),cache:"no-store"});
+          if(rr.ok){ setStatus("● Connected — no state file yet (edit + SAVE to create it)","ok"); }
+          else if(rr.status===404){ setStatus("● Repo not found: "+cfg.owner+"/"+cfg.repo+" — fix it in GITHUB SYNC","err"); }
+          else if(rr.status===401){ setStatus("● Bad token (401) — re-enter it in GITHUB SYNC","err"); }
+          else { setStatus("● Cannot reach repo (HTTP "+rr.status+")","err"); }
+        }catch(e){ setStatus("● Connected — no state file yet (edit + SAVE to create it)","ok"); }
+        return;
+      }
       if(!r.ok) throw new Error("HTTP "+r.status);
       const j=await r.json(); lastSha=j.sha;
       const st=JSON.parse(b64dec(j.content));
@@ -409,7 +425,7 @@ const GH = (function(){
         content:b64enc(JSON.stringify(buildState(),null,1)), branch:cfg.branch };
       if(lastSha) body.sha=lastSha;
       const r=await fetch(apiUrl(),{method:"PUT",headers:headers(),body:JSON.stringify(body)});
-      if(!r.ok){ const t=await r.text(); throw new Error("HTTP "+r.status+(r.status===401?" (bad token)":r.status===403?" (no write access)":"")); }
+      if(!r.ok){ const t=await r.text(); throw new Error("HTTP "+r.status+(r.status===401?" (bad token)":r.status===403?" (no write access)":r.status===404?" (repo/path not found — check GITHUB SYNC)":"")); }
       const j=await r.json(); lastSha=j.content?j.content.sha:lastSha;
       setStatus("● Synced ✓ ("+new Date().toLocaleTimeString()+")","ok");
     }catch(err){ setStatus("● Sync failed — "+err.message+" (still saved locally)","err"); }
