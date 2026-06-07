@@ -643,7 +643,41 @@
    "breakers": "F1: Pressurization Control LCD Lighting\nF3: Pressurization Control AUTO 1\nF5: Pressurization Control AUTO 2\nF7: Pressurization Control Indication",
    "mel": "21-00-13 Cabin Differential Pressure Indicator",
    "full": "AUTO FAIL\n\n✅ What causes the AUTO FAIL light to illuminate?\nThe AUTO FAIL light comes on when:\nThe active automatic pressurization controller fails or cannot properly control cabin pressure.\n\n🔧 More detailed breakdown (line maintenance level)\nThe 737 has two automatic pressurization controllers:\n• Controller A\n• Controller B\nOnly one is active at a time (the other is standby, swapped each flight)\nThe AUTO FAIL light illuminates when:\n• The active controller loses its ability to automatically control cabin pressure, due to:\n• Internal controller failure\n• Invalid or missing inputs\n• Inability to drive the outflow valve correctly\n\n⚠️ Typical triggers\n1. Loss of critical input data\nThe controller needs:\n• Air/ground signal\n• Flight altitude\n• Landing altitude\n• Rate inputs\nIf these become invalid → controller declares a fault\n\n2. Controller disagreement / failure\n• Active controller output doesn’t match expected behavior\n• Internal fault detection trips\n\n3. Outflow valve control problem\n• Controller commands movement, but:\n• Valve doesn’t respond correctly\n• Feedback mismatch can trigger AUTO FAIL\n\n✈️ What happens operationally?\nWhen AUTO FAIL comes on:\n• The system automatically switches to ALTN (alternate controller)\n• You’ll typically see:\n• AUTO FAIL (amber)\n• ALTN (green) illuminate (as shown in your image)\nThis indicates:\n• Primary auto mode failed\n• Alternate auto mode is now controlling pressurization\n\n🧠 Important distinction\nLight\nMeaning\nAUTO FAIL\nActive auto controller failed\nALTN (green)\nBackup controller is now in control\nMANUAL\nManual mode selected or required if both\nfail\n\n🚩 When it becomes a bigger problem\nIf you also get:\n• Both auto systems fail\n• Or ALTN cannot control properly\n→ You must go to MANUAL pressurization control\n\n🔍 Quick AMT takeaway\nIf you see AUTO FAIL:\n• Think:\n\n• Active press controller fault (A or B depending on selection)\n• Confirm:\n• System switched to ALTN\n• Possible write-ups:\n• Pressurization controller fault\n• Input/feedback signal issue\n• Outflow valve control issue\n\nOFF SCHED DESCEND\n\n🚨 OFF SCHED DESCENT light — what it means\nThe OFF SCHED DESCENT (amber) light illuminates when:\nThe cabin altitude is higher than what the pressurization system expects for that phase of\nflight.\nIn simple terms:   The airplane thinks the cabin is not pressurizing properly\nOr it is climbing faster than planned\n\n🔧 How the system determines this\nThe pressurization controller compares:\n• Actual cabin altitude\n• Programmed cabin profile (based on:\n• Flight altitude (FLT ALT)\n• Landing altitude (LAND ALT)\n• Ground/air logic)\nIf:\nCabin altitude is too high compared to the scheduled profile\nOFF SCHED DESCENT light comes on\n\n⚠️ Common causes (line maintenance mindset)\n1. Loss of bleed air / insufficient pressurization source\n• Engine bleed issue (PRSOV, bleed trip, etc.)\n• APU bleed issues\n• Packs not supplying enough air\nCabin begins to climb → triggers light\n\n2. Outflow valve open too much\n• Valve stuck open or leaking\n• Controller not positioning valve correctly\nAir escapes faster than it should\n\n3. Pressurization controller problem\n• Improper schedule calculation\n• Wrong inputs (FLT ALT / LAND ALT mis-set)\n\n4. High aircraft climb rate\n• Airplane climbs faster than pressurization system can keep up\nTemporary OFF SCHED DESCENT can occur\n\n5. Door or fuselage leak\n• Poor seal or structural leak\n• Less common but important\n\n✈️ What you’ll typically see with it\nIn the exact panel you showed:\n• OFF SCHED DESCENT (amber) illuminated\n• Possibly:\n• Increasing cabin altitude\n• Higher than normal cabin climb rate\n• If it worsens:\n\n• May lead to cabin altitude warning horn\n\n🔑 Key difference vs AUTO FAIL\nLight\nMeaning\nAUTO FAIL\nController failed"
+  },
+  "bleed_trip_off": {
+   "purpose": "The BLEED TRIP OFF light (amber) means the bleed air valve (PRSOV) has automatically closed",
+   "causes": [
+    "Duct Overtemperature (most common with your panel)",
+    "Overpressure",
+    "Valve/control malfunction",
+    "Task 36-10-00-810-809",
+    "BLEED TRIP OFF Light ON - Fault Isolation",
+    "Possible Causes (Succinct):",
+    "1) Precooler System",
+    "PCCV not modulating / stuck closed",
+    "390° / 450° sensors out of tolerance, stuck, or plugged / Kiss seal damaged / FOD / airflow blockage / Precooler airflow blocked or degraded performance",
+    "2) High Stage System",
+    "HSV stuck open",
+    "3) Sense Lines",
+    "Obstructed or kinked (PCCV–390° sensor, PRSOV–450° sensor)",
+    "4) BAR (M1180)",
+    "Pressure switch actuates below spec",
+    "5) 490°F Overtemp Switch (S20/S21)",
+    "Out of calibration (low trip) or wiring short",
+    "6) ACAU (M324/M1455)",
+    "Internal short or faulty relay",
+    "7) Air Conditioning Module (P5-10)",
+    "Internal short",
+    "8) Wiring",
+    "Shorts to overpressure/overtemp switches",
+    "9) Engine Wiring Harness (MW0311)",
+    "Connector backshell shorting; known faulty P/Ns (325-029-901-0 / -902-0), SB 72-0262 applicable"
+   ],
+   "bite": "",
+   "breakers": "",
+   "mel": "",
+   "full": "🚨 BLEED TRIP OFF Light (Amber) — What it means on the 737\nOn the panel you provided, both L and R BLEED TRIP OFF lights are illuminated, along with:\n• WING-BODY OVERHEAT\n• PACK lights\nThat combination tells a very clear story.\n\n✅ Definition\nThe BLEED TRIP OFF light (amber) means the bleed air valve (PRSOV) has automatically closed\ndue to a protection trip.\n\n🔧 What actually “tripped”\nThe system has protection for:\n• Overpressure\n• Overtemperature (overheat)\nWhen either occurs:   The system commands the PRSOV closed   Bleed air flow is shut off\nBLEED TRIP OFF light comes on\n\n⚠️ What causes BLEED TRIP OFF\n1. 🔥 Duct Overtemperature (most common with your panel)\n• Detected by wing-body overheat sensors\n• You already have:\n• WING-BODY OVERHEAT lights ON\nThis is a direct trigger\n\n2. 📈 Overpressure\n• Duct pressure exceeds limit (~60–65 psi range)\n• Often caused by:\n• PRSOV fail open (not regulating)\nThis is where your earlier question ties in directly\n\n3. ⚙️ Valve/control malfunction\n• PRSOV not responding correctly\n• System trips as a protective measure\n\n🔁 What happens after the trip\nWhen BLEED TRIP OFF activates:\n1.   PRSOV closes\n2.   Bleed air supply is cut\n3.   PACKS shut down → PACK lights come ON\n4.   Pressurization capability reduced\n\n🧩 Tie ALL your lights together (this is key)\nYour panel shows:\n• WING-BODY OVERHEAT\n• BLEED TRIP OFF\n• PACK lights\nThis is a textbook chain reaction:\n\nBleed air too hot or too high pressure\n↓\nWING-BODY OVERHEAT sensed\n↓\nSystem trips PRSOV closed\n↓\nBLEED TRIP OFF light\n↓\nPacks lose bleed air\n↓\nPACK lights ON\n\n🧠 Line maintenance interpretation\nIf you see BLEED TRIP OFF:\nAsk yourself:\n• Did overheat happen?\n• YES (in your case)\n→ Root cause likely:\n• Overtemp condition\n• Possibly PRSOV regulation problem\n\n🔄 Reset function\nYou have the TRIP RESET button on the panel.\nWhat it does:\n• Attempts to reopen the bleed valve\n\nWhat to watch for:\n• Reset works and stays normal → Possible transient condition\n• Trips again immediately → Active fault:\n• Duct still too hot\n• Overpressure still present\n• PRSOV malfunction\n\n🔑 Important distinction\nLight\nMeaning\nBLEED TRIP OFF\nValve was forced closed by protection\nlogic\nBLEED OFF (\nCrew manually turned bleed off\n“TRIP” = automatic protection\n“OFF” = manual selection\n\n⚡ Real-world shortcut\nBLEED TRIP OFF = the system protected itself from damaging conditions\n\n✅ Summary\n• BLEED TRIP OFF (amber) = PRSOV automatically shut due to:\n• Overheat\n• Overpressure\n• Leads to:\n• Loss of bleed air\n• Pack shutdown\n• In your image:   Root issue is overheat condition (likely driven by bleed regulation\nproblem or duct issue)\n\n💡 Big-picture takeaway\nWith ALL your lights together, the most likely scenario is:\nBleed air problem (possibly PRSOV over-regulation or duct issue) caused overheat →\ntriggered trip → shut down packs\n\nZONE TEMP"
   }
  },
- "updated": "2026-06-07T19:43:50.691Z"
+ "updated": "2026-06-07T19:51:16.275Z"
 }
