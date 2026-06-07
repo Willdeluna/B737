@@ -414,7 +414,11 @@ const GH = (function(){
   }
 
   async function push(){
-    if(!configured()){ return; }
+    if(!configured()){
+      setStatus("⚠ NOT SYNCING — no GitHub token on this device. Open GITHUB SYNC, paste your token, tap SAVE + CONNECT.","err");
+      return;
+    }
+    if(!navigator.onLine){ setStatus("⚠ Offline — saved locally, will sync when back online.","err"); return; }
     if(busy){ queuePush(); return; }
     busy=true; setStatus("● Syncing…","busy");
     try{
@@ -433,7 +437,10 @@ const GH = (function(){
   }
 
   function queuePush(){
-    if(!configured()) return;
+    if(!configured()){
+      setStatus("⚠ NOT SYNCING — no GitHub token on this device. Open GITHUB SYNC + connect.","err");
+      return;
+    }
     if(!navigator.onLine){ refreshStatus(); return; }
     setStatus("● Saving… will sync","busy");
     clearTimeout(pushTimer);
