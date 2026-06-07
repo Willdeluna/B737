@@ -29,6 +29,11 @@ body{display:flex;flex-direction:column}
 .btn.on{background:var(--amber);color:#000;font-weight:bold}
 .btn.danger{border-color:#8a2b22;color:#ff7a6e}
 .btn.danger:hover{background:#2a0c08;border-color:var(--red)}
+.ghlbl{display:block;color:var(--amber);font-size:9px;letter-spacing:1px;margin:8px 0 3px;text-transform:uppercase}
+.ghin{width:100%;background:#0a0701;border:1px solid var(--amber-dim);color:#ffd9b3;border-radius:3px;
+  padding:5px 7px;font:inherit;font-size:11px;box-sizing:border-box}
+.ghin:focus{border-color:var(--amber);outline:none;box-shadow:0 0 6px rgba(254,112,2,.3)}
+#ghstatus.ok{color:var(--green)} #ghstatus.busy{color:var(--amber-glow)} #ghstatus.err{color:var(--red)}
 #search{background:#0a0703;border:1px solid var(--amber-dim);color:var(--amber);font:inherit;font-size:11px;
   padding:5px 8px;border-radius:3px;width:150px;outline:none}
 #search:focus{border-color:var(--amber);box-shadow:0 0 6px rgba(254,112,2,.3)}
@@ -250,6 +255,29 @@ body{display:flex;flex-direction:column}
     <button class="btn danger" id="bResetData">RESET CONTENT</button>
   </div>
   <div style="margin-top:6px;color:var(--amber-dim);font-size:10px">EXPORT DATA saves every field (descriptions, causes, BITE, CBs, MEL, boxes) as one JSON to back up or move between machines.</div>
+
+  <div class="eh" style="margin-top:14px">GITHUB SYNC</div>
+  <div id="ghstatus" style="margin:4px 0 8px;font-size:11px;letter-spacing:.5px;color:var(--amber-dim)">● Local only — edits stay on THIS device until you connect below</div>
+  <div style="font-size:10px;color:var(--amber-dim);margin-bottom:6px">Pushes box + content edits to a state file in your repo so every device loads the same data. Token is stored only in this browser, never inside the file.</div>
+  <label class="ghlbl">FINE-GRAINED TOKEN (PAT)</label>
+  <input class="ghin" id="gh_pat" type="password" placeholder="github_pat_… (Contents: Read & Write)" autocomplete="off" spellcheck="false">
+  <label class="ghlbl">OWNER / REPO</label>
+  <div class="row" style="gap:6px">
+    <input class="ghin" id="gh_owner" placeholder="owner" spellcheck="false" style="flex:1">
+    <input class="ghin" id="gh_repo" placeholder="repo" spellcheck="false" style="flex:1.4">
+  </div>
+  <label class="ghlbl">STATE FILE PATH</label>
+  <input class="ghin" id="gh_path" placeholder="fault_finder_state.json" spellcheck="false">
+  <label class="ghlbl">BRANCH</label>
+  <input class="ghin" id="gh_branch" placeholder="main" spellcheck="false">
+  <div class="row" style="margin-top:8px">
+    <button class="btn" id="bGhSave">SAVE + CONNECT</button>
+    <button class="btn" id="bGhPull">PULL NOW</button>
+    <button class="btn" id="bGhPush">PUSH NOW</button>
+  </div>
+  <div class="row" style="margin-top:6px">
+    <button class="btn danger" id="bGhForget">FORGET TOKEN</button>
+  </div>
 </div>
 
 <div id="hint">scroll = zoom · drag = pan · hover a light = info · click = full troubleshooting</div>
@@ -292,6 +320,186 @@ function saveContentFor(key){ const e={}; CFIELDS.forEach(f=>e[f]=DATA[key][f]);
   try{ localStorage.setItem(LS_CONTENT, JSON.stringify(contentOv)); }catch(err){} }
 function isEdited(key){ return !!contentOv[key]; }
 
+/* ---------- local-edit timestamp ----------
+   Records when THIS device last made an edit. A silent pull on load
+   compares this against the pulled state's `updated` time so a stale
+   remote can't overwrite an edit that hasn't finished syncing up yet. */
+const LS_EDIT="b737_p5_last_local_edit";
+function markLocalEdit(){ try{ localStorage.setItem(LS_EDIT, new Date().toISOString()); }catch(e){} }
+function localEditTime(){ try{ const v=localStorage.getItem(LS_EDIT); return v?(Date.parse(v)||0):0; }catch(e){ return 0; } }
+
+/* ====================  GITHUB SYNC  ====================
+   localStorage stays the instant cache. A state file in the repo
+   ({boxes:{}, content:{}}) is the authoritative backing store so
+   every device loads the same edits. Token lives only in this
+   browser (own LS key) and is never written into the HTML or state. */
+const GH = (function(){
+  const PAT_KEY="b737_p5_gh_pat", CFG_KEY="b737_p5_gh_cfg";
+  /* Detect owner/repo from the URL this tool is served from (e.g.
+     willdeluna.github.io/B737/… → owner "willdeluna", repo "B737").
+     This keeps the fault finder pointed at the SAME repo as the hub it's
+     opened from, which is also the repo the shared token is scoped to. */
+  const HARD={owner:"willdeluna",repo:"B737"};
+  function detectRepo(){
+    try{
+      const m=location.hostname.match(/^([^.]+)\.github\.io$/i);
+      if(m){ const owner=m[1];
+        const seg=location.pathname.split("/").filter(Boolean)[0];
+        const repo=seg||(owner+".github.io");
+        if(owner.toLowerCase()===HARD.owner.toLowerCase() && repo.toLowerCase()===HARD.repo.toLowerCase()) return {owner:HARD.owner,repo:HARD.repo};
+        return {owner,repo};
+      }
+    }catch(e){}
+    return {owner:HARD.owner,repo:HARD.repo};
+  }
+  const det=detectRepo();
+  const DEFAULTS={owner:det.owner,repo:det.repo,path:"fault_finder_state.json",branch:"main"};
+  let cfg=Object.assign({},DEFAULTS), pat="";
+  try{ const c=localStorage.getItem(CFG_KEY); if(c) cfg=Object.assign({},DEFAULTS,JSON.parse(c)); }catch(e){}
+  /* migrate: early versions defaulted to a repo that doesn't exist (willdeluna.github.io),
+     so every push silently 404'd. Repoint those devices at the real repo. */
+  if(cfg.repo==="willdeluna.github.io"){ cfg.repo=DEFAULTS.repo;
+    try{ localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }catch(e){} }
+  try{ pat=localStorage.getItem(PAT_KEY)||""; }catch(e){}
+  /* If this tool has no token of its own, reuse the one the B737 hub already
+     saved (same origin → shared storage). Same repo, same scope, so a token
+     that lets the hub sync also lets the fault finder sync — no double entry. */
+  if(!pat){ try{ pat=sessionStorage.getItem("b737EditorGithubToken")||localStorage.getItem("b737EditorGithubToken")||""; }catch(e){} }
+  let lastSha=null, pushTimer=null, busy=false;
+
+  /* UTF-8 safe base64 (content is full of emoji ✅🔧🟧) */
+  function b64enc(str){ return btoa(unescape(encodeURIComponent(str))); }
+  function b64dec(b64){ return decodeURIComponent(escape(atob(b64.replace(/\n/g,"")))); }
+
+  function configured(){ return !!(pat && cfg.owner && cfg.repo && cfg.path); }
+  function apiUrl(){ return "https://api.github.com/repos/"+cfg.owner+"/"+cfg.repo+"/contents/"+cfg.path; }
+  function headers(){ const h={"Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"}; if(pat) h["Authorization"]="Bearer "+pat; return h; }
+
+  function setStatus(text,cls){ const el=document.getElementById('ghstatus');
+    if(!el)return; el.textContent=text; el.className=cls||""; }
+  function refreshStatus(){
+    if(!navigator.onLine){ setStatus(configured()?"● Offline — saving locally, will sync later":"● Offline — showing last saved copy",""); return; }
+    if(!configured()){ setStatus("● View-only — showing synced data from "+cfg.owner+"/"+cfg.repo+". To EDIT from this device, add a token in GITHUB SYNC.",""); return; }
+    setStatus("● Connected — "+cfg.owner+"/"+cfg.repo+" (can edit + sync)","ok");
+  }
+
+  /* build the authoritative state object from current DATA + overrides */
+  function buildState(){
+    const boxes={}; for(const k in DATA) boxes[k]=DATA[k].boxes;
+    return { boxes:boxes, content:contentOv, updated:new Date().toISOString() };
+  }
+  /* merge a pulled state into DATA + local caches.
+     Returns false (and applies nothing) if THIS device has a local edit
+     newer than the pulled state — protects un-pushed work on load. */
+  function mergeState(st){
+    if(st && st.updated){
+      const local=localEditTime(), remote=Date.parse(st.updated)||0;
+      if(local && remote && local>remote){ return false; }
+    }
+    if(st && st.boxes){ for(const k in st.boxes){ if(DATA[k]){ DATA[k].boxes=st.boxes[k]; overrides[k]=st.boxes[k]; } }
+      try{ localStorage.setItem(LS_KEY, JSON.stringify(overrides)); }catch(e){} }
+    if(st && st.content){ for(const k in st.content){ if(DATA[k]){ CFIELDS.forEach(f=>{ if(f in st.content[k]) DATA[k][f]=st.content[k][f]; });
+        contentOv[k]=st.content[k]; } }
+      try{ localStorage.setItem(LS_CONTENT, JSON.stringify(contentOv)); }catch(e){} }
+    return true;
+  }
+
+  async function pull(silent){
+    if(!(cfg.owner && cfg.repo && cfg.path)){ if(!silent) alert("Set owner/repo first."); return; }
+    setStatus("● Pulling from GitHub…","busy");
+    try{
+      const r=await fetch(apiUrl()+"?ref="+encodeURIComponent(cfg.branch)+"&t="+Date.now(),{headers:headers(),cache:"no-store"});
+      if(r.status===404){
+        /* 404 here is ambiguous: missing file in a real repo, OR the repo/branch
+           doesn't exist. Probe the repo so a misconfig doesn't masquerade as 'connected'. */
+        lastSha=null;
+        try{
+          const rr=await fetch("https://api.github.com/repos/"+cfg.owner+"/"+cfg.repo,{headers:headers(),cache:"no-store"});
+          if(rr.ok){ setStatus("● Connected — no state file yet (edit + SAVE to create it)","ok"); }
+          else if(rr.status===404){ setStatus("● Repo not found: "+cfg.owner+"/"+cfg.repo+" — fix it in GITHUB SYNC","err"); }
+          else if(rr.status===401){ setStatus("● Bad token (401) — re-enter it in GITHUB SYNC","err"); }
+          else { setStatus("● Cannot reach repo (HTTP "+rr.status+")","err"); }
+        }catch(e){ setStatus("● Connected — no state file yet (edit + SAVE to create it)","ok"); }
+        return;
+      }
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      const j=await r.json(); lastSha=j.sha;
+      const st=JSON.parse(b64dec(j.content));
+      if(mergeState(st)===false){
+        setStatus("● Your edits are newer — keeping them, syncing up…","busy");
+        push(); return;
+      }
+      if(typeof buildHotspots==="function") buildHotspots();
+      if(typeof curKey!=="undefined" && curKey && drawer.classList.contains('open') && typeof openDrawer==="function") openDrawer(curKey);
+      setStatus("● Synced ✓ (pulled "+new Date().toLocaleTimeString()+")","ok");
+    }catch(err){ setStatus("● Pull failed — "+err.message,"err"); if(!silent) console.warn("GH pull",err); }
+  }
+
+  async function push(){
+    if(!configured()){
+      setStatus("⚠ NOT SYNCING — no GitHub token on this device. Open GITHUB SYNC, paste your token, tap SAVE + CONNECT.","err");
+      return;
+    }
+    if(!navigator.onLine){ setStatus("⚠ Offline — saved locally, will sync when back online.","err"); return; }
+    if(busy){ queuePush(); return; }
+    busy=true; setStatus("● Syncing…","busy");
+    try{
+      /* always grab the freshest sha to avoid 409 conflicts */
+      try{ const g=await fetch(apiUrl()+"?ref="+encodeURIComponent(cfg.branch)+"&t="+Date.now(),{headers:headers(),cache:"no-store"});
+        if(g.ok){ const gj=await g.json(); lastSha=gj.sha; } else if(g.status===404){ lastSha=null; } }catch(e){}
+      const body={ message:"Update P5 fault finder state "+new Date().toISOString(),
+        content:b64enc(JSON.stringify(buildState(),null,1)), branch:cfg.branch };
+      if(lastSha) body.sha=lastSha;
+      const r=await fetch(apiUrl(),{method:"PUT",headers:headers(),body:JSON.stringify(body)});
+      if(!r.ok){ const t=await r.text(); throw new Error("HTTP "+r.status+(r.status===401?" (bad token)":r.status===403?" (no write access)":r.status===404?" (repo/path not found — check GITHUB SYNC)":"")); }
+      const j=await r.json(); lastSha=j.content?j.content.sha:lastSha;
+      setStatus("● Synced ✓ ("+new Date().toLocaleTimeString()+")","ok");
+    }catch(err){ setStatus("● Sync failed — "+err.message+" (still saved locally)","err"); }
+    finally{ busy=false; }
+  }
+
+  function queuePush(){
+    if(!configured()){
+      setStatus("⚠ NOT SYNCING — no GitHub token on this device. Open GITHUB SYNC + connect.","err");
+      return;
+    }
+    if(!navigator.onLine){ refreshStatus(); return; }
+    setStatus("● Saving… will sync","busy");
+    clearTimeout(pushTimer);
+    pushTimer=setTimeout(push,1500);  /* debounce rapid box drags */
+  }
+
+  function saveConfig(){
+    pat=(document.getElementById('gh_pat').value||"").trim();
+    cfg={ owner:(document.getElementById('gh_owner').value||"").trim()||DEFAULTS.owner,
+          repo:(document.getElementById('gh_repo').value||"").trim()||DEFAULTS.repo,
+          path:(document.getElementById('gh_path').value||"").trim()||DEFAULTS.path,
+          branch:(document.getElementById('gh_branch').value||"").trim()||DEFAULTS.branch };
+    try{ localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }catch(e){}
+    try{ if(pat) localStorage.setItem(PAT_KEY, pat); }catch(e){}
+    fillFields();
+    if(configured()) pull(true); else refreshStatus();
+  }
+  function forgetToken(){ pat=""; try{ localStorage.removeItem(PAT_KEY); }catch(e){}
+    const f=document.getElementById('gh_pat'); if(f)f.value=""; refreshStatus(); }
+  function fillFields(){
+    const set=(id,v)=>{ const el=document.getElementById(id); if(el)el.value=v; };
+    set('gh_owner',cfg.owner); set('gh_repo',cfg.repo); set('gh_path',cfg.path); set('gh_branch',cfg.branch);
+    set('gh_pat', pat?"":""); /* never re-show the token; leave blank, presence shown via status */
+  }
+
+  return {pull,push,queuePush,saveConfig,forgetToken,fillFields,refreshStatus,configured};
+})();
+
+/* hook the existing save paths so every edit also syncs to GitHub */
+const _saveOverrides=saveOverrides;
+saveOverrides=function(){ _saveOverrides(); markLocalEdit(); GH.queuePush(); };
+const _saveContentFor=saveContentFor;
+saveContentFor=function(key){ _saveContentFor(key); markLocalEdit(); GH.queuePush(); };
+
+addEventListener('online',()=>{ GH.refreshStatus(); GH.queuePush(); });
+addEventListener('offline',()=>GH.refreshStatus());
+
 /* ---------- elements ---------- */
 const stage=document.getElementById('stage'), world=document.getElementById('world'),
  img=document.getElementById('panelimg'), hotsEl=document.getElementById('hotspots'),
@@ -319,11 +527,20 @@ stage.addEventListener('wheel',e=>{ e.preventDefault(); const r=stage.getBoundin
 let dragging=false, moved=false, sx,sy, stx,sty;
 let pointers=new Map(), pinchD=0;
 stage.addEventListener('pointerdown',e=>{
-  if(e.target.closest('.hot') && !editMode) return; // let hotspot handle
-  if(e.target.closest('.hot') && editMode) return;
+  // ALWAYS track the pointer (needed so 2-finger pinch works even when a
+  // finger lands on a hotspot — the lights cluster on the right side).
   pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(pointers.size===1){ dragging=true;moved=false; sx=e.clientX;sy=e.clientY;stx=tx;sty=ty;
-    stage.classList.add('grabbing'); stage.setPointerCapture(e.pointerId); }
+  const onHot=!!e.target.closest('.hot');
+  if(pointers.size>=2){
+    // second finger down = pinch. Cancel any single-finger pan and suppress
+    // the tap so lifting off a hotspot doesn't open the drawer.
+    dragging=false; moved=true; stage.classList.remove('grabbing');
+    return;
+  }
+  // first finger only: if it's on a hotspot, let the tap/click through (no pan).
+  if(onHot){ dragging=false; moved=false; return; }
+  dragging=true; moved=false; sx=e.clientX; sy=e.clientY; stx=tx; sty=ty;
+  stage.classList.add('grabbing'); stage.setPointerCapture(e.pointerId);
 });
 stage.addEventListener('pointermove',e=>{
   if(pointers.has(e.pointerId)) pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
@@ -432,7 +649,7 @@ document.getElementById('e_save').onclick=()=>{ const d=DATA[curKey];
   d.breakers=document.getElementById('e_breakers').value.trim();
   d.mel=document.getElementById('e_mel').value.trim();
   d.full=document.getElementById('e_full').value;
-  saveContentFor(curKey); openDrawer(curKey);
+  saveContentFor(curKey); GH.push(); openDrawer(curKey);
 };
 document.getElementById('dclose').onclick=()=>drawer.classList.remove('open');
 
@@ -563,6 +780,14 @@ addEventListener('keydown',e=>{ if(e.key==='Escape'){drawer.classList.remove('op
 });
 
 /* ---------- init ---------- */
+document.getElementById('bGhSave').onclick=()=>GH.saveConfig();
+document.getElementById('bGhPull').onclick=()=>GH.pull(false);
+document.getElementById('bGhPush').onclick=()=>GH.push();
+document.getElementById('bGhForget').onclick=()=>{ if(confirm('Remove the saved GitHub token from this browser?')) GH.forgetToken(); };
+GH.fillFields();
+GH.refreshStatus();
+GH.pull(true);   /* always read latest synced state on load — public repo, no token needed to view */
+
 img.complete ? fit() : img.addEventListener('load',fit);
 addEventListener('resize',()=>{ const wasFit=Math.abs(scale-fitScale)<1e-6; const oldFit=fitScale;
   const r=stage.getBoundingClientRect(); fitScale=Math.min(r.width/IMG_W,r.height/IMG_H);
