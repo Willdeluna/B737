@@ -335,7 +335,25 @@ function localEditTime(){ try{ const v=localStorage.getItem(LS_EDIT); return v?(
    browser (own LS key) and is never written into the HTML or state. */
 const GH = (function(){
   const PAT_KEY="b737_p5_gh_pat", CFG_KEY="b737_p5_gh_cfg";
-  const DEFAULTS={owner:"willdeluna",repo:"B737",path:"fault_finder_state.json",branch:"main"};
+  /* Detect owner/repo from the URL this tool is served from (e.g.
+     willdeluna.github.io/B737/… → owner "willdeluna", repo "B737").
+     This keeps the fault finder pointed at the SAME repo as the hub it's
+     opened from, which is also the repo the shared token is scoped to. */
+  const HARD={owner:"willdeluna",repo:"B737"};
+  function detectRepo(){
+    try{
+      const m=location.hostname.match(/^([^.]+)\.github\.io$/i);
+      if(m){ const owner=m[1];
+        const seg=location.pathname.split("/").filter(Boolean)[0];
+        const repo=seg||(owner+".github.io");
+        if(owner.toLowerCase()===HARD.owner.toLowerCase() && repo.toLowerCase()===HARD.repo.toLowerCase()) return {owner:HARD.owner,repo:HARD.repo};
+        return {owner,repo};
+      }
+    }catch(e){}
+    return {owner:HARD.owner,repo:HARD.repo};
+  }
+  const det=detectRepo();
+  const DEFAULTS={owner:det.owner,repo:det.repo,path:"fault_finder_state.json",branch:"main"};
   let cfg=Object.assign({},DEFAULTS), pat="";
   try{ const c=localStorage.getItem(CFG_KEY); if(c) cfg=Object.assign({},DEFAULTS,JSON.parse(c)); }catch(e){}
   /* migrate: early versions defaulted to a repo that doesn't exist (willdeluna.github.io),
@@ -343,6 +361,10 @@ const GH = (function(){
   if(cfg.repo==="willdeluna.github.io"){ cfg.repo=DEFAULTS.repo;
     try{ localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }catch(e){} }
   try{ pat=localStorage.getItem(PAT_KEY)||""; }catch(e){}
+  /* If this tool has no token of its own, reuse the one the B737 hub already
+     saved (same origin → shared storage). Same repo, same scope, so a token
+     that lets the hub sync also lets the fault finder sync — no double entry. */
+  if(!pat){ try{ pat=sessionStorage.getItem("b737EditorGithubToken")||localStorage.getItem("b737EditorGithubToken")||""; }catch(e){} }
   let lastSha=null, pushTimer=null, busy=false;
 
   /* UTF-8 safe base64 (content is full of emoji ✅🔧🟧) */
@@ -351,14 +373,14 @@ const GH = (function(){
 
   function configured(){ return !!(pat && cfg.owner && cfg.repo && cfg.path); }
   function apiUrl(){ return "https://api.github.com/repos/"+cfg.owner+"/"+cfg.repo+"/contents/"+cfg.path; }
-  function headers(){ return {"Authorization":"Bearer "+pat,"Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"}; }
+  function headers(){ const h={"Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"}; if(pat) h["Authorization"]="Bearer "+pat; return h; }
 
   function setStatus(text,cls){ const el=document.getElementById('ghstatus');
     if(!el)return; el.textContent=text; el.className=cls||""; }
   function refreshStatus(){
-    if(!navigator.onLine && configured()){ setStatus("● Offline — saving locally, will sync later",""); return; }
-    if(!configured()){ setStatus("● Local only — edits stay on THIS device. Open GITHUB SYNC below and tap SAVE + CONNECT.",""); return; }
-    setStatus("● Connected — "+cfg.owner+"/"+cfg.repo,"ok");
+    if(!navigator.onLine){ setStatus(configured()?"● Offline — saving locally, will sync later":"● Offline — showing last saved copy",""); return; }
+    if(!configured()){ setStatus("● View-only — showing synced data from "+cfg.owner+"/"+cfg.repo+". To EDIT from this device, add a token in GITHUB SYNC.",""); return; }
+    setStatus("● Connected — "+cfg.owner+"/"+cfg.repo+" (can edit + sync)","ok");
   }
 
   /* build the authoritative state object from current DATA + overrides */
@@ -383,7 +405,7 @@ const GH = (function(){
   }
 
   async function pull(silent){
-    if(!configured()){ if(!silent) alert("Set token + owner/repo first, then SAVE + CONNECT."); return; }
+    if(!(cfg.owner && cfg.repo && cfg.path)){ if(!silent) alert("Set owner/repo first."); return; }
     setStatus("● Pulling from GitHub…","busy");
     try{
       const r=await fetch(apiUrl()+"?ref="+encodeURIComponent(cfg.branch)+"&t="+Date.now(),{headers:headers(),cache:"no-store"});
@@ -764,7 +786,7 @@ document.getElementById('bGhPush').onclick=()=>GH.push();
 document.getElementById('bGhForget').onclick=()=>{ if(confirm('Remove the saved GitHub token from this browser?')) GH.forgetToken(); };
 GH.fillFields();
 GH.refreshStatus();
-if(GH.configured()) GH.pull(true);   /* authoritative state wins on load; falls back to local cache if offline/unconfigured */
+GH.pull(true);   /* always read latest synced state on load — public repo, no token needed to view */
 
 img.complete ? fit() : img.addEventListener('load',fit);
 addEventListener('resize',()=>{ const wasFit=Math.abs(scale-fitScale)<1e-6; const oldFit=fitScale;
