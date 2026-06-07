@@ -1,0 +1,629 @@
+{
+ "boxes": {
+  "auto_fail": [
+   {
+    "x": 79.22,
+    "y": 75.33,
+    "w": 3.44,
+    "h": 1.14
+   }
+  ],
+  "off_sched_descent": [
+   {
+    "x": 82.72,
+    "y": 75.33,
+    "w": 3.4,
+    "h": 1.14
+   }
+  ],
+  "altn": [
+   {
+    "x": 86.14,
+    "y": 75.26,
+    "w": 3.52,
+    "h": 1.25
+   }
+  ],
+  "manual_press": [
+   {
+    "x": 90.04,
+    "y": 75.26,
+    "w": 3.48,
+    "h": 1.25
+   }
+  ],
+  "pack": [
+   {
+    "x": 80.6,
+    "y": 68.31,
+    "w": 3.4,
+    "h": 1.09
+   },
+   {
+    "x": 88.39,
+    "y": 68.31,
+    "w": 3.4,
+    "h": 1.09
+   }
+  ],
+  "wing_body_overheat": [
+   {
+    "x": 80.6,
+    "y": 69.37,
+    "w": 3.4,
+    "h": 1.11
+   },
+   {
+    "x": 88.39,
+    "y": 69.37,
+    "w": 3.4,
+    "h": 1.11
+   }
+  ],
+  "bleed_trip_off": [
+   {
+    "x": 80.6,
+    "y": 70.46,
+    "w": 3.4,
+    "h": 1.14
+   },
+   {
+    "x": 88.39,
+    "y": 70.46,
+    "w": 3.4,
+    "h": 1.14
+   }
+  ],
+  "zone_temp": [
+   {
+    "x": 78.86,
+    "y": 51.68,
+    "w": 3.44,
+    "h": 1.14
+   },
+   {
+    "x": 84.55,
+    "y": 51.68,
+    "w": 3.44,
+    "h": 1.14
+   },
+   {
+    "x": 90.19,
+    "y": 51.68,
+    "w": 3.44,
+    "h": 1.14
+   }
+  ],
+  "dual_bleed": [
+   {
+    "x": 79.46,
+    "y": 57.53,
+    "w": 3.4,
+    "h": 1.17
+   }
+  ],
+  "ram_door": [
+   {
+    "x": 82.99,
+    "y": 57.58,
+    "w": 3.27,
+    "h": 1.08
+   },
+   {
+    "x": 89.55,
+    "y": 57.58,
+    "w": 3.27,
+    "h": 1.08
+   }
+  ],
+  "hyd_overheat": [
+   {
+    "x": 62.4,
+    "y": 62.77,
+    "w": 3.44,
+    "h": 1.14
+   },
+   {
+    "x": 67.8,
+    "y": 62.77,
+    "w": 3.4,
+    "h": 1.14
+   }
+  ],
+  "hyd_low_press": [
+   {
+    "x": 58.94,
+    "y": 63.86,
+    "w": 3.4,
+    "h": 1.14
+   },
+   {
+    "x": 62.4,
+    "y": 63.86,
+    "w": 3.44,
+    "h": 1.14
+   },
+   {
+    "x": 67.8,
+    "y": 63.86,
+    "w": 3.4,
+    "h": 1.14
+   },
+   {
+    "x": 71.24,
+    "y": 63.86,
+    "w": 3.4,
+    "h": 1.14
+   }
+  ],
+  "window_overheat": [
+   {
+    "x": 59.31,
+    "y": 41.17,
+    "w": 3.44,
+    "h": 1.09
+   },
+   {
+    "x": 62.76,
+    "y": 41.17,
+    "w": 3.44,
+    "h": 1.09
+   },
+   {
+    "x": 67.47,
+    "y": 41.17,
+    "w": 3.44,
+    "h": 1.09
+   },
+   {
+    "x": 70.93,
+    "y": 41.17,
+    "w": 3.44,
+    "h": 1.09
+   }
+  ],
+  "capt_pitot": [
+   {
+    "x": 58.98,
+    "y": 47.34,
+    "w": 3.4,
+    "h": 1.17
+   }
+  ],
+  "l_elev_pitot": [
+   {
+    "x": 58.98,
+    "y": 48.49,
+    "w": 3.4,
+    "h": 1.14
+   }
+  ],
+  "temp_probe": [
+   {
+    "x": 58.98,
+    "y": 50.75,
+    "w": 3.4,
+    "h": 1.14
+   }
+  ],
+  "aux_pitot": [
+   {
+    "x": 70.95,
+    "y": 50.76,
+    "w": 3.4,
+    "h": 1.14
+   }
+  ],
+  "reverser": [
+   {
+    "x": 60.85,
+    "y": 23.45,
+    "w": 3.44,
+    "h": 1.14
+   },
+   {
+    "x": 69.58,
+    "y": 23.45,
+    "w": 3.4,
+    "h": 1.14
+   }
+  ],
+  "engine_control": [
+   {
+    "x": 59.12,
+    "y": 26.22,
+    "w": 3.44,
+    "h": 1.14
+   },
+   {
+    "x": 71.2,
+    "y": 26.2,
+    "w": 3.5,
+    "h": 1.2
+   }
+  ],
+  "pass_oxy": [
+   {
+    "x": 67.58,
+    "y": 32.82,
+    "w": 3.44,
+    "h": 1.14
+   }
+  ],
+  "gps": [
+   {
+    "x": 33.42,
+    "y": 26.93,
+    "w": 5.46,
+    "h": 1.17
+   }
+  ],
+  "pseu": [
+   {
+    "x": 21.87,
+    "y": 37.2,
+    "w": 3.4,
+    "h": 1.14
+   }
+  ],
+  "irs_on_dc": [
+   {
+    "x": 32.77,
+    "y": 28.89,
+    "w": 4.66,
+    "h": 1.14
+   },
+   {
+    "x": 41.58,
+    "y": 28.89,
+    "w": 3.4,
+    "h": 1.14
+   }
+  ],
+  "irs_dc_fail": [
+   {
+    "x": 32.77,
+    "y": 30,
+    "w": 3.4,
+    "h": 1.17
+   },
+   {
+    "x": 41.58,
+    "y": 30,
+    "w": 3.4,
+    "h": 1.17
+   }
+  ],
+  "irs_fault": [
+   {
+    "x": 29.38,
+    "y": 30,
+    "w": 3.36,
+    "h": 1.17
+   },
+   {
+    "x": 38.12,
+    "y": 30.01,
+    "w": 3.4,
+    "h": 1.17
+   }
+  ],
+  "elt": [
+   {
+    "x": 12.15,
+    "y": 25.62,
+    "w": 3.82,
+    "h": 1.03
+   }
+  ],
+  "flt_ctrl_low_press": [
+   {
+    "x": 11,
+    "y": 47.21,
+    "w": 3.4,
+    "h": 1.17
+   },
+   {
+    "x": 14.5,
+    "y": 47.21,
+    "w": 3.44,
+    "h": 1.17
+   }
+  ],
+  "yaw_damper": [
+   {
+    "x": 12.74,
+    "y": 55.1,
+    "w": 3.44,
+    "h": 1.14
+   }
+  ],
+  "speed_trim_fail": [
+   {
+    "x": 20.34,
+    "y": 52.82,
+    "w": 3.4,
+    "h": 1.14
+   }
+  ],
+  "mach_trim_fail": [
+   {
+    "x": 20.34,
+    "y": 53.95,
+    "w": 3.4,
+    "h": 1.11
+   }
+  ],
+  "auto_slat_fail": [
+   {
+    "x": 20.34,
+    "y": 55.02,
+    "w": 3.4,
+    "h": 1.17
+   }
+  ],
+  "low_quantity": [
+   {
+    "x": 21.3,
+    "y": 42.02,
+    "w": 3.44,
+    "h": 1.14
+   }
+  ],
+  "stby_rud_on": [
+   {
+    "x": 21.3,
+    "y": 44.25,
+    "w": 3.44,
+    "h": 1.14
+   }
+  ],
+  "bat_discharge": [
+   {
+    "x": 30.59,
+    "y": 51.15,
+    "w": 3.48,
+    "h": 1.21
+   }
+  ],
+  "tr_unit": [
+   {
+    "x": 34.04,
+    "y": 51.15,
+    "w": 3.44,
+    "h": 1.21
+   }
+  ],
+  "elec_hyd": [
+   {
+    "x": 37.45,
+    "y": 51.15,
+    "w": 3.48,
+    "h": 1.21
+   }
+  ],
+  "standby_power_off": [
+   {
+    "x": 35.73,
+    "y": 61.75,
+    "w": 3.4,
+    "h": 1.17
+   }
+  ],
+  "drive": [
+   {
+    "x": 30.16,
+    "y": 62.87,
+    "w": 3.4,
+    "h": 1.17
+   },
+   {
+    "x": 41.24,
+    "y": 62.86,
+    "w": 3.4,
+    "h": 1.17
+   }
+  ],
+  "gen_off_bus": [
+   {
+    "x": 29.48,
+    "y": 80.48,
+    "w": 3.31,
+    "h": 1.03
+   },
+   {
+    "x": 35.79,
+    "y": 80.48,
+    "w": 3.31,
+    "h": 0.98
+   },
+   {
+    "x": 42.15,
+    "y": 80.48,
+    "w": 3.31,
+    "h": 1.03
+   }
+  ],
+  "equip_cooling_off": [
+   {
+    "x": 48.72,
+    "y": 66.32,
+    "w": 3.36,
+    "h": 1.14
+   },
+   {
+    "x": 52.08,
+    "y": 66.32,
+    "w": 3.44,
+    "h": 1.14
+   }
+  ],
+  "not_armed": [
+   {
+    "x": 48.41,
+    "y": 71.24,
+    "w": 1.68,
+    "h": 2.26
+   }
+  ],
+  "transfer_bus_off": [
+   {
+    "x": 29.4,
+    "y": 78.18,
+    "w": 3.44,
+    "h": 1.14
+   },
+   {
+    "x": 42.09,
+    "y": 78.18,
+    "w": 3.44,
+    "h": 1.14
+   }
+  ],
+  "source_off": [
+   {
+    "x": 29.4,
+    "y": 79.3,
+    "w": 3.44,
+    "h": 1.14
+   },
+   {
+    "x": 42.09,
+    "y": 79.3,
+    "w": 3.44,
+    "h": 1.14
+   }
+  ],
+  "filter_bypass": [
+   {
+    "x": 10.92,
+    "y": 76.74,
+    "w": 3.4,
+    "h": 1.17
+   },
+   {
+    "x": 21.82,
+    "y": 76.74,
+    "w": 3.44,
+    "h": 1.17
+   }
+  ],
+  "eng_valve_closed": [
+   {
+    "x": 11.03,
+    "y": 72.25,
+    "w": 3.23,
+    "h": 1.06
+   },
+   {
+    "x": 21.88,
+    "y": 72.25,
+    "w": 3.27,
+    "h": 1.06
+   }
+  ],
+  "fuel_low_press": [
+   {
+    "x": 14.67,
+    "y": 80.79,
+    "w": 3.4,
+    "h": 1.14
+   },
+   {
+    "x": 18.17,
+    "y": 80.79,
+    "w": 3.4,
+    "h": 1.14
+   },
+   {
+    "x": 10.24,
+    "y": 85.29,
+    "w": 3.4,
+    "h": 1.17
+   },
+   {
+    "x": 13.74,
+    "y": 85.29,
+    "w": 3.4,
+    "h": 1.17
+   },
+   {
+    "x": 19.18,
+    "y": 85.29,
+    "w": 3.44,
+    "h": 1.17
+   },
+   {
+    "x": 22.68,
+    "y": 85.29,
+    "w": 3.4,
+    "h": 1.17
+   }
+  ],
+  "apu_maint": [
+   {
+    "x": 30.63,
+    "y": 85.21,
+    "w": 3.23,
+    "h": 1.08
+   }
+  ],
+  "apu_low_oil": [
+   {
+    "x": 34,
+    "y": 85.16,
+    "w": 3.44,
+    "h": 1.17
+   }
+  ],
+  "apu_overspeed": [
+   {
+    "x": 40.91,
+    "y": 85.16,
+    "w": 3.44,
+    "h": 1.17
+   }
+  ]
+ },
+ "content": {
+  "auto_slat_fail": {
+   "purpose": "The AUTO SLAT FAIL light indicates that the automatic slat system is not operating or has been",
+   "causes": [
+    "Hydraulic pressure loss (MOST IMPORTANT in your case)",
+    "Slat drive unit or mechanism failure",
+    "Electrical/control system fault",
+    "Invalid AOA or flight data"
+   ],
+   "bite": "Test",
+   "breakers": "Test",
+   "mel": "Test",
+   "full": "🟧 AUTO SLAT FAIL Light (Amber) — What it means on the 737\nLooking at your panel, the AUTO SLAT FAIL light (amber) is illuminated along with multiple flight\ncontrol and hydraulic warnings.\n\n✅ Definition\nThe AUTO SLAT FAIL light indicates that the automatic slat system is not operating or has been\ndisabled.\n\n🔧 What the Auto Slat System does\nThe 737 automatic slat system provides stall protection by automatically extending slats when\nneeded.\nIt works:\n• With flaps extended (especially flaps 1–5)\n• When the aircraft approaches a high angle of attack (AOA)\nIf triggered, it moves:\n• Leading edge slats to FULL EXTEND\n\n⚠️ Why this is important\nThe system:\n• Prevents aerodynamic stall\n• Improves lift at low speed\n• Enhances safety margins during:\n• Takeoff\n• Approach\n\n⚠️ What triggers AUTO SLAT FAIL\n1. 💧 Hydraulic pressure loss (MOST IMPORTANT in your case)\nAuto slats require:\n\n• Hydraulic System B (primary source for leading edge devices)\nIn your image:\n• System A LOW PRESSURE\n• System B LOW PRESSURE\n• Standby hydraulic degraded\n\n2. ⚙️ Slat drive unit or mechanism failure\n• Mechanical issue\n• Jammed system\n\n3. 🔌 Electrical/control system fault\n• Fault in slat control electronics\n• Sensor or logic failure (AOA inputs)\n\n4. 📉 Invalid AOA or flight data\n• System cannot determine when to deploy\n\n🧩 Your panel (CRITICAL interpretation)\nYou have ALL of these:\n• Hydraulic LOW PRESSURE (A & B)\n• Standby hydraulic issues\n• SPEED TRIM FAIL\n• MACH TRIM FAIL\n• FEEL DIFF PRESS\n• YAW DAMPER\n• AUTO SLAT FAIL\n\n👉 That clearly shows:\nAUTO SLAT FAIL is NOT an isolated failure\nIt’s caused by loss of hydraulic power\n\n🔁 Failure chain (what’s happening)\nHydraulic System B lost\n↓\nLeading edge slats lose hydraulic actuation\n↓\nAuto slat system cannot move slats\n↓\nAUTO SLAT FAIL light ON\n\n✈️ Operational effect\nWith AUTO SLAT FAIL:\n• Automatic stall protection lost\n• Slats:\n• Will NOT extend automatically\n• Pilot must:\n• Rely on manual configuration\nAircraft still flyable\nBut:\nReduced safety margin at low speeds\n\n🧠 Line maintenance mindset\nIf AUTO SLAT FAIL alone:\nCheck:\n• Slat system\n• AOA inputs\n• Control logic\n\nIf AUTO SLAT FAIL + HYD LOW PRESSURE (your panel):\nRoot cause is:\nHydraulic failure (especially System B)\n\n🔗 Connection with other lights (pattern recognition)\nLight\nWhy it’s ON\nSPEED TRIM FAIL\nNeeds stabilizer/hydraulic support\nMACH TRIM FAIL\nSame stabilizer dependency\nFEEL DIFF PRESS\nNeeds A & B pressure\nYAW DAMPER\nUses hydraulic B\nAUTO SLAT FAIL\nUses hydraulic B\n\n⚡ Simple way to remember\nAUTO SLAT FAIL = “no automatic slat deployment for stall protection”\n\n✅ Summary (your exact scenario)\n• AUTO SLAT FAIL (amber) = auto slat system inoperative\n• Root cause:\n• Loss of Hydraulic System B (primary)\n• Overall hydraulic system degradation\n• Effect:\n• No automatic stall protection via slats\n\n💡 Big-picture insight (VERY important)\nYour entire panel now shows a classic cascade failure:\nHydraulic failure → loss of flight control support systems → multiple FAIL lights (speed\ntrim, mach trim, auto slats, feel system, yaw damper)\n\n✅ Final takeaway\nWhen you see this combination:\n• AUTO SLAT FAIL + SPEED TRIM FAIL + MACH TRIM FAIL + HYD LOW PRESSURE\nDon’t troubleshoot each system separately.\nGo straight to hydraulic system failure as the root cause\n\nLOW QUANTITY LIGHT"
+  },
+  "elec_hyd": {
+   "purpose": "The ELEC light indicates a fault in the aircraft’s electrical power system.",
+   "causes": [
+    "Loss of generator power (MOST COMMON)",
+    "AC transfer bus failure",
+    "Electrical distribution problem",
+    "Multiple electrical component failures"
+   ],
+   "bite": "Test",
+   "breakers": "Test",
+   "mel": "Test",
+   "full": "🟧 ELEC Light (Amber) — What it means on the 737\nLooking at your image, the ELEC light (amber) is illuminated on the electrical panel, along with:\n\n• BAT DISCHARGE\n• TR UNIT\n• STANDBY PWR OFF\n• Abnormal DC indications\n• Many aircraft systems failing across your earlier panels\n\n✅ Definition\nThe ELEC light indicates a fault in the aircraft’s electrical power system.\n\n🔧 What the ELEC light represents\nThe ELEC light is a general electrical system warning that tells you:\nSomething is wrong with normal electrical power supply or distribution\nIt is not tied to just one component — it’s a system-level warning.\n\n⚠️ What can cause the ELEC light\n1. 🔌 Loss of generator power (MOST COMMON)\n• Engine generators not supplying power\n• APU generator not supplying power\n\n2. ⚡ AC transfer bus failure\n• Power not reaching the aircraft buses\n• Bus tie system malfunction\n\n3. 🔄 Electrical distribution problem\n• Power available, but not routed correctly\n\n4. ⚙️ Multiple electrical component failures\n• TR unit problems\n• DC system issues\n\n🧩 Your panel (CRITICAL interpretation)\nYou have this combination:\n• ELEC light\n• TR UNIT\n• BAT DISCHARGE\n• STANDBY PWR OFF\n• IRS failures (ON DC, DC FAIL, FAULT)\n• Probe heat failures\n• Engine control in ALTN\n\n🔁 What’s happening (full chain)\nLoss of AC electrical power (generators / transfer buses)\n↓\nAC buses no longer powered\n↓\nTR units lose AC input → TR UNIT light\n↓\nDC system loses normal power\n↓\nBattery takes over → BAT DISCHARGE\n↓\nIRS switches to DC → ON DC\n↓\nDC also insufficient → DC FAIL → FAULT\n↓\nMultiple aircraft systems lose power\n↓\nELEC light illuminates (system-level fault)\n\n🚨 Key takeaway (VERY important)\nELEC light = BIG PICTURE problem\nNot a single component failure\n\n🧠 Line maintenance mindset\nIf ELEC light alone:\nCheck:\n• Generators\n• Electrical buses\n\nIf ELEC + TR UNIT + BAT DISCHARGE + system-wide failures (your case):\nGo directly to:\nPrimary electrical sources\n1. Engine generators (GEN 1 / GEN 2)\n2. APU generator\n3. External power\nThen: 4. AC transfer buses\n5. Bus tie system\n\n🔗 Tie to ALL your previous lights\nEverything you’ve asked about connects to this:\n• IRS ON DC / DC FAIL\n• GPS loss\n• Probe heat failures\n• Engine control ALTN\n• PSEU\nALL rely on:\nStable AC electrical power\n\n⚡ Simple way to remember\nELEC light = “the airplane lost normal electrical power”\n\n✅ Summary\n• ELEC (amber) = electrical system fault\n\n• Most common cause:\n• Loss of generator power\n• AC bus failure\n• In your scenario:   Confirms major electrical failure affecting the entire aircraft\n\n💡 Final AMT-level insight\nWhen you see:\n• ELEC + BAT DISCHARGE + TR UNIT + widespread system failures\nYou are NOT dealing with multiple failures\nYou are dealing with ONE root problem: electrical power loss\n\n🔥 Bottom line (your full situation)\nBetween:\n• Electrical failures\n• Hydraulic failures   (likely independent or secondary)\n• Bleed/pressurization issues\nThe biggest consistent pattern is:\nLoss of electrical power → cascading system failures across the aircraft\n\nSTANDBY PWR OFF"
+  },
+  "dual_bleed": {
+   "purpose": "The DUAL BLEED light comes on when the system detects both the APU bleed air AND an engine bleed air source supplying the manifold at the same time.",
+   "causes": [
+    "APU bleed ON + Engine bleed ON (same side or manifold)",
+    "Isolation valve configuration",
+    "Improper configuration"
+   ],
+   "bite": "test",
+   "breakers": "test",
+   "mel": "test",
+   "full": "⚠️ DUAL BLEED Light (Amber) — What it means on the 737\nOn your panel (bottom of the air conditioning section), the DUAL BLEED light (amber) is\nilluminated.\n\n🚨 Definition\nThe DUAL BLEED light comes on when the system detects both the APU bleed air AND an engine\nbleed air source supplying the manifold at the same time.\n\n🔧 Why that’s a problem\nThe 737 is designed to avoid having two high-pressure bleed sources feeding the same duct\nsimultaneously, because:\n• It can cause:\n• Overpressure\n• Overtemperature\n• Duct damage risk\nSo the system protects itself.\n\n⚠️ What triggers the DUAL BLEED light\n1. ✅ APU bleed ON + Engine bleed ON (same side or manifold)\n• Most common cause\n• Especially:\n\n• On the ground during engine start or pack operation\n\n2. 🔄 Isolation valve configuration\n• If the isolation valve is OPEN:\n• APU air and engine air can mix\nSystem detects this → triggers light\n\n3. ⚙️ Improper configuration\n• Pack switches, bleed switches, and isolation valve not set correctly\n\n🔁 What the system does automatically\nWhen DUAL BLEED is detected:\nThe system automatically closes the isolation valve\nPurpose:\n• Separate the two bleed sources\n• Prevent mixing\n\n🧩 Tie it to YOUR panel (very important)\nYou previously showed:\n• BLEED TRIP OFF\n• WING-BODY OVERHEAT\n• PACK lights\n• ZONE TEMP lights\nNow add:\n• DUAL BLEED\n\n👉 This suggests a bigger picture:\nYou may have had:\nAPU bleed ON + engine bleed ON\n↓\n\nIsolation valve open or misconfigured\n↓\nDUAL BLEED condition\n↓\nOverpressure / overtemperature risk\n↓\nWING-BODY OVERHEAT\n↓\nBLEED TRIP OFF\n↓\nPACK shutdown\n↓\nZONE TEMP lights\n\n🧠 Line maintenance interpretation\nIf you see DUAL BLEED:\nStep 1:\nCheck:\n• APU bleed switch\n• Engine bleed switches\n• Isolation valve position\n\nStep 2:\nAsk:\n“Are both bleed sources feeding the same manifold?”\n\nStep 3:\nCorrect configuration:\n• Either:\n• Use APU bleed alone\n• Or engine bleeds alone\n• Ensure isolation valve logic is correct\n\n🔑 Important distinction\nLight\nMeaning\nDUAL BLEED\nTwo bleed sources feeding system at once\n\nBLEED TRIP OFF\nSystem shut valve due to fault\nWING-BODY OVERHEAT\nTemperature too high in ducts\n\n⚡ Simple way to remember\nDUAL BLEED = “Too many air sources feeding the same system”\n\n✅ Summary\n• DUAL BLEED (amber) = APU + engine bleed supplying system simultaneously\n• System response:\n• Closes isolation valve automatically\n• Risk if not corrected:\n• Overpressure / overheat (which matches your panel)\n\n💡 Big-picture takeaway (your whole scenario)\nWith everything you showed, the most likely root chain is:\nImproper bleed configuration (dual bleed) → overheat → bleed trip → pack loss → temp\ncontrol failure\n\nRAM DOOR FULL OPEN"
+  }
+ },
+ "updated": "2026-06-07T19:18:42.348Z"
+}
