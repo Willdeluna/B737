@@ -257,7 +257,7 @@ body{display:flex;flex-direction:column}
   <div style="margin-top:6px;color:var(--amber-dim);font-size:10px">EXPORT DATA saves every field (descriptions, causes, BITE, CBs, MEL, boxes) as one JSON to back up or move between machines.</div>
 
   <div class="eh" style="margin-top:14px">GITHUB SYNC</div>
-  <div id="ghstatus" style="margin:4px 0 8px;font-size:11px;letter-spacing:.5px;color:var(--amber-dim)">● Local only — not configured</div>
+  <div id="ghstatus" style="margin:4px 0 8px;font-size:11px;letter-spacing:.5px;color:var(--amber-dim)">● Local only — edits stay on THIS device until you connect below</div>
   <div style="font-size:10px;color:var(--amber-dim);margin-bottom:6px">Pushes box + content edits to a state file in your repo so every device loads the same data. Token is stored only in this browser, never inside the file.</div>
   <label class="ghlbl">FINE-GRAINED TOKEN (PAT)</label>
   <input class="ghin" id="gh_pat" type="password" placeholder="github_pat_… (Contents: Read & Write)" autocomplete="off" spellcheck="false">
@@ -320,6 +320,14 @@ function saveContentFor(key){ const e={}; CFIELDS.forEach(f=>e[f]=DATA[key][f]);
   try{ localStorage.setItem(LS_CONTENT, JSON.stringify(contentOv)); }catch(err){} }
 function isEdited(key){ return !!contentOv[key]; }
 
+/* ---------- local-edit timestamp ----------
+   Records when THIS device last made an edit. A silent pull on load
+   compares this against the pulled state's `updated` time so a stale
+   remote can't overwrite an edit that hasn't finished syncing up yet. */
+const LS_EDIT="b737_p5_last_local_edit";
+function markLocalEdit(){ try{ localStorage.setItem(LS_EDIT, new Date().toISOString()); }catch(e){} }
+function localEditTime(){ try{ const v=localStorage.getItem(LS_EDIT); return v?(Date.parse(v)||0):0; }catch(e){ return 0; } }
+
 /* ====================  GITHUB SYNC  ====================
    localStorage stays the instant cache. A state file in the repo
    ({boxes:{}, content:{}}) is the authoritative backing store so
@@ -345,7 +353,7 @@ const GH = (function(){
     if(!el)return; el.textContent=text; el.className=cls||""; }
   function refreshStatus(){
     if(!navigator.onLine && configured()){ setStatus("● Offline — saving locally, will sync later",""); return; }
-    if(!configured()){ setStatus("● Local only — not configured",""); return; }
+    if(!configured()){ setStatus("● Local only — edits stay on THIS device. Open GITHUB SYNC below and tap SAVE + CONNECT.",""); return; }
     setStatus("● Connected — "+cfg.owner+"/"+cfg.repo,"ok");
   }
 
@@ -354,13 +362,20 @@ const GH = (function(){
     const boxes={}; for(const k in DATA) boxes[k]=DATA[k].boxes;
     return { boxes:boxes, content:contentOv, updated:new Date().toISOString() };
   }
-  /* merge a pulled state into DATA + local caches */
+  /* merge a pulled state into DATA + local caches.
+     Returns false (and applies nothing) if THIS device has a local edit
+     newer than the pulled state — protects un-pushed work on load. */
   function mergeState(st){
+    if(st && st.updated){
+      const local=localEditTime(), remote=Date.parse(st.updated)||0;
+      if(local && remote && local>remote){ return false; }
+    }
     if(st && st.boxes){ for(const k in st.boxes){ if(DATA[k]){ DATA[k].boxes=st.boxes[k]; overrides[k]=st.boxes[k]; } }
       try{ localStorage.setItem(LS_KEY, JSON.stringify(overrides)); }catch(e){} }
     if(st && st.content){ for(const k in st.content){ if(DATA[k]){ CFIELDS.forEach(f=>{ if(f in st.content[k]) DATA[k][f]=st.content[k][f]; });
         contentOv[k]=st.content[k]; } }
       try{ localStorage.setItem(LS_CONTENT, JSON.stringify(contentOv)); }catch(e){} }
+    return true;
   }
 
   async function pull(silent){
@@ -372,7 +387,10 @@ const GH = (function(){
       if(!r.ok) throw new Error("HTTP "+r.status);
       const j=await r.json(); lastSha=j.sha;
       const st=JSON.parse(b64dec(j.content));
-      mergeState(st);
+      if(mergeState(st)===false){
+        setStatus("● Your edits are newer — keeping them, syncing up…","busy");
+        push(); return;
+      }
       if(typeof buildHotspots==="function") buildHotspots();
       if(typeof curKey!=="undefined" && curKey && drawer.classList.contains('open') && typeof openDrawer==="function") openDrawer(curKey);
       setStatus("● Synced ✓ (pulled "+new Date().toLocaleTimeString()+")","ok");
@@ -430,9 +448,9 @@ const GH = (function(){
 
 /* hook the existing save paths so every edit also syncs to GitHub */
 const _saveOverrides=saveOverrides;
-saveOverrides=function(){ _saveOverrides(); GH.queuePush(); };
+saveOverrides=function(){ _saveOverrides(); markLocalEdit(); GH.queuePush(); };
 const _saveContentFor=saveContentFor;
-saveContentFor=function(key){ _saveContentFor(key); GH.queuePush(); };
+saveContentFor=function(key){ _saveContentFor(key); markLocalEdit(); GH.queuePush(); };
 
 addEventListener('online',()=>{ GH.refreshStatus(); GH.queuePush(); });
 addEventListener('offline',()=>GH.refreshStatus());
@@ -464,11 +482,20 @@ stage.addEventListener('wheel',e=>{ e.preventDefault(); const r=stage.getBoundin
 let dragging=false, moved=false, sx,sy, stx,sty;
 let pointers=new Map(), pinchD=0;
 stage.addEventListener('pointerdown',e=>{
-  if(e.target.closest('.hot') && !editMode) return; // let hotspot handle
-  if(e.target.closest('.hot') && editMode) return;
+  // ALWAYS track the pointer (needed so 2-finger pinch works even when a
+  // finger lands on a hotspot — the lights cluster on the right side).
   pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(pointers.size===1){ dragging=true;moved=false; sx=e.clientX;sy=e.clientY;stx=tx;sty=ty;
-    stage.classList.add('grabbing'); stage.setPointerCapture(e.pointerId); }
+  const onHot=!!e.target.closest('.hot');
+  if(pointers.size>=2){
+    // second finger down = pinch. Cancel any single-finger pan and suppress
+    // the tap so lifting off a hotspot doesn't open the drawer.
+    dragging=false; moved=true; stage.classList.remove('grabbing');
+    return;
+  }
+  // first finger only: if it's on a hotspot, let the tap/click through (no pan).
+  if(onHot){ dragging=false; moved=false; return; }
+  dragging=true; moved=false; sx=e.clientX; sy=e.clientY; stx=tx; sty=ty;
+  stage.classList.add('grabbing'); stage.setPointerCapture(e.pointerId);
 });
 stage.addEventListener('pointermove',e=>{
   if(pointers.has(e.pointerId)) pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
@@ -577,7 +604,7 @@ document.getElementById('e_save').onclick=()=>{ const d=DATA[curKey];
   d.breakers=document.getElementById('e_breakers').value.trim();
   d.mel=document.getElementById('e_mel').value.trim();
   d.full=document.getElementById('e_full').value;
-  saveContentFor(curKey); openDrawer(curKey);
+  saveContentFor(curKey); GH.push(); openDrawer(curKey);
 };
 document.getElementById('dclose').onclick=()=>drawer.classList.remove('open');
 
