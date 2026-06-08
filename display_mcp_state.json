@@ -547,22 +547,8 @@
    }
   ],
   "ap_prst_capt": [],
-  "at_prst_capt": [
-   {
-    "x": 30.85,
-    "y": 25.69,
-    "w": 1.34,
-    "h": 3.34
-   }
-  ],
-  "fmc_prst_capt": [
-   {
-    "x": 32.27,
-    "y": 25.69,
-    "w": 1.47,
-    "h": 3.34
-   }
-  ],
+  "at_prst_capt": [],
+  "fmc_prst_capt": [],
   "lights_test_capt": [],
   "ap_prst_fo": [
    {
@@ -607,14 +593,7 @@
   "cabin_altitude": [],
   "speedbrake_armed": [],
   "speedbrake_do_not_arm": [],
-  "stab_out_of_trim": [
-   {
-    "x": 34.6,
-    "y": 31.55,
-    "w": 1.61,
-    "h": 3.34
-   }
-  ],
+  "stab_out_of_trim": [],
   "below_gs_capt": [
    {
     "x": 11.73,
@@ -1059,5 +1038,5 @@
    ]
   }
  },
- "updated": "2026-06-08T20:38:35.616Z"
+ "updated": "2026-06-08T20:38:45.697Z"
 }
