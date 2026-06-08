@@ -959,10 +959,10 @@
    "full": "FIM Task 31-51-00-810-803\n\nTakeoff Warning System Fault (No Warning or False warning) - Fault Isolation\n\nTask 31-51-00-740-801\n\nAural Warning Module BITE Test"
   },
   "standby_attitude_indicator": {
-   "purpose": "",
+   "purpose": "34-24-01 Pageblock 401\nSTANDBY ATTITUDE INDICATOR - REMOVAL/INSTALLATION\n\nPOSSIBLE P/N 501-1657-02\nAIPC Figure 34-24-01-01\nPANEL INSTL-FWD (STANDBY ATTITUDE INDICATOR ONLY)",
    "causes": [],
    "bite": "",
-   "breakers": "",
+   "breakers": "P18-2 D9 – STBY ATT IND\nP6-3 B9 – PANEL & INSTR 28V PRI CAPT & CTR",
    "mel": "",
    "full": ""
   }
@@ -989,10 +989,10 @@
   "standby_attitude_indicator": {
    "name": "STANDBY ATTITUDE INDICATOR",
    "color": "amber",
-   "purpose": "",
+   "purpose": "34-24-01 Pageblock 401\nSTANDBY ATTITUDE INDICATOR - REMOVAL/INSTALLATION\n\nPOSSIBLE P/N 501-1657-02\nAIPC Figure 34-24-01-01\nPANEL INSTL-FWD (STANDBY ATTITUDE INDICATOR ONLY)",
    "causes": [],
    "bite": "",
-   "breakers": "",
+   "breakers": "P18-2 D9 – STBY ATT IND\nP6-3 B9 – PANEL & INSTR 28V PRI CAPT & CTR",
    "mel": "",
    "full": "",
    "boxes": [
@@ -1005,5 +1005,5 @@
    ]
   }
  },
- "updated": "2026-06-08T21:18:09.199Z"
+ "updated": "2026-06-08T21:22:44.717Z"
 }
