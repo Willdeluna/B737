@@ -995,7 +995,7 @@
    "full": ""
   },
   "upper_center_du": {
-   "purpose": "Primary engine indications: N1, EGT, fuel flow, fuel quantity, TAT.\n\n\n\nPOSSIBLE P/N 4091900-942",
+   "purpose": "Primary engine indications: N1, EGT, fuel flow, fuel quantity, TAT.\n\nPOSSIBLE P/N 4091900-942",
    "causes": [
     "DU blank/dim",
     "Parameter dashes/no data",
@@ -1013,8 +1013,8 @@
     "Display unit failure",
     "→ Internal DU fault"
    ],
-   "bite": "",
-   "breakers": "",
+   "bite": "FIM Task 31-62-00-810-801\nCDS BITE Procedure",
+   "breakers": "Captain Panel P18-2\n\nD2 – CTR UPR DU\nD3 – CAPT INBD DU\nD4 – CAPT OUTBD DU\nD5 – DEU 1 (PRI)\n\n\nF/O Panel P6-1\n\nD9 – DEU 2 HOLDUP\nD10 – DEU 1 HOLDUP\nD11 – DEU 2 (PRI)\nE10 – F/O OUTBD DU\nE11 – F/O INBD DU\nE12 – CTR LWR DU",
    "mel": "",
    "full": "Primary engine display. Relocatable via Display Select Panel (ENG PRI). Common Display System: two DEUs drive all six DUs; a single DEU can drive all displays degraded. Use the Display Select Panel to reconfigure after a DU/DEU failure."
   }
@@ -1214,5 +1214,5 @@
    ]
   }
  },
- "updated": "2026-06-08T22:39:41.269Z"
+ "updated": "2026-06-08T22:43:57.307Z"
 }
