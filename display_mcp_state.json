@@ -788,6 +788,14 @@
     "w": 1.63,
     "h": 1.73
    }
+  ],
+  "flaps_position_indicator": [
+   {
+    "x": 53.78898773979863,
+    "y": 26.686205299620045,
+    "w": 4,
+    "h": 4
+   }
   ]
  },
  "content": {
@@ -893,6 +901,14 @@
    "breakers": "",
    "mel": "",
    "full": ""
+  },
+  "flaps_position_indicator": {
+   "purpose": "",
+   "causes": [],
+   "bite": "",
+   "breakers": "",
+   "mel": "",
+   "full": ""
   }
  },
  "custom": {
@@ -980,7 +996,25 @@
      "h": 1.73
     }
    ]
+  },
+  "flaps_position_indicator": {
+   "name": "FLAPS POSITION INDICATOR",
+   "color": "amber",
+   "purpose": "",
+   "causes": [],
+   "bite": "",
+   "breakers": "",
+   "mel": "",
+   "full": "",
+   "boxes": [
+    {
+     "x": 52.41,
+     "y": 32.16,
+     "w": 4,
+     "h": 4
+    }
+   ]
   }
  },
- "updated": "2026-06-08T21:47:33.057Z"
+ "updated": "2026-06-08T21:48:00.298Z"
 }
