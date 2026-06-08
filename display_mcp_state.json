@@ -549,30 +549,9 @@
   "spd_ref": [],
   "mfd_eng_sys": [],
   "auto_brake": [],
-  "auto_brake_disarm": [
-   {
-    "x": 49.76,
-    "y": 24.05,
-    "w": 2.79,
-    "h": 1.88
-   }
-  ],
-  "anti_skid": [
-   {
-    "x": 49.6,
-    "y": 32.38,
-    "w": 2.04,
-    "h": 2.35
-   }
-  ],
-  "flap_indicator": [
-   {
-    "x": 53.08,
-    "y": 24.93,
-    "w": 2.3,
-    "h": 7.21
-   }
-  ],
+  "auto_brake_disarm": [],
+  "anti_skid": [],
+  "flap_indicator": [],
   "le_flaps_transit": [
    {
     "x": 52.54,
@@ -984,5 +963,5 @@
    ]
   }
  },
- "updated": "2026-06-08T21:24:38.327Z"
+ "updated": "2026-06-08T21:24:44.526Z"
 }
