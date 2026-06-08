@@ -955,7 +955,7 @@
    "full": ""
   },
   "n1_set_2": {
-   "purpose": "",
+   "purpose": "✅ What it does\n\nUsed to select the engine thrust mode (N1 limit) for takeoff/climb\nSets how much engine power (N1%) the autothrottle will command\n\n\n✅ Positions visible\n\nAUTO → FMC automatically sets N1 limits (normal ops)\n1 / 2 → Selects assumed temperature / derate levels\n\n1 = lower thrust (derate)\n2 = further reduced thrust\n\nBOTH → Applies selection to both engines",
    "causes": [],
    "bite": "",
    "breakers": "",
@@ -1106,7 +1106,7 @@
   "n1_set_2": {
    "name": "N1 SET",
    "color": "amber",
-   "purpose": "",
+   "purpose": "✅ What it does\n\nUsed to select the engine thrust mode (N1 limit) for takeoff/climb\nSets how much engine power (N1%) the autothrottle will command\n\n\n✅ Positions visible\n\nAUTO → FMC automatically sets N1 limits (normal ops)\n1 / 2 → Selects assumed temperature / derate levels\n\n1 = lower thrust (derate)\n2 = further reduced thrust\n\nBOTH → Applies selection to both engines",
    "causes": [],
    "bite": "",
    "breakers": "",
@@ -1122,5 +1122,5 @@
    ]
   }
  },
- "updated": "2026-06-08T22:18:08.060Z"
+ "updated": "2026-06-08T22:18:41.142Z"
 }
