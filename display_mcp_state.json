@@ -834,6 +834,14 @@
     "w": 5.36,
     "h": 11.75
    }
+  ],
+  "anti_skid_inop": [
+   {
+    "x": 50.217209054530855,
+    "y": 31.65656998920715,
+    "w": 4,
+    "h": 4
+   }
   ]
  },
  "content": {
@@ -910,6 +918,14 @@
    "breakers": "P18-2 D9 – STBY ATT IND\nP6-3 B9 – PANEL & INSTR 28V PRI CAPT & CTR",
    "mel": "34-00-07 STANDBY HORIZON INDICATOR",
    "full": ""
+  },
+  "anti_skid_inop": {
+   "purpose": "",
+   "causes": [],
+   "bite": "",
+   "breakers": "",
+   "mel": "",
+   "full": ""
   }
  },
  "custom": {
@@ -948,7 +964,25 @@
      "h": 11.75
     }
    ]
+  },
+  "anti_skid_inop": {
+   "name": "ANTI SKID INOP",
+   "color": "amber",
+   "purpose": "",
+   "causes": [],
+   "bite": "",
+   "breakers": "",
+   "mel": "",
+   "full": "",
+   "boxes": [
+    {
+     "x": 43.43,
+     "y": 30.76,
+     "w": 4,
+     "h": 4
+    }
+   ]
   }
  },
- "updated": "2026-06-08T21:24:56.282Z"
+ "updated": "2026-06-08T21:25:09.692Z"
 }
