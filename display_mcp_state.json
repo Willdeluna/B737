@@ -279,18 +279,34 @@
  },
  "content": {
   "capt_pfd": {
-   "purpose": "A/P RST (Autopilot Reset)  A/T RST (Autothrottle Reset)\n\nIlluminates when the autopilot has disengaged due to a fault or needs to be reset.\nIndicates the system dropped offline—not a normal manual disconnect.\n\n\nFMC (or FMC PRI / FMC alert)\n\nIndicates a Flight Management Computer–related issue affecting autoflight or guidance.\nOften tied to loss of FMC input to the autoflight system.\n\n\nAMM Task 22-11-32-000-801\nAnnunciator REMOVAL\n\nAIPC Figure 22-11-32-01\nPANEL INSTL-FWD (DIGITAL FLIGHT CONTROL SYSTEM ONLY)\n\nPOSSIBLE P/N D434-56-001",
+   "purpose": "👉 It’s a no-go takeoff warning — the airplane is telling you:\n“Configuration is not safe for takeoff—fix before departure.”",
    "causes": [
-    "Task 22-14-00-810-813",
-    "FCC Airspeed Warning Problem - Fault Isolation",
-    "FCC-A (J1B-G05): No airspeed warn wrap signal received during ground test.",
-    "FCC-B (J1B-G05): No airspeed warn wrap signal received during ground test."
+    "Flaps not set correctly",
+    "Stabilizer trim not in takeoff range",
+    "Speedbrake not down",
+    "Parking brake set",
+    "In Flight (AIR) – No warning or false warning",
+    "Ground spoiler up interlock sensor (S1050)",
+    "Wiring faults",
+    "On Ground – No warning or false warning",
+    "Stabilizer Takeoff Warning Switches",
+    "S132, S546 (701–771)",
+    "S132, S1184, S546, S1183 (772–777, 801–999)",
+    "Other Inputs",
+    "S1049 – Ground spoiler up pressure switch",
+    "S651 – Speedbrake takeoff warning switch",
+    "S100 – Parking brake switch",
+    "SMYD 1 (M1747) – Stall Management/Yaw Damper",
+    "SMYD 2 (M1748)",
+    "M1766 – A/T switch S8 (Engine 1 pack)",
+    "M1767 – A/T switch S8 (Engine 2 pack)",
+    "Wiring faults"
    ],
-   "bite": "Press and hold TEST switch to position 1 → verify A/T P/RST light amber (steady).\nRelease to center → verify light off.\nPress and hold TEST switch to position 2 → verify A/T P/RST light red (steady).\nRelease to center → verify light off.\n\n\nIf light fails any check: Replace A/T P/RST warning light and perform repair confirmation.\nIf light operates correctly: Continue with procedure.",
-   "breakers": "P18-1\nD1 AFCS SYS A WARN LIGHT\nP6-2 \nB1 AFCS SYS B WARN LIGHT \n\nMORE RELATED CBS\n\nCaptain Panel P18-1\n\nC4 – AFCS SYS A MACH TRIM AC\nC5 – AFCS SYS A SNSR EXC AC\nD1 – AFCS SYS A WARN LIGHT (BAT)\nD2 – AFCS SYS A FCC DC\nD3 – AFCS SYS A ENGAGE INTLK\nD4 – AFCS SYS A MACH TRIM DC\nD5 – AFCS MCP DC 1\nE1 – AUTOTHROTTLE DC 1\nE3 – AUTOTHROTTLE DC 2 (701–771)\n\nCaptain Panel P18-2\n\nA6 – FMCS CMPTR 1\n\nF/O Panel P6-2\n\nB1 – AFCS SYS B WARN LIGHT (BAT)\nB2 – AFCS SYS B MACH TRIM DC\nB3 – AFCS SYS B FCC DC\nB4 – AFCS SYS B ENGAGE INTLK\nC1 – AFCS SYS B MACH TRIM AC\nC2 – AFCS SYS B SNSR EXC AC\nC3 – AFCS MCP DC 2",
-   "mel": "22-00-01 Autopilot Systems",
-   "full": "DO THE LRU Replacement Test\nFIM Task 22-11-00-810-802\n\nDFCS BITE Test (CDU) – Simplified Procedure\nAccess DFCS BITE\n\nPress INIT REF\nSelect INDEX (if POS INIT page shows)\nSelect:\n\nMAINT\nDFCS\n\nIf messages appear (FCC-A FAIL / FCC-B FAIL / CROSS CHANNEL FAIL) → go to FIM task.\n\nLRU Replacement Test Setup\n\nSelect LRU REPLACEMENT TEST\nSelect channel:\n\nA, B, or A/B\n\nSelect desired LRU test (use NEXT/PREV if needed)\n\n\nAutotest\n\nFollow CDU prompts → “AUTOTEST IN PROGRESS”\nPASS: No faults (may clear too fast to see)\nFAIL: Run required library tests\nRecord: channel, suspect LRU, pin data\nOptional: TEST DATA → RERUN\n\nInteractive Test\n\nFollow CDU prompts\nPASS: “ALL TESTS PASSED”\nFAIL:\n\nCheck TEST RESULTS\nRecord channel, LRU, pins\nOptional rerun\n\nSurface Test (⚠️ Hydraulic hazard)\n\nKeep clear of all flight controls\nRun per CDU instructions\nPASS: No faults\nFAIL:\n\nCheck TEST RESULTS\nRecord channel, LRU, pins\nOptional rerun\n\nAfter Any Failure\n\nEach suspect LRU = maintenance message\nUse FIM table to find fault isolation task"
+   "bite": "PSEU\nTOW (Takeoff Warning) BITE Test – \n\nTurn PSEU BITE panel ON\nScroll to GROUND TESTS? → press YES\nScroll to T/O WARN TEST? → press YES\n\nResults\n\nTEST PASS → System OK\nMaintenance message shown → Go to FIM / message index for troubleshooting",
+   "breakers": "Captain Panel (P18-2)\nE3 – MACH WARN SYS-1\nFirst Officer Panels\nP6-1\nB7 – MACH WARN SYS-2\nP6-2\nA21 – FIRE PROTECTION DETECTION MASTER WARN & CONT\nP6-3\nC18 – LANDING GEAR TAKEOFF WARNING CUTOFF\nD18 – LANDING GEAR AURAL WARN",
+   "mel": "",
+   "full": "FIM Task 31-51-00-810-803\nTakeoff Warning System Fault (No Warning or False warning) - Fault Isolation\n\nTask 31-51-00-740-801\nAural Warning Module BITE Test"
   }
  },
- "updated": "2026-06-08T20:03:48.826Z"
+ "updated": "2026-06-08T20:19:22.161Z"
 }
