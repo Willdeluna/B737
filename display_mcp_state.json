@@ -965,7 +965,7 @@
   "flaps_position_indicator": {
    "purpose": "",
    "causes": [],
-   "bite": "FIM Task 27-51-00-810-801  E1-1 RACK\nFlap/Slat Electronics Unit (FSEU) BITE Procedure",
+   "bite": "FIM Task 27-51-00-810-801  E1-1 RACK\nFlap/Slat Electronics Unit (FSEU) BITE Procedure\n\nPOSSIBLE P/N 2061-15-1",
    "breakers": "",
    "mel": "",
    "full": "Most Common FSEU (Flap/Slat Electronics Unit) Faults – B737 (Line Quick List)\n✅ 1. Flap/Slat Position Disagree\n\nMismatch between commanded vs actual position\n👉 Usually transmitter or rigging issue\n\n\n✅ 2. Proximity Sensors / TE Flap Switches\n\nFaulty position sensors (flaps/slats)\n👉 Causes:\nBad indications\nConfig warnings\n\n\n✅ 3. Wiring / Cannon Plugs\n\nEspecially in wing / flap track areas\n👉 #1 intermittent cause\n\n\n✅ 4. FSEU Internal Failure\n\nUnit logic fault or processing error\n👉 Replace after confirmation\n\n\n✅ 5. Autoslat System Faults\n\nAutoslat fail or asymmetry protection issues\n👉 Tied into FSEU logic\n\n\n✅ 6. Trailing Edge Flap Asymmetry Protection\n\nSystem trips due to uneven movement\n👉 Could be mechanical or sensor-driven\n\n\n✅ 7. Mode Select / Flap Lever Switch Issues\n\nFlap handle doesn’t match electrical signal\n👉 Causes config faults\n\n\n✅ 8. Takeoff Config Warning (FSEU-related)\n\nIncorrect flap input → T/O CONFIG light/horn\n👉 Often tied to:\nSensors\nRigging\nWiring\n\n\n✅ 9. Power Supply / CB Issues\n\nFSEU loses power → multiple flap/slat indications fail"
@@ -1122,7 +1122,7 @@
    "color": "amber",
    "purpose": "",
    "causes": [],
-   "bite": "FIM Task 27-51-00-810-801  E1-1 RACK\nFlap/Slat Electronics Unit (FSEU) BITE Procedure",
+   "bite": "FIM Task 27-51-00-810-801  E1-1 RACK\nFlap/Slat Electronics Unit (FSEU) BITE Procedure\n\nPOSSIBLE P/N 2061-15-1",
    "breakers": "",
    "mel": "",
    "full": "Most Common FSEU (Flap/Slat Electronics Unit) Faults – B737 (Line Quick List)\n✅ 1. Flap/Slat Position Disagree\n\nMismatch between commanded vs actual position\n👉 Usually transmitter or rigging issue\n\n\n✅ 2. Proximity Sensors / TE Flap Switches\n\nFaulty position sensors (flaps/slats)\n👉 Causes:\nBad indications\nConfig warnings\n\n\n✅ 3. Wiring / Cannon Plugs\n\nEspecially in wing / flap track areas\n👉 #1 intermittent cause\n\n\n✅ 4. FSEU Internal Failure\n\nUnit logic fault or processing error\n👉 Replace after confirmation\n\n\n✅ 5. Autoslat System Faults\n\nAutoslat fail or asymmetry protection issues\n👉 Tied into FSEU logic\n\n\n✅ 6. Trailing Edge Flap Asymmetry Protection\n\nSystem trips due to uneven movement\n👉 Could be mechanical or sensor-driven\n\n\n✅ 7. Mode Select / Flap Lever Switch Issues\n\nFlap handle doesn’t match electrical signal\n👉 Causes config faults\n\n\n✅ 8. Takeoff Config Warning (FSEU-related)\n\nIncorrect flap input → T/O CONFIG light/horn\n👉 Often tied to:\nSensors\nRigging\nWiring\n\n\n✅ 9. Power Supply / CB Issues\n\nFSEU loses power → multiple flap/slat indications fail",
@@ -1190,5 +1190,5 @@
    ]
   }
  },
- "updated": "2026-06-08T22:30:22.332Z"
+ "updated": "2026-06-08T22:33:24.773Z"
 }
