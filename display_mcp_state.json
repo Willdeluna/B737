@@ -930,10 +930,10 @@
   "anti_skid_inop": {
    "purpose": "",
    "causes": [],
-   "bite": "",
+   "bite": "FIM Task 32-42-00-810-801\nAntiskid/Autobrake Control Unit (AACU) BITE Procedure",
    "breakers": "",
    "mel": "",
-   "full": ""
+   "full": "1. Fault Memory Recall\n\nSet PRESS/TEST-BIT switch → BIT\n\nCheck display:\n\nTEST END → No faults stored\nMessage shown → Fault exists\n\nIf message shown:\n\nWrite down maintenance message\nPress BIT again to scroll next fault\nContinue until TEST END\n\n⚠️ If no action within ~45 sec → display clears\n\n2. Display (Lamp/Segment) Test\n\nSet switch → PRESS/TEST\nVerify:\n\nDisplay shows checkerboard pattern (all segments ON)\nANTI SKID INOP light illuminates\n\n3. If Faults Found\nA. Missing Display Segments\n\nReplace AACU (M162)\nPerform AACU BITE again\nIf no message → problem fixed\n\n\nB. ANTI SKID INOP Light does NOT illuminate\n\n\nPress-to-test light (L2, P2-2 panel)\n\nIf fails → replace bulb or troubleshoot dim/test circuit\n\n\n\nCheck wiring continuity from:\n\nLight connector D339 pin 8 →\n\nD11402 pin 5 (Relay R626)\nD11406 pin 5 (Relay R628)\nD11404 pin 3 (Relay R627)\n\nIf no continuity → repair wiring\n\n\nRepeat AACU BITE"
   },
   "auto_brake_disarm_2": {
    "purpose": "",
@@ -986,10 +986,10 @@
    "color": "amber",
    "purpose": "",
    "causes": [],
-   "bite": "",
+   "bite": "FIM Task 32-42-00-810-801\nAntiskid/Autobrake Control Unit (AACU) BITE Procedure",
    "breakers": "",
    "mel": "",
-   "full": "",
+   "full": "1. Fault Memory Recall\n\nSet PRESS/TEST-BIT switch → BIT\n\nCheck display:\n\nTEST END → No faults stored\nMessage shown → Fault exists\n\nIf message shown:\n\nWrite down maintenance message\nPress BIT again to scroll next fault\nContinue until TEST END\n\n⚠️ If no action within ~45 sec → display clears\n\n2. Display (Lamp/Segment) Test\n\nSet switch → PRESS/TEST\nVerify:\n\nDisplay shows checkerboard pattern (all segments ON)\nANTI SKID INOP light illuminates\n\n3. If Faults Found\nA. Missing Display Segments\n\nReplace AACU (M162)\nPerform AACU BITE again\nIf no message → problem fixed\n\n\nB. ANTI SKID INOP Light does NOT illuminate\n\n\nPress-to-test light (L2, P2-2 panel)\n\nIf fails → replace bulb or troubleshoot dim/test circuit\n\n\n\nCheck wiring continuity from:\n\nLight connector D339 pin 8 →\n\nD11402 pin 5 (Relay R626)\nD11406 pin 5 (Relay R628)\nD11404 pin 3 (Relay R627)\n\nIf no continuity → repair wiring\n\n\nRepeat AACU BITE",
    "boxes": [
     {
      "x": 51.85,
@@ -1018,5 +1018,5 @@
    ]
   }
  },
- "updated": "2026-06-08T21:25:52.736Z"
+ "updated": "2026-06-08T21:30:28.428Z"
 }
