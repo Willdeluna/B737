@@ -993,6 +993,30 @@
    "breakers": "",
    "mel": "",
    "full": ""
+  },
+  "upper_center_du": {
+   "purpose": "Primary engine indications: N1, EGT, fuel flow, fuel quantity, TAT.\n\n\n\nPOSSIBLE P/N 4091900-942",
+   "causes": [
+    "DU blank/dim",
+    "Parameter dashes/no data",
+    "Source switching required",
+    "DEU failure",
+    "Display System Faults (DEU) – Quick List",
+    "DEU not seated",
+    "→ Loose unit → intermittent or blank display",
+    "Blocked air vents",
+    "→ Overheating → display shuts down",
+    "Insufficient cooling airflow",
+    "→ Cooling fan/duct issue → overheating",
+    "Coax cable problems",
+    "→ Signal loss/distortion between units",
+    "Display unit failure",
+    "→ Internal DU fault"
+   ],
+   "bite": "",
+   "breakers": "",
+   "mel": "",
+   "full": "Primary engine display. Relocatable via Display Select Panel (ENG PRI). Common Display System: two DEUs drive all six DUs; a single DEU can drive all displays degraded. Use the Display Select Panel to reconfigure after a DU/DEU failure."
   }
  },
  "custom": {
@@ -1190,5 +1214,5 @@
    ]
   }
  },
- "updated": "2026-06-08T22:33:26.162Z"
+ "updated": "2026-06-08T22:39:39.906Z"
 }
