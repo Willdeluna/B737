@@ -967,7 +967,7 @@
    "full": "FIM Task 31-51-00-810-803\nTakeoff Warning System Fault (No Warning or False warning) - Fault Isolation\n\nTask 31-51-00-740-801\nAural Warning Module BITE Test"
   },
   "a_p_rst": {
-   "purpose": "",
+   "purpose": "POSSIBLE P/N D434-56-001",
    "causes": [],
    "bite": "",
    "breakers": "",
@@ -979,7 +979,7 @@
   "a_p_rst": {
    "name": "A/P RST",
    "color": "amber",
-   "purpose": "",
+   "purpose": "POSSIBLE P/N D434-56-001",
    "causes": [],
    "bite": "",
    "breakers": "",
@@ -995,5 +995,5 @@
    ]
   }
  },
- "updated": "2026-06-08T20:39:36.079Z"
+ "updated": "2026-06-08T20:53:43.736Z"
 }
