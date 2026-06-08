@@ -968,7 +968,7 @@
    "bite": "FIM Task 27-51-00-810-801  E1-1 RACK\nFlap/Slat Electronics Unit (FSEU) BITE Procedure",
    "breakers": "",
    "mel": "",
-   "full": ""
+   "full": "Most Common FSEU (Flap/Slat Electronics Unit) Faults – B737 (Line Quick List)\n✅ 1. Flap/Slat Position Disagree\n\nMismatch between commanded vs actual position\n👉 Usually transmitter or rigging issue\n\n\n✅ 2. Proximity Sensors / TE Flap Switches\n\nFaulty position sensors (flaps/slats)\n👉 Causes:\nBad indications\nConfig warnings\n\n\n✅ 3. Wiring / Cannon Plugs\n\nEspecially in wing / flap track areas\n👉 #1 intermittent cause\n\n\n✅ 4. FSEU Internal Failure\n\nUnit logic fault or processing error\n👉 Replace after confirmation\n\n\n✅ 5. Autoslat System Faults\n\nAutoslat fail or asymmetry protection issues\n👉 Tied into FSEU logic\n\n\n✅ 6. Trailing Edge Flap Asymmetry Protection\n\nSystem trips due to uneven movement\n👉 Could be mechanical or sensor-driven\n\n\n✅ 7. Mode Select / Flap Lever Switch Issues\n\nFlap handle doesn’t match electrical signal\n👉 Causes config faults\n\n\n✅ 8. Takeoff Config Warning (FSEU-related)\n\nIncorrect flap input → T/O CONFIG light/horn\n👉 Often tied to:\nSensors\nRigging\nWiring\n\n\n✅ 9. Power Supply / CB Issues\n\nFSEU loses power → multiple flap/slat indications fail"
   },
   "n1_set_2": {
    "purpose": "✅ What it does\n\nUsed to select the engine thrust mode (N1 limit) for takeoff/climb\nSets how much engine power (N1%) the autothrottle will command\n\n\n✅ Positions visible\n\nAUTO → FMC automatically sets N1 limits (normal ops)\n1 / 2 → Selects assumed temperature / derate levels\n\n1 = lower thrust (derate)\n2 = further reduced thrust\n\nBOTH → Applies selection to both engines",
@@ -1125,7 +1125,7 @@
    "bite": "FIM Task 27-51-00-810-801  E1-1 RACK\nFlap/Slat Electronics Unit (FSEU) BITE Procedure",
    "breakers": "",
    "mel": "",
-   "full": "",
+   "full": "Most Common FSEU (Flap/Slat Electronics Unit) Faults – B737 (Line Quick List)\n✅ 1. Flap/Slat Position Disagree\n\nMismatch between commanded vs actual position\n👉 Usually transmitter or rigging issue\n\n\n✅ 2. Proximity Sensors / TE Flap Switches\n\nFaulty position sensors (flaps/slats)\n👉 Causes:\nBad indications\nConfig warnings\n\n\n✅ 3. Wiring / Cannon Plugs\n\nEspecially in wing / flap track areas\n👉 #1 intermittent cause\n\n\n✅ 4. FSEU Internal Failure\n\nUnit logic fault or processing error\n👉 Replace after confirmation\n\n\n✅ 5. Autoslat System Faults\n\nAutoslat fail or asymmetry protection issues\n👉 Tied into FSEU logic\n\n\n✅ 6. Trailing Edge Flap Asymmetry Protection\n\nSystem trips due to uneven movement\n👉 Could be mechanical or sensor-driven\n\n\n✅ 7. Mode Select / Flap Lever Switch Issues\n\nFlap handle doesn’t match electrical signal\n👉 Causes config faults\n\n\n✅ 8. Takeoff Config Warning (FSEU-related)\n\nIncorrect flap input → T/O CONFIG light/horn\n👉 Often tied to:\nSensors\nRigging\nWiring\n\n\n✅ 9. Power Supply / CB Issues\n\nFSEU loses power → multiple flap/slat indications fail",
    "boxes": [
     {
      "x": 54.82,
@@ -1190,5 +1190,5 @@
    ]
   }
  },
- "updated": "2026-06-08T22:28:14.251Z"
+ "updated": "2026-06-08T22:30:20.965Z"
 }
