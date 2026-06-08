@@ -965,7 +965,7 @@
   "flaps_position_indicator": {
    "purpose": "",
    "causes": [],
-   "bite": "",
+   "bite": "FIM Task 27-51-00-810-801  E1-1 RACK\nFlap/Slat Electronics Unit (FSEU) BITE Procedure",
    "breakers": "",
    "mel": "",
    "full": ""
@@ -1122,7 +1122,7 @@
    "color": "amber",
    "purpose": "",
    "causes": [],
-   "bite": "",
+   "bite": "FIM Task 27-51-00-810-801  E1-1 RACK\nFlap/Slat Electronics Unit (FSEU) BITE Procedure",
    "breakers": "",
    "mel": "",
    "full": "",
@@ -1190,5 +1190,5 @@
    ]
   }
  },
- "updated": "2026-06-08T22:23:29.833Z"
+ "updated": "2026-06-08T22:28:12.865Z"
 }
