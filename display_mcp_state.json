@@ -970,7 +970,7 @@
    "purpose": "POSSIBLE P/N D434-56-001\n\nAIPC Figure 31-11-21-03B\nPANEL INSTL-FWD (CAPTAIN'S PANEL ONLY)\n\nINSTALL  AMM \nTask 22-11-32-400-801\nAnnunciator - Installation",
    "causes": [],
    "bite": "",
-   "breakers": "",
+   "breakers": "Captain Panel P18-1\n\nC4 – AFCS SYS A MACH TRIM AC\nC5 – AFCS SYS A SNSR EXC AC\nD1 – AFCS SYS A WARN LIGHT (BAT)\nD3 – AFCS SYS A ENGAGE INTLK\nD4 – AFCS SYS A MACH TRIM DC\nD5 – AFCS MCP DC 1\nE1 – AUTOTHROTTLE DC 1\nE3 – AUTOTHROTTLE DC 2 (701–771)\n\n\nCaptain Panel P18-2\n\nA6 – FMCS CMPTR 1\n\n\nF/O Panel P6-2\n\nB1 – AFCS SYS B WARN LIGHT (BAT)\nB2 – AFCS SYS B MACH TRIM DC\nB4 – AFCS SYS B ENGAGE INTLK\nC1 – AFCS SYS B MACH TRIM AC\nC2 – AFCS SYS B SNSR EXC AC\nC3 – AFCS MCP DC 2\n\n\n(FCC Power)\n\nP18-1 D2 – AFCS SYS A FCC DC\nP6-2 B3 – AFCS SYS B FCC DC",
    "mel": "",
    "full": ""
   },
@@ -1011,7 +1011,7 @@
    "purpose": "POSSIBLE P/N D434-56-001\n\nAIPC Figure 31-11-21-03B\nPANEL INSTL-FWD (CAPTAIN'S PANEL ONLY)\n\nINSTALL  AMM \nTask 22-11-32-400-801\nAnnunciator - Installation",
    "causes": [],
    "bite": "",
-   "breakers": "",
+   "breakers": "Captain Panel P18-1\n\nC4 – AFCS SYS A MACH TRIM AC\nC5 – AFCS SYS A SNSR EXC AC\nD1 – AFCS SYS A WARN LIGHT (BAT)\nD3 – AFCS SYS A ENGAGE INTLK\nD4 – AFCS SYS A MACH TRIM DC\nD5 – AFCS MCP DC 1\nE1 – AUTOTHROTTLE DC 1\nE3 – AUTOTHROTTLE DC 2 (701–771)\n\n\nCaptain Panel P18-2\n\nA6 – FMCS CMPTR 1\n\n\nF/O Panel P6-2\n\nB1 – AFCS SYS B WARN LIGHT (BAT)\nB2 – AFCS SYS B MACH TRIM DC\nB4 – AFCS SYS B ENGAGE INTLK\nC1 – AFCS SYS B MACH TRIM AC\nC2 – AFCS SYS B SNSR EXC AC\nC3 – AFCS MCP DC 2\n\n\n(FCC Power)\n\nP18-1 D2 – AFCS SYS A FCC DC\nP6-2 B3 – AFCS SYS B FCC DC",
    "mel": "",
    "full": "",
    "boxes": [
@@ -1024,5 +1024,5 @@
    ]
   }
  },
- "updated": "2026-06-08T21:12:08.415Z"
+ "updated": "2026-06-08T21:13:47.423Z"
 }
