@@ -842,6 +842,14 @@
     "w": 1.87,
     "h": 1.97
    }
+  ],
+  "auto_brake_disarm_2": [
+   {
+    "x": 50.07,
+    "y": 20.52,
+    "w": 4,
+    "h": 4
+   }
   ]
  },
  "content": {
@@ -926,6 +934,14 @@
    "breakers": "",
    "mel": "",
    "full": ""
+  },
+  "auto_brake_disarm_2": {
+   "purpose": "",
+   "causes": [],
+   "bite": "",
+   "breakers": "",
+   "mel": "",
+   "full": ""
   }
  },
  "custom": {
@@ -982,7 +998,25 @@
      "h": 1.97
     }
    ]
+  },
+  "auto_brake_disarm_2": {
+   "name": "AUTO BRAKE DISARM",
+   "color": "amber",
+   "purpose": "",
+   "causes": [],
+   "bite": "",
+   "breakers": "",
+   "mel": "",
+   "full": "",
+   "boxes": [
+    {
+     "x": 50.07,
+     "y": 20.52,
+     "w": 4,
+     "h": 4
+    }
+   ]
   }
  },
- "updated": "2026-06-08T21:25:17.206Z"
+ "updated": "2026-06-08T21:25:43.681Z"
 }
