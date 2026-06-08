@@ -887,6 +887,14 @@
     "w": 1.2,
     "h": 2.59
    }
+  ],
+  "standby_attitude_indicator": [
+   {
+    "x": 33.64,
+    "y": 37.7,
+    "w": 4,
+    "h": 4
+   }
   ]
  },
  "content": {
@@ -955,6 +963,14 @@
    "breakers": "Captain Panel (P18-2)\nE3 – MACH WARN SYS-1\nFirst Officer Panels\nP6-1\nB7 – MACH WARN SYS-2\nP6-2\nA21 – FIRE PROTECTION DETECTION MASTER WARN & CONT\nP6-3\nC18 – LANDING GEAR TAKEOFF WARNING CUTOFF\nD18 – LANDING GEAR AURAL WARN",
    "mel": "",
    "full": "FIM Task 31-51-00-810-803\n\nTakeoff Warning System Fault (No Warning or False warning) - Fault Isolation\n\nTask 31-51-00-740-801\n\nAural Warning Module BITE Test"
+  },
+  "standby_attitude_indicator": {
+   "purpose": "",
+   "causes": [],
+   "bite": "",
+   "breakers": "",
+   "mel": "",
+   "full": ""
   }
  },
  "custom": {
@@ -975,7 +991,25 @@
      "h": 2.59
     }
    ]
+  },
+  "standby_attitude_indicator": {
+   "name": "STANDBY ATTITUDE INDICATOR",
+   "color": "amber",
+   "purpose": "",
+   "causes": [],
+   "bite": "",
+   "breakers": "",
+   "mel": "",
+   "full": "",
+   "boxes": [
+    {
+     "x": 33.64,
+     "y": 37.7,
+     "w": 4,
+     "h": 4
+    }
+   ]
   }
  },
- "updated": "2026-06-08T21:14:49.945Z"
+ "updated": "2026-06-08T21:17:58.022Z"
 }
