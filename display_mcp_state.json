@@ -158,15 +158,15 @@
     "h": 2.28
    },
    {
-    "x": 32.977402246185946,
-    "y": 24.99018413562544,
+    "x": 32.37555865228843,
+    "y": 25.848811600898486,
     "w": 3.8,
     "h": 4.2
    }
   ],
   "capt_nd": [
    {
-    "x": 22.34,
+    "x": 24.48,
     "y": 38.81,
     "w": 11.56,
     "h": 23.99
@@ -292,5 +292,5 @@
    "full": "DO THE LRU Replacement Test\nFIM Task 22-11-00-810-802\n\nDFCS BITE Test (CDU) – Simplified Procedure\nAccess DFCS BITE\n\nPress INIT REF\nSelect INDEX (if POS INIT page shows)\nSelect:\n\nMAINT\nDFCS\n\nIf messages appear (FCC-A FAIL / FCC-B FAIL / CROSS CHANNEL FAIL) → go to FIM task.\n\nLRU Replacement Test Setup\n\nSelect LRU REPLACEMENT TEST\nSelect channel:\n\nA, B, or A/B\n\nSelect desired LRU test (use NEXT/PREV if needed)\n\n\nAutotest\n\nFollow CDU prompts → “AUTOTEST IN PROGRESS”\nPASS: No faults (may clear too fast to see)\nFAIL: Run required library tests\nRecord: channel, suspect LRU, pin data\nOptional: TEST DATA → RERUN\n\nInteractive Test\n\nFollow CDU prompts\nPASS: “ALL TESTS PASSED”\nFAIL:\n\nCheck TEST RESULTS\nRecord channel, LRU, pins\nOptional rerun\n\nSurface Test (⚠️ Hydraulic hazard)\n\nKeep clear of all flight controls\nRun per CDU instructions\nPASS: No faults\nFAIL:\n\nCheck TEST RESULTS\nRecord channel, LRU, pins\nOptional rerun\n\nAfter Any Failure\n\nEach suspect LRU = maintenance message\nUse FIM table to find fault isolation task"
   }
  },
- "updated": "2026-06-08T20:03:26.064Z"
+ "updated": "2026-06-08T20:03:29.631Z"
 }
