@@ -973,6 +973,35 @@
    "breakers": "",
    "mel": "",
    "full": ""
+  },
+  "takeoff_config": {
+   "purpose": "It’s a no-go takeoff warning — the airplane is telling you: “Configuration is not safe for takeoff—fix before departure.”",
+   "causes": [
+    "Flaps not set correctly",
+    "Stabilizer trim not in takeoff range",
+    "Speedbrake not down",
+    "Parking brake set",
+    "In Flight (AIR) – No warning or false warning",
+    "Ground spoiler up interlock sensor (S1050)",
+    "Wiring faults",
+    "On Ground – No warning or false warning",
+    "Stabilizer Takeoff Warning Switches",
+    "S132, S546 (701–771)",
+    "S132, S1184, S546, S1183 (772–777, 801–999)",
+    "Other Inputs",
+    "S1049 – Ground spoiler up pressure switch",
+    "S651 – Speedbrake takeoff warning switch",
+    "S100 – Parking brake switch",
+    "SMYD 1 (M1747) – Stall Management/Yaw Damper",
+    "SMYD 2 (M1748)",
+    "M1766 – A/T switch S8 (Engine 1 pack)",
+    "M1767 – A/T switch S8 (Engine 2 pack)",
+    "Wiring faults"
+   ],
+   "bite": "PSEU\nTOW (Takeoff Warning) BITE Test – \n\nTurn PSEU BITE panel ON\nScroll to GROUND TESTS? → press YES\nScroll to T/O WARN TEST? → press YES\n\nResults\n\nTEST PASS → System OK\nMaintenance message shown → Go to FIM / message index for troubleshooting",
+   "breakers": "Captain Panel (P18-2)\nE3 – MACH WARN SYS-1\nFirst Officer Panels\nP6-1\nB7 – MACH WARN SYS-2\nP6-2\nA21 – FIRE PROTECTION DETECTION MASTER WARN & CONT\nP6-3\nC18 – LANDING GEAR TAKEOFF WARNING CUTOFF\nD18 – LANDING GEAR AURAL WARN",
+   "mel": "",
+   "full": "FIM Task 31-51-00-810-803\n\nTakeoff Warning System Fault (No Warning or False warning) - Fault Isolation\n\nTask 31-51-00-740-801\n\nAural Warning Module BITE Test"
   }
  },
  "custom": {
@@ -995,5 +1024,5 @@
    ]
   }
  },
- "updated": "2026-06-08T20:53:45.141Z"
+ "updated": "2026-06-08T20:54:50.371Z"
 }
