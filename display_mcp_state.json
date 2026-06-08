@@ -963,7 +963,7 @@
    "causes": [],
    "bite": "",
    "breakers": "P18-2 D9 – STBY ATT IND\nP6-3 B9 – PANEL & INSTR 28V PRI CAPT & CTR",
-   "mel": "",
+   "mel": "34-00-07 STANDBY HORIZON INDICATOR",
    "full": ""
   }
  },
@@ -993,7 +993,7 @@
    "causes": [],
    "bite": "",
    "breakers": "P18-2 D9 – STBY ATT IND\nP6-3 B9 – PANEL & INSTR 28V PRI CAPT & CTR",
-   "mel": "",
+   "mel": "34-00-07 STANDBY HORIZON INDICATOR",
    "full": "",
    "boxes": [
     {
@@ -1005,5 +1005,5 @@
    ]
   }
  },
- "updated": "2026-06-08T21:22:46.142Z"
+ "updated": "2026-06-08T21:24:20.699Z"
 }
