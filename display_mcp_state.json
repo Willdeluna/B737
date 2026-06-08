@@ -463,14 +463,7 @@
   "at_prst_capt": [],
   "fmc_prst_capt": [],
   "lights_test_capt": [],
-  "ap_prst_fo": [
-   {
-    "x": 69.2,
-    "y": 25.69,
-    "w": 1.39,
-    "h": 3.34
-   }
-  ],
+  "ap_prst_fo": [],
   "at_prst_fo": [],
   "fmc_prst_fo": [],
   "lights_test_fo": [],
@@ -989,5 +982,5 @@
    ]
   }
  },
- "updated": "2026-06-08T21:46:52.301Z"
+ "updated": "2026-06-08T21:46:54.596Z"
 }
