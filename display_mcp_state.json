@@ -164,10 +164,10 @@
     "h": 2.68
    },
    {
-    "x": 31.131939372661694,
-    "y": 19.325364263328453,
-    "w": 3.8,
-    "h": 4.2
+    "x": 30.36,
+    "y": 18.61,
+    "w": 3.6835462210256233,
+    "h": 4.097984563205893
    }
   ],
   "capt_nd": [
@@ -314,5 +314,5 @@
    "full": "FIM Task 31-51-00-810-803\nTakeoff Warning System Fault (No Warning or False warning) - Fault Isolation\n\nTask 31-51-00-740-801\nAural Warning Module BITE Test"
   }
  },
- "updated": "2026-06-08T20:24:07.258Z"
+ "updated": "2026-06-08T20:24:09.091Z"
 }
