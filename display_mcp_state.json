@@ -292,5 +292,5 @@
    "full": "Primary Flight Display driven by the CDS. Presents attitude, airspeed tape, altitude tape, vertical speed, heading and FMA. If the Captain outboard DU fails, the MAIN PANEL DUs selector on the Captain Display Select Panel can move the PFD to the inboard DU. Brightness is set with the OUTBD DU BRT control on the lower panel. Common Display System (CDS): two Display Electronic Units (DEU 1 & DEU 2) generate the imagery for all six DUs. A single DEU can drive all displays in a degraded mode. Use the Display Select Panel to reconfigure if a DU or DEU fails."
   }
  },
- "updated": "2026-06-08T19:28:31.665Z"
+ "updated": "2026-06-08T19:28:33.120Z"
 }
