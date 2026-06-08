@@ -979,7 +979,7 @@
    "full": ""
   },
   "speed_ref": {
-   "purpose": "",
+   "purpose": "✅ Positions shown\n\nAUTO → FMC automatically controls target speeds (normal)\nV1 → Reference takeoff decision speed\nVR → Reference rotation speed\nVREF → Landing reference speed\nWT → Weight-based reference speeds\nSET → Manual speed selection (crew sets speed)",
    "causes": [],
    "bite": "",
    "breakers": "",
@@ -1156,7 +1156,7 @@
   "speed_ref": {
    "name": "SPEED REF",
    "color": "amber",
-   "purpose": "",
+   "purpose": "✅ Positions shown\n\nAUTO → FMC automatically controls target speeds (normal)\nV1 → Reference takeoff decision speed\nVR → Reference rotation speed\nVREF → Landing reference speed\nWT → Weight-based reference speeds\nSET → Manual speed selection (crew sets speed)",
    "causes": [],
    "bite": "",
    "breakers": "",
@@ -1190,5 +1190,5 @@
    ]
   }
  },
- "updated": "2026-06-08T22:22:58.348Z"
+ "updated": "2026-06-08T22:23:28.328Z"
 }
