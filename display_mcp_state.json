@@ -812,6 +812,14 @@
     "w": 2.77,
     "h": 6.3
    }
+  ],
+  "fuel_flow_2": [
+   {
+    "x": 45.23482711687713,
+    "y": 29.890055353692762,
+    "w": 4,
+    "h": 4
+   }
   ]
  },
  "content": {
@@ -971,6 +979,14 @@
    "full": ""
   },
   "speed_ref": {
+   "purpose": "",
+   "causes": [],
+   "bite": "",
+   "breakers": "",
+   "mel": "",
+   "full": ""
+  },
+  "fuel_flow_2": {
    "purpose": "",
    "causes": [],
    "bite": "",
@@ -1154,7 +1170,25 @@
      "h": 6.3
     }
    ]
+  },
+  "fuel_flow_2": {
+   "name": "FUEL FLOW",
+   "color": "amber",
+   "purpose": "",
+   "causes": [],
+   "bite": "",
+   "breakers": "",
+   "mel": "",
+   "full": "",
+   "boxes": [
+    {
+     "x": 47,
+     "y": 31.28,
+     "w": 4,
+     "h": 4
+    }
+   ]
   }
  },
- "updated": "2026-06-08T22:22:23.673Z"
+ "updated": "2026-06-08T22:22:49.957Z"
 }
