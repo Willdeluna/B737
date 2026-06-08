@@ -552,14 +552,7 @@
   "auto_brake_disarm": [],
   "anti_skid": [],
   "flap_indicator": [],
-  "le_flaps_transit": [
-   {
-    "x": 52.54,
-    "y": 32.38,
-    "w": 2.14,
-    "h": 2.35
-   }
-  ],
+  "le_flaps_transit": [],
   "le_flaps_ext": [
    {
     "x": 54.69,
@@ -963,5 +956,5 @@
    ]
   }
  },
- "updated": "2026-06-08T21:24:44.526Z"
+ "updated": "2026-06-08T21:24:47.166Z"
 }
