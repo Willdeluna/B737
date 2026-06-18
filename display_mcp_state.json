@@ -744,6 +744,14 @@
     "w": 3.2,
     "h": 3.34
    }
+  ],
+  "speed_brake_do_not_arm": [
+   {
+    "x": 37.71373267405435,
+    "y": 34.121092373231676,
+    "w": 4,
+    "h": 4
+   }
   ]
  },
  "content": {
@@ -944,6 +952,14 @@
   },
   "master_caution": {
    "purpose": "MASTER CAUTION RESET (READ ALL) \n\nON P6-3 B12 MASTER CAUTION ANNUNCIATOR BUS 1) B13 (MASTER CAUTION ANNUNCIATOR BAT) \n\n  \n\nTHEN FOR ASSOCIATED FAULT OPEN THESE C/B'S \n\nFUEL P6-3 C11 (MC ANNUNCIATOR CONT) \n\nFLT CONT P6-3 C11 (MC ANNUNCIATOR CONT1) \n\nAPU P6-4 F14 (DC BUS INDICATION BAT) \n\nELEC P6-3 F14 (DC BUS INDICATION)  F16 (BAT BUS INDICATION) \n\nHYD P6-3 C11 (MC ANNUNCIATOR CONT 1) \n\nANTI-ICE P6-3 C12 (MASTER CAUTION ANNUNCIATOR CONT 2) \n\nAIR COND P6-3 C13 (MASTER CAUTION ANNUNCIATOR CONT 3) \n\nOVERHEAD P6-3 C14 (MASTER CAUTION ANNUNCIATOR CONT 4) \n\nDOOR P6-3 C12 (MASTER CAUTION ANNUNCIATOR CONT 2) \n\nENG P6-3 C13 (MASTER CAUTION ANNUNCIATOR CONT 3) \n\nIRS P6-3 C14 (MASTER CAUTION ANNUNCIATOR CONT 4) \n\nOVHT/DET P6-2 A21 (FIRE PROTECTION DET MASTER WARN&CONT) \n\n  \n\n**CLOSE ASSOCIATED SYSTEM AND THEN CLOSE B12,B13**",
+   "causes": [],
+   "bite": "",
+   "breakers": "",
+   "mel": "",
+   "full": ""
+  },
+  "speed_brake_do_not_arm": {
+   "purpose": "",
    "causes": [],
    "bite": "",
    "breakers": "",
@@ -1162,7 +1178,25 @@
      "h": 3.34
     }
    ]
+  },
+  "speed_brake_do_not_arm": {
+   "name": "Speed Brake Do Not Arm",
+   "color": "amber",
+   "purpose": "",
+   "causes": [],
+   "bite": "",
+   "breakers": "",
+   "mel": "",
+   "full": "",
+   "boxes": [
+    {
+     "x": 38.05,
+     "y": 33.56,
+     "w": 4,
+     "h": 4
+    }
+   ]
   }
  },
- "updated": "2026-06-18T20:13:03.183Z"
+ "updated": "2026-06-18T20:39:57.908Z"
 }
