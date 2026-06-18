@@ -959,7 +959,7 @@
    "full": ""
   },
   "speed_brake_do_not_arm": {
-   "purpose": "",
+   "purpose": "SPEEDBRAKE DO NOT ARM LIGHT ILLUMINATED AFTER A/G MODE ENGAGED \n\nRESET P6-2 A5 SPOILER PCU SOV SYS B",
    "causes": [],
    "bite": "",
    "breakers": "",
@@ -1182,7 +1182,7 @@
   "speed_brake_do_not_arm": {
    "name": "Speed Brake Do Not Arm",
    "color": "amber",
-   "purpose": "",
+   "purpose": "SPEEDBRAKE DO NOT ARM LIGHT ILLUMINATED AFTER A/G MODE ENGAGED \n\nRESET P6-2 A5 SPOILER PCU SOV SYS B",
    "causes": [],
    "bite": "",
    "breakers": "",
@@ -1198,5 +1198,5 @@
    ]
   }
  },
- "updated": "2026-06-18T20:40:04.123Z"
+ "updated": "2026-06-18T20:40:25.024Z"
 }
